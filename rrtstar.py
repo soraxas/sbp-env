@@ -3,11 +3,6 @@
 # rrtstar.py
 # This program generates a
 # asymptotically optimal rapidly exploring random tree (RRT* proposed by Sertac Keraman, MIT) in a rectangular region.
-#
-# Originally written by Steve LaValle, UIUC for simple RRT in
-# May 2011
-# Modified by Md Mahbubur Rahman, FIU for RRT* in
-# January 2016
 
 import sys
 import random
@@ -20,26 +15,34 @@ from checkCollision import *
 # constants
 XDIM = 640
 YDIM = 480
-WINSIZE = [XDIM, YDIM]
 EPSILON = 7.0
 NUMNODES = 2000
 RADIUS = 15
 fpsClock = pygame.time.Clock()
-OBS = [(500, 150, 100, 50), (300, 80, 100, 50), (150, 220, 100, 50)]
 
 GOAL_RADIUS = 10
 
 SCALING = 3
 
 img = None
-screen = None
+
 
 ############################################################
 
-def obsDraw(pygame, screen):
-    blue = (0, 0, 255)
-    for o in OBS:
-        pygame.draw.rect(screen, blue, o)
+def collides(p):    #check if point is white (which means free space)
+    global pygame, img
+    # make sure x and y is within image boundary
+    x = int(p[0])
+    y = int(p[1])
+    if x < 0 or x >= img.get_width() or y < 0 or y >= img.get_height():
+        # print(x, y)
+        return True
+    color = img.get_at((x, y))
+    white = 255, 255, 255
+    # print(color)
+    if color == pygame.Color(*white):
+        return False
+    return True
 
 
 def dist(p1, p2):
@@ -55,8 +58,9 @@ def step_from_to(p1, p2):
 
 
 def chooseParent(nn, newnode, nodes):
+    global img
     for p in nodes:
-        if checkIntersect(p, newnode, OBS) and dist(p.pos, newnode.pos) < RADIUS and p.cost + dist(p.pos, newnode.pos) < nn.cost + dist(nn.pos, newnode.pos):
+        if checkIntersect(p, newnode, img) and dist(p.pos, newnode.pos) < RADIUS and p.cost + dist(p.pos, newnode.pos) < nn.cost + dist(nn.pos, newnode.pos):
             nn = p
     newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
     newnode.parent = nn
@@ -64,17 +68,17 @@ def chooseParent(nn, newnode, nodes):
 
 
 def reWire(nodes, newnode, pygame, screen):
+    global img
     white = 255, 240, 200
     black = 20, 20, 40
     for i in range(len(nodes)):
         p = nodes[i]
-        if checkIntersect(p, newnode, OBS) and p != newnode.parent and dist(p.pos, newnode.pos) < RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost:
+        if checkIntersect(p, newnode, img) and p != newnode.parent and dist(p.pos, newnode.pos) < RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost:
             pygame.draw.line(screen, white, p.pos, p.parent.pos)
             p.parent = newnode
             p.cost = newnode.cost + dist(p.pos, newnode.pos)
             nodes[i] = p
             pygame.draw.line(screen, black, p.pos, newnode.pos)
-            print('rewired')
     return nodes
 
 
@@ -105,12 +109,15 @@ class Node:
 
 
 def main():
+    global pygame, img
+
     # initialize and prepare screen
     # a=checkIntersect()
     # print(a)
     pygame.init()
-
     img = pygame.image.load('map.png')
+    XDIM = img.get_width()
+    YDIM = img.get_height()
 
     screen = pygame.Surface( [XDIM, YDIM] )
     window = pygame.display.set_mode([XDIM * SCALING, YDIM * SCALING])
@@ -126,8 +133,7 @@ def main():
     green = 0, 255, 0
     blue = 0, 0, 255
     screen.fill(white)
-    obsDraw(pygame, screen)
-    # screen.blit(img,(0,0))
+    screen.blit(img,(0,0))
 
 
     nodes = []
@@ -171,7 +177,7 @@ def main():
         interpolatedNode = step_from_to(nn.pos, rand.pos)
 
         newnode = Node(interpolatedNode)
-        if checkIntersect(nn, rand, OBS):
+        if checkIntersect(nn, rand, img):
 
             [newnode, nn] = chooseParent(nn, newnode, nodes)
             # newnode.parent = nn
