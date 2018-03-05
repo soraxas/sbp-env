@@ -11,6 +11,7 @@ import pygame
 from pygame.locals import *
 from math import sqrt, cos, sin, atan2
 from checkCollision import *
+import numpy as np
 
 # constants
 XDIM = 640
@@ -25,6 +26,11 @@ GOAL_RADIUS = 10
 SCALING = 3
 
 img = None
+c_min = None
+x_center = None
+angle = None
+
+foundSolution = False
 
 
 ############################################################
@@ -46,7 +52,7 @@ def collides(p):    #check if point is white (which means free space)
 
 
 def dist(p1, p2):
-    return sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]))
+    return sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
 
 def step_from_to(p1, p2):
@@ -83,17 +89,39 @@ def reWire(nodes, newnode, pygame, screen):
 
 
 def drawSolutionPath(start, goal, nodes, pygame, screen):
+    if not foundSolution:
+        return
     pink = 200, 20, 240
-    nn = goal
-    # for p in nodes:
-    #     if dist(p.pos, goal.pos) < dist(nn.pos, goal.pos):
-    #         nn = p
+    nn = nodes[0]
+    for p in nodes:
+        if dist(p.pos, goal.pos) < dist(nn.pos, goal.pos):
+            nn = p
+    print('Cost: {}'.format(nn.cost))
     while nn != start:
         pygame.draw.line(screen, pink, nn.pos, nn.parent.pos, 5)
         nn = nn.parent
 
 
-def get_random_path():
+
+def get_random_path(c_max):
+    if c_max >0:
+        global c_min, x_center, angle
+        # already have a valid solution, optimise in ellipse region
+        r1 = c_max / 2
+        r2 = math.sqrt(abs(c_max**2 - c_min**2))
+
+        x = np.random.uniform(-1, 1)
+        y = np.random.uniform(-1, 1)
+
+        x2 =  x * r1 * math.cos(angle) + y * r2 * math.sin(angle)
+        y2 = -x * r1 * math.sin(angle) + y * r2 * math.cos(angle)
+
+        ##################################
+        ##################################
+        ##################################
+        return x2 + x_center[0] , y2 + x_center[1]
+
+    # Random path
     while True:
         p = random.random()*XDIM, random.random()*YDIM
         if not collides(p):
@@ -107,6 +135,8 @@ class Node:
     def __init__(self, pos):
         self.pos = pos
 
+def drawEllipse():
+    pass
 
 def main():
     global pygame, img
@@ -165,11 +195,23 @@ def main():
                     sys.exit("Leaving.")
         update(screen, window)
     ##################################################
+    # calculate information regarding shortest path
+    global c_min, x_center, angle
+    c_min = dist(startPt.pos, goalPt.pos)
+    x_center = (startPt.pos[0]+goalPt.pos[0])/2 , (startPt.pos[1]+goalPt.pos[1])/2
+    dy = goalPt.pos[1] - startPt.pos[1]
+    dx = goalPt.pos[0] - startPt.pos[0]
+    angle = math.atan2(-dy, dx)
+
+    ##################################################
+
+
 
     fpsClock.tick(10000)
+    c_max = -1
 
     for i in range(NUMNODES):
-        rand = Node(get_random_path())
+        rand = Node(get_random_path(c_max))
         nn = nodes[0]
         for p in nodes:
             if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
@@ -189,15 +231,32 @@ def main():
 
             if dist(newnode.pos, goalPt.pos) < GOAL_RADIUS:
                 print('Reached goal!')
-                goalPt.parent = newnode
+                # goalPt.parent = newnode
                 # drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
-                break
+                print(newnode.cost)
+                print(c_min)
+                print(x_center)
+                print(angle)
+                
+                global foundSolution
+                foundSolution = True
+                c_max = newnode.cost
+
+                # drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
+                # drawEllipse()
+                #
+                # # get_random_path(newnode.cost, screen=screen)
+                #
+                # update(screen, window)
+                # import time
+                # time.sleep(100)
+                # break
 
             for e in pygame.event.get():
                 if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                     sys.exit("Leaving.")
+        drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
         update(screen, window)
-    drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
     update(screen, window)
     exit()
 
