@@ -1,8 +1,9 @@
+import numpy as np
 
 def lineGenerationAlgorithm(p1, p2):
     pixels = []
     # edge case of p1 == p2
-    if p1 == p2:
+    if np.array_equal (p1,p2):
         return []
     # given 2 points, return a list that contain all pixel within the two point
     dx = p2[0] - p1[0]
