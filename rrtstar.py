@@ -2,7 +2,7 @@
 
 # rrtstar.py
 # This program generates a
-# asymptotically optimal rapidly exploring random tree (RRT* proposed by Sertac Keraman, MIT) in a rectangular region.
+# asymptotically optimal rapidly exploring random tree (RRT*) in a rectangular region.
 
 import sys
 import random
@@ -30,6 +30,7 @@ c_min = None
 x_center = None
 angle = None
 
+c_max = sys.maxsize
 foundSolution = False
 
 
@@ -87,24 +88,34 @@ def reWire(nodes, newnode, pygame, screen):
             pygame.draw.line(screen, black, p.pos, newnode.pos)
     return nodes
 
+# to force drawSolutionPath only draw once for every new solution
+solution_path_c_max = sys.maxsize
+solution_path_color = None
+
 
 def drawSolutionPath(start, goal, nodes, pygame, screen):
     if not foundSolution:
         return
-    pink = 200, 20, 240
+    global solution_path_c_max, solution_path_color, c_max
+    if solution_path_c_max > c_max:
+        # new color for new path
+        solution_path_c_max = c_max
+        solution_path_color = random.random()*255, random.random()*255, random.random()*255
+        print('Cost: {}'.format(c_max))
+
+    # redraw the old path
     nn = nodes[0]
     for p in nodes:
         if dist(p.pos, goal.pos) < dist(nn.pos, goal.pos):
             nn = p
-    print('Cost: {}'.format(nn.cost))
     while nn != start:
-        pygame.draw.line(screen, pink, nn.pos, nn.parent.pos, 5)
+        pygame.draw.line(screen, solution_path_color, nn.pos, nn.parent.pos, 5)
         nn = nn.parent
 
 
 
 def get_random_path(c_max):
-    if c_max >0:
+    if c_max != sys.maxsize: #max size represent infinite (not found solution yet)
         global c_min, x_center, angle
         # already have a valid solution, optimise in ellipse region
         r1 = c_max / 2
@@ -151,10 +162,20 @@ def main():
 
     screen = pygame.Surface( [XDIM, YDIM] )
     window = pygame.display.set_mode([XDIM * SCALING, YDIM * SCALING])
+    # solution_path_screen = pygame.Surface( [XDIM, YDIM], pygame.SRCALPHA, 32 )
+    # solution_path_screen = solution_path_screen.convert_alpha()
+    solution_path_screen = pygame.Surface( [XDIM, YDIM] )
+    ck = 255,0,255
+    solution_path_screen.fill(ck)
+    # solution_path_screen.set_colorkey(ck)
+    # solution_path_screen.set_alpha(255)
 
-    def update(screen, window):
+
+    def update():
         pygame.transform.scale(screen, (XDIM * SCALING, YDIM * SCALING), window)
+        # pygame.transform.scale(solution_path_screen, (XDIM * SCALING, YDIM * SCALING), window)
         pygame.display.update()
+        # screen.blit()
 
     pygame.display.set_caption('RRTstar')
     white = 255, 255, 255
@@ -162,7 +183,8 @@ def main():
     red = 255, 0, 0
     green = 0, 255, 0
     blue = 0, 0, 255
-    screen.fill(white)
+    # screen.fill(white)
+    window.blit(solution_path_screen,(0,0))
     screen.blit(img,(0,0))
 
 
@@ -193,7 +215,7 @@ def main():
                             screen, blue, goalPt.pos, GOAL_RADIUS)
                 elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                     sys.exit("Leaving.")
-        update(screen, window)
+        update()
     ##################################################
     # calculate information regarding shortest path
     global c_min, x_center, angle
@@ -208,7 +230,7 @@ def main():
 
 
     fpsClock.tick(10000)
-    c_max = -1
+    global foundSolution, c_max
 
     for i in range(NUMNODES):
         rand = Node(get_random_path(c_max))
@@ -233,14 +255,14 @@ def main():
                 print('Reached goal!')
                 # goalPt.parent = newnode
                 # drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
-                print(newnode.cost)
-                print(c_min)
-                print(x_center)
-                print(angle)
-                
-                global foundSolution
+                # print(newnode.cost)
+                # print(c_min)
+                # print(x_center)
+                # print(angle)
+
                 foundSolution = True
-                c_max = newnode.cost
+                if newnode.cost < c_max:
+                    c_max = newnode.cost
 
                 # drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
                 # drawEllipse()
@@ -255,9 +277,9 @@ def main():
             for e in pygame.event.get():
                 if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                     sys.exit("Leaving.")
-        drawSolutionPath(startPt, goalPt, nodes, pygame, screen)
-        update(screen, window)
-    update(screen, window)
+        drawSolutionPath(startPt, goalPt, nodes, pygame, solution_path_screen)
+        update()
+    update()
     exit()
 
 
