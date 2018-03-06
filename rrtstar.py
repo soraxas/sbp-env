@@ -87,11 +87,11 @@ def reWire(nodes, newnode, pygame, screen):
     for i in range(len(nodes)):
         p = nodes[i]
         if checkIntersect(p, newnode, img) and p != newnode.parent and dist(p.pos, newnode.pos) < RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost:
-            pygame.draw.line(screen, white, p.pos, p.parent.pos)
+            pygame.draw.line(screen, white, p.pos*SCALING, p.parent.pos*SCALING, SCALING)
             p.parent = newnode
             p.cost = newnode.cost + dist(p.pos, newnode.pos)
             nodes[i] = p
-            pygame.draw.line(screen, black, p.pos, newnode.pos)
+            pygame.draw.line(screen, black, p.pos*SCALING, newnode.pos*SCALING, SCALING)
     return nodes
 
 # to force drawSolutionPath only draw once for every new solution
@@ -109,7 +109,7 @@ def drawSolutionPath(start, goal, nodes, pygame, screen):
         if dist(p.pos, goal.pos) < dist(nn.pos, goal.pos):
             nn = p
     while nn != start:
-        pygame.draw.line(screen, green, nn.pos, nn.parent.pos, 5)
+        pygame.draw.line(screen, green, nn.pos*SCALING, nn.parent.pos*SCALING, 5*SCALING)
         nn = nn.parent
 
 
@@ -162,7 +162,6 @@ def main():
     red = 255, 0, 0
     blue = 0, 0, 255
     # screen.fill(white)
-
     ################################################################################
     # text
     pygame.font.init()
@@ -175,10 +174,10 @@ def main():
     background = pygame.Surface( [XDIM, YDIM] )
     background.blit(img,(0,0))
     # resize background to match windows
-    background = pygame.transform.scale(background, (XDIM * SCALING, YDIM * SCALING))
+    background = pygame.transform.scale(background, [XDIM * SCALING, YDIM * SCALING])
     ################################################################################
     # path of RRT*
-    path_layers = pygame.Surface( [XDIM, YDIM] )
+    path_layers = pygame.Surface( [XDIM * SCALING, YDIM * SCALING] )
     path_layers.fill(ALPHA_CK)
     path_layers.set_colorkey(ALPHA_CK)
     # rescale to make it bigger
@@ -187,7 +186,7 @@ def main():
     path_layers_rescale.set_colorkey(ALPHA_CK)
     ################################################################################
     # layers to store the solution path
-    solution_path_screen = pygame.Surface( [XDIM, YDIM] )
+    solution_path_screen = pygame.Surface( [XDIM * SCALING, YDIM * SCALING] )
     solution_path_screen.fill(ALPHA_CK)
     solution_path_screen.set_colorkey(ALPHA_CK)
     # rescale to make it bigger
@@ -202,23 +201,28 @@ def main():
     num_nodes = 0
 
     def update():
-        pygame.transform.scale(path_layers, (XDIM * SCALING, YDIM * SCALING), path_layers_rescale)
-        pygame.transform.scale(solution_path_screen, (XDIM * SCALING, YDIM * SCALING), solution_path_screen_rescale)
+        # pygame.transform.scale(path_layers, (XDIM * SCALING, YDIM * SCALING), path_layers_rescale)
+        # pygame.transform.scale(solution_path_screen, (XDIM * SCALING, YDIM * SCALING), solution_path_screen_rescale)
 
-        window.blit(background,(0,0))
-        window.blit(path_layers_rescale,(0,0))
-        window.blit(solution_path_screen_rescale,(0,0))
+        # limites the screen update
+        if num_nodes % 100 == 0:
+            window.blit(background,(0,0))
 
-        if startPt is not None:
-            pygame.draw.circle(path_layers, red, startPt.pos, GOAL_RADIUS)
-        if goalPt is not None:
-            pygame.draw.circle(path_layers, blue, goalPt.pos, GOAL_RADIUS)
+        if num_nodes % 5 == 0:
+            window.blit(path_layers,(0,0))
+            window.blit(solution_path_screen,(0,0))
 
-        _cost = 'INF' if c_max == INFINITE else round(c_max, 2)
-        text = 'Cost_min:  {}   |   Nodes:  {}'.format(_cost, num_nodes)
-        window.blit(myfont.render(text, False, (0, 0, 0)), (20,YDIM * SCALING * 0.9))
+            if startPt is not None:
+                pygame.draw.circle(path_layers, red, startPt.pos*SCALING, GOAL_RADIUS*SCALING)
+            if goalPt is not None:
+                pygame.draw.circle(path_layers, blue, goalPt.pos*SCALING, GOAL_RADIUS*SCALING)
 
-        pygame.display.update()
+        if num_nodes % 2 == 0:
+            _cost = 'INF' if c_max == INFINITE else round(c_max, 2)
+            text = 'Cost_min:  {}   |   Nodes:  {}'.format(_cost, num_nodes)
+            window.blit(myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,YDIM * SCALING * 0.9))
+
+            pygame.display.update()
 
     nodes = []
     ##################################################
@@ -274,7 +278,7 @@ def main():
             # newnode.parent = nn
 
             nodes.append(newnode)
-            pygame.draw.line(path_layers, black, nn.pos, newnode.pos)
+            pygame.draw.line(path_layers, black, nn.pos*SCALING, newnode.pos*SCALING, SCALING)
             nodes = reWire(nodes, newnode, pygame, path_layers)
             pygame.display.update()
 
