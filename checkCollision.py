@@ -85,6 +85,17 @@ def lineGenerationAlgorithm(p1, p2):
         pixels.append((int(x), int(y)))
     return pixels
 
+# import kde
+# counter = 0
+# kernel = None
+# def checkIntersect(nodeA,nodeB,img):
+#     # initialise
+#     if kernel is None:
+#         kernel = kde()
+#     # log the answer
+#     ans = checkIntersect1(nodeA, nodeB, img)
+#     # see if we want to display
+
 
 def checkIntersect(nodeA,nodeB,img):
     white = 255, 255, 255
