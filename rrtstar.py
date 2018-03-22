@@ -27,7 +27,7 @@ GOAL_RADIUS = 10
 
 SCALING = 2
 
-GOAL_BIAS = 0.05
+GOAL_BIAS = 0.01
 
 distinguishLockedBlock = True
 
@@ -362,21 +362,43 @@ class RRT:
         ##################################################
 
         self.fpsClock.tick(10000)
-
+        goal_bias_success = False
         for i in range(self.NUMNODES):
             # probabiilty to bias toward goal (while not reaching goal yet)
-            if self.c_max == INFINITE and random.random() < GOAL_BIAS:
+            if self.c_max != INFINITE:
+                self.wait_for_exit()
+                pass
+
+            if self.c_max == INFINITE and (random.random() < GOAL_BIAS or goal_bias_success):
                 rand = Node(np.array(self.goalPt.pos))
                 preRandomPt = None
+                print("Goal Bias! @ {}".format(i))
             else:
                 rand = Node(self.get_random_path())
                 preRandomPt = rand
-            nn = self.nodes[0]
-            for p in self.nodes:
-                if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
-                    nn = p
-            interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
 
+            nn = self.nodes[0]
+            if preRandomPt is not None:
+                # for Non-goal bias, we pick the cloest point
+                for p in self.nodes:
+                    if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
+                        nn = p
+            else:
+                # for goal bias, we pick a point that is not blocked
+                nn = None
+                for p in self.nodes:
+                    if checkIntersect(p, rand, self.img):
+                        nn = p
+                        break
+                if nn is not None:
+                    for p in self.nodes:
+                        if checkIntersect(p, rand, self.img) and ((dist(p.pos, rand.pos) < dist(nn.pos, rand.pos))):
+                            nn = p
+                else:
+                    # cannot find, use base case
+                    nn = self.nodes[0]
+
+            interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
             newnode = Node(interpolatedPoint)
             if not checkIntersect(nn, rand, self.img):
                 self.addInvalidPoint(preRandomPt, True)
@@ -395,9 +417,10 @@ class RRT:
                     # print(points)
                     for p in points:
                         self.addInvalidPoint(p, False, alreadyDividedByProbBlockSize=True)
-
+                else:
+                    # Reaching this point means the goal bias had been successful. Go directly to the goal!
+                    goal_bias_success = True
                 #######################
-
                 [newnode, nn] = self.chooseParent(nn, newnode)
                 # newnode.parent = nn
 
@@ -417,6 +440,11 @@ class RRT:
                     if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
             self.update_screen(i)
+
+        self.wait_for_exit()
+
+    def wait_for_exit(self):
+        self.update_screen()
         # wait for exit
         while True:
             for e in pygame.event.get():
@@ -424,7 +452,7 @@ class RRT:
                     sys.exit("Leaving.")
 
 
-    def update_screen(self, counter):
+    def update_screen(self, counter=-10):
         # limites the screen update
         # if counter % 100 == 0:
         if counter % 10 == 0:
@@ -458,7 +486,7 @@ class RRT:
                 pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*SCALING, GOAL_RADIUS*SCALING)
 
 
-        if counter % 2 == 0:
+        if counter % 2 == 0 and counter >= 0:
             _cost = 'INF' if self.c_max == INFINITE else round(self.c_max, 2)
             text = 'Cost_min: {}  | Nodes: {}  |  Invalid sample: {}(temp) {}(perm)'.format(_cost, counter, self.invalid_sample, self.invalid_sample_perma)
             self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.9))
@@ -467,7 +495,7 @@ class RRT:
             #     text = 'kernel_pt:  {}  |  kernel_pt_perma:  {}  '.format(len(kernel_pts[0]), len(kernel_perma_pts[0]))
             #     self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.95))
 
-            pygame.display.update()
+        pygame.display.update()
 
 
 # if python says run, then we should run
