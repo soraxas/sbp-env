@@ -221,7 +221,7 @@ class RRT:
 
 
 
-    def addInvalidPoint(self,p, blockedSpace, perma=False):
+    def addInvalidPoint(self,p, blockedSpace, perma=False, alreadyDividedByProbBlockSize=False):
         if p is None:
             return
         try:
@@ -230,8 +230,12 @@ class RRT:
             pass
 
         if True:
-            x = int(p[0]/self.PROB_BLOCK_SIZE)
-            y = int(p[1]/self.PROB_BLOCK_SIZE)
+            if not alreadyDividedByProbBlockSize:
+                x = int(p[0]/self.PROB_BLOCK_SIZE)
+                y = int(p[1]/self.PROB_BLOCK_SIZE)
+            else:
+                x = p[0]
+                y = p[1]
             if x < 0 or x >= self.prob_vector.shape[0] or \
                 y < 0 or y >= self.prob_vector.shape[1]:
                     return
@@ -371,18 +375,29 @@ class RRT:
             for p in self.nodes:
                 if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
                     nn = p
-            interpolatedNode = self.step_from_to(nn.pos, rand.pos)
+            interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
 
-            newnode = Node(interpolatedNode)
+            newnode = Node(interpolatedPoint)
             if not checkIntersect(nn, rand, self.img):
                 self.addInvalidPoint(preRandomPt, True)
                 self.invalid_sample += 1
             else:
-                x = int(interpolatedNode[0] / self.PROB_BLOCK_SIZE)
-                y = int(interpolatedNode[1] / self.PROB_BLOCK_SIZE)
+                x = int(interpolatedPoint[0] / self.PROB_BLOCK_SIZE)
+                y = int(interpolatedPoint[1] / self.PROB_BLOCK_SIZE)
                 self.prob_vector[x][y] = 30
                 self.prob_vector_locks[x][y] = 1
-                self.addInvalidPoint(preRandomPt, False)
+
+                if preRandomPt is not None:
+                    # add all in between point of nearest node of the random pt as valid
+                    x1 = int(preRandomPt.pos[0] / self.PROB_BLOCK_SIZE)
+                    y1 = int(preRandomPt.pos[1] / self.PROB_BLOCK_SIZE)
+                    points = get_line((x,y), (x1,y1))
+                    # print(points)
+                    for p in points:
+                        self.addInvalidPoint(p, False, alreadyDividedByProbBlockSize=True)
+
+                #######################
+
                 [newnode, nn] = self.chooseParent(nn, newnode)
                 # newnode.parent = nn
 
