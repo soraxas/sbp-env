@@ -63,7 +63,7 @@ from matplotlib import pyplot as plt
 
 class RRT:
 
-    def __init__(self, image, epsilon, max_number_nodes, radius):
+    def __init__(self, image, epsilon, max_number_nodes, radius, prob_block_size):
         # initialize and prepare screen
         pygame.init()
         self.img = pygame.image.load(image)
@@ -82,13 +82,15 @@ class RRT:
 
         self.num_invalid_pt = 0
 
-        self.PROB_BLOCK_SIZE = 12
+        self.PROB_BLOCK_SIZE = prob_block_size
 
         shape = (int(self.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.YDIM/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(shape)
         self.prob_vector *= 20
         self.prob_vector_normalized = None
         self.prob_vector_locks = np.zeros(shape)
+
+        self.tree_vector = np.ones(shape)
 
 
         pygame.display.set_caption('RRTstar')
@@ -298,6 +300,7 @@ class RRT:
                 pass
                 self.prob_vector_normalized = np.copy(self.prob_vector)
                 self.prob_vector_normalized = sp.ndimage.filters.gaussian_filter(self.prob_vector_normalized, sigma, mode='reflect')
+                self.prob_vector_normalized *= 1/self.tree_vector
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
             self.num_invalid_pt += 1
             # import time
@@ -406,9 +409,10 @@ class RRT:
             else:
                 x = int(interpolatedPoint[0] / self.PROB_BLOCK_SIZE)
                 y = int(interpolatedPoint[1] / self.PROB_BLOCK_SIZE)
-                self.prob_vector[x][y] = 30
-                self.prob_vector_locks[x][y] = 1
+                # self.prob_vector[x][y] = 30
+                # self.prob_vector_locks[x][y] = 1
 
+                self.tree_vector[x][y] += 1
                 if preRandomPt is not None:
                     # add all in between point of nearest node of the random pt as valid
                     x1 = int(preRandomPt.pos[0] / self.PROB_BLOCK_SIZE)
@@ -451,6 +455,14 @@ class RRT:
                 if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                     sys.exit("Leaving.")
 
+    def get_vector_alpha_parameters(self, vector):
+        max_prob = self.prob_vector_normalized.max()
+        min_prob = self.prob_vector_normalized.min()
+        denominator = max_prob-min_prob
+        if denominator == 0:
+            denominator = 1 # prevent division by zero
+        return max_prob, min_prob, denominator
+
 
     def update_screen(self, counter=-10):
         # limites the screen update
@@ -461,15 +473,15 @@ class RRT:
             # prob likelihoods
             # self.prob_vector_normalized = prob_vector
             if self.prob_vector_normalized is not None:
-                max_prob = self.prob_vector_normalized.max()
-                min_prob = self.prob_vector_normalized.min()
                 for i in range(self.prob_vector_normalized.shape[0]):
                     for j in range(self.prob_vector_normalized.shape[1]):
-                        a = max_prob-min_prob
-                        if a == 0:
-                            a = 1 # prevent division by zero
-                        alpha = 240 * (1 -(self.prob_vector_normalized[i][j]-min_prob)/a)
-                        if distinguishLockedBlock and self.prob_vector_locks[i][j]:
+                        max_max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.prob_vector_normalized)
+                        alpha = 240 * (1 -(self.prob_vector_normalized[i][j]-min_prob)/denominator)
+
+                        distinguishLockedBlock = False
+                        if distinguishLockedBlock and self.tree_vector[i][j] > 1:
+                            max_max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.tree_vector)
+                            alpha = 240 * (1 - (self.prob_vector_normalized[i][j]-min_prob)/denominator)
                             self.prob_layer.fill((0,255,0,alpha))
                         else:
                             self.prob_layer.fill((255,128,255,alpha))
@@ -503,7 +515,7 @@ if __name__ == '__main__':
     epsilon = 7.0
     max_number_nodes = 2000
     radius = 15
-    rrt = RRT(image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius)
+    rrt = RRT(image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius, prob_block_size=8)
     rrt.run()
     running = True
     while running:
