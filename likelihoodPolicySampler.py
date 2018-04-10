@@ -26,14 +26,17 @@ class LikelihoodPolicySampler:
 
         shape = (int(self.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.YDIM/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(shape)
-        self.prob_vector *= 20
+        self.prob_vector *= 2 # IMPORTANT because we are using log2
+        self.obst_vector = np.ones(shape)
+        # self.prob_vector *= 20
         self.prob_vector_normalized = None
         self.tree_vector = np.ones(shape)
 
         self.sampleCount = 0
 
     def getNextNode(self):
-        if self.prob_vector_normalized is None:
+        if self.prob_vector_normalized is None or random.random() < 0.05:
+            print('rand')
             return self.randomSampler.getNextNode()
         while True:
             choice = np.random.choice(range(self.prob_vector_normalized.size), p=self.prob_vector_normalized.ravel())
@@ -69,42 +72,57 @@ class LikelihoodPolicySampler:
             p = p.pos
         except AttributeError as e:
             pass
+        if 'alreadyDividedByProbBlockSize' not in kwargs:
+        # if not alreadyDividedByProbBlockSize:
+            x = int(p[0]/self.PROB_BLOCK_SIZE)
+            y = int(p[1]/self.PROB_BLOCK_SIZE)
+        else:
+            x = p[0]
+            y = p[1]
+        if x < 0 or x >= self.prob_vector.shape[0] or \
+            y < 0 or y >= self.prob_vector.shape[1]:
+                return
 
-        if True:
-            if 'alreadyDividedByProbBlockSize' not in kwargs:
-            # if not alreadyDividedByProbBlockSize:
-                x = int(p[0]/self.PROB_BLOCK_SIZE)
-                y = int(p[1]/self.PROB_BLOCK_SIZE)
+        # print(p)
+        # exit()
+        # ^ setting the right coor ^
+        ###############################
+        factor = 1.5
+
+        if 'obstacle' in kwargs:
+            self.obst_vector[x][y] += 2
+        elif not kwargs['free']:
+            self.obst_vector[x][y] += 1
+            # self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
+            # if self.prob_vector[x][y] < 5:
+                # self.prob_vector[x][y] = 5
+            # print(p)
+        elif kwargs['free']:
+            if 'weight' in kwargs:
+                self.prob_vector[x][y] += kwargs['weight']
             else:
-                x = p[0]
-                y = p[1]
-            if x < 0 or x >= self.prob_vector.shape[0] or \
-                y < 0 or y >= self.prob_vector.shape[1]:
-                    return
-
-            factor = 1.5
-
-            if 'obstacle' in kwargs or not kwargs['free']:
-                self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
-                if self.prob_vector[x][y] < 5:
-                    self.prob_vector[x][y] = 5
-            else:
-                self.prob_vector[x][y] = 100
-                if False:
-                        self.prob_vector[x][y] += (100-self.prob_vector[x][y])*0.5
-                        if self.prob_vector[x][y] > 100:
-                            self.prob_vector[x][y] = 100
+                self.prob_vector[x][y] += 1
+                # self.prob_vector[x][y] = 10
+            self.obst_vector[x][y] = 1
 
     #########################################################
 
-            sigma_y = 1.0
-            sigma_x = 1.0
+            sigma_y = 2.0
+            sigma_x = 2.0
             sigma = [sigma_y, sigma_x]
             if self.sampleCount % 200 == 0:
                 pass
-                self.prob_vector_normalized = np.copy(self.prob_vector)
-                self.prob_vector_normalized *= 1/self.tree_vector
+                self.prob_vector_normalized = np.copy(np.log2(self.prob_vector))
+                # self.prob_vector_normalized = np.f.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
+            # if self.prob_vector[x][y] < 5:
+                # self.prob_vector[copy(self.prob_vector)
+                tree_vector_normalized = np.copy(self.tree_vector)
+                tree_vector_normalized = sp.ndimage.filters.gaussian_filter(tree_vector_normalized, (1.0,1.0), mode='reflect')
+                # self.prob_vector_normalized = tree_vector_normalized
+                self.prob_vector_normalized *= (1/self.obst_vector * 3)
                 self.prob_vector_normalized = sp.ndimage.filters.gaussian_filter(self.prob_vector_normalized, sigma, mode='reflect')
+                self.prob_vector_normalized *= (1/tree_vector_normalized * 1.5)
+                # self.prob_vector_normalized *= (1/self.tree_vector * 1.5)
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
             self.sampleCount += 1
 

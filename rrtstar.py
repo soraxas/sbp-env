@@ -23,7 +23,7 @@ GOAL_RADIUS = 10
 
 SCALING = 2
 
-GOAL_BIAS = 0.01
+GOAL_BIAS = 0.005
 
 
 ##################################################
@@ -237,23 +237,21 @@ class RRT:
 
             if self.c_max == INFINITE and self.goalBias and (random.random() < GOAL_BIAS or goal_bias_success):
                 # GOAL BIAS
-                rand = Node(np.array(self.goalPt.pos))
                 preRandomPt = None
                 print("Goal Bias! @ {}".format(self.stats.valid_sample))
                 # for goal bias, we pick a point that is not blocked
+                # nn = None
                 nn = None
                 for p in self.nodes:
-                    if checkIntersect(p, rand, self.img):
-                        nn = p
-                        break
-                if nn is not None:
-                    for p in self.nodes:
-                        if checkIntersect(p, rand, self.img) and ((dist(p.pos, rand.pos) < dist(nn.pos, rand.pos))):
+                    if checkIntersect(p, self.goalPt, self.img):
+                        if nn is None:
+                            goal_bias_success = True
+                            newnode = self.goalPt
                             nn = p
-                else:
-                    # cannot find, use base case
-                    nn = self.nodes[0]
-            else:
+                        if dist(p.pos, self.goalPt.pos) < dist(nn.pos, self.goalPt.pos):
+                            nn = p
+
+            if not goal_bias_success:
                 rand = Node(self.sampler.getNextNode())
                 preRandomPt = rand
                 nn = self.nodes[0]
@@ -262,9 +260,8 @@ class RRT:
                     if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
                         nn = p
 
-
-            interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
-            newnode = Node(interpolatedPoint)
+                interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
+                newnode = Node(interpolatedPoint)
 
             if self.check_entire_path:
                 ## CHECK entire PATH
@@ -274,11 +271,12 @@ class RRT:
                 checkingNode = newnode
             if not checkIntersect(nn, checkingNode, self.img):
                 self.sampler.addSample(p=preRandomPt, free=False)
+                # self.sampler.addSample(p=preRandomPt, free=True, weight=10)
                 self.stats.addInvalid(perm=False)
             else:
                 self.stats.addFree()
-                x = interpolatedPoint[0]
-                y = interpolatedPoint[1]
+                x = newnode.pos[0]
+                y = newnode.pos[1]
                 try:
                     self.sampler.addTreeNode(x, y)
                 except AttributeError:
@@ -296,11 +294,11 @@ class RRT:
                     except AttributeError:
                         pass
                 else:
-                    # Reaching this point means the goal bias had been successful. Go directly to the goal!
-                    goal_bias_success = True
+                    if checkIntersect(nn, rand, self.img):
+                        # Reaching this point means the goal bias had been successful. Go directly to the goal!
+                        goal_bias_success = True
                 #######################
                 [newnode, nn] = self.chooseParent(nn, newnode)
-                # newnode.parent = nn
 
                 self.nodes.append(newnode)
                 pygame.draw.line(self.path_layers, black, nn.pos*SCALING, newnode.pos*SCALING, SCALING)
