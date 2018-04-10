@@ -102,6 +102,17 @@ def lineGenerationAlgorithm(p1, p2):
 #     # see if we want to display
 
 
+def getCoorBeforeCollision(nodeA,nodeB,img):
+    pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
+    # check that all pixel are white (free space)
+    endPos = nodeB.pos
+    for p in pixels:
+        endPos = (p[0], p[1])
+        color = img.get_at(endPos)
+        if color != (255, 255, 255) and color != (255, 255, 255, 255):
+            break
+    return nodeA.pos, endPos
+
 def checkIntersect(nodeA,nodeB,img):
     white = 255, 255, 255
     # get list of pixel between node A and B
