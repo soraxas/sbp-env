@@ -257,14 +257,13 @@ class RRT:
                     # if not perma:
                         # if prob_vector[x][y] > :
                             # prob_vector[x][y] -= 1
-                            self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.2
-                            if self.prob_vector[x][y] < 15:
-                                self.prob_vector[x][y] = 15
+                    self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
+                    if self.prob_vector[x][y] < 5:
+                        self.prob_vector[x][y] = 5
                     # else:
                         # pass
                         # prob_vector[x][y] = 0
                         # prob_vector_locks[x][y] = 1
-
                 else:
                     # if False:
                     # fix it at 75%
@@ -456,8 +455,8 @@ class RRT:
                     sys.exit("Leaving.")
 
     def get_vector_alpha_parameters(self, vector):
-        max_prob = self.prob_vector_normalized.max()
-        min_prob = self.prob_vector_normalized.min()
+        max_prob = vector.max()
+        min_prob = vector.min()
         denominator = max_prob-min_prob
         if denominator == 0:
             denominator = 1 # prevent division by zero
