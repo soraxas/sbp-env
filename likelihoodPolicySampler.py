@@ -2,6 +2,9 @@
 import numpy as np
 import random
 import pygame
+import scipy as sp
+import scipy.ndimage
+
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
 
@@ -78,56 +81,22 @@ class LikelihoodPolicySampler:
             if x < 0 or x >= self.prob_vector.shape[0] or \
                 y < 0 or y >= self.prob_vector.shape[1]:
                     return
-            # # print('{},{}'.format(x,y))
+
             factor = 1.5
-            # max_allow = (1 / prob_vector.size) * 2 # max prob allow to prevent over concentration
-            # min_allow = 1 / prob_vector.size / 2
 
             if 'obstacle' in kwargs or not kwargs['free']:
-            #     # prob_vector[x][y] = 1
-            #     if prob_vector[x][y] < max_allow:
-            #         # prob_vector[x][y] = max_allow
-                    # prob_vector[x][y] /= factor
-                    # prob_vector[x][y] = 0
-            #         print(prob_vector[x][y])
-                # pass
-                # if not perma:
-                    # if prob_vector[x][y] > :
-                        # prob_vector[x][y] -= 1
                 self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
                 if self.prob_vector[x][y] < 5:
                     self.prob_vector[x][y] = 5
-                # else:
-                    # pass
-                    # prob_vector[x][y] = 0
-                    # prob_vector_locks[x][y] = 1
             else:
-                # if False:
-                # fix it at 75%
                 self.prob_vector[x][y] = 100
-                # self.prob_vector_locks[x][y] = 1
-                # pass
                 if False:
-                    # if self.prob_vector[x][y] < 100:
-                        # prob_vector[x][y] += 1
                         self.prob_vector[x][y] += (100-self.prob_vector[x][y])*0.5
                         if self.prob_vector[x][y] > 100:
                             self.prob_vector[x][y] = 100
-                        # prob_vector[x][y] = 100
-            #     if prob_vector[x][y] > min_allow:
-                    # prob_vector[x][y] *= factor
-            #     # prob_vector[x][y] =0
-                    # prob_vector[x][y] = 1
-
-
-
-            # else:
-            #     if prob_vector[x][y] > min_allow:
-            #       distinguishLockedBlock and   prob_vector[x][y] /= factor
 
     #########################################################
-            import scipy as sp
-            import scipy.ndimage
+
             sigma_y = 1.0
             sigma_x = 1.0
             sigma = [sigma_y, sigma_x]
@@ -137,14 +106,11 @@ class LikelihoodPolicySampler:
                 self.prob_vector_normalized *= 1/self.tree_vector
                 self.prob_vector_normalized = sp.ndimage.filters.gaussian_filter(self.prob_vector_normalized, sigma, mode='reflect')
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
-            # time.sleep(2)
             self.sampleCount += 1
 
+
 #########################################################
-#########################################################
-#########################################################
-#########################################################
-#########################################################
+#### FOR PAINTING
 #########################################################
 
     def get_vector_alpha_parameters(self, vector):

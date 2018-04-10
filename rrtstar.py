@@ -358,8 +358,4 @@ class RRT:
             text = 'Valid Sample: {}  |  Invalid sample: {}(temp) {}(perm)'.format(self.stats.valid_sample, self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
             self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.95))
 
-            # if kernel_pts is not None and kernel_perma_pts is not None:
-            #     text = 'kernel_pt:  {}  |  kernel_pt_perma:  {}  '.format(len(kernel_pts[0]), len(kernel_perma_pts[0]))
-            #     self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.95))
-
         pygame.display.update()
