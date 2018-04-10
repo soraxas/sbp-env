@@ -10,7 +10,7 @@ if __name__ == '__main__':
     radius = 15
     prob_block_size = 15
 
-    # sampler = RandomPolicySampler()
+    sampler = RandomPolicySampler()
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
 
     CHECK_ENTIRE_PATH = False

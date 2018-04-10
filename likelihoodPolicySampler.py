@@ -110,7 +110,7 @@ class LikelihoodPolicySampler:
             sigma_y = 2.0
             sigma_x = 2.0
             sigma = [sigma_y, sigma_x]
-            if self.sampleCount % 200 == 0:
+            if self.sampleCount % 200 == 0 or True:
                 pass
                 self.prob_vector_normalized = np.copy(np.log2(self.prob_vector))
                 # self.prob_vector_normalized = np.f.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1

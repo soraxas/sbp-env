@@ -227,8 +227,8 @@ class RRT:
 
         self.fpsClock.tick(10000)
         goal_bias_success = False
-        for i in range(self.NUMNODES):
-        # while self.stats.valid_sample < self.NUMNODES:
+        # for i in range(self.NUMNODES):
+        while self.stats.valid_sample < self.NUMNODES:
             # probabiilty to bias toward goal (while not reaching goal yet)
             if self.c_max != INFINITE:
                 self.drawSolutionPath()
