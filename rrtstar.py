@@ -353,7 +353,7 @@ class RRT:
             _cost = 'INF' if self.c_max == INFINITE else round(self.c_max, 2)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, counter)
             self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.88))
-            text = 'Valid Sample: {}  |  Invalid sample: {}(temp) {}(perm)'.format(self.stats.valid_sample, self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
+            text = 'Invalid sample: {}(temp) {}(perm)'.format(self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
             self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.95))
 
         pygame.display.update()

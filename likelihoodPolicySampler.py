@@ -110,13 +110,13 @@ class LikelihoodPolicySampler:
             sigma_y = 2.0
             sigma_x = 2.0
             sigma = [sigma_y, sigma_x]
-            if self.sampleCount % 200 == 0 or True:
+            if self.sampleCount % 150 == 0:
                 pass
                 self.prob_vector_normalized = np.copy(np.log2(self.prob_vector))
                 # self.prob_vector_normalized = np.f.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
             # if self.prob_vector[x][y] < 5:
                 # self.prob_vector[copy(self.prob_vector)
-                tree_vector_normalized = np.copy(self.tree_vector)
+                tree_vector_normalized = np.copy(self.tree_vector**1.1)
                 tree_vector_normalized = sp.ndimage.filters.gaussian_filter(tree_vector_normalized, (1.0,1.0), mode='reflect')
                 # self.prob_vector_normalized = tree_vector_normalized
                 self.prob_vector_normalized *= (1/self.obst_vector * 3)
