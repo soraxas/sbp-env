@@ -10,6 +10,7 @@ if __name__ == '__main__':
     max_number_nodes = 3000
     radius = 15
     prob_block_size = 5
+    SCALING = 4
 
     sampler = RandomPolicySampler()
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
@@ -17,7 +18,7 @@ if __name__ == '__main__':
 
     CHECK_ENTIRE_PATH = False
 
-    rrt = rrtstar.RRT(sampler=sampler, goalBias=False, check_entire_path=CHECK_ENTIRE_PATH, image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius)
+    rrt = rrtstar.RRT(scaling=SCALING, sampler=sampler, goalBias=False, check_entire_path=CHECK_ENTIRE_PATH, image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius)
     rrt.run()
     running = True
     while running:

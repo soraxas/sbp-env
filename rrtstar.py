@@ -21,7 +21,7 @@ ALPHA_CK = 255,0,255
 
 GOAL_RADIUS = 10
 
-SCALING = 2
+
 
 GOAL_BIAS = 0.005
 
@@ -66,13 +66,14 @@ from matplotlib import pyplot as plt
 
 class RRT:
 
-    def __init__(self, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, check_entire_path=True):
+    def __init__(self, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, check_entire_path=True):
         # initialize and prepare screen
         pygame.init()
         self.stats = stats()
         self.img = pygame.image.load(image)
         self.XDIM = self.img.get_width()
         self.YDIM = self.img.get_height()
+        self.SCALING = scaling
 
         self.EPSILON = epsilon
         self.NUMNODES = max_number_nodes
@@ -88,35 +89,35 @@ class RRT:
         ################################################################################
         # text
         pygame.font.init()
-        self.myfont = pygame.font.SysFont('Arial', 15 * SCALING)
+        self.myfont = pygame.font.SysFont('Arial', 15 * self.SCALING)
         ################################################################################
         # main window
-        self.window = pygame.display.set_mode([self.XDIM * SCALING, self.YDIM * SCALING])
+        self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
         ################################################################################
         # # probability layer
-        # self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * SCALING,self.PROB_BLOCK_SIZE * SCALING), pygame.SRCALPHA)
+        # self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.SCALING,self.PROB_BLOCK_SIZE * self.SCALING), pygame.SRCALPHA)
         ################################################################################
         # background aka the room
         self.background = pygame.Surface( [self.XDIM, self.YDIM] )
         self.background.blit(self.img,(0,0))
         # resize background to match windows
-        self.background = pygame.transform.scale(self.background, [self.XDIM * SCALING, self.YDIM * SCALING])
+        self.background = pygame.transform.scale(self.background, [self.XDIM * self.SCALING, self.YDIM * self.SCALING])
         ################################################################################
         # path of RRT*
-        self.path_layers = pygame.Surface( [self.XDIM * SCALING, self.YDIM * SCALING] )
+        self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.path_layers.fill(ALPHA_CK)
         self.path_layers.set_colorkey(ALPHA_CK)
         # rescale to make it bigger
-        self.path_layers_rescale = pygame.Surface( [self.XDIM * SCALING, self.YDIM * SCALING] )
+        self.path_layers_rescale = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.path_layers_rescale.fill(ALPHA_CK)
         self.path_layers_rescale.set_colorkey(ALPHA_CK)
         ################################################################################
         # layers to store the solution path
-        self.solution_path_screen = pygame.Surface( [self.XDIM * SCALING, self.YDIM * SCALING] )
+        self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.solution_path_screen.fill(ALPHA_CK)
         self.solution_path_screen.set_colorkey(ALPHA_CK)
         # rescale to make it bigger
-        self.solution_path_screen_rescale = pygame.Surface( [self.XDIM * SCALING, self.YDIM * SCALING] )
+        self.solution_path_screen_rescale = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.solution_path_screen_rescale.fill(ALPHA_CK)
         self.solution_path_screen_rescale.set_colorkey(ALPHA_CK)
         ################################################################################
@@ -131,7 +132,7 @@ class RRT:
         while self.startPt is None or self.goalPt is None:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
-                    mousePos = (int(e.pos[0] / SCALING), int(e.pos[1] / SCALING))
+                    mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
                     if self.startPt is None:
                         if self.collides(mousePos,initialSetup=True) == False:
                             print(('starting point set: ' + str(mousePos)))
@@ -154,7 +155,7 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler = sampler
-        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=SCALING)
+        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING)
 
     ############################################################
 
@@ -199,11 +200,11 @@ class RRT:
         for i in range(len(self.nodes)):
             p = self.nodes[i]
             if checkIntersect(p, newnode, self.img) and p != newnode.parent and dist(p.pos, newnode.pos) < self.RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost:
-                pygame.draw.line(self.path_layers, white, p.pos*SCALING, p.parent.pos*SCALING, SCALING)
+                pygame.draw.line(self.path_layers, white, p.pos*self.SCALING, p.parent.pos*self.SCALING, self.SCALING)
                 p.parent = newnode
                 p.cost = newnode.cost + dist(p.pos, newnode.pos)
                 self.nodes[i] = p
-                pygame.draw.line(self.path_layers, black, p.pos*SCALING, newnode.pos*SCALING, SCALING)
+                pygame.draw.line(self.path_layers, black, p.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
 
     def drawSolutionPath(self):
         # redraw new path
@@ -214,7 +215,7 @@ class RRT:
             if dist(p.pos, self.goalPt.pos) < dist(nn.pos, self.goalPt.pos):
                 nn = p
         while nn != self.startPt:
-            pygame.draw.line(self.solution_path_screen, green, nn.pos*SCALING, nn.parent.pos*SCALING, 5*SCALING)
+            pygame.draw.line(self.solution_path_screen, green, nn.pos*self.SCALING, nn.parent.pos*self.SCALING, 5*self.SCALING)
             nn = nn.parent
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
@@ -301,7 +302,7 @@ class RRT:
                 [newnode, nn] = self.chooseParent(nn, newnode)
 
                 self.nodes.append(newnode)
-                pygame.draw.line(self.path_layers, black, nn.pos*SCALING, newnode.pos*SCALING, SCALING)
+                pygame.draw.line(self.path_layers, black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
                 self.reWire(newnode)
                 pygame.display.update()
 
@@ -344,16 +345,16 @@ class RRT:
             self.window.blit(self.solution_path_screen,(0,0))
 
             if self.startPt is not None:
-                pygame.draw.circle(self.path_layers, red, self.startPt.pos*SCALING, GOAL_RADIUS*SCALING)
+                pygame.draw.circle(self.path_layers, red, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
             if self.goalPt is not None:
-                pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*SCALING, GOAL_RADIUS*SCALING)
+                pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 
 
         if counter % 2 == 0:
             _cost = 'INF' if self.c_max == INFINITE else round(self.c_max, 2)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, counter)
-            self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.88))
+            self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * self.SCALING * 0.88))
             text = 'Invalid sample: {}(temp) {}(perm)'.format(self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
-            self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * SCALING * 0.95))
+            self.window.blit(self.myfont.render(text, False, (0, 0, 0), (255,255,255)), (20,self.YDIM * self.SCALING * 0.95))
 
         pygame.display.update()
