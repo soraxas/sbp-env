@@ -1,21 +1,23 @@
 import rrtstar
 from randomPolicySampler import RandomPolicySampler
 from likelihoodPolicySampler import LikelihoodPolicySampler
+from nearbyPolicySampler import NearbyPolicySampler
 
 # if python says run, then we should run
 if __name__ == '__main__':
     epsilon = 7.0
     # epsilon = 7.0 * 10
-    max_number_nodes = 2000
+    max_number_nodes = 3000
     radius = 15
-    prob_block_size = 15
+    prob_block_size = 5
 
     sampler = RandomPolicySampler()
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
+    sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
 
     CHECK_ENTIRE_PATH = False
 
-    rrt = rrtstar.RRT(sampler=sampler, goalBias=True, check_entire_path=CHECK_ENTIRE_PATH, image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius)
+    rrt = rrtstar.RRT(sampler=sampler, goalBias=False, check_entire_path=CHECK_ENTIRE_PATH, image='map.png', epsilon=epsilon, max_number_nodes=max_number_nodes, radius=radius)
     rrt.run()
     running = True
     while running:
