@@ -354,7 +354,7 @@ class RRT:
             self.window.blit(self.solution_path_screen,(0,0))
 
             if self.startPt is not None:
-                pygame.draw.circle(self.path_layers, red, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+                pygame.draw.circle(self.path_layers, (50,200,0), self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
             if self.goalPt is not None:
                 pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 
@@ -365,7 +365,7 @@ class RRT:
             # Draw sampled nodes
             for i in reversed(range(len(self.sampledNodes))):
                 # alpha = 255 * (self.sampledNodes[i].framedShowed/show_sampled_point_for)
-                color = (125,200,0)
+                color = (255,50,0)
                 pygame.draw.circle(self.sampledPoint_screen, color, self.sampledNodes[i].pos*self.SCALING, 4*self.SCALING)
                 self.sampledNodes[i].framedShowed += 1
 

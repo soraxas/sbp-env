@@ -26,7 +26,7 @@ class LikelihoodPolicySampler:
 
         shape = (int(self.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.YDIM/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(shape)
-        self.prob_vector *= 2 # IMPORTANT because we are using log2
+        self.prob_vector *= 1 # IMPORTANT because we are using log2
         self.obst_vector = np.ones(shape)
         # self.prob_vector *= 20
         self.prob_vector_normalized = None
@@ -35,7 +35,7 @@ class LikelihoodPolicySampler:
         self.sampleCount = 0
 
     def getNextNode(self):
-        if self.prob_vector_normalized is None or random.random() < 0.05:
+        if self.prob_vector_normalized is None or random.random() < 0.01:
             print('rand')
             return self.randomSampler.getNextNode()
         while True:
@@ -110,9 +110,9 @@ class LikelihoodPolicySampler:
             sigma_y = 2.0
             sigma_x = 2.0
             sigma = [sigma_y, sigma_x]
-            if self.sampleCount % 150 == 0:
+            if self.sampleCount % 10 == 0:
                 pass
-                self.prob_vector_normalized = np.copy(np.log2(self.prob_vector))
+                self.prob_vector_normalized = np.copy(self.prob_vector)
                 # self.prob_vector_normalized = np.f.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
             # if self.prob_vector[x][y] < 5:
                 # self.prob_vector[copy(self.prob_vector)
