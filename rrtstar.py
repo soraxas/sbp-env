@@ -59,6 +59,10 @@ class stats:
     def addFree(self):
         self.valid_sample += 1
 
+class SampledNodes:
+    def __init__(self, p):
+        self.pos = p
+        self.framedShowed = 0
 
 ############################################################
 
@@ -66,7 +70,7 @@ from matplotlib import pyplot as plt
 
 class RRT:
 
-    def __init__(self, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, check_entire_path=True):
+    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, check_entire_path=True):
         # initialize and prepare screen
         pygame.init()
         self.stats = stats()
@@ -80,6 +84,7 @@ class RRT:
         self.RADIUS = radius
         self.fpsClock = pygame.time.Clock()
         self.goalBias = goalBias
+        self.showSampledPoint = showSampledPoint
 
         self.c_max = INFINITE
         self.check_entire_path = check_entire_path
@@ -107,21 +112,19 @@ class RRT:
         self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.path_layers.fill(ALPHA_CK)
         self.path_layers.set_colorkey(ALPHA_CK)
-        # rescale to make it bigger
-        self.path_layers_rescale = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.path_layers_rescale.fill(ALPHA_CK)
-        self.path_layers_rescale.set_colorkey(ALPHA_CK)
         ################################################################################
         # layers to store the solution path
         self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.solution_path_screen.fill(ALPHA_CK)
         self.solution_path_screen.set_colorkey(ALPHA_CK)
-        # rescale to make it bigger
-        self.solution_path_screen_rescale = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.solution_path_screen_rescale.fill(ALPHA_CK)
-        self.solution_path_screen_rescale.set_colorkey(ALPHA_CK)
+        ################################################################################
+        # layers to store the sampled points
+        self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.sampledPoint_screen.fill(ALPHA_CK)
+        self.sampledPoint_screen.set_colorkey(ALPHA_CK)
         ################################################################################
         self.nodes = []
+        self.sampledNodes = []
 
         self.startPt = None
         self.goalPt = None
@@ -229,6 +232,7 @@ class RRT:
         self.fpsClock.tick(10000)
         goal_bias_success = False
         # for i in range(self.NUMNODES):
+        i = 0
         while self.stats.valid_sample < self.NUMNODES:
             # probabiilty to bias toward goal (while not reaching goal yet)
             if self.c_max != INFINITE:
@@ -253,7 +257,11 @@ class RRT:
                             nn = p
 
             if not goal_bias_success:
-                rand = Node(self.sampler.getNextNode())
+                rand = None
+                while rand is None or self.collides(rand.pos):
+                    # keep getting sample if node is invalid
+                    rand = Node(self.sampler.getNextNode())
+                    self.sampledNodes.append(SampledNodes(rand.pos.astype(int)))
                 preRandomPt = rand
                 nn = self.nodes[0]
                 # for Non-goal bias, we pick the cloest point
@@ -316,7 +324,8 @@ class RRT:
                 for e in pygame.event.get():
                     if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
-            self.update_screen(self.stats.valid_sample)
+            i += 1
+            self.update_screen(i)
 
         self.wait_for_exit()
 
@@ -348,6 +357,21 @@ class RRT:
                 pygame.draw.circle(self.path_layers, red, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
             if self.goalPt is not None:
                 pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+
+
+        if counter % 1 == 0 and self.showSampledPoint:
+            show_sampled_point_for = 1
+            self.sampledPoint_screen.fill((255,0,255,255))
+            # Draw sampled nodes
+            for i in reversed(range(len(self.sampledNodes))):
+                # alpha = 255 * (self.sampledNodes[i].framedShowed/show_sampled_point_for)
+                color = (125,200,0)
+                pygame.draw.circle(self.sampledPoint_screen, color, self.sampledNodes[i].pos*self.SCALING, 4*self.SCALING)
+                self.sampledNodes[i].framedShowed += 1
+
+                if self.sampledNodes[i].framedShowed >= show_sampled_point_for:
+                    self.sampledNodes.pop(i)
+            self.window.blit(self.sampledPoint_screen,(0,0))
 
 
         if counter % 2 == 0:
