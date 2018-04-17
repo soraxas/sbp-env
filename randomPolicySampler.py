@@ -13,8 +13,8 @@ class RandomPolicySampler:
         while True:
             p = random.random()*self.XDIM,  random.random()*self.YDIM
             # p = random.random()*self.XDIM, random.random()*self.YDIM
-            if not self.RRT.collides(p):
-                return np.array(p)
+            # if not self.RRT.collides(p):
+            return np.array(p)
 
     def addSample(self, **kwargs):
         # WE DO NOTHING

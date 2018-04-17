@@ -46,8 +46,8 @@ class LikelihoodPolicySampler:
             p = (x + random.random())*self.PROB_BLOCK_SIZE, (y + random.random())*self.PROB_BLOCK_SIZE
             # print(p)
             # p = random.random()*self.XDIM, random.random()*self.YDIM
-            if not self.RRT.collides(p):
-                return np.array(p)
+            # if not self.RRT.collides(p):
+            return np.array(p)
 
     def addTreeNode(self, x, y):
         x = int(x / self.PROB_BLOCK_SIZE)
