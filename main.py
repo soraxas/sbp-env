@@ -12,9 +12,9 @@ if __name__ == '__main__':
     prob_block_size = 5
     SCALING = 4
 
-    sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
     sampler = RandomPolicySampler()
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
+    sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
 
     CHECK_ENTIRE_PATH = False
 
