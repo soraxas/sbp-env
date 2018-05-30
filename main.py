@@ -6,7 +6,7 @@ from nearbyPolicySampler import NearbyPolicySampler
 
 # if python says run, then we should run
 if __name__ == '__main__':
-    epsilon = 7.0
+    epsilon = 10.0
     # epsilon = 7.0 * 10
     max_number_nodes = 3000
     goal_radius = 15

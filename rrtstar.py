@@ -159,8 +159,7 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler = sampler
-        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON)
-        self.sampler.setStartPt(self.startPt.pos)
+        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON, startPt=self.startPt.pos)
 
     ############################################################
 
@@ -349,10 +348,6 @@ class RRT:
         if counter % 10 == 0:
             # background
             self.window.blit(self.background,(0,0))
-            try:
-                self.sampler.paint(self.window)
-            except AttributeError:
-                pass
 
         if counter % 5 == 0:
             self.window.blit(self.path_layers,(0,0))
@@ -363,15 +358,21 @@ class RRT:
             if self.goalPt is not None:
                 pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 
+        if counter % 10 == 0:
+            try:
+                self.sampler.paint(self.window)
+            except AttributeError:
+                pass
 
-        if counter % 1 == 0 and self.showSampledPoint:
+        if counter % 2 == 0 and self.showSampledPoint:
+
             show_sampled_point_for = 1
             self.sampledPoint_screen.fill((255,0,255,255))
             # Draw sampled nodes
             for i in reversed(range(len(self.sampledNodes))):
                 # alpha = 255 * (self.sampledNodes[i].framedShowed/show_sampled_point_for)
                 color = (255,50,0)
-                pygame.draw.circle(self.sampledPoint_screen, color, self.sampledNodes[i].pos*self.SCALING, 4*self.SCALING)
+                pygame.draw.circle(self.sampledPoint_screen, color, self.sampledNodes[i].pos*self.SCALING, 2*self.SCALING)
                 self.sampledNodes[i].framedShowed += 1
 
                 if self.sampledNodes[i].framedShowed >= show_sampled_point_for:
