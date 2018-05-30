@@ -149,6 +149,7 @@ class RRT:
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
             self.update_screen(0)
+
         ##################################################
         # calculate information regarding shortest path
         self.c_min = dist(self.startPt.pos, self.goalPt.pos)
@@ -158,7 +159,8 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler = sampler
-        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING)
+        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON)
+        self.sampler.setStartPt(self.startPt.pos)
 
     ############################################################
 
@@ -260,7 +262,8 @@ class RRT:
                 rand = None
                 while rand is None or self.collides(rand.pos):
                     # keep getting sample if node is invalid
-                    rand = Node(self.sampler.getNextNode())
+                    coordinate, idx = self.sampler.getNextNode()
+                    rand = Node(coordinate)
                     self.sampledNodes.append(SampledNodes(rand.pos.astype(int)))
                 preRandomPt = rand
                 nn = self.nodes[0]
@@ -282,7 +285,9 @@ class RRT:
                 self.sampler.addSample(p=preRandomPt, free=False)
                 # self.sampler.addSample(p=preRandomPt, free=True, weight=10)
                 self.stats.addInvalid(perm=False)
+                self.sampler.reportFail(idx)
             else:
+                self.sampler.reportSuccess(idx)
                 self.stats.addFree()
                 x = newnode.pos[0]
                 y = newnode.pos[1]
