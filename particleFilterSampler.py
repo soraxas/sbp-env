@@ -12,6 +12,7 @@ from checkCollision import get_line
 
     - Physics engine to bounce off wall
     - Bias toward goalPt
+    - ✔ Using von mises distribution
     - Wall following?
     - RESTART
         - Random tree node restart
@@ -21,16 +22,23 @@ from checkCollision import get_line
     - Keep structure of undelying map to restart
 """
 
+############################################################
+##                       Particles                        ##
+############################################################
 
-def drawNormal(origin):
+def drawNormal(origin, use_vonmises=True, kappa=1):
     if ('normal_dist_draws_reserve' not in drawNormal.__dict__
             or drawNormal.cur_idx + 2 >=
             drawNormal.normal_dist_draws_reserve.size):
         # redraw
-        mu, sigma = 0, math.pi / 4
         drawNormal.cur_idx = 0
-        drawNormal.normal_dist_draws_reserve = np.random.normal(
-            mu, sigma, 1000)
+        if use_vonmises:
+            mu = 0
+            dist = np.random.vonmises(mu, kappa, 1000)
+        else:
+            mu, sigma = 0, math.pi / 4
+            dist = np.random.normal(mu, sigma, 1000)
+        drawNormal.normal_dist_draws_reserve = dist
     # draw from samples
     draws = drawNormal.normal_dist_draws_reserve[drawNormal.cur_idx]
     drawNormal.cur_idx += 1
@@ -115,6 +123,10 @@ class Particle:
         self.direction = self._trying_this_dir
 
 
+############################################################
+##                        Sampler                         ##
+############################################################
+
 class ParticleFilterSampler:
     def __init__(self, prob_block_size, supressVisitedArea=True):
         self.PROB_BLOCK_SIZE = prob_block_size
@@ -147,7 +159,7 @@ class ParticleFilterSampler:
         self.p_manager.modify_energy(idx=idx, factor=1.1)
 
     def randomWalk(self, idx):
-        new_direction = drawNormal(origin=self.p_manager.get_dir(idx))
+        new_direction = drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
 
         factor = self.EPSILON * 1
         x, y = self.p_manager.get_pos(idx)
@@ -160,7 +172,6 @@ class ParticleFilterSampler:
 
     def getNextNode(self):
         if random.random() < 0:
-            # if self.prob_vector_normalized is None or random.random() < 0.01:
             print('rand')
             p = self.randomSampler.getNextNode()
             choice = -1
@@ -173,11 +184,7 @@ class ParticleFilterSampler:
             p = self.randomWalk(choice)
 
         self.last_particle = p
-        # self.particles.append(p)
         return p, choice
-        # print(p)
-        # p = random.random()*self.XDIM, random.random()*self.YDIM
-        # if not self.RRT.collides(p):
 
     def addTreeNode(self, x, y):
         return
@@ -189,9 +196,9 @@ class ParticleFilterSampler:
         return
 
 
-#########################################################
-#### FOR PAINTING
-#########################################################
+############################################################
+##                      FOR PAINTING                      ##
+############################################################
 
     def get_color_transists(self, value, max_prob, min_prob):
         denominator = max_prob - min_prob
