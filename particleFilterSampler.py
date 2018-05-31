@@ -7,16 +7,30 @@ import math
 
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
+"""
+    IDEAS / TODOS:
 
+    - Physics engine to bounce off wall
+    - Bias toward goalPt
+    - Wall following?
+    - RESTART
+        - Random tree node restart
+        - Re-sampling according to particle weight/energy
+        - Restart according to tree node
+        - Random free space restart (NEED TO CONNECT DIFFERENT TREES TOGETHER)
+    - Keep structure of undelying map to restart
+"""
 
 
 def drawNormal(origin):
-    if('normal_dist_draws_reserve' not in drawNormal.__dict__ or
-        drawNormal.cur_idx + 2 >= drawNormal.normal_dist_draws_reserve.size):
+    if ('normal_dist_draws_reserve' not in drawNormal.__dict__
+            or drawNormal.cur_idx + 2 >=
+            drawNormal.normal_dist_draws_reserve.size):
         # redraw
         mu, sigma = 0, math.pi / 4
         drawNormal.cur_idx = 0
-        drawNormal.normal_dist_draws_reserve = np.random.normal(mu, sigma, 1000)
+        drawNormal.normal_dist_draws_reserve = np.random.normal(
+            mu, sigma, 1000)
     # draw from samples
     draws = drawNormal.normal_dist_draws_reserve[drawNormal.cur_idx]
     drawNormal.cur_idx += 1
@@ -33,11 +47,12 @@ class ParticleManager:
         self.cur_energy_sum = self.particles_energy.sum()
 
         for i in range(self.num_particles):
-            self.particles.append(Particle(direction=random.uniform(0, math.pi * 2),
-                                           pos=startPt))
+            self.particles.append(
+                Particle(
+                    direction=random.uniform(0, math.pi * 2), pos=startPt))
 
     def size(self):
-       return self.num_particles
+        return self.num_particles
 
     def modify_energy(self, idx, factor):
         # keep track how much energy this operation would modify,
@@ -82,7 +97,7 @@ class Particle:
         # pos is a 2 index list-type object
         self._trying_this_pos[0] = new_pos[0]
         self._trying_this_pos[1] = new_pos[1]
-#################################################################################
+        #################################################################################
         self.last_time_already_reverted = False
         # new_dir is a scalar (for now TODO make it to general dimension later)
         self._trying_this_dir = self.direction
@@ -116,22 +131,20 @@ class ParticleFilterSampler:
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
         # probability layer
-        self.particles_layer = pygame.Surface((self.XDIM*self.scaling, self.YDIM*self.scaling),
-                                         pygame.SRCALPHA)
+        self.particles_layer = pygame.Surface(
+            (self.XDIM * self.scaling, self.YDIM * self.scaling),
+            pygame.SRCALPHA)
 
-        self.p_manager = ParticleManager(num_particles=10,
-                                          startPt=self.startPt)
-
+        self.p_manager = ParticleManager(
+            num_particles=10, startPt=self.startPt)
 
     def reportFail(self, idx):
         if idx >= 0:
-            self.p_manager.modify_energy(idx=idx,
-                                         factor=0.8)
+            self.p_manager.modify_energy(idx=idx, factor=0.8)
 
     def reportSuccess(self, idx):
         self.p_manager.confirm(idx)
-        self.p_manager.modify_energy(idx=idx,
-                                    factor=1.1)
+        self.p_manager.modify_energy(idx=idx, factor=1.1)
 
     def randomWalk(self, idx):
         new_direction = drawNormal(origin=self.p_manager.get_dir(idx))
@@ -141,11 +154,9 @@ class ParticleFilterSampler:
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor
 
-        trying_this = self.p_manager.new_pos(idx=idx,
-                                             pos=(x, y),
-                                             dir=new_direction)
+        trying_this = self.p_manager.new_pos(
+            idx=idx, pos=(x, y), dir=new_direction)
         return trying_this
-
 
     def getNextNode(self):
         if random.random() < 0:
@@ -156,8 +167,7 @@ class ParticleFilterSampler:
         else:
             # get a node to random walk
             prob = self.p_manager.get_prob()
-            self._last_prob = prob # this will be used to paint particles
-            # print(prob)
+            self._last_prob = prob  # this will be used to paint particles
             choice = np.random.choice(range(self.p_manager.size()), p=prob)
 
             p = self.randomWalk(choice)
@@ -187,7 +197,7 @@ class ParticleFilterSampler:
         denominator = max_prob - min_prob
         if denominator == 0:
             denominator = 1  # prevent division by zero
-        return 220 - 220 * (1 -(value-min_prob)/denominator)
+        return 220 - 220 * (1 - (value - min_prob) / denominator)
 
     def paint(self, window):
         max = self._last_prob.max()
@@ -198,5 +208,6 @@ class ParticleFilterSampler:
             c = self.get_color_transists(self._last_prob[i], max, min)
             color = (100, c, 0)
 
-            pygame.draw.circle(self.particles_layer, color, p.pos*self.scaling, 4*self.scaling)
+            pygame.draw.circle(self.particles_layer, color,
+                               p.pos * self.scaling, 4 * self.scaling)
             window.blit(self.particles_layer, (0, 0))
