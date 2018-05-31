@@ -353,8 +353,9 @@ class RRT:
             self.window.blit(self.path_layers,(0,0))
             self.window.blit(self.solution_path_screen,(0,0))
 
+            color = (20,200,200)
             if self.startPt is not None:
-                pygame.draw.circle(self.path_layers, (50,200,0), self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+                pygame.draw.circle(self.path_layers, color, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
             if self.goalPt is not None:
                 pygame.draw.circle(self.path_layers, blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 

@@ -9,6 +9,61 @@ from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
 
 
+
+def drawNormal(origin):
+    if('normal_dist_draws_reserve' not in drawNormal.__dict__ or
+        drawNormal.cur_idx + 2 >= drawNormal.normal_dist_draws_reserve.size):
+        # redraw
+        mu, sigma = 0, math.pi / 4
+        drawNormal.cur_idx = 0
+        drawNormal.normal_dist_draws_reserve = np.random.normal(mu, sigma, 1000)
+    # draw from samples
+    draws = drawNormal.normal_dist_draws_reserve[drawNormal.cur_idx]
+    drawNormal.cur_idx += 1
+    # shift location
+    draws += origin
+    return draws
+
+
+class ParticleManager:
+    def __init__(self, num_particles, startPt):
+        self.num_particles = num_particles
+        self.particles_energy = np.ones(num_particles)
+        self.particles = []
+        self.cur_energy_sum = self.particles_energy.sum()
+
+        for i in range(self.num_particles):
+            self.particles.append(Particle(direction=random.uniform(0, math.pi * 2),
+                                           pos=startPt))
+
+    def size(self):
+       return self.num_particles
+
+    def modify_energy(self, idx, factor):
+        # keep track how much energy this operation would modify,
+        # so we can change the energy_sum accordingly
+        old_energy = self.particles_energy[idx]
+        self.particles_energy[idx] *= factor
+
+        delta = self.particles_energy[idx] - old_energy
+        self.cur_energy_sum += delta
+
+    def confirm(self, idx):
+        self.particles[idx].confirm()
+
+    def new_pos(self, idx, pos, dir):
+        return self.particles[idx].try_new_pos((pos[0], pos[1]), dir)
+
+    def get_pos(self, idx):
+        return self.particles[idx].pos[0], self.particles[idx].pos[1]
+
+    def get_dir(self, idx):
+        return self.particles[idx].direction
+
+    def get_prob(self):
+        return self.particles_energy / self.cur_energy_sum
+
+
 class Particle:
     def __init__(self, direction, pos):
         # self.energy = 1
@@ -49,6 +104,7 @@ class ParticleFilterSampler:
     def __init__(self, prob_block_size, supressVisitedArea=True):
         self.PROB_BLOCK_SIZE = prob_block_size
         self.supressVisitedArea = supressVisitedArea
+        self._last_prob = None
 
     def init(self, **kwargs):
         self.XDIM = kwargs['XDIM']
@@ -63,66 +119,35 @@ class ParticleFilterSampler:
         self.particles_layer = pygame.Surface((self.XDIM*self.scaling, self.YDIM*self.scaling),
                                          pygame.SRCALPHA)
 
-        shape = (int(self.XDIM / self.PROB_BLOCK_SIZE) + 1,
-                 int(self.YDIM / self.PROB_BLOCK_SIZE) + 1)
-        self.prob_vector = np.ones(shape)
-        self.prob_vector *= 1  # IMPORTANT because we are using log2
-        self.obst_vector = np.ones(shape)
-        # self.prob_vector *= 20
-        self.prob_vector_normalized = None
-        self.tree_vector = np.ones(shape)
+        self.p_manager = ParticleManager(num_particles=10,
+                                          startPt=self.startPt)
 
-        self.sampleCount = 0
-
-        self.MAX = 10000
-        self.particles_dir = []
-        self.particles_weights = np.ones(self.MAX)
-
-        self.gauss_draws = None
-        self.gauss_draws_idx = 0
-
-        self.particles = []
-
-        self.NUM_PARTICLES = 10
-        for i in range(self.NUM_PARTICLES):
-            self.particles.append(Particle(direction=random.uniform(0, math.pi * 2),
-                                           pos=self.startPt))
-
-
-    def drawNormal(self, origin):
-        if self.gauss_draws is None or self.gauss_draws_idx + 2 >= self.gauss_draws.size:
-            # redraw
-            mu, sigma = 0, math.pi / 4
-            self.gauss_draws_idx = 0
-            self.gauss_draws = np.random.normal(mu, sigma, 1000)
-        # draw from samples
-        loc = self.gauss_draws[self.gauss_draws_idx]
-        self.gauss_draws_idx += 1
-        # shift location
-        loc += origin
-        return loc
 
     def reportFail(self, idx):
         if idx >= 0:
-            self.particles_weights[idx] *= 0.8
+            self.p_manager.modify_energy(idx=idx,
+                                         factor=0.8)
 
     def reportSuccess(self, idx):
-        self.particles[idx].confirm()
-        self.particles_weights[idx] *= 1.1
+        self.p_manager.confirm(idx)
+        self.p_manager.modify_energy(idx=idx,
+                                    factor=1.1)
 
     def randomWalk(self, idx):
-        new_direction = self.drawNormal(self.particles[idx].direction)
+        new_direction = drawNormal(origin=self.p_manager.get_dir(idx))
 
         factor = self.EPSILON * 1
-        x = self.particles[idx].pos[0] + math.cos(new_direction) * factor
-        y = self.particles[idx].pos[1] + math.sin(new_direction) * factor
+        x, y = self.p_manager.get_pos(idx)
+        x += math.cos(new_direction) * factor
+        y += math.sin(new_direction) * factor
 
-        trying_this = self.particles[idx].try_new_pos((x, y), new_direction)
+        trying_this = self.p_manager.new_pos(idx=idx,
+                                             pos=(x, y),
+                                             dir=new_direction)
         return trying_this
 
 
     def getNextNode(self):
-        print("get")
         if random.random() < 0:
             # if self.prob_vector_normalized is None or random.random() < 0.01:
             print('rand')
@@ -130,11 +155,10 @@ class ParticleFilterSampler:
             choice = -1
         else:
             # get a node to random walk
-            prob = self.particles_weights[0:len(
-                self.particles)] / self.particles_weights[0:len(
-                    self.particles)].sum()
+            prob = self.p_manager.get_prob()
+            self._last_prob = prob # this will be used to paint particles
             # print(prob)
-            choice = np.random.choice(range(len(self.particles)), p=prob)
+            choice = np.random.choice(range(self.p_manager.size()), p=prob)
 
             p = self.randomWalk(choice)
 
@@ -159,18 +183,20 @@ class ParticleFilterSampler:
 #### FOR PAINTING
 #########################################################
 
-    def get_vector_alpha_parameters(self, vector):
-        max_prob = vector.max()
-        min_prob = vector.min()
+    def get_color_transists(self, value, max_prob, min_prob):
         denominator = max_prob - min_prob
         if denominator == 0:
             denominator = 1  # prevent division by zero
-        return max_prob, min_prob, denominator
+        return 220 - 220 * (1 -(value-min_prob)/denominator)
 
     def paint(self, window):
-
-        for p in self.particles:
+        max = self._last_prob.max()
+        min = self._last_prob.min()
+        for i, p in enumerate(self.p_manager.particles):
             self.particles_layer.fill((255, 128, 255, 0))
-            color = (20,200,200)
+            # get a transistion from green to red
+            c = self.get_color_transists(self._last_prob[i], max, min)
+            color = (100, c, 0)
+
             pygame.draw.circle(self.particles_layer, color, p.pos*self.scaling, 4*self.scaling)
             window.blit(self.particles_layer, (0, 0))
