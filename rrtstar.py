@@ -128,6 +128,8 @@ class RRT:
 
         self.startPt = None
         self.goalPt = None
+
+        self.sampler = sampler
         ##################################################
         # Get starting and ending point
         print('Select Starting Point and then Goal Point')
@@ -158,7 +160,6 @@ class RRT:
         dx = self.goalPt.pos[0] - self.startPt.pos[0]
         self.angle = math.atan2(-dy, dx)
 
-        self.sampler = sampler
         self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON,
                           startPt=self.startPt.pos, goalPt=self.goalPt.pos, nodes=self.nodes)
 
@@ -262,7 +263,7 @@ class RRT:
                 rand = None
                 while rand is None or self.collides(rand.pos):
                     # keep getting sample if node is invalid
-                    coordinate, idx = self.sampler.getNextNode()
+                    coordinate, reportSuccess, reportFail = self.sampler.getNextNode()
                     rand = Node(coordinate)
                     self.sampledNodes.append(SampledNodes(rand.pos.astype(int)))
                 preRandomPt = rand
@@ -285,28 +286,22 @@ class RRT:
                 self.sampler.addSample(p=preRandomPt, free=False)
                 # self.sampler.addSample(p=preRandomPt, free=True, weight=10)
                 self.stats.addInvalid(perm=False)
-                self.sampler.reportFail(idx)
+                reportFail()
             else:
-                self.sampler.reportSuccess(idx)
+                reportSuccess()
                 self.stats.addFree()
                 x = newnode.pos[0]
                 y = newnode.pos[1]
-                try:
-                    self.sampler.addTreeNode(x, y)
-                except AttributeError:
-                    pass
+                self.sampler.addTreeNode(x, y)
                 if preRandomPt is not None:
                     # add all in between point of nearest node of the random pt as valid
-                    try:
-                        x1 = preRandomPt.pos[0]
-                        y1 = preRandomPt.pos[1]
+                    x1 = preRandomPt.pos[0]
+                    y1 = preRandomPt.pos[1]
 
-                        if not self.check_entire_path:
-                            (_, _), (x1, x2) = getCoorBeforeCollision(nn, rand, self.img)
+                    if not self.check_entire_path:
+                        (_, _), (x1, x2) = getCoorBeforeCollision(nn, rand, self.img)
 
-                        self.sampler.addSampleLine(x, y, x1, y1)
-                    except AttributeError:
-                        pass
+                    self.sampler.addSampleLine(x, y, x1, y1)
                 else:
                     if checkIntersect(nn, rand, self.img):
                         # Reaching this point means the goal bias had been successful. Go directly to the goal!

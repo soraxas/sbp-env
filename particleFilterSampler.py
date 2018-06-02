@@ -4,7 +4,9 @@ import pygame
 import scipy as sp
 import scipy.ndimage
 import math
+from functools import partialmethod
 
+from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
 """
@@ -48,6 +50,7 @@ GOAL_BIAS = 0.05
 ENERGY_MIN = 0
 ENERGY_MAX = 10
 ENERGY_START = 5
+ENERGY_COLLISION_LOSS = 1
 
 RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 1.5
 RANDOM_RESTART_EVERY = 30
@@ -121,7 +124,9 @@ class ParticleManager:
                     diff = self.particles_energy[idx] - ENERGY_MIN
                     self.particles_energy[idx] += diff*factor
 
-                    self.particles_energy[idx] -=1
+                    if self.particles_energy[idx] > ENERGY_COLLISION_LOSS:
+                        self.particles_energy[idx] -= ENERGY_COLLISION_LOSS
+
 
         else:
             raise Exception("Nothing set in modify_energy")
@@ -234,9 +239,8 @@ class Particle:
 ##                        Sampler                         ##
 ############################################################
 
-class ParticleFilterSampler:
-    def __init__(self, prob_block_size, supressVisitedArea=True):
-        self.PROB_BLOCK_SIZE = prob_block_size
+class ParticleFilterSampler(Sampler):
+    def __init__(self, supressVisitedArea=True):
         self.supressVisitedArea = supressVisitedArea
         self._last_prob = None
 
@@ -334,16 +338,7 @@ class ParticleFilterSampler:
             p = self.randomWalk(choice)
 
         self.last_particle = p
-        return p, choice
-
-    def addTreeNode(self, x, y):
-        return
-
-    def addSampleLine(self, x1, y1, x2, y2):
-        return
-
-    def addSample(self, **kwargs):
-        return
+        return p, lambda c=choice: self.reportSuccess(c), lambda c=choice: self.reportFail(c)
 
 
 ############################################################
@@ -357,6 +352,8 @@ class ParticleFilterSampler:
         return 220 - 220 * (1 - (value - min_prob) / denominator)
 
     def paint(self, window):
+        if self._last_prob is None:
+            return
         max = self._last_prob.max()
         min = self._last_prob.min()
         for i, p in enumerate(self.p_manager.particles):

@@ -1,7 +1,8 @@
 import numpy as np
 import random
+from baseSampler import Sampler
 
-class RandomPolicySampler:
+class RandomPolicySampler(Sampler):
 
     def init(self, **kwargs):
         self.XDIM = kwargs['XDIM']
@@ -14,11 +15,7 @@ class RandomPolicySampler:
             p = random.random()*self.XDIM,  random.random()*self.YDIM
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return np.array(p)
-
-    def addSample(self, **kwargs):
-        # WE DO NOTHING
-        pass
+            return np.array(p), self.reportSuccess, self.reportFail
 
 #############################
 # FOR Informed RRT

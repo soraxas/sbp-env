@@ -5,10 +5,11 @@ import pygame
 import scipy as sp
 import scipy.ndimage
 
+from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
 
-class NearbyPolicySampler:
+class NearbyPolicySampler(Sampler):
 
     def __init__(self, prob_block_size, supressVisitedArea=True):
         self.PROB_BLOCK_SIZE = prob_block_size
@@ -47,7 +48,7 @@ class NearbyPolicySampler:
             # print(p)
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return np.array(p)
+            return np.array(p), self.reportSuccess, self.reportFail
 
     def addTreeNode(self, x, y):
         x = int(x / self.PROB_BLOCK_SIZE)
