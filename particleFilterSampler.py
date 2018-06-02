@@ -11,16 +11,47 @@ from checkCollision import get_line
     IDEAS / TODOS:
 
     - Physics engine to bounce off wall
-    - Bias toward goalPt
+    - ✔ Bias toward goalPt
     - ✔ Using von mises distribution
     - Wall following?
     - RESTART
-        - Random tree node restart
-        - Re-sampling according to particle weight/energy
-        - Restart according to tree node
+        - ✔ Random tree node restart (lowest energy)
+        - ✔ Random tree node restart (particles with energy < specified amount)
+        - ✔ Re-sampling according to particle weight/energy
         - Random free space restart (NEED TO CONNECT DIFFERENT TREES TOGETHER)
     - Keep structure of undelying map to restart
+
+
+Use linear gradient
+    |            /
+    |          /
+    |        /
+    |      /
+    |    /
+    |  /
+    |/________________
+Use a factor of diff
+    |-  -  -  -  -  -  -  -  -
+    |                     _____
+    |                ____/
+    |           ____/
+    |       __/
+    |    _/
+    |  /
+    |/_______________________
+
+
 """
+
+GOAL_BIAS = 0.05
+
+ENERGY_MIN = 0
+ENERGY_MAX = 10
+ENERGY_START = 5
+
+RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 1.5
+RANDOM_RESTART_EVERY = 30
+RESAMPLE_RESTART_EVERY = 0 # 200
 
 ############################################################
 ##                       Particles                        ##
@@ -48,25 +79,52 @@ def drawNormal(origin, use_vonmises=True, kappa=1):
 
 
 class ParticleManager:
-    def __init__(self, num_particles, startPt):
+    def __init__(self, num_particles, startPt, goalPt, nodes):
         self.num_particles = num_particles
-        self.particles_energy = np.ones(num_particles)
+        self.init_energy()
         self.particles = []
-        self.cur_energy_sum = self.particles_energy.sum()
+        self.goalPt = goalPt
+        self.nodes = nodes
 
-        for i in range(self.num_particles):
+        for _ in range(self.num_particles):
             self.particles.append(
                 Particle(
-                    direction=random.uniform(0, math.pi * 2), pos=startPt))
+                    direction=random.uniform(0, math.pi * 2),
+                    pos=startPt))
+
+    def init_energy(self):
+        self.particles_energy = np.ones(self.num_particles)
+        self.particles_energy *= ENERGY_START
+        self.resync_prob()
 
     def size(self):
         return self.num_particles
 
-    def modify_energy(self, idx, factor):
+    def modify_energy(self, idx, factor=None, set_val=None):
+        # TODO: sometimes the keep tracking might go out of sync (and cause error in np.random.choice. Investigate this)
         # keep track how much energy this operation would modify,
         # so we can change the energy_sum accordingly
         old_energy = self.particles_energy[idx]
-        self.particles_energy[idx] *= factor
+        if set_val is not None:
+            self.particles_energy[idx] = set_val
+        elif factor is not None:
+            if False:
+                # NOTE WE ARE NOT DOING THIS FOR NOW
+                self.particles_energy[idx] *= factor
+            else:
+                # TODO: mayne redo this nasty
+                factor -= 1
+                if factor > 0:
+                    diff = ENERGY_MAX - self.particles_energy[idx]
+                    self.particles_energy[idx] += diff*factor
+                elif factor < 0:
+                    diff = self.particles_energy[idx] - ENERGY_MIN
+                    self.particles_energy[idx] += diff*factor
+
+                    self.particles_energy[idx] -=1
+
+        else:
+            raise Exception("Nothing set in modify_energy")
 
         delta = self.particles_energy[idx] - old_energy
         self.cur_energy_sum += delta
@@ -78,7 +136,7 @@ class ParticleManager:
         return self.particles[idx].try_new_pos((pos[0], pos[1]), dir)
 
     def get_pos(self, idx):
-        return self.particles[idx].pos[0], self.particles[idx].pos[1]
+        return self.particles[idx].pos
 
     def get_dir(self, idx):
         return self.particles[idx].direction
@@ -86,9 +144,58 @@ class ParticleManager:
     def get_prob(self):
         return self.particles_energy / self.cur_energy_sum
 
+    def resync_prob(self):
+        self.cur_energy_sum = self.particles_energy.sum()
+
+    def random_restart_lowest(self):
+        """
+        Restart the particle with the lowest energy.
+        """
+        min_idx = np.argmin(self.particles_energy)
+        p = self.particles_energy[min_idx]
+        randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+        self.particles[min_idx] = Particle(pos=randomPt)
+        self.modify_energy(min_idx, set_val=ENERGY_START)
+        return p
+
+    def random_restart_specific_value(self):
+        """
+        Restart all the particles that has < energy
+        than a specified amount.
+        """
+        tmp = []
+        for i in range(self.size()):
+            if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
+                tmp.append(self.particles_energy[i])
+                randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+                self.particles[i] = Particle(pos=randomPt)
+                self.modify_energy(i, set_val=ENERGY_START)
+        return tmp
+
+    def weighted_resampling(self):
+        """
+        Resampling to the same amount of particles than it was,
+        based on the current particles' energy/weighting
+        """
+        prob = self.get_prob()
+        new_particles = []
+        for _ in range(self.size()):
+            choice = np.random.choice(range(self.size()), p=prob)
+            new_particles.append(Particle(pos=self.particles[choice].pos))
+        self.particles[:] = new_particles
+        self.init_energy()
+
+
+
 
 class Particle:
-    def __init__(self, direction, pos):
+    def __init__(self, direction=None, pos=None):
+        if direction is None:
+            # I will generate one if you dont give me!
+            direction = random.uniform(0, math.pi * 2)
+        if pos is None:
+            # I cant really get started...can i?
+            raise Exception("No pos given")
         # self.energy = 1
         self.direction = direction
         self.pos = np.copy(pos)
@@ -133,6 +240,10 @@ class ParticleFilterSampler:
         self.supressVisitedArea = supressVisitedArea
         self._last_prob = None
 
+        self.counter = 0
+        self._c_random = 0
+        self._c_resample = 0
+
     def init(self, **kwargs):
         self.XDIM = kwargs['XDIM']
         self.YDIM = kwargs['YDIM']
@@ -140,6 +251,8 @@ class ParticleFilterSampler:
         self.EPSILON = kwargs['EPSILON']
         self.scaling = kwargs['SCALING']
         self.startPt = kwargs['startPt']
+        self.goalPt = kwargs['goalPt']
+        self.nodes = kwargs['nodes']
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
         # probability layer
@@ -147,8 +260,10 @@ class ParticleFilterSampler:
             (self.XDIM * self.scaling, self.YDIM * self.scaling),
             pygame.SRCALPHA)
 
-        self.p_manager = ParticleManager(
-            num_particles=10, startPt=self.startPt)
+        self.p_manager = ParticleManager(num_particles=10,
+                                         startPt=self.startPt,
+                                         goalPt=self.goalPt,
+                                         nodes=self.nodes)
 
     def reportFail(self, idx):
         if idx >= 0:
@@ -159,7 +274,14 @@ class ParticleFilterSampler:
         self.p_manager.modify_energy(idx=idx, factor=1.1)
 
     def randomWalk(self, idx):
-        new_direction = drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
+        # Randomly bias toward goal direction
+        if random.random() < GOAL_BIAS:
+            dx = self.goalPt[0] - self.p_manager.get_pos(idx)[0]
+            dy = self.goalPt[1] - self.p_manager.get_pos(idx)[1]
+            goal_direction = math.atan2(dy, dx)
+            new_direction = drawNormal(origin=goal_direction, kappa=1.5)
+        else:
+            new_direction = drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
 
         factor = self.EPSILON * 1
         x, y = self.p_manager.get_pos(idx)
@@ -171,6 +293,27 @@ class ParticleFilterSampler:
         return trying_this
 
     def getNextNode(self):
+        self.counter += 1
+        self._c_random += 1
+        self._c_resample += 1
+
+        # if self._c_random > RANDOM_RESTART_EVERY and RANDOM_RESTART_EVERY > 0:
+        #     _p = self.p_manager.random_restart_lowest()
+        #     print("Rand restart at counter {}, with p {}".format(self.counter, _p))
+        #     self._c_random = 0
+        if self._c_random > RANDOM_RESTART_EVERY and RANDOM_RESTART_EVERY > 0:
+            _p = self.p_manager.random_restart_specific_value()
+            if _p:
+                print("Rand restart at counter {}, with p {}".format(self.counter, _p))
+            self._c_random = 0
+        if self._c_resample > RESAMPLE_RESTART_EVERY and RESAMPLE_RESTART_EVERY > 0:
+            print(self.p_manager.get_prob())
+            self.p_manager.weighted_resampling()
+            print("Resampling at counter {}".format(self.counter))
+            self._c_resample = 0
+            print(self.p_manager.get_prob())
+
+
         if random.random() < 0:
             print('rand')
             p = self.randomSampler.getNextNode()
@@ -179,7 +322,14 @@ class ParticleFilterSampler:
             # get a node to random walk
             prob = self.p_manager.get_prob()
             self._last_prob = prob  # this will be used to paint particles
-            choice = np.random.choice(range(self.p_manager.size()), p=prob)
+            try:
+                choice = np.random.choice(range(self.p_manager.size()), p=prob)
+            except ValueError as e:
+                # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
+                print("!! probability got exception '{}'... trying to re-sync prob again.".format(e))
+                self.p_manager.resync_prob()
+                self._last_prob = prob
+                choice = np.random.choice(range(self.p_manager.size()), p=prob)
 
             p = self.randomWalk(choice)
 
@@ -214,7 +364,6 @@ class ParticleFilterSampler:
             # get a transistion from green to red
             c = self.get_color_transists(self._last_prob[i], max, min)
             color = (100, c, 0)
-
             pygame.draw.circle(self.particles_layer, color,
-                               p.pos * self.scaling, 4 * self.scaling)
+                               p.pos.astype(int) * self.scaling, 4 * self.scaling)
             window.blit(self.particles_layer, (0, 0))

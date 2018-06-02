@@ -159,7 +159,8 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler = sampler
-        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON, startPt=self.startPt.pos)
+        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON,
+                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, nodes=self.nodes)
 
     ############################################################
 
