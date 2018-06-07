@@ -15,7 +15,7 @@ class RandomPolicySampler(Sampler):
             p = random.random()*self.XDIM,  random.random()*self.YDIM
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return np.array(p), self.reportSuccess, self.reportFail
+            return p, self.reportSuccess, self.reportFail
 
 #############################
 # FOR Informed RRT
@@ -37,4 +37,4 @@ class RandomPolicySampler(Sampler):
 #             ##################################
 #             pos =  x2 + self.x_center[0] , y2 + self.x_center[1]
 #             if not self.collides(pos):
-#                 return np.array(pos)
+#                 return pos

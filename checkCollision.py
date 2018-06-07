@@ -3,7 +3,6 @@ import numpy as np
 
 def dist(p1, p2):
     return np.linalg.norm(p1 - p2)
-    # return sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
 def get_line(start, end):
     """Bresenham's Line Algorithm
@@ -63,53 +62,58 @@ def get_line(start, end):
         points.reverse()
     return points
 
-def lineGenerationAlgorithm(p1, p2):
-    pixels = []
-    # edge case of p1 == p2
-    if np.array_equal (p1,p2):
-        return []
-    # given 2 points, return a list that contain all pixel within the two point
-    dx = p2[0] - p1[0]
-    dy = p2[1] - p1[1]
+# def lineGenerationAlgorithm(p1, p2):
+#     pixels = []
+#     # edge case of p1 == p2
+#     if np.array_equal(p1,p2):
+#         return []
+#     # given 2 points, return a list that contain all pixel within the two point
+#     dx = p2[0] - p1[0]
+#     dy = p2[1] - p1[1]
+#
+#     dp = p2-p1
+#
+#     if abs(dx) > abs(dy):
+#         steps = abs(dx)
+#     else:
+#         steps = abs(dy)
+#
+#     xIncrement = dx / float(steps)
+#     yIncrement = dy / float(steps)
+#
+#     x = p1[0]
+#     y = p1[1]
+#     for i in range(int(steps)):
+#         x = x + xIncrement
+#         y = y + yIncrement
+#         pixels.append((int(x), int(y)))
+#     return pixels
 
-    dp = p2-p1
+class CollisionChecker:
 
-    if abs(dx) > abs(dy):
-        steps = abs(dx)
-    else:
-        steps = abs(dy)
+    def __init__(self, img):
+        self.img = img
 
-    xIncrement = dx / float(steps)
-    yIncrement = dy / float(steps)
+    def getCoorBeforeCollision(self, nodeA, nodeB):
+        pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
+        # check that all pixel are white (free space)
+        endPos = nodeB.pos
+        for p in pixels:
+            endPos = (p[0], p[1])
+            color = self.img.get_at(endPos)
+            if color != (255, 255, 255) and color != (255, 255, 255, 255):
+                break
+        return endPos
 
-    x = p1[0]
-    y = p1[1]
-    for i in range(int(steps)):
-        x = x + xIncrement
-        y = y + yIncrement
-        pixels.append((int(x), int(y)))
-    return pixels
+    def pathIsFree(self, nodeA,nodeB):
+        white = 255, 255, 255
+        # get list of pixel between node A and B
+        # pixels = lineGenerationAlgorithm(nodeA.pos, nodeB.pos)
+        pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
 
-def getCoorBeforeCollision(nodeA,nodeB,img):
-    pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
-    # check that all pixel are white (free space)
-    endPos = nodeB.pos
-    for p in pixels:
-        endPos = (p[0], p[1])
-        color = img.get_at(endPos)
-        if color != (255, 255, 255) and color != (255, 255, 255, 255):
-            break
-    return nodeA.pos, endPos
-
-def checkIntersect(nodeA,nodeB,img):
-    white = 255, 255, 255
-    # get list of pixel between node A and B
-    # pixels = lineGenerationAlgorithm(nodeA.pos, nodeB.pos)
-    pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
-
-    # check that all pixel are white (free space)
-    for p in pixels:
-        color = img.get_at((p[0], p[1]))
-        if color != (255, 255, 255) and color != (255, 255, 255, 255):
-            return False
-    return True
+        # check that all pixel are white (free space)
+        for p in pixels:
+            color = self.img.get_at((p[0], p[1]))
+            if color != (255, 255, 255) and color != (255, 255, 255, 255):
+                return False
+        return True

@@ -48,7 +48,7 @@ class NearbyPolicySampler(Sampler):
             # print(p)
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return np.array(p), self.reportSuccess, self.reportFail
+            return p, self.reportSuccess, self.reportFail
 
     def addTreeNode(self, x, y):
         x = int(x / self.PROB_BLOCK_SIZE)
