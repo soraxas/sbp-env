@@ -186,7 +186,7 @@ class RRT:
             pos = p1[0] + self.EPSILON * cos(theta), p1[1] + self.EPSILON * sin(theta)
             return pos
 
-    def chooseParent(self, nn, newnode):
+    def chooseLeastCostParent(self, nn, newnode):
         for p in self.nodes:
             if(self.cc.pathIsFree(p, newnode) and
                dist(p.pos, newnode.pos) < self.RADIUS and
@@ -211,6 +211,13 @@ class RRT:
     def run(self):
         self.fpsClock.tick(10000)
         goal_bias_success = False
+        def findNearestNeighbour(node):
+            nn = self.nodes[0]
+            for p in self.nodes:
+                if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
+                    nn = p
+            return nn
+
         while self.stats.valid_sample < self.NUMNODES:
 
             rand = None
@@ -219,48 +226,31 @@ class RRT:
                 coordinate, reportSuccess, reportFail = self.sampler.getNextNode()
                 rand = Node(coordinate)
                 self.stats.addSampledNode(rand)
-            preRandomPt = rand
-            nn = self.nodes[0]
-            # for Non-goal bias, we pick the cloest point
-            for p in self.nodes:
-                if dist(p.pos, rand.pos) < dist(nn.pos, rand.pos):
-                    nn = p
+            nn = findNearestNeighbour(rand)
 
-            interpolatedPoint = self.step_from_to(nn.pos, rand.pos)
-            newnode = Node(interpolatedPoint)
+            newnode = Node(self.step_from_to(nn.pos, rand.pos))
 
-            checkingNode = newnode
-            if not self.cc.pathIsFree(nn, checkingNode):
-                self.sampler.addSample(p=preRandomPt, free=False)
-                # self.sampler.addSample(p=preRandomPt, free=True, weight=10)
+            if not self.cc.pathIsFree(nn, newnode):
+                self.sampler.addSample(p=rand, free=False)
                 self.stats.addInvalid(perm=False)
                 reportFail()
             else:
                 reportSuccess()
                 self.stats.addFree()
-                x = newnode.pos[0]
-                y = newnode.pos[1]
+                x, y = newnode.pos
                 self.sampler.addTreeNode(x, y)
-                if preRandomPt is not None:
+                if rand is not None and ' Sampler.addSampleLine ' not in self.sampler.addSampleLine.__str__():
+                    # only run this if the sampler wants (had implemented) this method
                     # add all in between point of nearest node of the random pt as valid
-                    x1 = preRandomPt.pos[0]
-                    y1 = preRandomPt.pos[1]
-
-                    (x1, y1) = self.cc.getCoorBeforeCollision(nn, rand)
-
+                    x1, y1 = self.cc.getCoorBeforeCollision(nn, rand)
                     self.sampler.addSampleLine(x, y, x1, y1)
-                # Reaching this point means the goal bias had been successful. Go directly to the goal!
-                #######################
-                [newnode, nn] = self.chooseParent(nn, newnode)
-
+                ######################
+                [newnode, nn] = self.chooseLeastCostParent(nn, newnode)
                 self.nodes.append(newnode)
-                pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
                 self.reWire(newnode)
-                pygame.display.update()
+                pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
 
                 if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
-                    # print('Reached goal!')
-
                     if newnode.cost < self.c_max:
                         self.c_max = newnode.cost
                         self.drawSolutionPath()

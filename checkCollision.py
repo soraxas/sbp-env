@@ -104,6 +104,13 @@ class CollisionChecker:
             if color != (255, 255, 255) and color != (255, 255, 255, 255):
                 break
         return endPos
+        if rand is not None:
+            # add all in between point of nearest node of the random pt as valid
+            x1, y1 = rand.pos
+            (x1, y1) = self.cc.getCoorBeforeCollision(nn, rand)
+
+            self.sampler.addSampleLine(x, y, x1, y1)
+        ######################
 
     def pathIsFree(self, nodeA,nodeB):
         white = 255, 255, 255
