@@ -7,26 +7,26 @@ class Sampler:
     sampler uses but not all. This sampler does nothing with its own.
     """
 
-    def init(self, **kwargs):
+    def init(self, *argv, **kwargs):
         pass
 
-    def getNextNode(self):
+    def getNextNode(self, *argv, **kwargs):
         pass
 
-    def addSample(self, **kwargs):
+    def addSample(self, *argv, **kwargs):
         pass
 
-    def reportSuccess(self):
+    def reportSuccess(self, *argv, **kwargs):
         pass
 
-    def reportFail(self):
+    def reportFail(self, *argv, **kwargs):
         pass
 
-    def addTreeNode(self, x, y):
+    def addTreeNode(self, *argv, **kwargs):
         pass
 
-    def addSampleLine(self, x1, y1, x2, y2):
+    def addSampleLine(self, *argv, **kwargs):
         pass
 
-    def paint(self, window):
+    def paint(self, *argv, **kwargs):
         pass

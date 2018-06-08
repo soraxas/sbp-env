@@ -221,15 +221,15 @@ class RRT:
         while self.stats.valid_sample < self.NUMNODES:
 
             rand = None
+            # Get an sample that is free (not in blocked space)
             while rand is None or self.collides(rand.pos):
-                # keep getting sample if node is invalid (non-free space)
                 coordinate, reportSuccess, reportFail = self.sampler.getNextNode()
                 rand = Node(coordinate)
                 self.stats.addSampledNode(rand)
             nn = findNearestNeighbour(rand)
-
+            # get an intermediate node according to step-size
             newnode = Node(self.step_from_to(nn.pos, rand.pos))
-
+            # check if it is free or not ofree
             if not self.cc.pathIsFree(nn, newnode):
                 self.sampler.addSample(p=rand, free=False)
                 self.stats.addInvalid(perm=False)
@@ -245,8 +245,10 @@ class RRT:
                     x1, y1 = self.cc.getCoorBeforeCollision(nn, rand)
                     self.sampler.addSampleLine(x, y, x1, y1)
                 ######################
+                # consider not only the length but also the current shortest cost
                 [newnode, nn] = self.chooseLeastCostParent(nn, newnode)
                 self.nodes.append(newnode)
+                # rewire to see what the newly added node can do for us
                 self.reWire(newnode)
                 pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
 
