@@ -134,8 +134,8 @@ class ParticleManager:
         delta = self.particles_energy[idx] - old_energy
         self.cur_energy_sum += delta
 
-    def confirm(self, idx):
-        self.particles[idx].confirm()
+    def confirm(self, idx, pos):
+        self.particles[idx].confirm(pos)
 
     def new_pos(self, idx, pos, dir):
         return self.particles[idx].try_new_pos((pos[0], pos[1]), dir)
@@ -208,30 +208,17 @@ class Particle:
         self._trying_this_pos = np.copy(pos)
         self._trying_this_dir = None
 
-        self.nothing_to_confirm = False  # NOTE false because at the begining need to confirm starting point
-
     def try_new_pos(self, new_pos, new_dir):
-        self.nothing_to_confirm = False
-
-        self.last_time_already_reverted = False
         # pos is a 2 index list-type object
-        self._trying_this_pos[0] = new_pos[0]
-        self._trying_this_pos[1] = new_pos[1]
+        # Do nothing with new_pos for now as we confirm our final location via callback
         #################################################################################
-        self.last_time_already_reverted = False
         # new_dir is a scalar (for now TODO make it to general dimension later)
-        self._trying_this_dir = self.direction
-        self.direction = new_dir
+        self._trying_this_dir = new_dir
 
-        return self._trying_this_pos
-
-    def confirm(self):
-        if self.nothing_to_confirm:
-            raise Exception("This particle is trying to confirm nothingness")
-        self.nothing_to_confirm = True
-        # to confirm the previous step is valid
-        self.pos[0] = self._trying_this_pos[0]
-        self.pos[1] = self._trying_this_pos[1]
+    def confirm(self, pos):
+        # to confirm the final location of newly added tree node
+        self.pos[0] = pos[0]
+        self.pos[1] = pos[1]
         self.direction = self._trying_this_dir
 
 
@@ -269,12 +256,12 @@ class ParticleFilterSampler(Sampler):
                                          goalPt=self.goalPt,
                                          nodes=self.nodes)
 
-    def reportFail(self, idx):
+    def reportFail(self, idx, **kwargs):
         if idx >= 0:
             self.p_manager.modify_energy(idx=idx, factor=0.8)
 
-    def reportSuccess(self, idx):
-        self.p_manager.confirm(idx)
+    def reportSuccess(self, idx, **kwargs):
+        self.p_manager.confirm(idx, kwargs['pos'])
         self.p_manager.modify_energy(idx=idx, factor=1.1)
 
     def randomWalk(self, idx):
@@ -287,14 +274,15 @@ class ParticleFilterSampler(Sampler):
         else:
             new_direction = drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
 
-        factor = self.EPSILON * 1
+        factor = self.EPSILON * 2
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor
 
-        trying_this = self.p_manager.new_pos(
-            idx=idx, pos=(x, y), dir=new_direction)
-        return trying_this
+        self.p_manager.new_pos(idx=idx,
+                               pos=(x, y),
+                               dir=new_direction)
+        return (x, y)
 
     def getNextNode(self):
         self.counter += 1
@@ -338,7 +326,8 @@ class ParticleFilterSampler(Sampler):
             p = self.randomWalk(choice)
 
         self.last_particle = p
-        return p, lambda c=choice: self.reportSuccess(c), lambda c=choice: self.reportFail(c)
+        return (p, lambda c=choice, **kwargs: self.reportSuccess(c, **kwargs),
+                   lambda c=choice, **kwargs: self.reportFail(c, **kwargs))
 
 
 ############################################################

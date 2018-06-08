@@ -13,9 +13,9 @@ if __name__ == '__main__':
     SCALING = 4
 
     sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
-    sampler = ParticleFilterSampler()
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
     sampler = RandomPolicySampler()
+    sampler = ParticleFilterSampler()
 
     rrt = rrtstar.RRT(
         showSampledPoint=True,

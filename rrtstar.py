@@ -235,7 +235,7 @@ class RRT:
                 self.stats.addInvalid(perm=False)
                 reportFail()
             else:
-                reportSuccess()
+                reportSuccess(pos=newnode.pos)
                 self.stats.addFree()
                 x, y = newnode.pos
                 self.sampler.addTreeNode(x, y)
