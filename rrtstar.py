@@ -66,7 +66,7 @@ class stats:
 ############################################################
 
 class RRT:
-    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True):
+    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, ignore_step_size=False):
         # initialize and prepare screen
         pygame.init()
         self.stats = stats()
@@ -82,6 +82,7 @@ class RRT:
         self.fpsClock = pygame.time.Clock()
         self.goalBias = goalBias
         self.showSampledPoint = showSampledPoint
+        self.ignore_step_size = ignore_step_size
 
         self.c_max = INF
 
@@ -179,6 +180,8 @@ class RRT:
 
     def step_from_to(self,p1, p2):
         """Get a new point from p1 to p2, according to step size."""
+        if self.ignore_step_size:
+            return p2
         if dist(p1, p2) < self.EPSILON:
             return p2
         else:
