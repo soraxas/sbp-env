@@ -11,7 +11,7 @@ if __name__ == '__main__':
     goal_radius = 15
     prob_block_size = 5
     SCALING = 4
-    IGNORE_STEP_SIZE = False
+    IGNORE_STEP_SIZE = True
 
     sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
