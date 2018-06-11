@@ -66,7 +66,7 @@ class stats:
 ############################################################
 
 class RRT:
-    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, ignore_step_size=False):
+    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, ignore_step_size=False, always_refresh=False):
         # initialize and prepare screen
         pygame.init()
         self.stats = stats()
@@ -75,6 +75,7 @@ class RRT:
         self.XDIM = self.img.get_width()
         self.YDIM = self.img.get_height()
         self.SCALING = scaling
+        self.always_refresh = always_refresh
 
         self.EPSILON = epsilon
         self.NUMNODES = max_number_nodes
@@ -299,19 +300,23 @@ class RRT:
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
-
-        self.refresh_cnt += 1
+        update_all
+        if update_all or self.always_refresh:
+            count = 0 #FORCE UPDATE
+        else:
+            count = self.refresh_cnt
+            self.refresh_cnt += 1
 
         ##### Solution path
-        if self.refresh_cnt % 50 == 0:
+        if count % 50 == 0:
             self.drawSolutionPath()
             # self.wait_for_exit()
         # limites the screen update
-        if self.refresh_cnt % 10 == 0:
+        if count % 10 == 0:
             self.window.blit(self.background,(0,0))
 
         ##### Tree paths
-        if self.refresh_cnt % 10 == 0:
+        if count % 10 == 0:
             self.window.blit(self.path_layers,(0,0))
             self.window.blit(self.solution_path_screen,(0,0))
             if self.startPt is not None:
@@ -320,14 +325,14 @@ class RRT:
                 pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 
         ##### Sampler hook
-        if self.refresh_cnt % 5 == 0:
+        if count % 5 == 0:
             try:
                 self.sampler.paint(self.window)
             except AttributeError:
                 pass
 
         ##### Sampled points
-        if self.refresh_cnt % 2 == 0:
+        if count % 2 == 0:
             show_sampled_point_for = 1
             self.sampledPoint_screen.fill(ALPHA_CK)
             # Draw sampled nodes
@@ -341,7 +346,7 @@ class RRT:
             self.window.blit(self.sampledPoint_screen,(0,0))
 
         ##### Texts
-        if self.refresh_cnt % 10 == 0:
+        if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, len(self.nodes))
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))

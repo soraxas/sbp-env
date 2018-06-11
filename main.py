@@ -3,6 +3,7 @@ from randomPolicySampler import RandomPolicySampler
 from likelihoodPolicySampler import LikelihoodPolicySampler
 from particleFilterSampler import ParticleFilterSampler
 from nearbyPolicySampler import NearbyPolicySampler
+from mouseSampler import MouseSampler
 
 # if python says run, then we should run
 if __name__ == '__main__':
@@ -17,6 +18,7 @@ if __name__ == '__main__':
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
     sampler = RandomPolicySampler()
     sampler = ParticleFilterSampler()
+    sampler = MouseSampler()
 
     rrt = rrtstar.RRT(
         showSampledPoint=True,
@@ -27,6 +29,7 @@ if __name__ == '__main__':
         epsilon=epsilon,
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
-        ignore_step_size=IGNORE_STEP_SIZE
+        ignore_step_size=IGNORE_STEP_SIZE,
+        always_refresh=False
         )
     rrt.run()
