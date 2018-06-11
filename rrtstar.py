@@ -13,6 +13,7 @@ from math import sqrt, cos, sin, atan2
 import numpy as np
 from matplotlib import pyplot as plt
 
+from disjointTree import *
 from checkCollision import *
 
 # constants
