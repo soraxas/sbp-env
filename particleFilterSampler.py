@@ -102,12 +102,12 @@ class RandomnessManager:
 
 
 class ParticleManager:
-    def __init__(self, num_particles, startPt, goalPt, nodes):
+    def __init__(self, num_particles, startPt, goalPt, rrt_instance):
         self.num_particles = num_particles
         self.init_energy()
         self.particles = []
         self.goalPt = goalPt
-        self.nodes = nodes
+        self.rrt = rrt_instance
 
         for _ in range(self.num_particles):
             self.particles.append(
@@ -176,7 +176,7 @@ class ParticleManager:
         """
         min_idx = np.argmin(self.particles_energy)
         p = self.particles_energy[min_idx]
-        randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+        randomPt = self.rrt.nodes[random.randint(0, len(self.rrt.nodes)-1)].pos
         self.particles[min_idx] = Particle(pos=randomPt)
         self.modify_energy(min_idx, set_val=ENERGY_START)
         return p
@@ -184,13 +184,36 @@ class ParticleManager:
     def random_restart_specific_value(self):
         """
         Restart all the particles that has < energy
-        than a specified amount.
+        than a specified amount, to a random location
+        based on existing tree nodes.
         """
         tmp = []
         for i in range(self.size()):
             if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 tmp.append(self.particles_energy[i])
-                randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+                randomPt = self.rrt.nodes[random.randint(0, len(self.rrt.nodes)-1)].pos
+                self.particles[i] = Particle(pos=randomPt)
+                self.modify_energy(i, set_val=ENERGY_START)
+        return tmp
+
+    def random_free_space_restart(self):
+        """
+        Restart all the particles that has < energy
+        than a specified amount, to a random location
+        in the map that is free.
+        Might not work well for non-disjoint tree.
+        """
+        def new_pos_in_free_space():
+            """Return a particle that is in free space (from map)"""
+            new_p = None
+            while new_p is None or self.rrt.collides(new_p):
+                new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
+            return new_p
+        tmp = []
+        for i in range(self.size()):
+            if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
+                tmp.append(self.particles_energy[i])
+                randomPt = new_pos_in_free_space()
                 self.particles[i] = Particle(pos=randomPt)
                 self.modify_energy(i, set_val=ENERGY_START)
         return tmp
@@ -261,7 +284,6 @@ class ParticleFilterSampler(Sampler):
         self.scaling = kwargs['SCALING']
         self.startPt = kwargs['startPt']
         self.goalPt = kwargs['goalPt']
-        self.nodes = kwargs['nodes']
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
         self.randomnessManager = RandomnessManager()
@@ -273,7 +295,7 @@ class ParticleFilterSampler(Sampler):
         self.p_manager = ParticleManager(num_particles=10,
                                          startPt=self.startPt,
                                          goalPt=self.goalPt,
-                                         nodes=self.nodes)
+                                         rrt_instance=self.RRT)
 
     def report_fail(self, idx, **kwargs):
         if idx >= 0:
