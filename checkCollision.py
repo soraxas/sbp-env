@@ -94,7 +94,7 @@ class CollisionChecker:
     def __init__(self, img):
         self.img = img
 
-    def getCoorBeforeCollision(self, nodeA, nodeB):
+    def get_coor_before_collision(self, nodeA, nodeB):
         pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
         # check that all pixel are white (free space)
         endPos = nodeB.pos
@@ -104,15 +104,15 @@ class CollisionChecker:
             if color != (255, 255, 255) and color != (255, 255, 255, 255):
                 break
         return endPos
-        if rand is not None:
-            # add all in between point of nearest node of the random pt as valid
-            x1, y1 = rand.pos
-            (x1, y1) = self.cc.getCoorBeforeCollision(nn, rand)
-
-            self.sampler.addSampleLine(x, y, x1, y1)
+        # if rand is not None:
+        #     # add all in between point of nearest node of the random pt as valid
+        #     x1, y1 = rand.pos
+        #     (x1, y1) = self.cc.get_coor_before_collision(nn, rand)
+        #
+        #     self.sampler.add_sample_line(x, y, x1, y1)
         ######################
 
-    def pathIsFree(self, nodeA,nodeB):
+    def path_is_free(self, nodeA,nodeB):
         white = 255, 255, 255
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(nodeA.pos, nodeB.pos)

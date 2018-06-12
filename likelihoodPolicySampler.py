@@ -35,10 +35,10 @@ class LikelihoodPolicySampler(Sampler):
 
         self.sampleCount = 0
 
-    def getNextNode(self):
+    def get_next_node(self):
         if self.prob_vector_normalized is None or random.random() < 0.01:
             print('rand')
-            return self.randomSampler.getNextNode()
+            return self.randomSampler.get_next_node()
         while True:
             choice = np.random.choice(range(self.prob_vector_normalized.size), p=self.prob_vector_normalized.ravel())
             y = choice % self.prob_vector_normalized.shape[1]
@@ -48,23 +48,23 @@ class LikelihoodPolicySampler(Sampler):
             # print(p)
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return p, self.reportSuccess, self.reportFail
+            return p, self.report_success, self.report_fail
 
-    def addTreeNode(self, x, y):
+    def add_tree_node(self, x, y):
         x = int(x / self.PROB_BLOCK_SIZE)
         y = int(y / self.PROB_BLOCK_SIZE)
         self.tree_vector[x][y] += 1
 
-    def addSampleLine(self, x1, y1, x2, y2):
+    def add_sample_line(self, x1, y1, x2, y2):
         x1 = int(x1 / self.PROB_BLOCK_SIZE)
         y1 = int(y1 / self.PROB_BLOCK_SIZE)
         x2 = int(x2 / self.PROB_BLOCK_SIZE)
         y2 = int(y2 / self.PROB_BLOCK_SIZE)
         points = get_line((x1,y1), (x2,y2))
         for p in points:
-            self.addSample(p=p, free=True, alreadyDividedByProbBlockSize=True)
+            self.add_sample(p=p, free=True, alreadyDividedByProbBlockSize=True)
 
-    def addSample(self, **kwargs):
+    def add_sample(self, **kwargs):
     # def addInvalidPoint(self,p, blockedSpace, perma=False, alreadyDividedByProbBlockSize=False):
         p = kwargs['p']
         if p is None:

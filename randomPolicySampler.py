@@ -9,13 +9,13 @@ class RandomPolicySampler(Sampler):
         self.YDIM = kwargs['YDIM']
         self.RRT = kwargs['RRT']
 
-    def getNextNode(self):
+    def get_next_node(self):
         # Random path
         while True:
             p = random.random()*self.XDIM,  random.random()*self.YDIM
             # p = random.random()*self.XDIM, random.random()*self.YDIM
             # if not self.RRT.collides(p):
-            return p, self.reportSuccess, self.reportFail
+            return p, self.report_success, self.report_fail
 
 #############################
 # FOR Informed RRT

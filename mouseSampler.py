@@ -10,7 +10,7 @@ class MouseSampler(Sampler):
     def init(self, **kwargs):
         self.SCALING = kwargs['SCALING']
 
-    def getMouseClickPosition(self):
+    def get_mouse_click_position(self):
         while True:
             time.sleep(0.05)
             pygame.event.wait()
@@ -19,5 +19,5 @@ class MouseSampler(Sampler):
                 pos = (int(pos[0] / self.SCALING), int(pos[1] / self.SCALING))
                 return pos
 
-    def getNextNode(self):
-        return self.getMouseClickPosition(), self.reportSuccess, self.reportFail
+    def get_next_node(self):
+        return self.get_mouse_click_position(), self.report_success, self.report_fail

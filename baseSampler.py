@@ -10,22 +10,22 @@ class Sampler:
     def init(self, *argv, **kwargs):
         pass
 
-    def getNextNode(self, *argv, **kwargs):
+    def get_next_node(self, *argv, **kwargs):
         pass
 
-    def addSample(self, *argv, **kwargs):
+    def add_sample(self, *argv, **kwargs):
         pass
 
-    def reportSuccess(self, *argv, **kwargs):
+    def report_success(self, *argv, **kwargs):
         pass
 
-    def reportFail(self, *argv, **kwargs):
+    def report_fail(self, *argv, **kwargs):
         pass
 
-    def addTreeNode(self, *argv, **kwargs):
+    def add_tree_node(self, *argv, **kwargs):
         pass
 
-    def addSampleLine(self, *argv, **kwargs):
+    def add_sample_line(self, *argv, **kwargs):
         pass
 
     def paint(self, *argv, **kwargs):

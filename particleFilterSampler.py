@@ -256,11 +256,11 @@ class ParticleFilterSampler(Sampler):
                                          goalPt=self.goalPt,
                                          nodes=self.nodes)
 
-    def reportFail(self, idx, **kwargs):
+    def report_fail(self, idx, **kwargs):
         if idx >= 0:
             self.p_manager.modify_energy(idx=idx, factor=0.8)
 
-    def reportSuccess(self, idx, **kwargs):
+    def report_success(self, idx, **kwargs):
         self.p_manager.confirm(idx, kwargs['pos'])
         self.p_manager.modify_energy(idx=idx, factor=1.1)
 
@@ -284,7 +284,7 @@ class ParticleFilterSampler(Sampler):
                                dir=new_direction)
         return (x, y)
 
-    def getNextNode(self):
+    def get_next_node(self):
         self.counter += 1
         self._c_random += 1
         self._c_resample += 1
@@ -308,7 +308,7 @@ class ParticleFilterSampler(Sampler):
 
         if random.random() < 0:
             print('rand')
-            p = self.randomSampler.getNextNode()
+            p = self.randomSampler.get_next_node()
             choice = -1
         else:
             # get a node to random walk
@@ -326,8 +326,8 @@ class ParticleFilterSampler(Sampler):
             p = self.randomWalk(choice)
 
         self.last_particle = p
-        return (p, lambda c=choice, **kwargs: self.reportSuccess(c, **kwargs),
-                   lambda c=choice, **kwargs: self.reportFail(c, **kwargs))
+        return (p, lambda c=choice, **kwargs: self.report_success(c, **kwargs),
+                   lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
 
 
 ############################################################
