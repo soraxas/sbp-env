@@ -1,8 +1,7 @@
 import numpy as np
 import random
 import pygame
-import scipy as sp
-import scipy.ndimage
+import scipy.stats
 import math
 from functools import partialmethod
 
@@ -60,34 +59,55 @@ RESAMPLE_RESTART_EVERY = 0 # 200
 ##                       Particles                        ##
 ############################################################
 
-def drawNormal(origin, use_vonmises=True, kappa=1):
-    if ('normal_dist_draws_reserve' not in drawNormal.__dict__
-            or drawNormal.cur_idx + 2 >=
-            drawNormal.normal_dist_draws_reserve.size):
-        # redraw
-        drawNormal.cur_idx = 0
+class RandomnessManager:
+    def __init__(self):
+        # draws of normal distribution
+        self.normal_draws_reserve = None
+        # draws of half normal distribution
+        self.half_normal_draws_reserve = None
+
+    def redrawNormal(self, kappa, sigma, use_vonmises=True):
+        self.normal_idx = 0
         if use_vonmises:
-            mu = 0
-            dist = np.random.vonmises(mu, kappa, 1000)
+            dist = np.random.vonmises(0, kappa, 1000)
         else:
-            mu, sigma = 0, math.pi / 4
-            dist = np.random.normal(mu, sigma, 1000)
-        drawNormal.normal_dist_draws_reserve = dist
-    # draw from samples
-    draws = drawNormal.normal_dist_draws_reserve[drawNormal.cur_idx]
-    drawNormal.cur_idx += 1
-    # shift location
-    draws += origin
-    return draws
+            dist = np.random.normal(0, sigma, 1000)
+        self.normal_draws_reserve = dist
+
+    def drawNormal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi/4):
+        if self.normal_draws_reserve is None or (self.normal_idx + 2 >= self.normal_draws_reserve.size):
+            # redraw
+            self.redrawNormal(use_vonmises=True, kappa=1, sigma=math.pi/4)
+        # draw from samples
+        draws = self.normal_draws_reserve[self.normal_idx]
+        self.normal_idx += 1
+        # shift location
+        draws += origin
+        return draws
+
+    def redrawHalfNormal(self, start_at, scale):
+        self.half_normal_idx = 0
+        dist = scipy.stats.halfnorm.rvs(loc=start_at, scale=scale, size=1000)
+        self.half_normal_draws_reserve = dist
+
+    def drawHalfNormal(self, start_at, scale=1):
+        if self.half_normal_draws_reserve is None or (self.half_normal_idx + 2 >= self.half_normal_draws_reserve.size):
+            # redraw
+            self.redrawHalfNormal(start_at, scale)
+        # draw from samples
+        draws = self.half_normal_draws_reserve[self.half_normal_idx]
+        self.half_normal_idx += 1
+        return draws
+
 
 
 class ParticleManager:
-    def __init__(self, num_particles, startPt, goalPt, nodes):
+    def __init__(self, num_particles, startPt, goalPt, rrt_instance):
         self.num_particles = num_particles
         self.init_energy()
         self.particles = []
         self.goalPt = goalPt
-        self.nodes = nodes
+        self.rrt = rrt_instance
 
         for _ in range(self.num_particles):
             self.particles.append(
@@ -126,8 +146,6 @@ class ParticleManager:
 
                     if self.particles_energy[idx] > ENERGY_COLLISION_LOSS:
                         self.particles_energy[idx] -= ENERGY_COLLISION_LOSS
-
-
         else:
             raise Exception("Nothing set in modify_energy")
 
@@ -158,7 +176,7 @@ class ParticleManager:
         """
         min_idx = np.argmin(self.particles_energy)
         p = self.particles_energy[min_idx]
-        randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+        randomPt = self.rrt.nodes[random.randint(0, len(self.rrt.nodes)-1)].pos
         self.particles[min_idx] = Particle(pos=randomPt)
         self.modify_energy(min_idx, set_val=ENERGY_START)
         return p
@@ -166,13 +184,36 @@ class ParticleManager:
     def random_restart_specific_value(self):
         """
         Restart all the particles that has < energy
-        than a specified amount.
+        than a specified amount, to a random location
+        based on existing tree nodes.
         """
         tmp = []
         for i in range(self.size()):
             if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 tmp.append(self.particles_energy[i])
-                randomPt = self.nodes[random.randint(0, len(self.nodes)-1)].pos
+                randomPt = self.rrt.nodes[random.randint(0, len(self.rrt.nodes)-1)].pos
+                self.particles[i] = Particle(pos=randomPt)
+                self.modify_energy(i, set_val=ENERGY_START)
+        return tmp
+
+    def random_free_space_restart(self):
+        """
+        Restart all the particles that has < energy
+        than a specified amount, to a random location
+        in the map that is free.
+        Might not work well for non-disjoint tree.
+        """
+        def new_pos_in_free_space():
+            """Return a particle that is in free space (from map)"""
+            new_p = None
+            while new_p is None or self.rrt.collides(new_p):
+                new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
+            return new_p
+        tmp = []
+        for i in range(self.size()):
+            if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
+                tmp.append(self.particles_energy[i])
+                randomPt = new_pos_in_free_space()
                 self.particles[i] = Particle(pos=randomPt)
                 self.modify_energy(i, set_val=ENERGY_START)
         return tmp
@@ -243,9 +284,9 @@ class ParticleFilterSampler(Sampler):
         self.scaling = kwargs['SCALING']
         self.startPt = kwargs['startPt']
         self.goalPt = kwargs['goalPt']
-        self.nodes = kwargs['nodes']
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
+        self.randomnessManager = RandomnessManager()
         # probability layer
         self.particles_layer = pygame.Surface(
             (self.XDIM * self.scaling, self.YDIM * self.scaling),
@@ -254,7 +295,7 @@ class ParticleFilterSampler(Sampler):
         self.p_manager = ParticleManager(num_particles=10,
                                          startPt=self.startPt,
                                          goalPt=self.goalPt,
-                                         nodes=self.nodes)
+                                         rrt_instance=self.RRT)
 
     def report_fail(self, idx, **kwargs):
         if idx >= 0:
@@ -270,11 +311,14 @@ class ParticleFilterSampler(Sampler):
             dx = self.goalPt[0] - self.p_manager.get_pos(idx)[0]
             dy = self.goalPt[1] - self.p_manager.get_pos(idx)[1]
             goal_direction = math.atan2(dy, dx)
-            new_direction = drawNormal(origin=goal_direction, kappa=1.5)
+            new_direction = self.randomnessManager.drawNormal(origin=goal_direction, kappa=1.5)
         else:
-            new_direction = drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
+            new_direction = self.randomnessManager.drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
 
-        factor = self.EPSILON * 2
+        # scale the half norm by a factor of epsilon
+        # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
+        factor = self.randomnessManager.drawHalfNormal(self.EPSILON, scale= self.EPSILON * 0.5)
+        print(factor)
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor
