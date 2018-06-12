@@ -196,6 +196,13 @@ class ParticleManager:
                 self.modify_energy(i, set_val=ENERGY_START)
         return tmp
 
+    def new_pos_in_free_space(self):
+        """Return a particle that is in free space (from map)"""
+        new_p = None
+        while new_p is None or self.rrt.collides(new_p):
+            new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
+            return new_p
+
     def random_free_space_restart(self):
         """
         Restart all the particles that has < energy
@@ -203,17 +210,11 @@ class ParticleManager:
         in the map that is free.
         Might not work well for non-disjoint tree.
         """
-        def new_pos_in_free_space():
-            """Return a particle that is in free space (from map)"""
-            new_p = None
-            while new_p is None or self.rrt.collides(new_p):
-                new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
-            return new_p
         tmp = []
         for i in range(self.size()):
             if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 tmp.append(self.particles_energy[i])
-                randomPt = new_pos_in_free_space()
+                randomPt = self.new_pos_in_free_space()
                 self.particles[i] = Particle(pos=randomPt)
                 self.modify_energy(i, set_val=ENERGY_START)
         return tmp
