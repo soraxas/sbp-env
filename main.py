@@ -4,6 +4,7 @@ from likelihoodPolicySampler import LikelihoodPolicySampler
 from particleFilterSampler import ParticleFilterSampler
 from nearbyPolicySampler import NearbyPolicySampler
 from mouseSampler import MouseSampler
+from disjointTree import DisjointParticleFilterSampler
 
 # if python says run, then we should run
 if __name__ == '__main__':
@@ -17,8 +18,9 @@ if __name__ == '__main__':
     sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
     sampler = RandomPolicySampler()
-    sampler = ParticleFilterSampler()
     sampler = MouseSampler()
+    sampler = ParticleFilterSampler()
+    sampler = DisjointParticleFilterSampler()
 
     rrt = rrtstar.RRT(
         showSampledPoint=True,
@@ -30,6 +32,6 @@ if __name__ == '__main__':
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=False
+        always_refresh=True
         )
     rrt.run()

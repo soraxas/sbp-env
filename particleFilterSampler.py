@@ -201,7 +201,7 @@ class ParticleManager:
         new_p = None
         while new_p is None or self.rrt.collides(new_p):
             new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
-            return new_p
+        return new_p
 
     def random_free_space_restart(self):
         """
@@ -319,7 +319,7 @@ class ParticleFilterSampler(Sampler):
         # scale the half norm by a factor of epsilon
         # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
         factor = self.randomnessManager.drawHalfNormal(self.EPSILON, scale= self.EPSILON * 0.5)
-        print(factor)
+        # print(factor)
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor

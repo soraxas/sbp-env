@@ -13,7 +13,7 @@ from math import sqrt, cos, sin, atan2
 import numpy as np
 from matplotlib import pyplot as plt
 
-from disjointTree import *
+import disjointTree as dt
 from checkCollision import *
 
 # constants
@@ -122,6 +122,7 @@ class RRT:
         self.sampledPoint_screen.fill(ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(ALPHA_CK)
         ################################################################################
+        self.tree_manager = dt.TreesManager()
         self.nodes = []
         self.sampledNodes = []
 
@@ -160,7 +161,7 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON,
-                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, nodes=self.nodes)
+                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, tree_manager=self.tree_manager)
 
     ############################################################
 
