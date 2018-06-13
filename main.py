@@ -13,7 +13,7 @@ if __name__ == '__main__':
     goal_radius = 15
     prob_block_size = 5
     SCALING = 4
-    IGNORE_STEP_SIZE = True
+    IGNORE_STEP_SIZE = False
 
     sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
@@ -32,6 +32,6 @@ if __name__ == '__main__':
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=True
+        always_refresh=False
         )
     rrt.run()

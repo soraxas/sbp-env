@@ -300,11 +300,11 @@ class ParticleFilterSampler(Sampler):
 
     def report_fail(self, idx, **kwargs):
         if idx >= 0:
-            self.p_manager.modify_energy(idx=idx, factor=0.8)
+            self.p_manager.modify_energy(idx=idx, factor=0.7)
 
     def report_success(self, idx, **kwargs):
         self.p_manager.confirm(idx, kwargs['pos'])
-        self.p_manager.modify_energy(idx=idx, factor=1.1)
+        self.p_manager.modify_energy(idx=idx, factor=1)
 
     def randomWalk(self, idx):
         # Randomly bias toward goal direction

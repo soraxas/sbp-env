@@ -98,9 +98,6 @@ class RRT:
         # main window
         self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
         ################################################################################
-        # # probability layer
-        # self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.SCALING,self.PROB_BLOCK_SIZE * self.SCALING), pygame.SRCALPHA)
-        ################################################################################
         # background aka the room
         self.background = pygame.Surface( [self.XDIM, self.YDIM] )
         self.background.blit(self.img,(0,0))
@@ -122,7 +119,7 @@ class RRT:
         self.sampledPoint_screen.fill(ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(ALPHA_CK)
         ################################################################################
-        self.tree_manager = dt.TreesManager()
+        self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
         self.sampledNodes = []
 
@@ -302,12 +299,15 @@ class RRT:
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
-        update_all
+
         if update_all or self.always_refresh:
             count = 0 #FORCE UPDATE
         else:
             count = self.refresh_cnt
             self.refresh_cnt += 1
+
+        if count % 100 == 0:
+            self.redraw_paths()
 
         ##### Solution path
         if count % 50 == 0:
@@ -350,9 +350,50 @@ class RRT:
         ##### Texts
         if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
-            text = 'Cost_min: {}  | Nodes: {}'.format(_cost, len(self.nodes))
+            if 'DisjointParticleFilterSampler' in self.sampler.__str__():
+                num_nodes = sum(len(tree.nodes) for tree in (*self.tree_manager.disjointTrees, self.tree_manager.root))
+            else:
+                num_nodes = len(self.nodes)
+            text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))
             text = 'Invalid sample: {}(temp) {}(perm)'.format(self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.95))
 
         pygame.display.update()
+
+    def redraw_paths(self):
+        from disjointTree import BFS
+        # these had already been drawn
+        drawn_nodes_pairs = []
+        self.path_layers.fill(ALPHA_CK)
+        if 'DisjointParticleFilterSampler' in self.sampler.__str__():
+            # Draw disjointed trees
+            for tree in self.tree_manager.disjointTrees:
+                bfs = BFS(tree.nodes[0])
+                while bfs.has_next():
+                    newnode = bfs.next()
+                    for e in newnode.edges:
+                        new_set = set([newnode, e])
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.append(new_set)
+                            pygame.draw.line(self.path_layers, Colour.black, newnode.pos*self.SCALING, e.pos*self.SCALING, self.SCALING)
+            # Draw root tree
+            for n in self.tree_manager.root.nodes:
+                if n.parent is not None:
+                    new_set = set([n, n.parent])
+                    if new_set not in drawn_nodes_pairs:
+                        drawn_nodes_pairs.append(new_set)
+                        pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+        else:
+            # Draw path trees
+            for n in self.nodes:
+                if n.parent is not None:
+                    new_set = set([n, n.parent])
+                    if new_set not in drawn_nodes_pairs:
+                        drawn_nodes_pairs.append(new_set)
+                        pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+
+        if self.startPt is not None:
+            pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+        if self.goalPt is not None:
+            pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
