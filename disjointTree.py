@@ -16,11 +16,11 @@ def update_progress(progress, total_num, num_of_blocks=10):
 class BFS:
     """Walk through the connected nodes with BFS"""
     def __init__(self, node):
-        self.visitedNodes = []
+        self.visitedNodes = set()
         self.next_node_to_visit = [node]
         self.next_node = None
     def visit_node(self, node):
-        self.visitedNodes.append(node)
+        self.visitedNodes.add(node)
         self.next_node_to_visit.extend(node.edges)
     def has_next(self):
         if self.next_node is not None:
@@ -84,7 +84,7 @@ class TreesManager:
         """It will join the given tree to the root"""
         from rrtstar import Colour
         bfs = BFS(middle_node)
-        bfs.visitedNodes.extend(self.root.nodes)
+        bfs.visitedNodes.update(self.root.nodes)
         # add all nodoes from disjoint tree via rrt star method
         total_num = len(tree.nodes)
         progress = 0
@@ -96,8 +96,7 @@ class TreesManager:
             # draw white (remove edge for visual) on top of disjointed tree
             for e in (x for x in newnode.edges if x not in bfs.visitedNodes):
                 pygame.draw.line(self.rrt.path_layers, Colour.white, e.pos*self.rrt.SCALING, newnode.pos*self.rrt.SCALING, self.rrt.SCALING)
-            nn = self.find_nearest_node(newnode, self.root)
-            nn, newnode = rrt_star_add_node(self.rrt, nn, newnode)
+            newnode, nn = rrt_star_add_node(self.rrt, newnode)
             self.root.nodes.append(newnode)
             pygame.draw.line(self.rrt.path_layers, Colour.black, nn.pos*self.rrt.SCALING, newnode.pos*self.rrt.SCALING, self.rrt.SCALING)
             # remove this node's edges (as we don't have a use on them anymore) to free memory
@@ -168,24 +167,6 @@ class DisjointTreeParticle(Particle):
 
 class DisjointParticleFilterSampler(ParticleFilterSampler):
 
-    def add_pos_to_existing_tree(self, pos):
-        """Try to add pos to existing tree. If success, return True."""
-        from rrtstar import Colour
-        newnode = Node(pos)
-        nearest_neighbour_node, nearest_neighbour_tree = self.tree_manager.find_nearest_node_from_neighbour(node=newnode,
-                                                                 parent_tree=None,
-                                                                 radius=self.RRT.RADIUS)
-         # check and see if the new node can be connected with other existing tree
-        if nearest_neighbour_node is not None and self.RRT.cc.path_is_free(newnode, nearest_neighbour_node):
-            print(nearest_neighbour_node)
-            pygame.draw.line(self.RRT.path_layers, Colour.black, newnode.pos*self.RRT.SCALING, nearest_neighbour_node.pos*self.RRT.SCALING, self.RRT.SCALING)
-            newnode.edges.append(nearest_neighbour_node)
-            nearest_neighbour_node.edges.append(newnode)
-            print(" ===> Joining existing tree with size {}".format(len(nearest_neighbour_tree.nodes)))
-            return True
-        return False
-
-
     def init(self, **kwargs):
         self.tree_manager = kwargs['tree_manager']
         super().init(**kwargs)
@@ -200,7 +181,6 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                 if not self.add_pos_to_existing_tree(pos):
                     # This denotes we can now spawn a new particle (that is not close to existing trees)
                     break
-
 
             dt_p = DisjointTreeParticle(
                 direction=random.uniform(0, math.pi * 2),
@@ -219,12 +199,39 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         # Monkey patch the RRT for this smapler's specific stuff
         kwargs['RRT'].run = lambda x=kwargs['RRT'] : rrt_dt_patched_run(x)
 
+    def add_pos_to_existing_tree(self, pos):
+        """Try to add pos to existing tree. If success, return True."""
+        from rrtstar import Colour
+        newnode = Node(pos)
+        nearest_neighbour_node, nearest_neighbour_tree = self.tree_manager.find_nearest_node_from_neighbour(node=newnode,
+                                                                 parent_tree=None,
+                                                                 radius=self.RRT.RADIUS)
+         # check and see if the new node can be connected with other existing tree
+        if nearest_neighbour_node is not None and self.RRT.cc.path_is_free(newnode, nearest_neighbour_node):
+            pygame.draw.line(self.RRT.path_layers, Colour.black, newnode.pos*self.RRT.SCALING, nearest_neighbour_node.pos*self.RRT.SCALING, self.RRT.SCALING)
+            if nearest_neighbour_tree is not self.tree_manager.root:
+                newnode.edges.append(nearest_neighbour_node)
+                nearest_neighbour_node.edges.append(newnode)
+                nearest_neighbour_tree.nodes.append(newnode)
+            else:
+                newnode, nn = rrt_star_add_node(self.RRT, newnode)
+                self.tree_manager.root.nodes.append(newnode)
+            print(" ==> Joining to existing tree with size {}".format(len(nearest_neighbour_tree.nodes)))
+            self.RRT.update_screen(ignore_redraw_paths=True)
+            return True
+        return False
+
     def particles_random_free_space_restart(self):
         tmp = []
         for i in range(self.p_manager.size()):
             if self.p_manager.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 tmp.append(self.p_manager.particles_energy[i])
-                randomPt = self.p_manager.new_pos_in_free_space()
+
+                while True:
+                    randomPt = self.p_manager.new_pos_in_free_space()
+                    if not self.add_pos_to_existing_tree(randomPt):
+                        break
+
                 self.p_manager.particles[i].dead = True
                 self.p_manager.particles[i] = DisjointTreeParticle(pos=randomPt, tree_manager=self.tree_manager)
                 self.p_manager.modify_energy(i, set_val=ENERGY_START)
@@ -237,7 +244,13 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
             return
         self.p_manager.particles.remove(tree.particle_handler)
         tree.particle_handler.dead = True
-        self.p_manager.particles.append(DisjointTreeParticle(pos=self.p_manager.new_pos_in_free_space(),
+
+        while True:
+            randomPt = self.p_manager.new_pos_in_free_space()
+            if not self.add_pos_to_existing_tree(randomPt):
+                break
+
+        self.p_manager.particles.append(DisjointTreeParticle(pos=randomPt,
                                                              tree_manager=self.tree_manager))
 
     def get_next_node(self):
@@ -300,23 +313,29 @@ class Node:
         self.cost = 0
         self.edges = []
 
-def rrt_star_add_node(rrt_instance, nn, newnode):
+def rrt_star_add_node(rrt_instance, newnode, nn=None):
     """This function perform finding optimal parent, and rewiring."""
     from rrtstar import Colour, GOAL_RADIUS
     self = rrt_instance
-    def choose_least_cost_parent(nn, newnode):
+    def choose_least_cost_parent(newnode, nn=None):
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
+        if nn is not None:
+            _newnode_to_nn_cost = dist(newnode.pos, nn.pos)
         for p in self.tree_manager.root.nodes:
             if p is nn:
                 continue # avoid unnecessary computations
-            if(self.cc.path_is_free(p, newnode) and
-               dist(p.pos, newnode.pos) < self.RADIUS and
-               p.cost + dist(p.pos, newnode.pos) < nn.cost + dist(nn.pos, newnode.pos)):
+            _newnode_to_p_cost = dist(newnode.pos, p.pos)
+            if self.cc.path_is_free(newnode, p) and _newnode_to_p_cost < self.RADIUS:
+               # This is another valid parent. Check if it's better than our current one.
+               if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
                 nn = p
+                _newnode_to_nn_cost = _newnode_to_p_cost
+        if nn is None:
+            raise Exception("ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?")
         newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
         newnode.parent = nn
-        return nn, newnode
+        return newnode, nn
     def rewire(newnode):
         for n in self.tree_manager.root.nodes:
             if(n != newnode.parent and self.cc.path_is_free(n, newnode) and
@@ -327,13 +346,13 @@ def rrt_star_add_node(rrt_instance, nn, newnode):
                 n.parent = newnode
                 n.cost = newnode.cost + dist(n.pos, newnode.pos)
                 pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
-    nn, newnode = choose_least_cost_parent(nn, newnode)
+    newnode, nn = choose_least_cost_parent(newnode, nn=nn)
     rewire(newnode)
     # check for goal condition
     if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
         if newnode.cost < self.c_max:
             self.c_max = newnode.cost
-    return nn, newnode
+    return newnode, nn
 
 def rrt_dt_patched_run(self):
     from rrtstar import Colour, GOAL_RADIUS
@@ -361,12 +380,12 @@ def rrt_dt_patched_run(self):
             ######################
             if parent_tree is self.tree_manager.root:
                 # using rrt* algorithm to add each nodes
-                nn, newnode = rrt_star_add_node(self, nn, newnode)
+                newnode, nn = rrt_star_add_node(self, newnode, nn)
             else:
                 nn.edges.append(newnode)
                 newnode.edges.append(nn)
 
-            self.nodes.append(newnode)
+            # self.nodes.append(newnode)
             parent_tree.nodes.append(newnode)
             nearest_neighbour_node, nearest_neighbour_tree = self.tree_manager.find_nearest_node_from_neighbour(node=newnode,
                                                                      parent_tree=parent_tree,

@@ -59,7 +59,9 @@ class stats:
     def add_free(self):
         self.valid_sample += 1
 
-    def add_sampled_node(self, node):
+    def add_sampled_node(self, node, not_a_node=False):
+        if not_a_node:
+            node = Node(node)
         self.sampledNodes.append(SampledNodes(node.pos.astype(int)))
 
 
@@ -295,7 +297,7 @@ class RRT:
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
 
-    def update_screen(self, update_all=False):
+    def update_screen(self, update_all=False, ignore_redraw_paths=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
@@ -306,8 +308,10 @@ class RRT:
             count = self.refresh_cnt
             self.refresh_cnt += 1
 
-        if count % 100 == 0:
-            self.redraw_paths()
+###################################################################################
+
+        if count % 100 == 0 and not ignore_redraw_paths:
+                self.redraw_paths()
 
         ##### Solution path
         if count % 50 == 0:

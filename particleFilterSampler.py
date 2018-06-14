@@ -198,9 +198,14 @@ class ParticleManager:
 
     def new_pos_in_free_space(self):
         """Return a particle that is in free space (from map)"""
-        new_p = None
-        while new_p is None or self.rrt.collides(new_p):
+        while True:
             new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
+            self.rrt.stats.add_sampled_node(new_p, not_a_node=True)
+            if self.rrt.collides(new_p):
+                self.rrt.stats.add_invalid(perm=True)
+            else:
+                self.rrt.stats.add_free()
+                break
         return new_p
 
     def random_free_space_restart(self):
