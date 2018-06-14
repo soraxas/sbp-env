@@ -17,7 +17,7 @@ import disjointTree as dt
 from checkCollision import *
 
 # constants
-INF = sys.maxsize
+INF = float('inf')
 ALPHA_CK = 255,0,255
 
 GOAL_RADIUS = 10
@@ -257,10 +257,9 @@ class RRT:
                 self.rewire(newnode)
                 pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
 
-                if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
-                    if newnode.cost < self.c_max:
-                        self.c_max = newnode.cost
-                        self.draw_solution_path()
+                if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS and self.c_max == INF:
+                    self.c_max = -1
+                    self.draw_solution_path()
 
                 for e in pygame.event.get():
                     if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
@@ -286,13 +285,13 @@ class RRT:
             return
         # redraw new path
         self.solution_path_screen.fill(ALPHA_CK)
-        nn = self.nodes[0]
-        for p in self.nodes:
-            if dist(p.pos, self.goalPt.pos) < dist(nn.pos, self.goalPt.pos):
-                nn = p
+        _cost = 0
+        nn = self.goalPt.parent
         while nn != self.startPt:
+            _cost += nn.cost
             pygame.draw.line(self.solution_path_screen, Colour.green, nn.pos*self.SCALING, nn.parent.pos*self.SCALING, 5*self.SCALING)
             nn = nn.parent
+        self.c_max = _cost
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
@@ -355,7 +354,7 @@ class RRT:
         if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
             if 'DisjointParticleFilterSampler' in self.sampler.__str__():
-                num_nodes = sum(len(tree.nodes) for tree in (*self.tree_manager.disjointTrees, self.tree_manager.root))
+                num_nodes = sum(len(tree.nodes) for tree in (*self.tree_manager.disjointedTrees, self.tree_manager.root))
             else:
                 num_nodes = len(self.nodes)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
@@ -372,7 +371,7 @@ class RRT:
         self.path_layers.fill(ALPHA_CK)
         if 'DisjointParticleFilterSampler' in self.sampler.__str__():
             # Draw disjointed trees
-            for tree in self.tree_manager.disjointTrees:
+            for tree in self.tree_manager.disjointedTrees:
                 bfs = BFS(tree.nodes[0])
                 while bfs.has_next():
                     newnode = bfs.next()

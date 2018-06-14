@@ -32,6 +32,6 @@ if __name__ == '__main__':
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=False
+        always_refresh=True
         )
     rrt.run()
