@@ -99,13 +99,6 @@ class TreesManager:
         print("> Joining to root tree")
         while bfs.has_next():
             newnode = bfs.next()
-            if newnode not in tree.nodes:
-                print(tree.nodes)
-                print(hex(id(tree.nodes)))
-                print(bfs.validNodes)
-                print(hex(id(bfs.validNodes)))
-                print(newnode)
-                raise Exception("WTF???")
             progress += 1
             update_progress(progress, total_num, num_of_blocks=20)
             # draw white (remove edge for visual) on top of disjointed tree
@@ -116,16 +109,6 @@ class TreesManager:
             pygame.draw.line(self.rrt.path_layers, Colour.black, nn.pos*self.rrt.SCALING, newnode.pos*self.rrt.SCALING, self.rrt.SCALING)
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
-
-
-
-
-            total = 0
-            for t in self.disjointedTrees:
-                if newnode in t.nodes:
-                    total += 1
-
-            assert total == 1, "HUH??? in more than one tree"
 
         assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(progress, total_num)
 
@@ -305,7 +288,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         self._c_random += 1
         self._c_resample += 1
 
-        if self._c_random > RANDOM_RESTART_EVERY and RANDOM_RESTART_EVERY > 0:
+        if self._c_random > RANDOM_RESTART_EVERY > 0:
             _p = self.particles_random_free_space_restart()
             if _p:
                 print("Rand restart at counter {}, with p {}".format(self.counter, _p))

@@ -138,13 +138,13 @@ class RRT:
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
                     if self.startPt is None:
-                        if self.collides(mousePos,initialSetup=True) == False:
+                        if not self.collides(mousePos, initialSetup=True):
                             print(('starting point set: ' + str(mousePos)))
                             self.startPt = Node(mousePos)
                             self.nodes.append(self.startPt)
 
                     elif self.goalPt is None:
-                        if self.collides(mousePos,initialSetup=True) == False:
+                        if not self.collides(mousePos, initialSetup=True):
                             print(('goal point set: ' + str(mousePos)))
                             self.goalPt = Node(mousePos)
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
@@ -228,7 +228,7 @@ class RRT:
             rand = None
             # Get an sample that is free (not in blocked space)
             while rand is None or self.collides(rand.pos):
-                coordinate, report_success, report_fail = self.sampler.get_next_node()
+                coordinate, report_success, report_fail = self.sampler.get_next_node
                 rand = Node(coordinate)
                 self.stats.add_sampled_node(rand)
             nn = findNearestNeighbour(rand)
@@ -376,14 +376,14 @@ class RRT:
                 while bfs.has_next():
                     newnode = bfs.next()
                     for e in newnode.edges:
-                        new_set = set([newnode, e])
+                        new_set = {newnode, e}
                         if new_set not in drawn_nodes_pairs:
                             drawn_nodes_pairs.append(new_set)
                             pygame.draw.line(self.path_layers, Colour.black, newnode.pos*self.SCALING, e.pos*self.SCALING, self.SCALING)
             # Draw root tree
             for n in self.tree_manager.root.nodes:
                 if n.parent is not None:
-                    new_set = set([n, n.parent])
+                    new_set = {n, n.parent}
                     if new_set not in drawn_nodes_pairs:
                         drawn_nodes_pairs.append(new_set)
                         pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
@@ -391,7 +391,7 @@ class RRT:
             # Draw path trees
             for n in self.nodes:
                 if n.parent is not None:
-                    new_set = set([n, n.parent])
+                    new_set = {n, n.parent}
                     if new_set not in drawn_nodes_pairs:
                         drawn_nodes_pairs.append(new_set)
                         pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)

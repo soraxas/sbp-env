@@ -132,7 +132,8 @@ class LikelihoodPolicySampler(Sampler):
 #### FOR PAINTING
 #########################################################
 
-    def get_vector_alpha_parameters(self, vector):
+    @staticmethod
+    def get_vector_alpha_parameters(vector):
         max_prob = vector.max()
         min_prob = vector.min()
         denominator = max_prob-min_prob
