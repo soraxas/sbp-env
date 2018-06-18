@@ -1,0 +1,5 @@
+pygame
+overrides
+numpy
+matplotlib
+scipy
