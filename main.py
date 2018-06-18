@@ -34,4 +34,11 @@ if __name__ == '__main__':
         ignore_step_size=IGNORE_STEP_SIZE,
         always_refresh=True
         )
-    rrt.run()
+    try:
+        rrt.run()
+    except Exception as e:
+        print("==============================")
+        print("Exception occured: {}".format(e))
+        print(" Waiting to be exit...")
+        print("==============================")
+        rrt.wait_for_exit()

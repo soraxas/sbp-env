@@ -123,10 +123,16 @@ class ParticleManager:
     def size(self):
         return self.num_particles
 
-    def modify_energy(self, idx, factor=None, set_val=None):
+    def modify_energy(self, idx=None, particle_ref=None, factor=None, set_val=None):
         # TODO: sometimes the keep tracking might go out of sync (and cause error in np.random.choice. Investigate this)
         # keep track how much energy this operation would modify,
         # so we can change the energy_sum accordingly
+        if idx is None:
+            # get idx from particle ref
+            try:
+                idx = self.particles.index(particle_ref)
+            except ValueError:
+                return
         old_energy = self.particles_energy[idx]
         if set_val is not None:
             self.particles_energy[idx] = set_val
@@ -242,6 +248,9 @@ class ParticleManager:
 
 class Particle:
     def __init__(self, direction=None, pos=None):
+        self.restart(direction=direction, pos=pos)
+
+    def restart(self, direction=None, pos=None):
         if direction is None:
             # I will generate one if you dont give me!
             direction = random.uniform(0, math.pi * 2)
@@ -298,7 +307,7 @@ class ParticleFilterSampler(Sampler):
             (self.XDIM * self.scaling, self.YDIM * self.scaling),
             pygame.SRCALPHA)
 
-        self.p_manager = ParticleManager(num_particles=10,
+        self.p_manager = ParticleManager(num_particles=16,
                                          startPt=self.startPt,
                                          goalPt=self.goalPt,
                                          rrt_instance=self.RRT)

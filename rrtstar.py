@@ -372,7 +372,7 @@ class RRT:
         if 'DisjointParticleFilterSampler' in self.sampler.__str__():
             # Draw disjointed trees
             for tree in self.tree_manager.disjointedTrees:
-                bfs = BFS(tree.nodes[0])
+                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
                 while bfs.has_next():
                     newnode = bfs.next()
                     for e in newnode.edges:
