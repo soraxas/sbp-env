@@ -32,13 +32,15 @@ if __name__ == '__main__':
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=True
+        always_refresh=False
         )
     try:
         rrt.run()
     except Exception as e:
+        import traceback
         print("==============================")
         print("Exception occured: {}".format(e))
-        print(" Waiting to be exit...")
+        traceback.print_tb(e.__traceback__)
         print("==============================")
+        print("Waiting to be exit...")
         rrt.wait_for_exit()

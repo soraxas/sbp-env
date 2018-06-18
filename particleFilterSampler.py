@@ -66,7 +66,7 @@ class RandomnessManager:
         # draws of half normal distribution
         self.half_normal_draws_reserve = None
 
-    def redrawNormal(self, kappa, sigma, use_vonmises=True):
+    def redraw_normal(self, kappa, sigma, use_vonmises=True):
         self.normal_idx = 0
         if use_vonmises:
             dist = np.random.vonmises(0, kappa, 1000)
@@ -74,10 +74,10 @@ class RandomnessManager:
             dist = np.random.normal(0, sigma, 1000)
         self.normal_draws_reserve = dist
 
-    def drawNormal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi/4):
+    def draw_normal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi / 4):
         if self.normal_draws_reserve is None or (self.normal_idx + 2 >= self.normal_draws_reserve.size):
             # redraw
-            self.redrawNormal(use_vonmises=True, kappa=1, sigma=math.pi/4)
+            self.redraw_normal(use_vonmises=True, kappa=1, sigma=math.pi / 4)
         # draw from samples
         draws = self.normal_draws_reserve[self.normal_idx]
         self.normal_idx += 1
@@ -85,15 +85,15 @@ class RandomnessManager:
         draws += origin
         return draws
 
-    def redrawHalfNormal(self, start_at, scale):
+    def redraw_half_normal(self, start_at, scale):
         self.half_normal_idx = 0
         dist = scipy.stats.halfnorm.rvs(loc=start_at, scale=scale, size=1000)
         self.half_normal_draws_reserve = dist
 
-    def drawHalfNormal(self, start_at, scale=1):
+    def draw_half_normal(self, start_at, scale=1):
         if self.half_normal_draws_reserve is None or (self.half_normal_idx + 2 >= self.half_normal_draws_reserve.size):
             # redraw
-            self.redrawHalfNormal(start_at, scale)
+            self.redraw_half_normal(start_at, scale)
         # draw from samples
         draws = self.half_normal_draws_reserve[self.half_normal_idx]
         self.half_normal_idx += 1
@@ -326,13 +326,13 @@ class ParticleFilterSampler(Sampler):
             dx = self.goalPt[0] - self.p_manager.get_pos(idx)[0]
             dy = self.goalPt[1] - self.p_manager.get_pos(idx)[1]
             goal_direction = math.atan2(dy, dx)
-            new_direction = self.randomnessManager.drawNormal(origin=goal_direction, kappa=1.5)
+            new_direction = self.randomnessManager.draw_normal(origin=goal_direction, kappa=1.5)
         else:
-            new_direction = self.randomnessManager.drawNormal(origin=self.p_manager.get_dir(idx), kappa=1.5)
+            new_direction = self.randomnessManager.draw_normal(origin=self.p_manager.get_dir(idx), kappa=1.5)
 
         # scale the half norm by a factor of epsilon
         # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
-        factor = self.randomnessManager.drawHalfNormal(self.EPSILON, scale= self.EPSILON * 0.5)
+        factor = self.randomnessManager.draw_half_normal(self.EPSILON, scale=self.EPSILON * 0.5)
         # print(factor)
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
@@ -352,13 +352,11 @@ class ParticleFilterSampler(Sampler):
         #     _p = self.p_manager.random_restart_lowest()
         #     print("Rand restart at counter {}, with p {}".format(self.counter, _p))
         #     self._c_random = 0
-        if self._c_random > RANDOM_RESTART_EVERY and RANDOM_RESTART_EVERY > 0:
+        if self._c_random > RANDOM_RESTART_EVERY > 0:
             _p = self.p_manager.random_restart_specific_value()
             if _p:
                 print("Rand restart at counter {}, with p {}".format(self.counter, _p))
             self._c_random = 0
-        if self._c_resample > RESAMPLE_RESTART_EVERY and RESAMPLE_RESTART_EVERY > 0:
-            print(self.p_manager.get_prob())
             self.p_manager.weighted_resampling()
             print("Resampling at counter {}".format(self.counter))
             self._c_resample = 0
@@ -393,7 +391,8 @@ class ParticleFilterSampler(Sampler):
 ##                      FOR PAINTING                      ##
 ############################################################
 
-    def get_color_transists(self, value, max_prob, min_prob):
+    @staticmethod
+    def get_color_transists(value, max_prob, min_prob):
         denominator = max_prob - min_prob
         if denominator == 0:
             denominator = 1  # prevent division by zero
@@ -402,12 +401,12 @@ class ParticleFilterSampler(Sampler):
     def paint(self, window):
         if self._last_prob is None:
             return
-        max = self._last_prob.max()
-        min = self._last_prob.min()
+        max_num = self._last_prob.max()
+        min_num = self._last_prob.min()
         for i, p in enumerate(self.p_manager.particles):
             self.particles_layer.fill((255, 128, 255, 0))
-            # get a transistion from green to red
-            c = self.get_color_transists(self._last_prob[i], max, min)
+            # get a transition from green to red
+            c = self.get_color_transists(self._last_prob[i], max_num, min_num)
             color = (100, c, 0)
             pygame.draw.circle(self.particles_layer, color,
                                p.pos.astype(int) * self.scaling, 4 * self.scaling)

@@ -305,7 +305,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         self._c_random += 1
         self._c_resample += 1
 
-        if self._c_random > RANDOM_RESTART_EVERY and RANDOM_RESTART_EVERY > 0:
+        if self._c_random > RANDOM_RESTART_EVERY > 0:
             _p = self.particles_random_free_space_restart()
             if _p:
                 print("Rand restart at counter {}, with p {}".format(self.counter, _p))
