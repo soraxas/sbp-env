@@ -204,10 +204,12 @@ class DisjointTreeParticle(Particle):
             pass
         if pos is None:
             # get random position
+            print(" ==> Respawn particle, joining to existing tree with size: ", end='')
             while True:
                 pos = self.p_manager.new_pos_in_free_space()
                 if not self.add_pos_to_existing_tree(pos):
                     break
+            print()
         self.p_manager.modify_energy(particle_ref=self, set_val=ENERGY_START)
         self.tree = TreeDisjoint(particle_handler=self)
         self.tree.nodes.append(Node(pos))
@@ -276,11 +278,17 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                     # joining the orphan node to a tree
                     self.RRT.connect_two_nodes(newnode, nearest_neighbour_node, nearest_neighbour_tree)
                     parent_tree = nearest_neighbour_tree
-                    print(" ==> Joining to existing tree with size {}".format(len(nearest_neighbour_tree.nodes)))
+                    print("{},".format(len(nearest_neighbour_tree.nodes)), end='')
                 else:
                     # joining a tree with tree
-                    parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
+                    try:
+                        parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
+                    except AssertionError as e:
+                        print("===== ERROR =====")
+                        print("== Assertion error in joining sampled point to existing tree...")
+                        print(e)
+                        print("== Skipping this point for now...")
                 merged = True
                 # return merged
         self.RRT.update_screen(ignore_redraw_paths=True)
@@ -403,15 +411,16 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
             if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
                     self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
                 # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, n.parent.pos * self.SCALING,
+                pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
                                  self.SCALING)
                 reconsider = (n.parent, *n.children)
                 n.parent.children.remove(n)
                 n.parent = newnode
                 newnode.children.append(n)
                 n.cost = newnode.cost + dist(n.pos, newnode.pos)
-                self.connect_two_nodes(newnode, n, draw_only=True)
                 already_rewired.add(n)
+                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, newnode.pos * self.SCALING,
+                                self.SCALING)
                 rewire(n, reconsider, already_rewired=already_rewired)
 
     # def rewire(newnode, already_rewired={newnode}):

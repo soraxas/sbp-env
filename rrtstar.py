@@ -209,7 +209,7 @@ class RRT:
             if(p != newnode.parent and self.cc.path_is_free(p, newnode) and
                dist(p.pos, newnode.pos) < self.RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost):
                 # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.white, p.pos*self.SCALING, p.parent.pos*self.SCALING, self.SCALING)
+                pygame.draw.line(self.path_layers, Colour.blue, p.pos*self.SCALING, p.parent.pos*self.SCALING, self.SCALING)
                 # update new parents (re-wire)
                 p.parent = newnode
                 p.cost = newnode.cost + dist(p.pos, newnode.pos)
@@ -295,7 +295,7 @@ class RRT:
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
-        
+
     def update_screen(self, update_all=False, ignore_redraw_paths=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
