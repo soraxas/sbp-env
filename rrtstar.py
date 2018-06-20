@@ -228,7 +228,7 @@ class RRT:
             rand = None
             # Get an sample that is free (not in blocked space)
             while rand is None or self.collides(rand.pos):
-                coordinate, report_success, report_fail = self.sampler.get_next_node
+                coordinate, report_success, report_fail = self.sampler.get_next_node()
                 rand = Node(coordinate)
                 self.stats.add_sampled_node(rand)
             nn = findNearestNeighbour(rand)
