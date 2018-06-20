@@ -1,6 +1,7 @@
 import random
 import pygame
 import math
+import sys
 
 from checkCollision import *
 from overrides import overrides
@@ -114,7 +115,7 @@ class TreesManager:
             progress += 1
             update_progress(progress, total_num, num_of_blocks=20)
             # draw white (remove edge for visual) on top of disjointed tree
-            for e in (x for x in newnode.edges if x not in bfs.visitedNodes):
+            for e in (x for x in newnode.edges if x not in bfs.visitedNodes and x in bfs.validNodes):
                 pygame.draw.line(self.rrt.path_layers, Colour.white, e.pos * self.rrt.SCALING,
                                  newnode.pos * self.rrt.SCALING, self.rrt.SCALING)
             self.rrt.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
@@ -280,9 +281,9 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                     # joining a tree with tree
                     parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
-                self.RRT.update_screen(ignore_redraw_paths=True)
                 merged = True
                 # return merged
+        self.RRT.update_screen(ignore_redraw_paths=True)
         return merged
 
     def particles_random_free_space_restart(self):
@@ -355,6 +356,7 @@ class Node(object):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
         self.edges = []
+        self.children = []
     def __repr__(self):
         try:
             edges = self.edges
@@ -377,7 +379,7 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
             if p is nn:
                 continue  # avoid unnecessary computations
             _newnode_to_p_cost = dist(newnode.pos, p.pos)
-            if self.cc.path_is_free(newnode, p) and _newnode_to_p_cost < self.RADIUS:
+            if _newnode_to_p_cost < self.RADIUS and self.cc.path_is_free(newnode, p):
                 # This is another valid parent. Check if it's better than our current one.
                 if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
                     nn = p
@@ -387,27 +389,61 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?")
         newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
         newnode.parent = nn
+        nn.children.append(newnode)
+
         return newnode, nn
 
-    def rewire(newnode):
-        for n in self.tree_manager.root.nodes:
-            if (n != newnode.parent and self.cc.path_is_free(n, newnode) and
-                    dist(n.pos, newnode.pos) < self.RADIUS and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
+    def rewire(newnode, nodes, already_rewired=set()):
+        """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+        if not nodes:
+            return
+        already_rewired.add(newnode)
+        # for n in nodes:
+        for n in (x for x in nodes if x not in already_rewired):
+            if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
+                    self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
                 # draw over the old wire
                 pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
                                  self.SCALING)
-                # update new parents (re-wire)
+                reconsider = (n.parent, *n.children)
+                n.parent.children.remove(n)
                 n.parent = newnode
+                newnode.children.append(n)
                 n.cost = newnode.cost + dist(n.pos, newnode.pos)
-                self.connect_two_nodes(newnode, nn, draw_only=True)
+                self.connect_two_nodes(newnode, n, draw_only=True)
+                already_rewired.add(n)
+                rewire(n, reconsider, already_rewired=already_rewired)
 
+    # def rewire(newnode, already_rewired={newnode}):
+    #     """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+    #     reconsider = []
+    #     i = 0
+    #     for n in (x for x in self.tree_manager.root.nodes if x not in already_rewired):
+    #         i += 1
+    #         print("parent {}".format(n.parent))
+    #         print("children {}".format(n.children))
+    #         if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
+    #                 self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
+    #             # draw over the old wire
+    #             reconsider.append(n.parent)
+    #             pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
+    #                              self.SCALING)
+    #             # update new parents (re-wire)
+    #             n.parent = newnode
+    #             n.cost = newnode.cost + dist(n.pos, newnode.pos)
+    #             self.connect_two_nodes(newnode, nn, draw_only=True)
+    #             already_rewired.add(n)
+    #             rewire(n, already_rewired)
+    #
+    #     print(i)
     newnode, nn = choose_least_cost_parent(newnode, nn=nn)
-    rewire(newnode)
+    rewire(newnode, self.tree_manager.root.nodes)
     # check for goal condition
     if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
         if newnode.cost < self.c_max:
             self.c_max = newnode.cost
             self.goalPt.parent = newnode
+            newnode.children.append(self.goalPt.parent)
     return newnode, nn
 
 

@@ -30,12 +30,14 @@ class Colour:
     blue = 0, 0, 255
     green = 0,150,0
     cyan = 20,200,200
+    orange = 255, 160, 16
 
 class Node:
     def __init__(self, pos):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
         self.parent = None
+        self.children = []
 
 class SampledNodes:
     def __init__(self, p):
@@ -198,6 +200,7 @@ class RRT:
                 nn = p
         newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
         newnode.parent = nn
+        nn.children.append(newnode)
         return newnode, nn
 
     def rewire(self, newnode):
@@ -284,21 +287,20 @@ class RRT:
             return
         # redraw new path
         self.solution_path_screen.fill(ALPHA_CK)
-        _cost = 0
         nn = self.goalPt.parent
+        self.c_max = nn.cost
         while nn != self.startPt:
-            _cost += nn.cost
             pygame.draw.line(self.solution_path_screen, Colour.green, nn.pos*self.SCALING, nn.parent.pos*self.SCALING, 5*self.SCALING)
             nn = nn.parent
-        self.c_max = _cost
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
-
+        
     def update_screen(self, update_all=False, ignore_redraw_paths=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
+            self.ignore_counter = 0
 
         if update_all or self.always_refresh:
             count = 0 #FORCE UPDATE
@@ -308,8 +310,13 @@ class RRT:
 
 ###################################################################################
 
-        if count % 100 == 0 and not ignore_redraw_paths:
+        if count % 50 == 0:
+            if not ignore_redraw_paths or self.ignore_counter % 200 == 0:
+                # force refresh every 300 ignore
+                self.ignore_counter = 0
                 self.redraw_paths()
+            else:
+                self.ignore_counter += 1
 
         ##### Solution path
         if count % 50 == 0:
@@ -366,7 +373,7 @@ class RRT:
     def redraw_paths(self):
         from disjointTree import BFS
         # these had already been drawn
-        drawn_nodes_pairs = []
+        drawn_nodes_pairs = set()
         self.path_layers.fill(ALPHA_CK)
         if 'DisjointParticleFilterSampler' in self.sampler.__str__():
             # Draw disjointed trees
@@ -375,24 +382,24 @@ class RRT:
                 while bfs.has_next():
                     newnode = bfs.next()
                     for e in newnode.edges:
-                        new_set = {newnode, e}
+                        new_set = frozenset({newnode, e})
                         if new_set not in drawn_nodes_pairs:
-                            drawn_nodes_pairs.append(new_set)
+                            drawn_nodes_pairs.add(new_set)
                             pygame.draw.line(self.path_layers, Colour.black, newnode.pos*self.SCALING, e.pos*self.SCALING, self.SCALING)
             # Draw root tree
             for n in self.tree_manager.root.nodes:
                 if n.parent is not None:
-                    new_set = {n, n.parent}
+                    new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.append(new_set)
-                        pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+                        drawn_nodes_pairs.add(new_set)
+                        pygame.draw.line(self.path_layers, Colour.orange, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
         else:
             # Draw path trees
             for n in self.nodes:
                 if n.parent is not None:
-                    new_set = {n, n.parent}
+                    new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.append(new_set)
+                        drawn_nodes_pairs.add(new_set)
                         pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
 
         if self.startPt is not None:

@@ -6,8 +6,7 @@ from nearbyPolicySampler import NearbyPolicySampler
 from mouseSampler import MouseSampler
 from disjointTree import DisjointParticleFilterSampler
 
-# if python says run, then we should run
-if __name__ == '__main__':
+def main():
     epsilon = 10.0
     max_number_nodes = 3000
     goal_radius = 15
@@ -32,7 +31,7 @@ if __name__ == '__main__':
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=False
+        always_refresh=True
         )
     try:
         rrt.run()
@@ -44,3 +43,6 @@ if __name__ == '__main__':
         print("==============================")
         print("Waiting to be exit...")
         rrt.wait_for_exit()
+
+if __name__ == '__main__':
+    main()
