@@ -403,7 +403,7 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
             if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
                     self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
                 # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
+                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, n.parent.pos * self.SCALING,
                                  self.SCALING)
                 reconsider = (n.parent, *n.children)
                 n.parent.children.remove(n)
