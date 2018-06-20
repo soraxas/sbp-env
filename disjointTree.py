@@ -378,75 +378,8 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
     from rrtstar import Colour, GOAL_RADIUS
     self = rrt_instance
 
-    def choose_least_cost_parent(newnode, nn=None):
-        """Given a new node, a node from root, return a node from root that
-        has the least cost (toward the newly added node)"""
-        if nn is not None:
-            _newnode_to_nn_cost = dist(newnode.pos, nn.pos)
-        for p in self.tree_manager.root.nodes:
-            if p is nn:
-                continue  # avoid unnecessary computations
-            _newnode_to_p_cost = dist(newnode.pos, p.pos)
-            if _newnode_to_p_cost < self.RADIUS and self.cc.path_is_free(newnode, p):
-                # This is another valid parent. Check if it's better than our current one.
-                if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
-                    nn = p
-                    _newnode_to_nn_cost = _newnode_to_p_cost
-        if nn is None:
-            raise Exception(
-                "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?")
-        newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
-        newnode.parent = nn
-        nn.children.append(newnode)
-
-        return newnode, nn
-
-    def rewire(newnode, nodes, already_rewired=set()):
-        """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
-        if not nodes:
-            return
-        already_rewired.add(newnode)
-        # for n in nodes:
-        for n in (x for x in nodes if x not in already_rewired):
-            if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
-                    self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
-                # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
-                                 self.SCALING)
-                reconsider = (n.parent, *n.children)
-                n.parent.children.remove(n)
-                n.parent = newnode
-                newnode.children.append(n)
-                n.cost = newnode.cost + dist(n.pos, newnode.pos)
-                already_rewired.add(n)
-                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, newnode.pos * self.SCALING,
-                                self.SCALING)
-                rewire(n, reconsider, already_rewired=already_rewired)
-
-    # def rewire(newnode, already_rewired={newnode}):
-    #     """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
-    #     reconsider = []
-    #     i = 0
-    #     for n in (x for x in self.tree_manager.root.nodes if x not in already_rewired):
-    #         i += 1
-    #         print("parent {}".format(n.parent))
-    #         print("children {}".format(n.children))
-    #         if (n != newnode.parent and dist(n.pos, newnode.pos) < self.RADIUS and
-    #                 self.cc.path_is_free(n, newnode) and newnode.cost + dist(n.pos, newnode.pos) < n.cost):
-    #             # draw over the old wire
-    #             reconsider.append(n.parent)
-    #             pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
-    #                              self.SCALING)
-    #             # update new parents (re-wire)
-    #             n.parent = newnode
-    #             n.cost = newnode.cost + dist(n.pos, newnode.pos)
-    #             self.connect_two_nodes(newnode, nn, draw_only=True)
-    #             already_rewired.add(n)
-    #             rewire(n, already_rewired)
-    #
-    #     print(i)
-    newnode, nn = choose_least_cost_parent(newnode, nn=nn)
-    rewire(newnode, self.tree_manager.root.nodes)
+    newnode, nn = self.choose_least_cost_parent(newnode, nn=nn, nodes=self.tree_manager.root.nodes)
+    self.rewire(newnode, nodes=self.tree_manager.root.nodes)
     # check for goal condition
     if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
         if newnode.cost < self.c_max:
@@ -515,18 +448,6 @@ def rrt_dt_patched_run(self):
         self.update_screen()
 
     self.wait_for_exit()
-
-    #
-    #
-    # for e in (x for x in newnode.edges if x not in bfs.visitedNodes):
-    #     pygame.draw.line(self.rrt.path_layers, Colour.white, e.pos*self.rrt.SCALING, newnode.pos*self.rrt.SCALING, self.rrt.SCALING)
-    # nn = self.find_nearest_node(newnode, self.root)
-    # nn, newnode = rrt_star_add_node(self.rrt, nn, newnode)
-    # self.root.nodes.append(newnode)
-    # pygame.draw.line(self.rrt.path_layers, Colour.black, nn.pos*self.rrt.SCALING, newnode.pos*self.rrt.SCALING, self.rrt.SCALING)
-    # # remove this node's edges (as we don't have a use on them anymore) to free memory
-    # newnode.edges = None
-    # pygame.display.update()
 
 
 ############################################################

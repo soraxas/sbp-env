@@ -8,7 +8,7 @@ from disjointTree import DisjointParticleFilterSampler
 
 def main():
     epsilon = 10.0
-    max_number_nodes = 3000
+    max_number_nodes = 300000
     goal_radius = 15
     prob_block_size = 5
     SCALING = 4
@@ -31,7 +31,7 @@ def main():
         max_number_nodes=max_number_nodes,
         radius=goal_radius,
         ignore_step_size=IGNORE_STEP_SIZE,
-        always_refresh=True
+        always_refresh=False
         )
     try:
         rrt.run()
