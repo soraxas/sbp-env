@@ -117,10 +117,7 @@ class TreesManager:
             for e in (x for x in newnode.edges if x not in bfs.visitedNodes):
                 pygame.draw.line(self.rrt.path_layers, Colour.white, e.pos * self.rrt.SCALING,
                                  newnode.pos * self.rrt.SCALING, self.rrt.SCALING)
-            newnode, nn = rrt_star_add_node(self.rrt, newnode)
-            self.root.nodes.append(newnode)
-            pygame.draw.line(self.rrt.path_layers, Colour.black, nn.pos * self.rrt.SCALING,
-                             newnode.pos * self.rrt.SCALING, self.rrt.SCALING)
+            self.rrt.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
 
@@ -146,25 +143,28 @@ class TreesManager:
             assert tree2 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(tree2)
 
         print(" => Joining trees with size {} to {}".format(len(tree1.nodes), len(tree2.nodes)))
-        if tree1 is self.root or tree2 is self.root:
-            # find the disjointed tree
-            if tree1 is not self.root:
-                tree1, tree2 = tree2, tree1
+        # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
+        # And tree1 node must always be belong to tree1, tree2 node belong to tree2
+        if tree1 is not self.root:
+            # set tree1 as root (if root exists among the two)
+            tree1, tree2 = tree2, tree1
+        if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
+            # swap to correct position
+            tree1_node, tree2_node = tree2_node, tree1_node
+        assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
+        assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
+
+        if tree1 is self.root:
             # find which middle_node belongs to the disjointed tree
-            middle_node = tree1_node if tree1_node in tree2.nodes else tree2_node
-            self.join_tree_to_root(tree2, middle_node)
+            self.join_tree_to_root(tree2, tree2_node)
+            self.rrt.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
         else:
-            # kill of tree2's particle if both tree has particle alive
-            # otherwise, keep whichever the particle that is still alive
-            if tree1.particle_handler is None:
-                # swap
-                tree1, tree2 = tree2, tree1
+            self.rrt.connect_two_nodes(tree1_node, tree2_node)
             tree1.nodes.extend(tree2.nodes)
         del tree2.nodes
         self.disjointedTrees.remove(tree2)
         if tree2.particle_handler is not None:
             tree2.particle_handler.restart()
-        self.rrt.connect_two_nodes(tree1_node, tree2_node, tree1, perform_rrt_star=False, add_edges_only=True)
         return tree1
 
 
@@ -350,11 +350,17 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 ##    PATCHING RRT with disjointed-tree specific stuff    ##
 ############################################################
 
-class Node:
+class Node(object):
     def __init__(self, pos):
         self.pos = np.array(pos)
-        self.cost = 0
+        self.cost = 0  # index 0 is x, index 1 is y
         self.edges = []
+    def __repr__(self):
+        try:
+            edges = self.edges
+        except AttributeError:
+            edges = "DELETED"
+        return "Node(pos={}, cost={}, num_edges={})".format(self.pos, self.cost, len(edges))
 
 
 def rrt_star_add_node(rrt_instance, newnode, nn=None):
@@ -393,8 +399,7 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
                 # update new parents (re-wire)
                 n.parent = newnode
                 n.cost = newnode.cost + dist(n.pos, newnode.pos)
-                pygame.draw.line(self.path_layers, Colour.black, n.pos * self.SCALING, newnode.pos * self.SCALING,
-                                 self.SCALING)
+                self.connect_two_nodes(newnode, nn, draw_only=True)
 
     newnode, nn = choose_least_cost_parent(newnode, nn=nn)
     rewire(newnode)
@@ -406,19 +411,19 @@ def rrt_star_add_node(rrt_instance, newnode, nn=None):
     return newnode, nn
 
 
-def connect_two_nodes(self, newnode, nn, parent_tree=None, perform_rrt_star=True, add_edges_only=False):
+def connect_two_nodes(self, newnode, nn, parent_tree=None, draw_only=False):
     """Add node to disjoint tree OR root tree. Draw line for it too."""
     from rrtstar import Colour
-    pygame.draw.line(self.path_layers, Colour.black, newnode.pos * self.SCALING, nn.pos * self.SCALING, self.SCALING)
-    if parent_tree is self.tree_manager.root:
-        if perform_rrt_star:
+    if not draw_only:
+        if parent_tree is self.tree_manager.root:
             # using rrt* algorithm to add each nodes
             newnode, nn = rrt_star_add_node(self, newnode, nn)
-    else:
-        newnode.edges.append(nn)
-        nn.edges.append(newnode)
-    if not add_edges_only:
-        parent_tree.nodes.append(newnode)
+        else:
+            newnode.edges.append(nn)
+            nn.edges.append(newnode)
+        if parent_tree is not None:
+            parent_tree.nodes.append(newnode)
+    pygame.draw.line(self.path_layers, Colour.black, newnode.pos * self.SCALING, nn.pos * self.SCALING, self.SCALING)
     return newnode, nn
 
 
@@ -448,14 +453,10 @@ def rrt_dt_patched_run(self):
             ######################
             newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
 
-            # self.nodes.append(newnode)
             nearest_nodes = self.tree_manager.find_nearest_node_from_neighbour(
                 node=newnode,
                 parent_tree=parent_tree,
                 radius=self.RADIUS)
-            pygame.draw.line(self.path_layers, Colour.black, newnode.pos * self.SCALING, nn.pos * self.SCALING,
-                             self.SCALING)
-            i = 0
             # Check to see if root exists in the nearest tree. If so, add it at the last
             for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
                 # check and see if the new node can be connected with other existing tree
@@ -492,6 +493,13 @@ class TreeRoot:
     def __init__(self, particle_handler):
         self.particle_handler = particle_handler
         self.nodes = []
+    def __repr__(self):
+        string = super().__repr__()
+        string += '\n'
+        import pprint
+        string += pprint.pformat(vars(self), indent=4)
+        # string += ', '.join("%s: %s" % item for item in vars(self).items())
+        return string
 
 
 class TreeDisjoint(TreeRoot):

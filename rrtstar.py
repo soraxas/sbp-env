@@ -32,11 +32,10 @@ class Colour:
     cyan = 20,200,200
 
 class Node:
-    pos = None  # index 0 is x, index 1 is y
-    cost = 0
-    parent = None
     def __init__(self, pos):
         self.pos = np.array(pos)
+        self.cost = 0  # index 0 is x, index 1 is y
+        self.parent = None
 
 class SampledNodes:
     def __init__(self, p):
