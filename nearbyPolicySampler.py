@@ -4,68 +4,19 @@ import random
 import pygame
 import scipy as sp
 import scipy.ndimage
+from overrides import overrides
 
-from baseSampler import Sampler
-from randomPolicySampler import RandomPolicySampler
-from checkCollision import get_line
+from likelihoodPolicySampler import LikelihoodPolicySampler
 
-class NearbyPolicySampler(Sampler):
-
-    def __init__(self, prob_block_size, supressVisitedArea=True):
-        self.PROB_BLOCK_SIZE = prob_block_size
-        self.supressVisitedArea = supressVisitedArea
+class NearbyPolicySampler(LikelihoodPolicySampler):
 
     def init(self, **kwargs):
-        self.XDIM = kwargs['XDIM']
-        self.YDIM = kwargs['YDIM']
-        self.RRT = kwargs['RRT']
-        self.scaling = kwargs['SCALING']
-        self.randomSampler = RandomPolicySampler()
-        self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
-        # probability layer
-        self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.scaling,self.PROB_BLOCK_SIZE * self.scaling), pygame.SRCALPHA)
-
-        shape = (int(self.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.YDIM/self.PROB_BLOCK_SIZE) + 1 )
-        self.prob_vector = np.zeros(shape)
+        super().init(**kwargs   )
+        self.prob_vector = np.zeros(self.shape)
         # self.prob_vector *= 2 # IMPORTANT because we are using log2
-        self.obst_vector = np.ones(shape)
-        # self.prob_vector *= 20
-        self.prob_vector_normalized = None
-        self.tree_vector = np.ones(shape)
 
-        self.sampleCount = 0
 
-    def get_next_node(self):
-        if self.prob_vector_normalized is None or random.random() < 0.05:
-            print('rand')
-            return self.randomSampler.get_next_node()
-        while True:
-            choice = np.random.choice(range(self.prob_vector_normalized.size), p=self.prob_vector_normalized.ravel())
-            y = choice % self.prob_vector_normalized.shape[1]
-            x = int(choice / self.prob_vector_normalized.shape[1])
-
-            p = (x + random.random())*self.PROB_BLOCK_SIZE, (y + random.random())*self.PROB_BLOCK_SIZE
-            # print(p)
-            # p = random.random()*self.XDIM, random.random()*self.YDIM
-            # if not self.RRT.collides(p):
-            return p, self.report_success, self.report_fail
-
-    def add_tree_node(self, x, y):
-        x = int(x / self.PROB_BLOCK_SIZE)
-        y = int(y / self.PROB_BLOCK_SIZE)
-        self.tree_vector[x][y] += 1
-
-    def add_sample_line(self, x1, y1, x2, y2):
-        self.add_sample(p=(x2,y2), free=True)
-        # return
-        x1 = int(x1 / self.PROB_BLOCK_SIZE)
-        y1 = int(y1 / self.PROB_BLOCK_SIZE)
-        x2 = int(x2 / self.PROB_BLOCK_SIZE)
-        y2 = int(y2 / self.PROB_BLOCK_SIZE)
-        points = get_line((x1,y1), (x2,y2))
-        for p in points:
-            self.add_sample(p=p, free=True, alreadyDividedByProbBlockSize=True)
-
+    @overrides
     def add_sample(self, **kwargs):
     # def addInvalidPoint(self,p, blockedSpace, perma=False, alreadyDividedByProbBlockSize=False):
         p = kwargs['p']
@@ -138,35 +89,3 @@ class NearbyPolicySampler(Sampler):
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
             # prob_vector_normalized = np.copy(self.tree_vector)
             self.sampleCount += 1
-
-
-#########################################################
-#### FOR PAINTING
-#########################################################
-
-    @staticmethod
-    def get_vector_alpha_parameters(vector):
-        max_prob = vector.max()
-        min_prob = vector.min()
-        denominator = max_prob-min_prob
-        if denominator == 0:
-            denominator = 1 # prevent division by zero
-        return max_prob, min_prob, denominator
-
-
-    def paint(self, window):
-        if self.prob_vector_normalized is not None:
-            for i in range(self.prob_vector_normalized.shape[0]):
-                for j in range(self.prob_vector_normalized.shape[1]):
-                    max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.prob_vector_normalized)
-                    alpha = 240 * (1 -(self.prob_vector_normalized[i][j]-min_prob)/denominator)
-
-                    # if self.tree_vector[i][j] > 1:
-                    #     max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.tree_vector)
-                    #     alpha = 240 * (1 - (self.prob_vector_normalized[i][j]-min_prob)/denominator)
-                    #     print(alpha)
-                    #     self.prob_layer.fill((0,255,0,alpha))
-                    # else:
-                    self.prob_layer.fill((255,128,255,alpha))
-                    # print(self.prob_vector_normalized[i][j])
-                    window.blit(self.prob_layer, (i*self.PROB_BLOCK_SIZE*self.scaling,j*self.PROB_BLOCK_SIZE*self.scaling))

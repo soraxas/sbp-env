@@ -1,14 +1,27 @@
+import logging
+import sys
+
 import rrtstar
-from randomPolicySampler import RandomPolicySampler
 from likelihoodPolicySampler import LikelihoodPolicySampler
 from particleFilterSampler import ParticleFilterSampler
 from nearbyPolicySampler import NearbyPolicySampler
 from mouseSampler import MouseSampler
 from disjointTree import DisjointParticleFilterSampler
+from randomPolicySampler import RandomPolicySampler
+
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.INFO)
+# INFO includes only loading
+# DEBUG includes all outputs
+ch = logging.StreamHandler(sys.stdout)
+ch.setFormatter(logging.Formatter('%(message)s'))
+# ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+LOGGER.addHandler(ch)
 
 def main():
     epsilon = 10.0
     max_number_nodes = 300000
+    max_number_nodes = 30
     goal_radius = 15
     prob_block_size = 5
     SCALING = 4
@@ -35,13 +48,14 @@ def main():
         )
     try:
         rrt.run()
-    except Exception as e:
-        import traceback
-        print("==============================")
-        print("Exception occured: {}".format(e))
-        traceback.print_tb(e.__traceback__)
-        print("==============================")
-        print("Waiting to be exit...")
+        # rrt.wait_for_exit()
+        import pygame
+        pygame.image.save(rrt.window,"screenshot.jpg")
+    except:
+        LOGGER.error("==============================")
+        LOGGER.exception("Exception occured:")
+        LOGGER.error("==============================")
+        LOGGER.error("Waiting to be exit...")
         rrt.wait_for_exit()
 
 if __name__ == '__main__':

@@ -2,12 +2,14 @@ import random
 import pygame
 import math
 import sys
+import logging
 
 from checkCollision import *
 from overrides import overrides
 
-JOIN_TREES_RADIUS = 10
+LOGGER = logging.getLogger(__name__)
 
+JOIN_TREES_RADIUS = 10
 
 def update_progress(progress, total_num, num_of_blocks=10):
     percentage = progress / total_num
@@ -109,7 +111,7 @@ class TreesManager:
         # add all nodes from disjoint tree via rrt star method
         total_num = len(tree.nodes)
         progress = 0
-        print("> Joining to root tree")
+        LOGGER.info("> Joining to root tree")
         while bfs.has_next():
             newnode = bfs.next()
             progress += 1
@@ -143,7 +145,7 @@ class TreesManager:
         if tree2 not in self.disjointedTrees:
             assert tree2 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(tree2)
 
-        print(" => Joining trees with size {} to {}".format(len(tree1.nodes), len(tree2.nodes)))
+        LOGGER.info(" => Joining trees with size {} to {}".format(len(tree1.nodes), len(tree2.nodes)))
         # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
         # And tree1 node must always be belong to tree1, tree2 node belong to tree2
         if tree1 is not self.root:
@@ -204,12 +206,10 @@ class DisjointTreeParticle(Particle):
             pass
         if pos is None:
             # get random position
-            print(" ==> Respawn particle, joining to existing tree with size: ", end='')
             while True:
                 pos = self.p_manager.new_pos_in_free_space()
                 if not self.add_pos_to_existing_tree(pos):
                     break
-            print()
         self.p_manager.modify_energy(particle_ref=self, set_val=ENERGY_START)
         self.tree = TreeDisjoint(particle_handler=self)
         self.tree.nodes.append(Node(pos))
@@ -225,6 +225,7 @@ class DisjointTreeParticle(Particle):
 
 class DisjointParticleFilterSampler(ParticleFilterSampler):
 
+    @overrides
     def init(self, **kwargs):
         # Monkey patch the RRT for this smapler's specific stuff
         import types
@@ -278,17 +279,15 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                     # joining the orphan node to a tree
                     self.RRT.connect_two_nodes(newnode, nearest_neighbour_node, nearest_neighbour_tree)
                     parent_tree = nearest_neighbour_tree
-                    print("{},".format(len(nearest_neighbour_tree.nodes)), end='')
+                    LOGGER.debug(" ==> During respawning particle, joining to existing tree with size: {}".format(len(nearest_neighbour_tree.nodes)))
+
                 else:
                     # joining a tree with tree
                     try:
                         parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
                     except AssertionError as e:
-                        print("===== ERROR =====")
-                        print("== Assertion error in joining sampled point to existing tree...")
-                        print(e)
-                        print("== Skipping this point for now...")
+                        LOGGER.exception("== Assertion error in joining sampled point to existing tree... Skipping this point for now...")
                 merged = True
                 # return merged
         self.RRT.update_screen(ignore_redraw_paths=True)
@@ -303,6 +302,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                 self.p_manager.particles[i].restart()
         return tmp
 
+    @overrides
     def get_next_node(self):
         self.counter += 1
         self._c_random += 1
@@ -311,7 +311,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         if self._c_random > RANDOM_RESTART_EVERY > 0:
             _p = self.particles_random_free_space_restart()
             if _p:
-                print("Rand restart at counter {}, with p {}".format(self.counter, _p))
+                LOGGER.debug("Rand restart at counter {}, with p {}".format(self.counter, _p))
             self._c_random = 0
         # get a node to random walk
         prob = self.p_manager.get_prob()
@@ -320,7 +320,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
             choice = np.random.choice(range(self.p_manager.size()), p=prob)
         except ValueError as e:
             # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
-            print("!! probability got exception '{}'... trying to re-sync prob again.".format(e))
+            LOGGER.error("!! probability got exception '{}'... trying to re-sync prob again.".format(e))
             self.p_manager.resync_prob()
             self._last_prob = prob
             choice = np.random.choice(range(self.p_manager.size()), p=prob)
@@ -336,10 +336,8 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 
     def randomWalk_by_mouse(self):
         """FOR testing purpose. Mimic random walk, but do so via mouse click."""
-        import mouseSampler
-        mouse = mouseSampler.MouseSampler()
-        mouse.init(SCALING=self.scaling)
-        pos = mouse.get_mouse_click_position()
+        from mouseSampler import MouseSampler as mouse
+        pos = mouse.get_mouse_click_position(scaling=self.scaling)
         # find the cloest particle from this position
         _dist = None
         p_idx = None
@@ -348,7 +346,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
             if _dist is None or _dist > dist(pos, p.pos):
                 _dist = dist(pos, p.pos)
                 p_idx = i
-        print("num of tree: {}".format(len(self.tree_manager.disjointedTrees)))
+        LOGGER.debug("num of tree: {}".format(len(self.tree_manager.disjointedTrees)))
         self.p_manager.new_pos(idx=p_idx,
                                pos=pos,
                                dir=0)
@@ -359,7 +357,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 ##    PATCHING RRT with disjointed-tree specific stuff    ##
 ############################################################
 
-class Node(object):
+class Node:
     def __init__(self, pos):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
@@ -367,10 +365,10 @@ class Node(object):
         self.children = []
     def __repr__(self):
         try:
-            edges = self.edges
+            num_edges = len(self.edges)
         except AttributeError:
-            edges = "DELETED"
-        return "Node(pos={}, cost={}, num_edges={})".format(self.pos, self.cost, len(edges))
+            num_edges = "DELETED"
+        return "Node(pos={}, cost={}, num_edges={})".format(self.pos, self.cost, num_edges)
 
 
 def rrt_star_add_node(rrt_instance, newnode, nn=None):
@@ -447,7 +445,8 @@ def rrt_dt_patched_run(self):
                     sys.exit("Leaving.")
         self.update_screen()
 
-    self.wait_for_exit()
+    return
+    # self.wait_for_exit()
 
 
 ############################################################
@@ -469,6 +468,7 @@ class TreeRoot:
 
 
 class TreeDisjoint(TreeRoot):
+    @overrides
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

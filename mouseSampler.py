@@ -1,5 +1,6 @@
 import pygame
 import time
+from overrides import overrides
 from baseSampler import Sampler
 """
 For demo / testing only. This policy wait for user mouse input for next sampling node.
@@ -7,17 +8,20 @@ For demo / testing only. This policy wait for user mouse input for next sampling
 
 class MouseSampler(Sampler):
 
+    @overrides
     def init(self, **kwargs):
         self.SCALING = kwargs['SCALING']
 
-    def get_mouse_click_position(self):
+    @overrides
+    def get_next_node(self):
+        return self.get_mouse_click_position(scaling=self.SCALING), self.report_success, self.report_fail
+
+    @staticmethod
+    def get_mouse_click_position(scaling):
         while True:
             time.sleep(0.05)
             pygame.event.wait()
             if pygame.mouse.get_pressed()[0] == 1: # Left mouse pressed
                 pos = pygame.mouse.get_pos()
-                pos = (int(pos[0] / self.SCALING), int(pos[1] / self.SCALING))
+                pos = (int(pos[0] / scaling), int(pos[1] / scaling))
                 return pos
-
-    def get_next_node(self):
-        return self.get_mouse_click_position(), self.report_success, self.report_fail

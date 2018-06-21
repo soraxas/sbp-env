@@ -3,7 +3,9 @@ import random
 import pygame
 import scipy.stats
 import math
+import logging
 from functools import partialmethod
+from overrides import overrides
 
 from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
@@ -43,6 +45,8 @@ Use a factor of diff
 
 
 """
+
+LOGGER = logging.getLogger(__name__)
 
 GOAL_BIAS = 0.05
 
@@ -283,6 +287,8 @@ class Particle:
 ############################################################
 
 class ParticleFilterSampler(Sampler):
+
+    @overrides
     def __init__(self, supressVisitedArea=True):
         self.supressVisitedArea = supressVisitedArea
         self._last_prob = None
@@ -291,6 +297,7 @@ class ParticleFilterSampler(Sampler):
         self._c_random = 0
         self._c_resample = 0
 
+    @overrides
     def init(self, **kwargs):
         self.XDIM = kwargs['XDIM']
         self.YDIM = kwargs['YDIM']
@@ -312,10 +319,12 @@ class ParticleFilterSampler(Sampler):
                                          goalPt=self.goalPt,
                                          rrt_instance=self.RRT)
 
+    @overrides
     def report_fail(self, idx, **kwargs):
         if idx >= 0:
             self.p_manager.modify_energy(idx=idx, factor=0.7)
 
+    @overrides
     def report_success(self, idx, **kwargs):
         self.p_manager.confirm(idx, kwargs['pos'])
         self.p_manager.modify_energy(idx=idx, factor=1)
@@ -333,7 +342,6 @@ class ParticleFilterSampler(Sampler):
         # scale the half norm by a factor of epsilon
         # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
         factor = self.randomnessManager.draw_half_normal(self.EPSILON, scale=self.EPSILON * 0.5)
-        # print(factor)
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor
@@ -343,6 +351,7 @@ class ParticleFilterSampler(Sampler):
                                dir=new_direction)
         return (x, y)
 
+    @overrides
     def get_next_node(self):
         self.counter += 1
         self._c_random += 1
@@ -355,16 +364,16 @@ class ParticleFilterSampler(Sampler):
         if self._c_random > RANDOM_RESTART_EVERY > 0:
             _p = self.p_manager.random_restart_specific_value()
             if _p:
-                print("Rand restart at counter {}, with p {}".format(self.counter, _p))
+                LOGGER.debug("Rand restart at counter {}, with p {}".format(self.counter, _p))
             self._c_random = 0
             self.p_manager.weighted_resampling()
-            print("Resampling at counter {}".format(self.counter))
+            LOGGER.debug("Resampling at counter {}".format(self.counter))
             self._c_resample = 0
-            print(self.p_manager.get_prob())
+            LOGGER.debug(self.p_manager.get_prob())
 
 
         if random.random() < 0:
-            print('rand')
+            LOGGER.debug('rand')
             p = self.randomSampler.get_next_node()
             choice = -1
         else:
@@ -375,7 +384,7 @@ class ParticleFilterSampler(Sampler):
                 choice = np.random.choice(range(self.p_manager.size()), p=prob)
             except ValueError as e:
                 # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
-                print("!! probability got exception '{}'... trying to re-sync prob again.".format(e))
+                LOGGER.exception("!! probability got exception... trying to re-sync prob again.")
                 self.p_manager.resync_prob()
                 self._last_prob = prob
                 choice = np.random.choice(range(self.p_manager.size()), p=prob)
@@ -398,6 +407,7 @@ class ParticleFilterSampler(Sampler):
             denominator = 1  # prevent division by zero
         return 220 - 220 * (1 - (value - min_prob) / denominator)
 
+    @overrides
     def paint(self, window):
         if self._last_prob is None:
             return

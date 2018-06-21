@@ -8,6 +8,7 @@ import sys
 import random
 import math
 import pygame
+import logging
 from pygame.locals import *
 from math import sqrt, cos, sin, atan2
 import numpy as np
@@ -15,6 +16,8 @@ from matplotlib import pyplot as plt
 
 import disjointTree as dt
 from checkCollision import *
+
+LOGGER = logging.getLogger(__name__)
 
 # constants
 INF = float('inf')
@@ -132,7 +135,7 @@ class RRT:
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
-        print('Select Starting Point and then Goal Point')
+        LOGGER.info('Select Starting Point and then Goal Point')
         self.fpsClock.tick(10)
         while self.startPt is None or self.goalPt is None:
             for e in pygame.event.get():
@@ -140,13 +143,13 @@ class RRT:
                     mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
                     if self.startPt is None:
                         if not self.collides(mousePos, initialSetup=True):
-                            print(('starting point set: ' + str(mousePos)))
+                            LOGGER.info(('starting point set: ' + str(mousePos)))
                             self.startPt = Node(mousePos)
                             self.nodes.append(self.startPt)
 
                     elif self.goalPt is None:
                         if not self.collides(mousePos, initialSetup=True):
-                            print(('goal point set: ' + str(mousePos)))
+                            LOGGER.info(('goal point set: ' + str(mousePos)))
                             self.goalPt = Node(mousePos)
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
@@ -296,7 +299,7 @@ class RRT:
                         sys.exit("Leaving.")
             self.update_screen()
 
-        self.wait_for_exit()
+        return
 
     @staticmethod
     def wait_for_exit():
