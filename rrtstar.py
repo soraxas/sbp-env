@@ -8,15 +8,19 @@ import sys
 import random
 import math
 import pygame
+import logging
 from pygame.locals import *
 from math import sqrt, cos, sin, atan2
 import numpy as np
 from matplotlib import pyplot as plt
 
+import disjointTree as dt
 from checkCollision import *
 
+LOGGER = logging.getLogger(__name__)
+
 # constants
-INF = sys.maxsize
+INF = float('inf')
 ALPHA_CK = 255,0,255
 
 GOAL_RADIUS = 10
@@ -29,13 +33,14 @@ class Colour:
     blue = 0, 0, 255
     green = 0,150,0
     cyan = 20,200,200
+    orange = 255, 160, 16
 
 class Node:
-    pos = None  # index 0 is x, index 1 is y
-    cost = 0
-    parent = None
     def __init__(self, pos):
         self.pos = np.array(pos)
+        self.cost = 0  # index 0 is x, index 1 is y
+        self.parent = None
+        self.children = []
 
 class SampledNodes:
     def __init__(self, p):
@@ -58,7 +63,9 @@ class stats:
     def add_free(self):
         self.valid_sample += 1
 
-    def add_sampled_node(self, node):
+    def add_sampled_node(self, node, not_a_node=False):
+        if not_a_node:
+            node = Node(node)
         self.sampledNodes.append(SampledNodes(node.pos.astype(int)))
 
 
@@ -97,9 +104,6 @@ class RRT:
         # main window
         self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
         ################################################################################
-        # # probability layer
-        # self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.SCALING,self.PROB_BLOCK_SIZE * self.SCALING), pygame.SRCALPHA)
-        ################################################################################
         # background aka the room
         self.background = pygame.Surface( [self.XDIM, self.YDIM] )
         self.background.blit(self.img,(0,0))
@@ -121,6 +125,7 @@ class RRT:
         self.sampledPoint_screen.fill(ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(ALPHA_CK)
         ################################################################################
+        self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
         self.sampledNodes = []
 
@@ -130,21 +135,21 @@ class RRT:
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
-        print('Select Starting Point and then Goal Point')
+        LOGGER.info('Select Starting Point and then Goal Point')
         self.fpsClock.tick(10)
         while self.startPt is None or self.goalPt is None:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
                     if self.startPt is None:
-                        if self.collides(mousePos,initialSetup=True) == False:
-                            print(('starting point set: ' + str(mousePos)))
+                        if not self.collides(mousePos, initialSetup=True):
+                            LOGGER.info(('starting point set: ' + str(mousePos)))
                             self.startPt = Node(mousePos)
                             self.nodes.append(self.startPt)
 
                     elif self.goalPt is None:
-                        if self.collides(mousePos,initialSetup=True) == False:
-                            print(('goal point set: ' + str(mousePos)))
+                        if not self.collides(mousePos, initialSetup=True):
+                            LOGGER.info(('goal point set: ' + str(mousePos)))
                             self.goalPt = Node(mousePos)
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
@@ -159,7 +164,7 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON,
-                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, nodes=self.nodes)
+                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, tree_manager=self.tree_manager)
 
     ############################################################
 
@@ -190,27 +195,54 @@ class RRT:
             pos = p1[0] + self.EPSILON * cos(theta), p1[1] + self.EPSILON * sin(theta)
             return pos
 
-    def get_least_cost_parent(self, nn, newnode):
-        for p in self.nodes:
-            if(self.cc.path_is_free(p, newnode) and
-               dist(p.pos, newnode.pos) < self.RADIUS and
-               p.cost + dist(p.pos, newnode.pos) < nn.cost + dist(nn.pos, newnode.pos)):
-                nn = p
+    def choose_least_cost_parent(self, newnode, nn=None, nodes=None):
+        """Given a new node, a node from root, return a node from root that
+        has the least cost (toward the newly added node)"""
+        if nn is not None:
+            _newnode_to_nn_cost = dist(newnode.pos, nn.pos)
+        for p in nodes:
+            if p is nn:
+                continue  # avoid unnecessary computations
+            _newnode_to_p_cost = dist(newnode.pos, p.pos)
+            if _newnode_to_p_cost < self.RADIUS and self.cc.path_is_free(newnode, p):
+                # This is another valid parent. Check if it's better than our current one.
+                if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
+                    nn = p
+                    _newnode_to_nn_cost = _newnode_to_p_cost
+        if nn is None:
+            raise Exception(
+                "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?")
         newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
         newnode.parent = nn
+        nn.children.append(newnode)
+
         return newnode, nn
 
-    def rewire(self, newnode):
-        for i in range(len(self.nodes)):
-            p = self.nodes[i]
-            if(p != newnode.parent and self.cc.path_is_free(p, newnode) and
-               dist(p.pos, newnode.pos) < self.RADIUS and newnode.cost + dist(p.pos, newnode.pos) < p.cost):
+
+    def rewire(self, newnode, nodes, already_rewired=None):
+        """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+        if len(nodes) < 1:
+            return
+        if already_rewired is None:
+            already_rewired = {newnode}
+        # for n in nodes:
+        for n in (x for x in nodes if x not in already_rewired):
+            _newnode_to_n_cost = dist(n.pos, newnode.pos)
+            if (n != newnode.parent and _newnode_to_n_cost < self.RADIUS and
+                    self.cc.path_is_free(n, newnode) and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.white, p.pos*self.SCALING, p.parent.pos*self.SCALING, self.SCALING)
-                # update new parents (re-wire)
-                p.parent = newnode
-                p.cost = newnode.cost + dist(p.pos, newnode.pos)
-                pygame.draw.line(self.path_layers, Colour.black, p.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
+                pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
+                                 self.SCALING)
+                reconsider = (n.parent, *n.children)
+                n.parent.children.remove(n)
+                n.parent = newnode
+                newnode.children.append(n)
+                n.cost = newnode.cost + _newnode_to_n_cost
+                already_rewired.add(n)
+                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, newnode.pos * self.SCALING,
+                                self.SCALING)
+                self.rewire(n, reconsider, already_rewired=already_rewired)
+
 
     def run(self):
         self.fpsClock.tick(10000)
@@ -250,23 +282,24 @@ class RRT:
                     self.sampler.add_sample_line(x, y, x1, y1)
                 ######################
                 # consider not only the length but also the current shortest cost
-                [newnode, nn] = self.get_least_cost_parent(nn, newnode)
+                [newnode, nn] = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
                 self.nodes.append(newnode)
                 # rewire to see what the newly added node can do for us
-                self.rewire(newnode)
+                self.rewire(newnode, self.nodes)
                 pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
 
                 if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
-                    if newnode.cost < self.c_max:
-                        self.c_max = newnode.cost
-                        self.draw_solution_path()
+                    self.c_max = newnode.cost
+                    self.goalPt.parent = newnode
+                    newnode.children.append(self.goalPt.parent)
+                    self.draw_solution_path()
 
                 for e in pygame.event.get():
                     if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         sys.exit("Leaving.")
             self.update_screen()
 
-        self.wait_for_exit()
+        return
 
     @staticmethod
     def wait_for_exit():
@@ -285,10 +318,8 @@ class RRT:
             return
         # redraw new path
         self.solution_path_screen.fill(ALPHA_CK)
-        nn = self.nodes[0]
-        for p in self.nodes:
-            if dist(p.pos, self.goalPt.pos) < dist(nn.pos, self.goalPt.pos):
-                nn = p
+        nn = self.goalPt.parent
+        self.c_max = nn.cost
         while nn != self.startPt:
             pygame.draw.line(self.solution_path_screen, Colour.green, nn.pos*self.SCALING, nn.parent.pos*self.SCALING, 5*self.SCALING)
             nn = nn.parent
@@ -296,16 +327,27 @@ class RRT:
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
 
-    def update_screen(self, update_all=False):
+    def update_screen(self, update_all=False, ignore_redraw_paths=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
-        update_all
+            self.ignore_counter = 0
+
         if update_all or self.always_refresh:
             count = 0 #FORCE UPDATE
         else:
             count = self.refresh_cnt
             self.refresh_cnt += 1
+
+###################################################################################
+
+        if count % 50 == 0:
+            if not ignore_redraw_paths or self.ignore_counter % 200 == 0:
+                # force refresh every 300 ignore
+                self.ignore_counter = 0
+                self.redraw_paths()
+            else:
+                self.ignore_counter += 1
 
         ##### Solution path
         if count % 50 == 0:
@@ -348,9 +390,50 @@ class RRT:
         ##### Texts
         if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
-            text = 'Cost_min: {}  | Nodes: {}'.format(_cost, len(self.nodes))
+            if 'DisjointParticleFilterSampler' in self.sampler.__str__():
+                num_nodes = sum(len(tree.nodes) for tree in (*self.tree_manager.disjointedTrees, self.tree_manager.root))
+            else:
+                num_nodes = len(self.nodes)
+            text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))
             text = 'Invalid sample: {}(temp) {}(perm)'.format(self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.95))
 
         pygame.display.update()
+
+    def redraw_paths(self):
+        from disjointTree import BFS
+        # these had already been drawn
+        drawn_nodes_pairs = set()
+        self.path_layers.fill(ALPHA_CK)
+        if 'DisjointParticleFilterSampler' in self.sampler.__str__():
+            # Draw disjointed trees
+            for tree in self.tree_manager.disjointedTrees:
+                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
+                while bfs.has_next():
+                    newnode = bfs.next()
+                    for e in newnode.edges:
+                        new_set = frozenset({newnode, e})
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.add(new_set)
+                            pygame.draw.line(self.path_layers, Colour.black, newnode.pos*self.SCALING, e.pos*self.SCALING, self.SCALING)
+            # Draw root tree
+            for n in self.tree_manager.root.nodes:
+                if n.parent is not None:
+                    new_set = frozenset({n, n.parent})
+                    if new_set not in drawn_nodes_pairs:
+                        drawn_nodes_pairs.add(new_set)
+                        pygame.draw.line(self.path_layers, Colour.orange, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+        else:
+            # Draw path trees
+            for n in self.nodes:
+                if n.parent is not None:
+                    new_set = frozenset({n, n.parent})
+                    if new_set not in drawn_nodes_pairs:
+                        drawn_nodes_pairs.add(new_set)
+                        pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+
+        if self.startPt is not None:
+            pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+        if self.goalPt is not None:
+            pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)

@@ -1,14 +1,17 @@
 import numpy as np
 import random
+from overrides import overrides
 from baseSampler import Sampler
 
 class RandomPolicySampler(Sampler):
 
+    @overrides
     def init(self, **kwargs):
         self.XDIM = kwargs['XDIM']
         self.YDIM = kwargs['YDIM']
         self.RRT = kwargs['RRT']
 
+    @overrides
     def get_next_node(self):
         # Random path
         while True:
