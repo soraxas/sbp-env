@@ -1,5 +1,4 @@
 import random
-import pygame
 import math
 import sys
 import logging
@@ -118,8 +117,7 @@ class TreesManager:
             update_progress(progress, total_num, num_of_blocks=20)
             # draw white (remove edge for visual) on top of disjointed tree
             for e in (x for x in newnode.edges if x not in bfs.visitedNodes and x in bfs.validNodes):
-                pygame.draw.line(self.rrt.path_layers, Colour.white, e.pos * self.rrt.SCALING,
-                                 newnode.pos * self.rrt.SCALING, self.rrt.SCALING)
+                self.rrt.draw_path(e, newnode, Colour.white)
             self.rrt.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
@@ -174,7 +172,6 @@ class TreesManager:
 ############################################################
 ##              Disjointed Particles Sampler              ##
 ############################################################
-from pygame.locals import *
 from particleFilterSampler import ParticleFilterSampler, Particle, RANDOM_RESTART_PARTICLES_ENERGY_UNDER, ENERGY_START
 
 RANDOM_RESTART_EVERY = 20
@@ -399,7 +396,7 @@ def connect_two_nodes(self, newnode, nn, parent_tree=None, draw_only=False):
             nn.edges.append(newnode)
         if parent_tree is not None:
             parent_tree.nodes.append(newnode)
-    pygame.draw.line(self.path_layers, Colour.black, newnode.pos * self.SCALING, nn.pos * self.SCALING, self.SCALING)
+    self.draw_path(newnode, nn)
     return newnode, nn
 
 
@@ -419,13 +416,11 @@ def rrt_dt_patched_run(self):
         newnode = Node(self.step_from_to(nn.pos, rand.pos))
         # check if it is free or not ofree
         if not self.cc.path_is_free(nn, newnode):
-            self.sampler.add_sample(p=rand, free=False)
             self.stats.add_invalid(perm=False)
             report_fail()
         else:
             report_success(pos=newnode.pos)
             self.stats.add_free()
-            x, y = newnode.pos
             ######################
             newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
 
@@ -440,12 +435,9 @@ def rrt_dt_patched_run(self):
                     parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
 
-            for e in pygame.event.get():
-                if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
-                    sys.exit("Leaving.")
+            self.process_pygame_event()
         self.update_screen()
 
-    return
     # self.wait_for_exit()
 
 

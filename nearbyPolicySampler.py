@@ -1,7 +1,6 @@
 
 import numpy as np
 import random
-import pygame
 import scipy as sp
 import scipy.ndimage
 from overrides import overrides
@@ -17,9 +16,8 @@ class NearbyPolicySampler(LikelihoodPolicySampler):
 
 
     @overrides
-    def add_sample(self, **kwargs):
-    # def addInvalidPoint(self,p, blockedSpace, perma=False, alreadyDividedByProbBlockSize=False):
-        p = kwargs['p']
+    def report_fail(self, **kwargs):
+        p = kwargs['pos']
         if p is None:
             return
         try:
@@ -27,7 +25,6 @@ class NearbyPolicySampler(LikelihoodPolicySampler):
         except AttributeError as e:
             pass
         if 'alreadyDividedByProbBlockSize' not in kwargs:
-        # if not alreadyDividedByProbBlockSize:
             x = int(p[0]/self.PROB_BLOCK_SIZE)
             y = int(p[1]/self.PROB_BLOCK_SIZE)
         else:

@@ -4,11 +4,14 @@ import random
 import pygame
 import scipy as sp
 import scipy.ndimage
+import logging
 from overrides import overrides
 
 from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
+
+LOGGER = logging.getLogger(__name__)
 
 class LikelihoodPolicySampler(Sampler):
 
@@ -41,21 +44,18 @@ class LikelihoodPolicySampler(Sampler):
     @overrides
     def get_next_node(self):
         if self.prob_vector_normalized is None or random.random() < 0.05:
-            print('rand')
-            return self.randomSampler.get_next_node()
-        while True:
+            LOGGER.debug('rand')
+            p =  self.randomSampler.get_next_node()[0]
+        else:
             choice = np.random.choice(range(self.prob_vector_normalized.size), p=self.prob_vector_normalized.ravel())
             y = choice % self.prob_vector_normalized.shape[1]
             x = int(choice / self.prob_vector_normalized.shape[1])
-
             p = (x + random.random())*self.PROB_BLOCK_SIZE, (y + random.random())*self.PROB_BLOCK_SIZE
-            # print(p)
-            # p = random.random()*self.XDIM, random.random()*self.YDIM
-            # if not self.RRT.collides(p):
-            return p, self.report_success, self.report_fail
+        return p, self.report_success, self.report_fail
 
     @overrides
-    def add_tree_node(self, x, y):
+    def add_tree_node(self, pos):
+        x, y = pos
         x = int(x / self.PROB_BLOCK_SIZE)
         y = int(y / self.PROB_BLOCK_SIZE)
         self.tree_vector[x][y] += 1
@@ -68,12 +68,18 @@ class LikelihoodPolicySampler(Sampler):
         y2 = int(y2 / self.PROB_BLOCK_SIZE)
         points = get_line((x1,y1), (x2,y2))
         for p in points:
-            self.add_sample(p=p, free=True, alreadyDividedByProbBlockSize=True)
+            self.report_fail(pos=p, free=True, alreadyDividedByProbBlockSize=True)
 
     @overrides
-    def add_sample(self, **kwargs):
-    # def addInvalidPoint(self,p, blockedSpace, perma=False, alreadyDividedByProbBlockSize=False):
-        p = kwargs['p']
+    def report_success(self, **kwargs):
+        x, y = kwargs['pos']
+        # add all in between point of nearest node of the random pt as valid
+        x1, y1 = self.RRT.cc.get_coor_before_collision(kwargs['nn'], kwargs['rand'])
+        self.add_sample_line(x, y, x1, y1)
+
+    @overrides
+    def report_fail(self, **kwargs):
+        p = kwargs['pos']
         if p is None:
             return
         try:
@@ -81,7 +87,6 @@ class LikelihoodPolicySampler(Sampler):
         except AttributeError as e:
             pass
         if 'alreadyDividedByProbBlockSize' not in kwargs:
-        # if not alreadyDividedByProbBlockSize:
             x = int(p[0]/self.PROB_BLOCK_SIZE)
             y = int(p[1]/self.PROB_BLOCK_SIZE)
         else:
@@ -91,7 +96,6 @@ class LikelihoodPolicySampler(Sampler):
             y < 0 or y >= self.prob_vector.shape[1]:
                 return
 
-        # print(p)
         # exit()
         # ^ setting the right coor ^
         ###############################
@@ -104,7 +108,6 @@ class LikelihoodPolicySampler(Sampler):
             # self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1
             # if self.prob_vector[x][y] < 5:
                 # self.prob_vector[x][y] = 5
-            # print(p)
         elif kwargs['free']:
             if 'weight' in kwargs:
                 self.prob_vector[x][y] += kwargs['weight']
@@ -133,6 +136,7 @@ class LikelihoodPolicySampler(Sampler):
                 # self.prob_vector_normalized *= (1/self.tree_vector * 1.5)
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
             self.sampleCount += 1
+
 
 
 #########################################################

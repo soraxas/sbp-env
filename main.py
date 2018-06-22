@@ -50,9 +50,11 @@ def main():
         # rrt.wait_for_exit()
         import pygame
         pygame.image.save(rrt.window,"screenshot.jpg")
-    except:
+    # except SystemExit:
+    #     pass
+    except Exception as e:
         LOGGER.error("==============================")
-        LOGGER.exception("Exception occured:")
+        LOGGER.exception("Exception occured: {}".format(e))
         LOGGER.error("==============================")
         LOGGER.error("Waiting to be exit...")
         rrt.wait_for_exit()

@@ -13,9 +13,6 @@ class Sampler:
     def get_next_node(self, *argv, **kwargs):
         pass
 
-    def add_sample(self, *argv, **kwargs):
-        pass
-
     def report_success(self, *argv, **kwargs):
         pass
 

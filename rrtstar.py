@@ -73,7 +73,9 @@ class stats:
 ############################################################
 
 class RRT:
-    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius, sampler, goalBias=True, ignore_step_size=False, always_refresh=False):
+    def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius,
+                 sampler, goalBias=True, ignore_step_size=False, always_refresh=False,
+                 disable_pygame=False):
         # initialize and prepare screen
         pygame.init()
         self.stats = stats()
@@ -142,17 +144,18 @@ class RRT:
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
                     if self.startPt is None:
-                        if not self.collides(mousePos, initialSetup=True):
+                        if not self.collides(mousePos):
                             LOGGER.info(('starting point set: ' + str(mousePos)))
                             self.startPt = Node(mousePos)
                             self.nodes.append(self.startPt)
 
                     elif self.goalPt is None:
-                        if not self.collides(mousePos, initialSetup=True):
+                        if not self.collides(mousePos):
                             LOGGER.info(('goal point set: ' + str(mousePos)))
                             self.goalPt = Node(mousePos)
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
-                        sys.exit("Leaving.")
+                        LOGGER.info("Leaving.")
+                        return
             self.update_screen(update_all=True)
 
         ##################################################
@@ -168,7 +171,7 @@ class RRT:
 
     ############################################################
 
-    def collides(self, p, initialSetup=False):
+    def collides(self, p):
         """check if point is white (which means free space)"""
         x = int(p[0])
         y = int(p[1])
@@ -178,10 +181,6 @@ class RRT:
             return True
         color = self.img.get_at((x, y))
         pointIsObstacle = (color != pygame.Color(*Colour.white))
-        if not initialSetup:
-            self.sampler.add_sample(p=p, obstacle=pointIsObstacle)
-        if pointIsObstacle:
-            self.stats.add_invalid(perm=pointIsObstacle)
         return pointIsObstacle
 
     def step_from_to(self,p1, p2):
@@ -231,23 +230,20 @@ class RRT:
             if (n != newnode.parent and _newnode_to_n_cost < self.RADIUS and
                     self.cc.path_is_free(n, newnode) and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
-                pygame.draw.line(self.path_layers, Colour.white, n.pos * self.SCALING, n.parent.pos * self.SCALING,
-                                 self.SCALING)
+                self.draw_path(n, n.parent, Colour.white)
                 reconsider = (n.parent, *n.children)
                 n.parent.children.remove(n)
                 n.parent = newnode
                 newnode.children.append(n)
                 n.cost = newnode.cost + _newnode_to_n_cost
                 already_rewired.add(n)
-                pygame.draw.line(self.path_layers, Colour.blue, n.pos * self.SCALING, newnode.pos * self.SCALING,
-                                self.SCALING)
+                self.draw_path(n, newnode, Colour.blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
 
     def run(self):
         self.fpsClock.tick(10000)
-        goal_bias_success = False
-        def findNearestNeighbour(node):
+        def find_nearest_neighbour(node):
             nn = self.nodes[0]
             for p in self.nodes:
                 if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
@@ -256,37 +252,35 @@ class RRT:
 
         while self.stats.valid_sample < self.NUMNODES:
 
-            rand = None
             # Get an sample that is free (not in blocked space)
-            while rand is None or self.collides(rand.pos):
+            while True:
                 coordinate, report_success, report_fail = self.sampler.get_next_node()
                 rand = Node(coordinate)
                 self.stats.add_sampled_node(rand)
-            nn = findNearestNeighbour(rand)
+                if self.collides(rand.pos):
+                    report_fail(pos=p, obstacle=True)
+                    self.stats.add_invalid(perm=True)
+            # Found a node that is not in X_obs
+
+            nn = find_nearest_neighbour(rand)
             # get an intermediate node according to step-size
             newnode = Node(self.step_from_to(nn.pos, rand.pos))
-            # check if it is free or not ofree
+            # check if it has a free path to nn or not
             if not self.cc.path_is_free(nn, newnode):
-                self.sampler.add_sample(p=rand, free=False)
                 self.stats.add_invalid(perm=False)
-                report_fail()
+                report_fail(pos=rand, free=False)
             else:
-                report_success(pos=newnode.pos)
                 self.stats.add_free()
-                x, y = newnode.pos
-                self.sampler.add_tree_node(x, y)
-                if rand is not None and ' Sampler.add_sample_line ' not in self.sampler.add_sample_line.__str__():
-                    # only run this if the sampler wants (had implemented) this method
-                    # add all in between point of nearest node of the random pt as valid
-                    x1, y1 = self.cc.get_coor_before_collision(nn, rand)
-                    self.sampler.add_sample_line(x, y, x1, y1)
+                self.sampler.add_tree_node(newnode.pos)
+                report_success(pos=newnode.pos, nn=nn, rand=rand)
+
                 ######################
                 # consider not only the length but also the current shortest cost
                 [newnode, nn] = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
                 self.nodes.append(newnode)
                 # rewire to see what the newly added node can do for us
                 self.rewire(newnode, self.nodes)
-                pygame.draw.line(self.path_layers, Colour.black, nn.pos*self.SCALING, newnode.pos*self.SCALING, self.SCALING)
+                self.draw_path(nn, newnode)
 
                 if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
                     self.c_max = newnode.cost
@@ -294,19 +288,27 @@ class RRT:
                     newnode.children.append(self.goalPt.parent)
                     self.draw_solution_path()
 
-                for e in pygame.event.get():
-                    if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
-                        sys.exit("Leaving.")
+                self.process_pygame_event()
             self.update_screen()
 
-        return
+    def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1):
+        pygame.draw.line(self.path_layers, colour,
+                         node1.pos * self.SCALING,
+                         node2.pos * self.SCALING,
+                         line_modifier * self.SCALING)
+
+    @staticmethod
+    def process_pygame_event():
+        for e in pygame.event.get():
+            if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
+                LOGGER.info("Leaving.")
+                sys.exit(0)
 
     @staticmethod
     def wait_for_exit():
         while True:
-            for e in pygame.event.get():
-                if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
-                    sys.exit("Leaving.")
+            RRT.process_pygame_event()
+
 
 ############################################################
 ##                    DRAWING RELATED                     ##
@@ -321,7 +323,7 @@ class RRT:
         nn = self.goalPt.parent
         self.c_max = nn.cost
         while nn != self.startPt:
-            pygame.draw.line(self.solution_path_screen, Colour.green, nn.pos*self.SCALING, nn.parent.pos*self.SCALING, 5*self.SCALING)
+            self.draw_path(nn, nn.parent, colour=Colour.green, line_modifier=5)
             nn = nn.parent
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
@@ -367,7 +369,7 @@ class RRT:
                 pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
 
         ##### Sampler hook
-        if count % 5 == 0:
+        if count % 10 == 0:
             try:
                 self.sampler.paint(self.window)
             except AttributeError:
@@ -416,14 +418,14 @@ class RRT:
                         new_set = frozenset({newnode, e})
                         if new_set not in drawn_nodes_pairs:
                             drawn_nodes_pairs.add(new_set)
-                            pygame.draw.line(self.path_layers, Colour.black, newnode.pos*self.SCALING, e.pos*self.SCALING, self.SCALING)
+                            self.draw_path(newnode, e)
             # Draw root tree
             for n in self.tree_manager.root.nodes:
                 if n.parent is not None:
                     new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
                         drawn_nodes_pairs.add(new_set)
-                        pygame.draw.line(self.path_layers, Colour.orange, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+                        self.draw_path(n, n.parent, Colour.orange)
         else:
             # Draw path trees
             for n in self.nodes:
@@ -431,7 +433,7 @@ class RRT:
                     new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
                         drawn_nodes_pairs.add(new_set)
-                        pygame.draw.line(self.path_layers, Colour.black, n.pos*self.SCALING, n.parent.pos*self.SCALING, self.SCALING)
+                        self.draw_path(n, n.parent)
 
         if self.startPt is not None:
             pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
