@@ -257,9 +257,10 @@ class RRT:
                 coordinate, report_success, report_fail = self.sampler.get_next_node()
                 rand = Node(coordinate)
                 self.stats.add_sampled_node(rand)
-                if self.collides(rand.pos):
-                    report_fail(pos=p, obstacle=True)
-                    self.stats.add_invalid(perm=True)
+                if not self.collides(rand.pos):
+                    break
+                report_fail(pos=rand, obstacle=True)
+                self.stats.add_invalid(perm=True)
             # Found a node that is not in X_obs
 
             nn = find_nearest_neighbour(rand)
@@ -276,7 +277,7 @@ class RRT:
 
                 ######################
                 # consider not only the length but also the current shortest cost
-                [newnode, nn] = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
+                newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
                 self.nodes.append(newnode)
                 # rewire to see what the newly added node can do for us
                 self.rewire(newnode, self.nodes)
@@ -329,11 +330,10 @@ class RRT:
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
 
-    def update_screen(self, update_all=False, ignore_redraw_paths=False):
+    def update_screen(self, update_all=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
-            self.ignore_counter = 0
 
         if update_all or self.always_refresh:
             count = 0 #FORCE UPDATE
@@ -343,13 +343,8 @@ class RRT:
 
 ###################################################################################
 
-        if count % 50 == 0:
-            if not ignore_redraw_paths or self.ignore_counter % 200 == 0:
-                # force refresh every 300 ignore
-                self.ignore_counter = 0
-                self.redraw_paths()
-            else:
-                self.ignore_counter += 1
+        if count % 80 == 0:
+            self.redraw_paths()
 
         ##### Solution path
         if count % 50 == 0:

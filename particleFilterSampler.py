@@ -110,6 +110,7 @@ class ParticleManager:
         self.num_particles = num_particles
         self.init_energy()
         self.particles = []
+        self.local_samplers_to_be_rstart = []
         self.goalPt = goalPt
         self.rrt = rrt_instance
 
@@ -118,6 +119,22 @@ class ParticleManager:
                 Particle(
                     direction=random.uniform(0, math.pi * 2),
                     pos=startPt))
+
+    def add_to_restart(self, lsampler):
+        if lsampler not in self.local_samplers_to_be_rstart:
+            self.local_samplers_to_be_rstart.append(lsampler)
+
+    def restart_all_pending_local_samplers(self):
+        # restart all pending local samplers
+        while len(self.local_samplers_to_be_rstart) > 0:
+            # during the proces of restart, if the new restart position
+            # is close to an existing tree, it will simply add to that new tree.
+            if not self.local_samplers_to_be_rstart[0].restart():
+                # This flag denotes that a new position was found among the trees,
+                # And it NEEDS to get back to restarting particles in the next ierations
+                return False
+            self.local_samplers_to_be_rstart.pop(0)
+        return True
 
     def init_energy(self):
         self.particles_energy = np.ones(self.num_particles)
@@ -153,9 +170,7 @@ class ParticleManager:
                 elif factor < 0:
                     diff = self.particles_energy[idx] - ENERGY_MIN
                     self.particles_energy[idx] += diff*factor
-
-                    if self.particles_energy[idx] > ENERGY_COLLISION_LOSS:
-                        self.particles_energy[idx] -= ENERGY_COLLISION_LOSS
+                    self.particles_energy[idx] = max(0, self.particles_energy[idx] - ENERGY_COLLISION_LOSS)
         else:
             raise Exception("Nothing set in modify_energy")
 
@@ -197,12 +212,6 @@ class ParticleManager:
         than a specified amount, to a random location
         based on existing tree nodes.
         """
-        def new_pos_in_free_space():
-            """Return a particle that is in free space (from map)"""
-            new_p = None
-            while new_p is None or self.rrt.collides(new_p):
-                new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
-            return new_p
         tmp = []
         for i in range(self.size()):
             if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
@@ -357,6 +366,20 @@ class ParticleFilterSampler(Sampler):
                                dir=new_direction)
         return (x, y)
 
+    def get_random_choice(self):
+        prob = self.p_manager.get_prob()
+        self._last_prob = prob  # this will be used to paint particles
+        try:
+            choice = np.random.choice(range(self.p_manager.size()), p=prob)
+        except ValueError as e:
+            # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
+            LOGGER.error("!! probability got exception '{}'... trying to re-sync prob again.".format(e))
+            self.p_manager.resync_prob()
+            prob = self.p_manager.get_prob()
+            self._last_prob = prob
+            choice = np.random.choice(range(self.p_manager.size()), p=prob)
+        return choice
+
     @overrides
     def get_next_node(self):
         self.counter += 1
@@ -384,16 +407,7 @@ class ParticleFilterSampler(Sampler):
             choice = -1
         else:
             # get a node to random walk
-            prob = self.p_manager.get_prob()
-            self._last_prob = prob  # this will be used to paint particles
-            try:
-                choice = np.random.choice(range(self.p_manager.size()), p=prob)
-            except ValueError as e:
-                # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
-                LOGGER.exception("!! probability got exception... trying to re-sync prob again.")
-                self.p_manager.resync_prob()
-                self._last_prob = prob
-                choice = np.random.choice(range(self.p_manager.size()), p=prob)
+            choice = self.get_random_choice()
 
             p = self.randomWalk(choice)
 
@@ -423,6 +437,7 @@ class ParticleFilterSampler(Sampler):
             self.particles_layer.fill((255, 128, 255, 0))
             # get a transition from green to red
             c = self.get_color_transists(self._last_prob[i], max_num, min_num)
+            c = max(min(255, c), 0)
             color = (100, c, 0)
             pygame.draw.circle(self.particles_layer, color,
                                p.pos.astype(int) * self.scaling, 4 * self.scaling)
