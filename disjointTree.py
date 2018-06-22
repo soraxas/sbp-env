@@ -11,6 +11,8 @@ LOGGER = logging.getLogger(__name__)
 JOIN_TREES_RADIUS = 10
 
 def update_progress(progress, total_num, num_of_blocks=10):
+    if not logging.getLogger().isEnabledFor(logging.INFO):
+        return
     percentage = progress / total_num
     print('\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
         bar='#' * int(percentage * num_of_blocks),
@@ -199,6 +201,7 @@ class DisjointTreeParticle(Particle):
             self.isroot = False
             self.tree.particle_handler = self
             super().restart(direction, pos)
+            return
         try:
             # remove tree reference to his particle
             self.tree.particle_handler = None
@@ -390,7 +393,6 @@ def add_pos_to_existing_tree(self, newnode, parent_tree):
     return merged
 
 def rrt_dt_patched_run(self):
-    self.fpsClock.tick(10000)
 
     def get_valid_next_node():
         """Loop until we find a valid next node"""

@@ -72,12 +72,21 @@ class stats:
 
 ############################################################
 
+def check_pygame_enabled(func):
+    """Pythonic decorator that force function to do Nothing
+    if pygame is not enabled"""
+    def wrapper(*args, **kwargs):
+        if not args[0].enable_pygame:
+            return
+        return func(*args, **kwargs)
+    return wrapper
+
 class RRT:
     def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius,
                  sampler, goalBias=True, ignore_step_size=False, always_refresh=False,
-                 disable_pygame=False):
+                 enable_pygame=True):
         # initialize and prepare screen
-        pygame.init()
+        self.enable_pygame = enable_pygame
         self.stats = stats()
         self.img = pygame.image.load(image)
         self.cc = CollisionChecker(self.img)
@@ -89,44 +98,14 @@ class RRT:
         self.EPSILON = epsilon
         self.NUMNODES = max_number_nodes
         self.RADIUS = radius
-        self.fpsClock = pygame.time.Clock()
         self.goalBias = goalBias
         self.showSampledPoint = showSampledPoint
         self.ignore_step_size = ignore_step_size
 
         self.c_max = INF
 
-        pygame.display.set_caption('RRTstar')
-        # screen.fill(white)
-        ################################################################################
-        # text
-        pygame.font.init()
-        self.myfont = pygame.font.SysFont('Arial', 15 * self.SCALING)
-        ################################################################################
-        # main window
-        self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
-        ################################################################################
-        # background aka the room
-        self.background = pygame.Surface( [self.XDIM, self.YDIM] )
-        self.background.blit(self.img,(0,0))
-        # resize background to match windows
-        self.background = pygame.transform.scale(self.background, [self.XDIM * self.SCALING, self.YDIM * self.SCALING])
-        ################################################################################
-        # path of RRT*
-        self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.path_layers.fill(ALPHA_CK)
-        self.path_layers.set_colorkey(ALPHA_CK)
-        ################################################################################
-        # layers to store the solution path
-        self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.solution_path_screen.fill(ALPHA_CK)
-        self.solution_path_screen.set_colorkey(ALPHA_CK)
-        ################################################################################
-        # layers to store the sampled points
-        self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.sampledPoint_screen.fill(ALPHA_CK)
-        self.sampledPoint_screen.set_colorkey(ALPHA_CK)
-        ################################################################################
+        self.pygame_init()
+
         self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
         self.sampledNodes = []
@@ -138,7 +117,8 @@ class RRT:
         ##################################################
         # Get starting and ending point
         LOGGER.info('Select Starting Point and then Goal Point')
-        self.fpsClock.tick(10)
+        # self.startPt = Node((200, 100))
+        # self.goalPt = Node((400, 100))
         while self.startPt is None or self.goalPt is None:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
@@ -170,6 +150,44 @@ class RRT:
                           startPt=self.startPt.pos, goalPt=self.goalPt.pos, tree_manager=self.tree_manager)
 
     ############################################################
+
+    @check_pygame_enabled
+    def pygame_init(self):
+        pygame.init()
+        self.fpsClock = pygame.time.Clock()
+        # self.fpsClock.tick(10)
+        self.fpsClock.tick(10000)
+        pygame.display.set_caption('RRTstar')
+        # screen.fill(white)
+        ################################################################################
+        # text
+        pygame.font.init()
+        self.myfont = pygame.font.SysFont('Arial', 15 * self.SCALING)
+        ################################################################################
+        # main window
+        self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
+        ################################################################################
+        # background aka the room
+        self.background = pygame.Surface( [self.XDIM, self.YDIM] )
+        self.background.blit(self.img,(0,0))
+        # resize background to match windows
+        self.background = pygame.transform.scale(self.background, [self.XDIM * self.SCALING, self.YDIM * self.SCALING])
+        ################################################################################
+        # path of RRT*
+        self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.path_layers.fill(ALPHA_CK)
+        self.path_layers.set_colorkey(ALPHA_CK)
+        ################################################################################
+        # layers to store the solution path
+        self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.solution_path_screen.fill(ALPHA_CK)
+        self.solution_path_screen.set_colorkey(ALPHA_CK)
+        ################################################################################
+        # layers to store the sampled points
+        self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.sampledPoint_screen.fill(ALPHA_CK)
+        self.sampledPoint_screen.set_colorkey(ALPHA_CK)
+            ################################################################################
 
     def collides(self, p):
         """check if point is white (which means free space)"""
@@ -292,44 +310,51 @@ class RRT:
                 self.process_pygame_event()
             self.update_screen()
 
-    def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1):
-        pygame.draw.line(self.path_layers, colour,
+    @check_pygame_enabled
+    def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1, layer=None):
+        if layer is None:
+            layer = self.path_layers
+        pygame.draw.line(layer, colour,
                          node1.pos * self.SCALING,
                          node2.pos * self.SCALING,
                          line_modifier * self.SCALING)
 
-    @staticmethod
-    def process_pygame_event():
+    @check_pygame_enabled
+    def process_pygame_event(self):
         for e in pygame.event.get():
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                 LOGGER.info("Leaving.")
                 sys.exit(0)
 
-    @staticmethod
-    def wait_for_exit():
+    @check_pygame_enabled
+    def wait_for_exit(self):
         while True:
-            RRT.process_pygame_event()
+            self.process_pygame_event()
 
 
 ############################################################
 ##                    DRAWING RELATED                     ##
 ############################################################
 
+    @check_pygame_enabled
     def draw_solution_path(self):
         if self.c_max == INF:
             # nothing to d
             return
+
         # redraw new path
         self.solution_path_screen.fill(ALPHA_CK)
         nn = self.goalPt.parent
         self.c_max = nn.cost
         while nn != self.startPt:
-            self.draw_path(nn, nn.parent, colour=Colour.green, line_modifier=5)
+            self.draw_path(nn, nn.parent, colour=Colour.green, line_modifier=5,
+                           layer=self.solution_path_screen)
             nn = nn.parent
         self.window.blit(self.path_layers,(0,0))
         self.window.blit(self.solution_path_screen,(0,0))
         pygame.display.update()
 
+    @check_pygame_enabled
     def update_screen(self, update_all=False):
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
@@ -343,12 +368,12 @@ class RRT:
 
 ###################################################################################
 
-        if count % 80 == 0:
+        if count % 100 == 0:
             self.redraw_paths()
 
         ##### Solution path
-        if count % 50 == 0:
-            self.draw_solution_path()
+        # if count % 50 == 0:
+        self.draw_solution_path()
             # self.wait_for_exit()
         # limites the screen update
         if count % 10 == 0:
