@@ -232,16 +232,17 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 
     @overrides
     def init(self, **kwargs):
+
+        super().init(**kwargs)
         # Monkey patch the RRT for this smapler's specific stuff
         import types
 
-        kwargs['RRT'].run = types.MethodType(rrt_dt_patched_run, kwargs['RRT'])
-        kwargs['RRT'].connect_two_nodes = types.MethodType(connect_two_nodes, kwargs['RRT'])
-        kwargs['RRT'].add_pos_to_existing_tree = types.MethodType(add_pos_to_existing_tree, kwargs['RRT'])
+        self.RRT.run_once = types.MethodType(rrt_dt_patched_run_once, self.RRT)
+        self.RRT.connect_two_nodes = types.MethodType(connect_two_nodes, self.RRT)
+        self.RRT.add_pos_to_existing_tree = types.MethodType(add_pos_to_existing_tree, self.RRT)
 
         self.lsamplers_to_be_restart = []
         self.tree_manager = kwargs['tree_manager']
-        super().init(**kwargs)
         # ditch the particles created by the original particle filter sampler, and
         # create ones that has link towards the disjointed tree
         self.p_manager.particles = []
@@ -275,6 +276,23 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
     def report_success(self, idx, **kwargs):
         self.p_manager.confirm(idx, kwargs['pos'])
         self.p_manager.modify_energy(idx=idx, factor=0.99)
+
+    @overrides
+    def get_valid_next_node(self):
+        """Loop until we find a valid next node"""
+        while True:
+            _tmp = self.get_next_node()
+            if _tmp is None:
+                # This denotes a particle had tried to restart and added the new node
+                # to existing tree instead. Skip remaining steps and iterate to next loop
+                return None
+            coordinate, parent_tree, report_success, report_fail = _tmp
+            rand = Node(coordinate)
+            self.RRT.stats.add_sampled_node(rand)
+            if not self.RRT.collides(rand.pos):
+                return rand, parent_tree, report_success, report_fail
+            report_fail(pos=rand, obstacle=True)
+            self.RRT.stats.add_invalid(perm=True)
 
     @overrides
     def get_next_node(self):
@@ -392,53 +410,29 @@ def add_pos_to_existing_tree(self, newnode, parent_tree):
             merged = True
     return merged
 
-def rrt_dt_patched_run(self):
+def rrt_dt_patched_run_once(self):
+    # Get an sample that is free (not in blocked space)
+    _tmp = self.sampler.get_valid_next_node()
+    if _tmp is None:
+        # we have added a new samples when respawning a local sampler
+        return
+    rand, parent_tree, report_success, report_fail = _tmp
 
-    def get_valid_next_node():
-        """Loop until we find a valid next node"""
-        while True:
-            _tmp = self.sampler.get_next_node()
-            if _tmp is None:
-                # This denotes a particle had tried to restart and added the new node
-                # to existing tree instead. Skip remaining steps and iterate to next loop
-                return None
-            coordinate, parent_tree, report_success, report_fail = _tmp
-            rand = Node(coordinate)
-            self.stats.add_sampled_node(rand)
-            if not self.collides(rand.pos):
-                return rand, parent_tree, report_success, report_fail
-            report_fail(pos=rand, obstacle=True)
-            self.stats.add_invalid(perm=True)
-
-    while self.stats.valid_sample < self.NUMNODES:
-        self.process_pygame_event()
-        self.update_screen()
-        # Get an sample that is free (not in blocked space)
-        _tmp = get_valid_next_node()
-        if _tmp is None:
-            # we have added a new samples when respawning a local sampler
-            continue
-        else:
-            rand, parent_tree, report_success, report_fail = _tmp
-
-        nn = self.tree_manager.find_nearest_node(rand, parent_tree)
-        # get an intermediate node according to step-size
-        newnode = Node(self.step_from_to(nn.pos, rand.pos))
-        # check if it is free or not ofree
-        if not self.cc.path_is_free(nn, newnode):
-            self.stats.add_invalid(perm=False)
-            report_fail(pos=rand, free=False)
-        else:
-            self.stats.add_free()
-            self.sampler.add_tree_node(newnode.pos)
-            report_success(pos=newnode.pos)
-            ######################
-            newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
-            # try to add this newnode to existing trees
-            self.add_pos_to_existing_tree(newnode, parent_tree)
-
-
-    # self.wait_for_exit()
+    nn = self.tree_manager.find_nearest_node(rand, parent_tree)
+    # get an intermediate node according to step-size
+    newnode = Node(self.step_from_to(nn.pos, rand.pos))
+    # check if it is free or not ofree
+    if not self.cc.path_is_free(nn, newnode):
+        self.stats.add_invalid(perm=False)
+        report_fail(pos=rand, free=False)
+    else:
+        self.stats.add_free()
+        self.sampler.add_tree_node(newnode.pos)
+        report_success(pos=newnode.pos)
+        ######################
+        newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
+        # try to add this newnode to existing trees
+        self.add_pos_to_existing_tree(newnode, parent_tree)
 
 
 ############################################################

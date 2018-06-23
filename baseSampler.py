@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import rrtstar
 
 class Sampler:
     """
@@ -8,10 +9,25 @@ class Sampler:
     """
 
     def init(self, *argv, **kwargs):
-        pass
+        self.XDIM = kwargs['XDIM']
+        self.YDIM = kwargs['YDIM']
+        self.RRT = kwargs['RRT']
+        self.EPSILON = kwargs['EPSILON']
+        self.scaling = kwargs['SCALING']
 
     def get_next_node(self, *argv, **kwargs):
         pass
+
+    def get_valid_next_node(self):
+        """Loop until we find a valid next node"""
+        while True:
+            coordinate, report_success, report_fail = self.get_next_node()
+            rand = rrtstar.Node(coordinate)
+            self.RRT.stats.add_sampled_node(rand)
+            if not self.RRT.collides(rand.pos):
+                return rand, report_success, report_fail
+            report_fail(pos=rand, obstacle=True)
+            self.RRT.stats.add_invalid(perm=True)
 
     def report_success(self, *argv, **kwargs):
         pass

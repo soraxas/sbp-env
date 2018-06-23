@@ -28,9 +28,9 @@ def main():
 
     sampler = NearbyPolicySampler(prob_block_size=prob_block_size)
     sampler = LikelihoodPolicySampler(prob_block_size=prob_block_size)
-    sampler = RandomPolicySampler()
     sampler = MouseSampler()
     sampler = ParticleFilterSampler()
+    sampler = RandomPolicySampler()
     sampler = DisjointParticleFilterSampler()
 
     rrt = rrtstar.RRT(

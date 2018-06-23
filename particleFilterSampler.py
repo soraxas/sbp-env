@@ -314,15 +314,12 @@ class ParticleFilterSampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
-        self.XDIM = kwargs['XDIM']
-        self.YDIM = kwargs['YDIM']
-        self.RRT = kwargs['RRT']
-        self.EPSILON = kwargs['EPSILON']
-        self.scaling = kwargs['SCALING']
+        super().init(**kwargs)
+
         self.startPt = kwargs['startPt']
         self.goalPt = kwargs['goalPt']
         self.randomSampler = RandomPolicySampler()
-        self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
+        self.randomSampler.init(**kwargs)
         self.randomnessManager = RandomnessManager()
         # probability layer
         self.particles_layer = pygame.Surface(

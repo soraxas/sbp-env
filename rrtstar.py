@@ -258,30 +258,26 @@ class RRT:
                 self.draw_path(n, newnode, Colour.blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
+    def find_nearest_neighbour(self, node):
+        nn = self.nodes[0]
+        for p in self.nodes:
+            if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
+                nn = p
+        return nn
 
     def run(self):
-        self.fpsClock.tick(10000)
-        def find_nearest_neighbour(node):
-            nn = self.nodes[0]
-            for p in self.nodes:
-                if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
-                    nn = p
-            return nn
-
+        """Run until we reached the specified max nodes"""
         while self.stats.valid_sample < self.NUMNODES:
+            self.process_pygame_event()
+            self.update_screen()
+            self.run_once()
 
+    def run_once(self):
             # Get an sample that is free (not in blocked space)
-            while True:
-                coordinate, report_success, report_fail = self.sampler.get_next_node()
-                rand = Node(coordinate)
-                self.stats.add_sampled_node(rand)
-                if not self.collides(rand.pos):
-                    break
-                report_fail(pos=rand, obstacle=True)
-                self.stats.add_invalid(perm=True)
+            rand, report_success, report_fail = self.sampler.get_valid_next_node()
             # Found a node that is not in X_obs
 
-            nn = find_nearest_neighbour(rand)
+            nn = self.find_nearest_neighbour(rand)
             # get an intermediate node according to step-size
             newnode = Node(self.step_from_to(nn.pos, rand.pos))
             # check if it has a free path to nn or not
@@ -292,9 +288,7 @@ class RRT:
                 self.stats.add_free()
                 self.sampler.add_tree_node(newnode.pos)
                 report_success(pos=newnode.pos, nn=nn, rand=rand)
-
                 ######################
-                # consider not only the length but also the current shortest cost
                 newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
                 self.nodes.append(newnode)
                 # rewire to see what the newly added node can do for us
@@ -307,8 +301,6 @@ class RRT:
                     newnode.children.append(self.goalPt.parent)
                     self.draw_solution_path()
 
-                self.process_pygame_event()
-            self.update_screen()
 
     @check_pygame_enabled
     def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1, layer=None):
