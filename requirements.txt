@@ -4,3 +4,4 @@ overrides
 numpy
 matplotlib
 scipy
+memory_profiler
