@@ -9,32 +9,32 @@ Usage:
   main.py --version
 
 Arguments:
-  (random|...|...)      Set the sampler to be used by RRT*.
-  <MAP>                 An image file that represent the map.
+  (random|...|...)       Set the sampler to be used by the RRT*.
+  <MAP>                  An image file that represent the map.
 
 General Options:
-  -h --help             Show this screen.
-  --version             Show version.
-  -v, --verbose         Display debug message.
+  -h --help              Show this screen.
+  --version              Show version.
+  -v, --verbose          Display debug message.
 
 Display Options:
-  --always-refresh      Set if the display should refresh on every ticks.
-  --scaling=SCALING     Set scaling for display (ratio will be maintained).
-                        [default: 4]
-  --hide-sampled-point  Do not display sampled point as red dot on screen.
-  --disable-pygame      Disable pygame display (to enhance performance).
+  --always-refresh       Set if the display should refresh on every ticks.
+  --scaling=SCALING      Set scaling for display (ratio will be maintained).
+                         [default: 4]
+  --hide-sampled-points  Do not display sampled point as red dot on screen.
+  --disable-pygame       Disable pygame display (to enhance performance).
 
 Sampler Options:
-  --epsilon=EPSILON     Set epsilon value.
-                        [default: 10.0]
-  --radius=RADIUS       Set radius that will connect two nodes together.
-                        [default: 15]
+  --epsilon=EPSILON      Set epsilon value.
+                         [default: 10.0]
+  --radius=RADIUS        Set radius that will connect two nodes together.
+                         [default: 15]
   --max-number-nodes=MAX_NODES
-                        Set maximum number of nodes
-                        [default: 30000]
-  --ignore-step-size    Ignore step size (i.e. epsilon) when sampling.
-  --goal-bias=BIAS      Probability of biasing goal position.
-                        [default: 0.02]
+                         Set maximum number of nodes
+                         [default: 30000]
+  --ignore-step-size     Ignore step size (i.e. epsilon) when sampling.
+  --goal-bias=BIAS       Probability of biasing goal position.
+                         [default: 0.02]
 
 Likelihood/Nearby Sampler Options:
   --prob-block-size=SIZE
@@ -85,7 +85,7 @@ def main():
         sampler = MouseSampler()
 
     rrt_options = {
-        'showSampledPoint' : args['--hide-sampled-point'],
+        'showSampledPoint' : not args['--hide-sampled-points'],
         'scaling' : int(args['--scaling']),
         'sampler' : sampler,
         'goalBias' : float(args['--goal-bias']),

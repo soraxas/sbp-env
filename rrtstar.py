@@ -48,12 +48,12 @@ class SampledNodes:
         self.framedShowed = 0
 
 class Stats:
-    def __init__(self, enable_pygame=True):
+    def __init__(self, showSampledPoint=True):
         self.invalid_sample_temp = 0
         self.invalid_sample_perm = 0
         self.valid_sample = 0
         self.sampledNodes = []
-        self.enable_pygame = enable_pygame
+        self.showSampledPoint = showSampledPoint
 
     def add_invalid(self,perm):
         if perm:
@@ -66,7 +66,7 @@ class Stats:
 
     def add_sampled_node(self, node, not_a_node=False):
         # if pygame is not enabled, skip showing sampled point
-        if not self.enable_pygame:
+        if not self.showSampledPoint:
             return
         if not_a_node:
             node = Node(node)
@@ -89,7 +89,7 @@ class RRT:
                  sampler, goalBias=True, ignore_step_size=False, always_refresh=False,
                  enable_pygame=True, startPt=None, goalPt=None):
         # initialize and prepare screen
-        self.stats = Stats(enable_pygame=enable_pygame)
+        self.stats = Stats(showSampledPoint=showSampledPoint)
         self.img = pygame.image.load(image)
         self.cc = CollisionChecker(self.img)
         self.XDIM = self.img.get_width()
@@ -101,7 +101,6 @@ class RRT:
         self.NUMNODES = max_number_nodes
         self.RADIUS = radius
         self.goalBias = goalBias
-        self.showSampledPoint = showSampledPoint
         self.ignore_step_size = ignore_step_size
 
         self.c_max = INF
