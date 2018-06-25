@@ -9,24 +9,27 @@ def main():
 
     maps = ['room1.png', 'maze1.png', 'maze2.png']
     policies = ['random', 'disjoint']
-
     # repeat for x number of times
     REPEAT_DIFFERENT_LOC = 20
     REPEAT_STATS = 20
 
+    # Repeat the same in different map
     for map in maps:
-        for policy in policies:
-            for loc in range(REPEAT_DIFFERENT_LOC):
-                start = get_random_free_space(map)
-                goal = get_random_free_space(map)
-                for i in range(REPEAT_STATS):
+        # Try different locations
+        for _loc in range(REPEAT_DIFFERENT_LOC):
+            start = get_random_free_space(map)
+            goal = get_random_free_space(map)
+            # Repeat for X amount of time for statistatical significant
+            for _i in range(REPEAT_STATS):
+                # Repeat the same for two different policies
+                for policy in policies:
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
                         map=map,
                         policy=policy,
-                        loc_repeat=loc,
+                        loc_repeat=_loc,
                         start=start,
                         goal=goal,
-                        repeating=i))
+                        repeating=_i))
                     args = ['python', 'benchmark_rrt_wrapper.py', policy, map,
                             "start", str(start[0]), str(start[1]),
                             "goal", str(goal[0]), str(goal[1]),
