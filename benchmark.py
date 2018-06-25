@@ -31,7 +31,7 @@ def main():
                             "start", str(start[0]), str(start[1]),
                             "goal", str(goal[0]), str(goal[1]),
                             '--hide-sampled-points',
-                            '--max-number-nodes=28',
+                            '--max-number-nodes=15000',
                             '--disable-pygame'
                             ]
                     subprocess.check_call(args)
