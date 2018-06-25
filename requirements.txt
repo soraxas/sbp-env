@@ -1,3 +1,4 @@
+docopt
 pygame
 overrides
 numpy

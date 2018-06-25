@@ -14,6 +14,10 @@ class Sampler:
         self.RRT = kwargs['RRT']
         self.EPSILON = kwargs['EPSILON']
         self.scaling = kwargs['SCALING']
+        self.goalBias = kwargs['goalBias']
+        self.startPt = kwargs['startPt']
+        self.goalPt = kwargs['goalPt']
+
 
     def get_next_node(self, *argv, **kwargs):
         pass

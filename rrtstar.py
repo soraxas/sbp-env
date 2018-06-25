@@ -47,12 +47,13 @@ class SampledNodes:
         self.pos = p
         self.framedShowed = 0
 
-class stats:
-    def __init__(self):
+class Stats:
+    def __init__(self, enable_pygame=True):
         self.invalid_sample_temp = 0
         self.invalid_sample_perm = 0
         self.valid_sample = 0
         self.sampledNodes = []
+        self.enable_pygame = enable_pygame
 
     def add_invalid(self,perm):
         if perm:
@@ -64,10 +65,12 @@ class stats:
         self.valid_sample += 1
 
     def add_sampled_node(self, node, not_a_node=False):
+        # if pygame is not enabled, skip showing sampled point
+        if not self.enable_pygame:
+            return
         if not_a_node:
             node = Node(node)
         self.sampledNodes.append(SampledNodes(node.pos.astype(int)))
-
 
 
 ############################################################
@@ -84,10 +87,9 @@ def check_pygame_enabled(func):
 class RRT:
     def __init__(self, showSampledPoint, scaling, image, epsilon, max_number_nodes, radius,
                  sampler, goalBias=True, ignore_step_size=False, always_refresh=False,
-                 enable_pygame=True):
+                 enable_pygame=True, startPt=None, goalPt=None):
         # initialize and prepare screen
-        self.enable_pygame = enable_pygame
-        self.stats = stats()
+        self.stats = Stats(enable_pygame=enable_pygame)
         self.img = pygame.image.load(image)
         self.cc = CollisionChecker(self.img)
         self.XDIM = self.img.get_width()
@@ -104,39 +106,41 @@ class RRT:
 
         self.c_max = INF
 
-        self.pygame_init()
+        self.pygame_init(enable_pygame)
+
 
         self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
         self.sampledNodes = []
 
-        self.startPt = None
-        self.goalPt = None
-
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
         LOGGER.info('Select Starting Point and then Goal Point')
-        # self.startPt = Node((200, 100))
-        # self.goalPt = Node((400, 100))
+        self.startPt = None
+        self.goalPt = None
         while self.startPt is None or self.goalPt is None:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = (int(e.pos[0] / self.SCALING), int(e.pos[1] / self.SCALING))
-                    if self.startPt is None:
+                    if startPt is None:
                         if not self.collides(mousePos):
                             LOGGER.info(('starting point set: ' + str(mousePos)))
-                            self.startPt = Node(mousePos)
-                            self.nodes.append(self.startPt)
-
-                    elif self.goalPt is None:
+                            startPt = mousePos
+                    elif goalPt is None:
                         if not self.collides(mousePos):
                             LOGGER.info(('goal point set: ' + str(mousePos)))
-                            self.goalPt = Node(mousePos)
+                            goalPt = mousePos
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                         LOGGER.info("Leaving.")
                         return
+            # convert mouse pos to Node
+            if startPt is not None and self.startPt is None:
+                self.startPt = Node(startPt)
+            if goalPt is not None and self.goalPt is None:
+                self.goalPt = Node(goalPt)
             self.update_screen(update_all=True)
+        self.nodes.append(self.startPt)
 
         ##################################################
         # calculate information regarding shortest path
@@ -146,13 +150,13 @@ class RRT:
         dx = self.goalPt.pos[0] - self.startPt.pos[0]
         self.angle = math.atan2(-dy, dx)
 
-        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON,
+        self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON, goalBias=self.goalBias,
                           startPt=self.startPt.pos, goalPt=self.goalPt.pos, tree_manager=self.tree_manager)
 
     ############################################################
 
-    @check_pygame_enabled
-    def pygame_init(self):
+    def pygame_init(self, enable_pygame=True):
+        self.enable_pygame = enable_pygame
         pygame.init()
         self.fpsClock = pygame.time.Clock()
         # self.fpsClock.tick(10)
@@ -187,7 +191,17 @@ class RRT:
         self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
         self.sampledPoint_screen.fill(ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(ALPHA_CK)
-            ################################################################################
+        ################################################################################
+        if not self.enable_pygame:
+            self.pygame_hide()
+
+    def pygame_show(self):
+        self.enable_pygame = True
+
+    def pygame_hide(self):
+        self.enable_pygame = False
+        pygame.display.iconify()
+        # pygame.quit()
 
     def collides(self, p):
         """check if point is white (which means free space)"""
@@ -376,9 +390,9 @@ class RRT:
             self.window.blit(self.path_layers,(0,0))
             self.window.blit(self.solution_path_screen,(0,0))
             if self.startPt is not None:
-                pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+                pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
             if self.goalPt is not None:
-                pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+                pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
 
         ##### Sampler hook
         if count % 10 == 0:
@@ -448,6 +462,6 @@ class RRT:
                         self.draw_path(n, n.parent)
 
         if self.startPt is not None:
-            pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+            pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
         if self.goalPt is not None:
-            pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos*self.SCALING, GOAL_RADIUS*self.SCALING)
+            pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)

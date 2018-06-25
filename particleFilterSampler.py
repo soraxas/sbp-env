@@ -48,8 +48,6 @@ Use a factor of diff
 
 LOGGER = logging.getLogger(__name__)
 
-GOAL_BIAS = 0.05
-
 ENERGY_MIN = 0
 ENERGY_MAX = 10
 ENERGY_START = 7
@@ -316,8 +314,6 @@ class ParticleFilterSampler(Sampler):
     def init(self, **kwargs):
         super().init(**kwargs)
 
-        self.startPt = kwargs['startPt']
-        self.goalPt = kwargs['goalPt']
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
         self.randomnessManager = RandomnessManager()
@@ -343,7 +339,7 @@ class ParticleFilterSampler(Sampler):
 
     def randomWalk(self, idx):
         # Randomly bias toward goal direction
-        if random.random() < GOAL_BIAS:
+        if random.random() < self.goalBias:
             dx = self.goalPt[0] - self.p_manager.get_pos(idx)[0]
             dy = self.goalPt[1] - self.p_manager.get_pos(idx)[1]
             goal_direction = math.atan2(dy, dx)

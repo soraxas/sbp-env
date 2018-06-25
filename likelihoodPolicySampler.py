@@ -22,8 +22,9 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
+        super().init(**kwargs)
         self.randomSampler = RandomPolicySampler()
-        self.randomSampler.init(XDIM=self.XDIM, YDIM=self.YDIM, RRT=self.RRT)
+        self.randomSampler.init(**kwargs)
         # probability layer
         self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.scaling,self.PROB_BLOCK_SIZE * self.scaling), pygame.SRCALPHA)
 

@@ -9,8 +9,9 @@ from likelihoodPolicySampler import LikelihoodPolicySampler
 
 class NearbyPolicySampler(LikelihoodPolicySampler):
 
+    @overrides
     def init(self, **kwargs):
-        super().init(**kwargs   )
+        super().init(**kwargs)
         self.prob_vector = np.zeros(self.shape)
         # self.prob_vector *= 2 # IMPORTANT because we are using log2
 
