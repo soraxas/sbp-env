@@ -311,10 +311,11 @@ class RRT:
                 self.draw_path(nn, newnode)
 
                 if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
-                    self.c_max = newnode.cost
-                    self.goalPt.parent = newnode
-                    newnode.children.append(self.goalPt.parent)
-                    self.draw_solution_path()
+                    if newnode.cost < self.c_max:
+                        self.c_max = newnode.cost
+                        self.goalPt.parent = newnode
+                        newnode.children.append(self.goalPt.parent)
+                        self.draw_solution_path()
 
 
     @check_pygame_enabled
