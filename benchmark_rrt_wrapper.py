@@ -43,7 +43,7 @@ def main():
         writer.writerow((sys.argv[2], rrt.startPt.pos, rrt.goalPt.pos, rrt.EPSILON, rrt.goalBias, rrt.NUMNODES))
         writer.writerow([])
 
-        writer.writerow(('Num nodes', 'time stamp (sec)', 'mem usage (mb)', 'invalid samples (temp)', 'invalid samples (perm)', 'cost'))
+        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(temp)', 'inv.samples(perm)', 'cost'))
         start_time = default_timer()
         def take_screenshot(term=False):
             rrt.pygame_show()
