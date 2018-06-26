@@ -4,12 +4,13 @@ import csv
 
 import rrtstar
 import subprocess
+import openpyxl
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
+STATS_FILE_NAME = 'stats.xlsx'
+
 def combine_result(folder):
-    print('===============')
-    print(folder)
 
     def save_csv_as_sheet(policy):
         # create a list to store the newly created sheets
@@ -85,9 +86,11 @@ def combine_result(folder):
         # main_ws.append([""])
 
     os.chdir(folder)
-    if os.path.isfile('stats.xlsx'):
+    if os.path.isfile(STATS_FILE_NAME):
         # skip as this had been processed
         return
+    print('===============')
+    print(folder)
     wb = Workbook()
     ws = wb.active
     # remove default sheet
@@ -104,20 +107,31 @@ def combine_result(folder):
     ws = wb.create_sheet(disjoint, index=1)
     create_stats_view(ws, sheets, num_rows=num_rows)
 
-    wb.save('stats.xlsx')
+    wb.save(STATS_FILE_NAME)
     # delete other csv
     for filename in glob.glob("*.csv"):
         os.remove(filename)
 
 
 def combine_all_results(maindir):
-    maindir = os.path.abspath(maindir)
     all_dirs = (os.path.join(maindir, x) for x in os.listdir(maindir))
     all_dirs = [x for x in all_dirs if os.path.isdir(x)]
     for subdir in all_dirs:
         combine_result(subdir)
         os.chdir(maindir) # switch back to main folder
 
+def create_stats_of_goal_first_found(maindir):
+    """Create stats of the number of node (and time) when the goal node is first found"""
+    maindir = os.path.abspath(maindir)
+    all_dirs = (os.path.join(maindir, x) for x in os.listdir(maindir))
+    all_dirs = [x for x in all_dirs if os.path.isdir(x)]
+    for subdir in all_dirs:
+        wb = openpyxl.load_workbook(os.path.join(subdir, STATS_FILE_NAME))
+        print(wb.sheetnames)
+
+
 if __name__ == '__main__':
-    dirname = 'benchmark_copy'
+    dirname = os.path.abspath('benchmark_copy')
     combine_all_results(dirname)
+    os.chdir(dirname)
+    create_stats_of_goal_first_found(dirname)
