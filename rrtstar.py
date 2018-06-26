@@ -248,7 +248,6 @@ class RRT:
 
         return newnode, nn
 
-
     def rewire(self, newnode, nodes, already_rewired=None):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         if len(nodes) < 1:
@@ -273,9 +272,12 @@ class RRT:
 
     def find_nearest_neighbour(self, node):
         nn = self.nodes[0]
+        _nn_to_node_dist = dist(nn.pos, node.pos)
         for p in self.nodes:
-            if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
+            _p_to_node_dist = dist(p.pos, node.pos)
+            if _p_to_node_dist < _nn_to_node_dist:
                 nn = p
+                _nn_to_node_dist = _p_to_node_dist
         return nn
 
     def run(self):
