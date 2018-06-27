@@ -107,6 +107,10 @@ class RRT:
 
         self.pygame_init(enable_pygame)
 
+        # this dict is to temparily store distance of a new node to all others
+        # so that in the next run other functions (eg choose_least_cost_parent and rwire)
+        # and take advantage to the already computed values
+        self._new_node_dist_to_all_others = {}
 
         self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
@@ -225,15 +229,16 @@ class RRT:
             pos = p1[0] + self.EPSILON * cos(theta), p1[1] + self.EPSILON * sin(theta)
             return pos
 
+
     def choose_least_cost_parent(self, newnode, nn=None, nodes=None):
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
         if nn is not None:
             _newnode_to_nn_cost = dist(newnode.pos, nn.pos)
+        self._new_node_dist_to_all_others = {}
         for p in nodes:
-            if p is nn:
-                continue  # avoid unnecessary computations
             _newnode_to_p_cost = dist(newnode.pos, p.pos)
+            self._new_node_dist_to_all_others[(newnode, p)] = _newnode_to_p_cost
             if _newnode_to_p_cost < self.RADIUS and self.cc.path_is_free(newnode, p):
                 # This is another valid parent. Check if it's better than our current one.
                 if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
@@ -248,15 +253,18 @@ class RRT:
 
         return newnode, nn
 
+
     def rewire(self, newnode, nodes, already_rewired=None):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         if len(nodes) < 1:
             return
         if already_rewired is None:
             already_rewired = {newnode}
-        # for n in nodes:
         for n in (x for x in nodes if x not in already_rewired):
-            _newnode_to_n_cost = dist(n.pos, newnode.pos)
+            if len(already_rewired) <= 1:
+                _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode, n]
+            else:
+                _newnode_to_n_cost = dist(newnode.pos, n.pos)
             if (n != newnode.parent and _newnode_to_n_cost < self.RADIUS and
                     self.cc.path_is_free(n, newnode) and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
@@ -270,15 +278,30 @@ class RRT:
                 self.draw_path(n, newnode, Colour.blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
-    def find_nearest_neighbour(self, node):
-        nn = self.nodes[0]
-        _nn_to_node_dist = dist(nn.pos, node.pos)
-        for p in self.nodes:
-            _p_to_node_dist = dist(p.pos, node.pos)
-            if _p_to_node_dist < _nn_to_node_dist:
+    def find_nearest_neighbour(self, node, nodes):
+        nn = nodes[0]
+        _newnode_nn_dist = dist(node.pos, nn.pos)
+        for p in nodes:
+            _newnode_p_dist = dist(node.pos, p.pos)
+            # filter out unwanted distance
+            if _newnode_p_dist < _newnode_nn_dist:
+                # this node is closer
                 nn = p
-                _nn_to_node_dist = _p_to_node_dist
+                _newnode_nn_dist = _newnode_p_dist
         return nn
+
+    # @staticmethod
+    # def find_nearest_neighbour(node, nodes):
+    #     nn = nodes[0]
+    #     _nn_to_node_dist = dist(nn.pos, node.pos)
+    #     for p in nodes:
+    #         _p_to_node_dist = dist(p.pos, node.pos)
+    #         # filter out unwanted distance
+    #         if _p_to_node_dist < _nn_to_node_dist:
+    #             # this node is closer
+    #             nn = p
+    #             _nn_to_node_dist = _p_to_node_dist
+    #     return nn
 
     def run(self):
         """Run until we reached the specified max nodes"""
@@ -287,12 +310,13 @@ class RRT:
             self.update_screen()
             self.run_once()
 
+
     def run_once(self):
             # Get an sample that is free (not in blocked space)
             rand, report_success, report_fail = self.sampler.get_valid_next_node()
             # Found a node that is not in X_obs
 
-            nn = self.find_nearest_neighbour(rand)
+            nn = self.find_nearest_neighbour(rand, self.nodes)
             # get an intermediate node according to step-size
             newnode = Node(self.step_from_to(nn.pos, rand.pos))
             # check if it has a free path to nn or not

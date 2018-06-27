@@ -1,8 +1,11 @@
 import numpy as np
-
+import math
 
 def dist(p1, p2):
-    return np.linalg.norm(p1 - p2)
+    # THIS IS MUCH SLOWER for small array
+    # return np.linalg.norm(p1 - p2)
+    p = p1-p2;
+    return math.sqrt(p[0]**2 + p[1]**2)
 
 def get_line(start, end):
     """Bresenham's Line Algorithm

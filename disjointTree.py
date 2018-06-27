@@ -65,17 +65,6 @@ class TreesManager:
         self.disjointedTrees = []
         self.rrt = RRT
 
-    @staticmethod
-    def find_nearest_node(node, parent_tree):
-        """
-        Find nearest node from given node
-        """
-        nn = parent_tree.nodes[0]
-        for p in parent_tree.nodes:
-            if dist(p.pos, node.pos) < dist(nn.pos, node.pos):
-                nn = p
-        return nn
-
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
         """
         Given a tree, a node within that tree, and radius
@@ -90,19 +79,25 @@ class TreesManager:
             if tree is parent_tree:
                 # skip self
                 continue
-            for n in tree.nodes:
-                # only add the closest node form each trees
-                _dist = dist(node.pos, n.pos)
-                if _dist < radius:
-                    if tree in nearest_nodes and nearest_nodes[tree][0] < _dist:
-                        # this node is not closer than other found nodes.
-                        continue
-                    nearest_nodes[tree] = (_dist, n)
+            nn = self.rrt.find_nearest_neighbour(node, tree.nodes)
+            if dist(nn.pos, node.pos) < radius:
+                nearest_nodes[tree] = nn
+            # nn = None
+            # nn_dist = None
+            # for n in tree.nodes:
+            #     # only add the closest node form each trees
+            #     _dist = dist(node.pos, n.pos)
+            #     if _dist < radius:
+            #         if nn_dist is None or _dist < nn_dist:
+            #             # this node is not closer than other found nodes.
+            #             nn = n
+            #             nn_dist = _dist
+            #             nearest_nodes[tree] = nn
         # construct list of the found solution. And root at last (or else the result won't be stable)
-        root = nearest_nodes.pop(self.root, None)
-        nearest_nodes_list = [(nearest_nodes[key][1], key) for key in nearest_nodes]
-        if root is not None:
-            nearest_nodes_list.append((root[1], self.root))
+        root_nn = nearest_nodes.pop(self.root, None)
+        nearest_nodes_list = [(nearest_nodes[key], key) for key in nearest_nodes]
+        if root_nn is not None:
+            nearest_nodes_list.append((root_nn, self.root))
         return nearest_nodes_list
 
     def join_tree_to_root(self, tree, middle_node):
@@ -418,7 +413,7 @@ def rrt_dt_patched_run_once(self):
         return
     rand, parent_tree, report_success, report_fail = _tmp
 
-    nn = self.tree_manager.find_nearest_node(rand, parent_tree)
+    nn = self.find_nearest_neighbour(rand, parent_tree.nodes)
     # get an intermediate node according to step-size
     newnode = Node(self.step_from_to(nn.pos, rand.pos))
     # check if it is free or not ofree
