@@ -290,8 +290,7 @@ class Particle:
 
     def confirm(self, pos):
         # to confirm the final location of newly added tree node
-        self.pos[0] = pos[0]
-        self.pos[1] = pos[1]
+        self.pos = pos
         self.direction = self._trying_this_dir
 
 
@@ -349,7 +348,8 @@ class ParticleFilterSampler(Sampler):
 
         # scale the half norm by a factor of epsilon
         # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
-        factor = self.randomnessManager.draw_half_normal(self.EPSILON, scale=self.EPSILON * 0.5)
+        # factor = self.randomnessManager.draw_half_normal(self.EPSILON, scale=self.EPSILON * 0.5)
+        factor = self.EPSILON
         x, y = self.p_manager.get_pos(idx)
         x += math.cos(new_direction) * factor
         y += math.sin(new_direction) * factor

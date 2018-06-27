@@ -269,6 +269,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 
     @overrides
     def report_success(self, idx, **kwargs):
+        self.p_manager.particles[idx].tree.last_node = kwargs['newnode']
         self.p_manager.confirm(idx, kwargs['pos'])
         self.p_manager.modify_energy(idx=idx, factor=0.99)
 
@@ -308,7 +309,6 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         pos = self.randomWalk(choice)
         # pos, choice = self.randomWalk_by_mouse()
 
-        self.last_particle = pos
         return (pos, self.p_manager.particles[choice].tree,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
                 lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
@@ -401,7 +401,7 @@ def add_pos_to_existing_tree(self, newnode, parent_tree):
                     parent_tree = self.tree_manager.join_trees(parent_tree, nearest_neighbour_tree,
                                                            tree1_node=newnode, tree2_node=nearest_neighbour_node)
                 except AssertionError as e:
-                    LOGGER.exception("== Assertion error in joining sampled point to existing tree... Skipping this node...")
+                    LOGGER.debug("== Assertion error in joining sampled point to existing tree... Skipping this node...")
             merged = True
     return merged
 
@@ -412,10 +412,15 @@ def rrt_dt_patched_run_once(self):
         # we have added a new samples when respawning a local sampler
         return
     rand, parent_tree, report_success, report_fail = _tmp
-
-    nn = self.find_nearest_neighbour(rand, parent_tree.nodes)
-    # get an intermediate node according to step-size
-    newnode = Node(self.step_from_to(nn.pos, rand.pos))
+    if parent_tree.last_node is not None:
+        # use the last succesful node as the nearest node
+        # This is expliting the advantage of local sampler :)
+        nn = parent_tree.last_node
+        newnode = rand
+    else:
+        nn = self.find_nearest_neighbour(rand, parent_tree.nodes)
+        # get an intermediate node according to step-size
+        newnode = Node(self.step_from_to(nn.pos, rand.pos))
     # check if it is free or not ofree
     if not self.cc.path_is_free(nn, newnode):
         self.stats.add_invalid(perm=False)
@@ -423,7 +428,7 @@ def rrt_dt_patched_run_once(self):
     else:
         self.stats.add_free()
         self.sampler.add_tree_node(newnode.pos)
-        report_success(pos=newnode.pos)
+        report_success(newnode=newnode, pos=newnode.pos)
         ######################
         newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
         # try to add this newnode to existing trees
@@ -439,6 +444,9 @@ class TreeRoot:
     def __init__(self, particle_handler):
         self.particle_handler = particle_handler
         self.nodes = []
+        # This stores the last node added to this tree (by local sampler)
+        self.last_node = None
+
     def __repr__(self):
         string = super().__repr__()
         string += '\n'
