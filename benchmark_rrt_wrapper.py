@@ -10,11 +10,17 @@ from timeit import default_timer
 import csv
 import time
 
+LOG_EVERY_X_SAMPLES = 25
+BENCHMARK_DIR_NAME = 'benchmark'
+
 
 def main():
     # get rrt instance
     import main
     rrt = main.main()
+
+    if not os.path.exists(BENCHMARK_DIR_NAME):
+        os.makedirs(BENCHMARK_DIR_NAME)
 
     timestamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     directoryname = "map={map}_start={start}_goal={goal}".format(
@@ -22,7 +28,7 @@ def main():
                     start='-'.join((str(x) for x in rrt.startPt.pos)),
                     goal='-'.join((str(x) for x in rrt.goalPt.pos)),
                 )
-    directoryname = os.path.join('benchmark', directoryname)
+    directoryname = os.path.join(BENCHMARK_DIR_NAME, directoryname)
     filename = "policy={policy}_timestamp={timestamp}".format(
                     policy=sys.argv[1],
                     timestamp=timestamp
@@ -33,7 +39,6 @@ def main():
     filename = os.path.join(directoryname, filename)
 
     found_solution = False
-    log_every_x_sample = 25
     count = 0
 
     with open('{}.csv'.format(filename), 'wt') as f:
@@ -43,7 +48,7 @@ def main():
         writer.writerow((sys.argv[2], rrt.startPt.pos, rrt.goalPt.pos, rrt.EPSILON, rrt.goalBias, rrt.NUMNODES))
         writer.writerow([])
 
-        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(temp)', 'inv.samples(perm)', 'cost'))
+        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost'))
         start_time = default_timer()
         def take_screenshot(term=False):
             rrt.pygame_show()
@@ -61,7 +66,7 @@ def main():
 
         while rrt.stats.valid_sample < rrt.NUMNODES:
             if rrt.stats.valid_sample >= count:
-                count += log_every_x_sample
+                count += LOG_EVERY_X_SAMPLES
                 log_performance()
 
             if not found_solution and rrt.c_max != float('inf'):
