@@ -71,7 +71,7 @@ class LikelihoodPolicySampler(Sampler):
     def report_success(self, **kwargs):
         x, y = kwargs['pos']
         # add all in between point of nearest node of the random pt as valid
-        x1, y1 = self.RRT.cc.get_coor_before_collision(kwargs['nn'], kwargs['rand'])
+        x1, y1 = self.rrt.cc.get_coor_before_collision(kwargs['nn'], kwargs['rand'])
         self.add_sample_line(x, y, x1, y1)
 
     @overrides

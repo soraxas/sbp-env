@@ -15,12 +15,12 @@ Arguments:
 General Options:
   -h --help              Show this screen.
   --version              Show version.
-  -v, --verbose          Display debug message.
+  -v --verbose          Display debug message.
 
 Display Options:
   --always-refresh       Set if the display should refresh on every ticks.
-  --scaling=SCALING      Set scaling for display (ratio will be maintained).
-                         [default: 4]
+  -s --scaling=SCALING  Set scaling for display (ratio will be maintained).
+                         [default: 1.5]
   --hide-sampled-points  Do not display sampled point as red dot on screen.
   --disable-pygame       Disable pygame display (to enhance performance).
 
@@ -86,7 +86,7 @@ def main():
 
     rrt_options = {
         'showSampledPoint' : not args['--hide-sampled-points'],
-        'scaling' : int(args['--scaling']),
+        'scaling' : float(args['--scaling']),
         'sampler' : sampler,
         'goalBias' : float(args['--goal-bias']),
         'image' : args['<MAP>'],

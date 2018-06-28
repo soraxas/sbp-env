@@ -232,9 +232,9 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         # Monkey patch the RRT for this smapler's specific stuff
         import types
 
-        self.RRT.run_once = types.MethodType(rrt_dt_patched_run_once, self.RRT)
-        self.RRT.connect_two_nodes = types.MethodType(connect_two_nodes, self.RRT)
-        self.RRT.add_pos_to_existing_tree = types.MethodType(add_pos_to_existing_tree, self.RRT)
+        self.rrt.run_once = types.MethodType(rrt_dt_patched_run_once, self.rrt)
+        self.rrt.connect_two_nodes = types.MethodType(connect_two_nodes, self.rrt)
+        self.rrt.add_pos_to_existing_tree = types.MethodType(add_pos_to_existing_tree, self.rrt)
 
         self.lsamplers_to_be_restart = []
         self.tree_manager = kwargs['tree_manager']
@@ -257,7 +257,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
             DisjointTreeParticle(direction=random.uniform(0, math.pi * 2),
                                  pos=self.startPt,
                                  isroot=True,
-                                 startPtNode=self.RRT.startPt,
+                                 startPtNode=self.rrt.startPt,
                                  tree_manager=self.tree_manager,
                                  p_manager=self.p_manager,
                                  ))
@@ -284,11 +284,11 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                 return None
             coordinate, parent_tree, report_success, report_fail = _tmp
             rand = Node(coordinate)
-            self.RRT.stats.add_sampled_node(rand)
-            if not self.RRT.collides(rand.pos):
+            self.rrt.stats.add_sampled_node(rand)
+            if not self.rrt.collides(rand.pos):
                 return rand, parent_tree, report_success, report_fail
             report_fail(pos=rand, obstacle=True)
-            self.RRT.stats.add_invalid(perm=True)
+            self.rrt.stats.add_invalid(obs=True)
 
     @overrides
     def get_next_node(self):
@@ -423,7 +423,7 @@ def rrt_dt_patched_run_once(self):
         newnode = Node(self.step_from_to(nn.pos, rand.pos))
     # check if it is free or not ofree
     if not self.cc.path_is_free(nn, newnode):
-        self.stats.add_invalid(perm=False)
+        self.stats.add_invalid(obs=False)
         report_fail(pos=rand, free=False)
     else:
         self.stats.add_free()

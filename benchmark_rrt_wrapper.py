@@ -50,6 +50,7 @@ def main():
 
         writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost'))
         start_time = default_timer()
+
         def take_screenshot(term=False):
             rrt.pygame_show()
             rrt.update_screen(update_all=True)
@@ -59,8 +60,9 @@ def main():
             else:
                 pygame.image.save(rrt.window,'{}.jpg'.format(filename))
             rrt.pygame_hide()
+
         def log_performance():
-            msg = rrt.stats.valid_sample, default_timer() - start_time, memory_usage()[0], rrt.stats.invalid_sample_temp, rrt.stats.invalid_sample_perm, rrt.c_max
+            msg = rrt.stats.valid_sample, default_timer() - start_time, memory_usage()[0], rrt.stats.invalid_samples_connections, rrt.stats.invalid_samples_obstacles, rrt.c_max
             writer.writerow(msg)
             f.flush()
 

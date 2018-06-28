@@ -225,7 +225,7 @@ class ParticleManager:
             new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
             self.rrt.stats.add_sampled_node(new_p, not_a_node=True)
             if self.rrt.collides(new_p):
-                self.rrt.stats.add_invalid(perm=True)
+                self.rrt.stats.add_invalid(obs=True)
             else:
                 self.rrt.stats.add_free()
                 break
@@ -324,7 +324,7 @@ class ParticleFilterSampler(Sampler):
         self.p_manager = ParticleManager(num_particles=16,
                                          startPt=self.startPt,
                                          goalPt=self.goalPt,
-                                         rrt_instance=self.RRT)
+                                         rrt_instance=self.rrt)
 
     @overrides
     def report_fail(self, idx, **kwargs):
@@ -432,6 +432,5 @@ class ParticleFilterSampler(Sampler):
             c = self.get_color_transists(self._last_prob[i], max_num, min_num)
             c = max(min(255, c), 0)
             color = (100, c, 0)
-            pygame.draw.circle(self.particles_layer, color,
-                               p.pos.astype(int) * self.scaling, 4 * self.scaling)
+            self.rrt.draw_circle(pos=p.pos, colour=color, radius=4, layer=self.particles_layer)
             window.blit(self.particles_layer, (0, 0))

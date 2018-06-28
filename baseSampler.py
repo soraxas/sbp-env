@@ -11,7 +11,7 @@ class Sampler:
     def init(self, *argv, **kwargs):
         self.XDIM = kwargs['XDIM']
         self.YDIM = kwargs['YDIM']
-        self.RRT = kwargs['RRT']
+        self.rrt = kwargs['RRT']
         self.EPSILON = kwargs['EPSILON']
         self.scaling = kwargs['SCALING']
         self.goalBias = kwargs['goalBias']
@@ -27,11 +27,11 @@ class Sampler:
         while True:
             coordinate, report_success, report_fail = self.get_next_node()
             rand = rrtstar.Node(coordinate)
-            self.RRT.stats.add_sampled_node(rand)
-            if not self.RRT.collides(rand.pos):
+            self.rrt.stats.add_sampled_node(rand)
+            if not self.rrt.collides(rand.pos):
                 return rand, report_success, report_fail
             report_fail(pos=rand, obstacle=True)
-            self.RRT.stats.add_invalid(perm=True)
+            self.rrt.stats.add_invalid(obs=True)
 
     def report_success(self, *argv, **kwargs):
         pass

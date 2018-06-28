@@ -49,17 +49,17 @@ class SampledNodes:
 
 class Stats:
     def __init__(self, showSampledPoint=True):
-        self.invalid_sample_temp = 0
-        self.invalid_sample_perm = 0
+        self.invalid_samples_connections = 0
+        self.invalid_samples_obstacles = 0
         self.valid_sample = 0
         self.sampledNodes = []
         self.showSampledPoint = showSampledPoint
 
-    def add_invalid(self,perm):
-        if perm:
-            self.invalid_sample_perm += 1
+    def add_invalid(self,obs):
+        if obs:
+            self.invalid_samples_obstacles += 1
         else:
-            self.invalid_sample_temp += 1
+            self.invalid_samples_connections += 1
 
     def add_free(self):
         self.valid_sample += 1
@@ -169,16 +169,16 @@ class RRT:
         ################################################################################
         # text
         pygame.font.init()
-        self.myfont = pygame.font.SysFont('Arial', 15 * self.SCALING)
+        self.myfont = pygame.font.SysFont('Arial', int(15 * self.SCALING))
         ################################################################################
         # main window
-        self.window = pygame.display.set_mode([self.XDIM * self.SCALING, self.YDIM * self.SCALING])
+        self.window = pygame.display.set_mode([int(self.XDIM * self.SCALING), int(self.YDIM * self.SCALING)])
         ################################################################################
         # background aka the room
         self.background = pygame.Surface( [self.XDIM, self.YDIM] )
         self.background.blit(self.img,(0,0))
         # resize background to match windows
-        self.background = pygame.transform.scale(self.background, [self.XDIM * self.SCALING, self.YDIM * self.SCALING])
+        self.background = pygame.transform.scale(self.background, [int(self.XDIM * self.SCALING), int(self.YDIM * self.SCALING)])
         ################################################################################
         # path of RRT*
         self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
@@ -321,7 +321,7 @@ class RRT:
             newnode = Node(self.step_from_to(nn.pos, rand.pos))
             # check if it has a free path to nn or not
             if not self.cc.path_is_free(nn, newnode):
-                self.stats.add_invalid(perm=False)
+                self.stats.add_invalid(obs=False)
                 report_fail(pos=rand, free=False)
             else:
                 self.stats.add_free()
@@ -349,7 +349,11 @@ class RRT:
         pygame.draw.line(layer, colour,
                          node1.pos * self.SCALING,
                          node2.pos * self.SCALING,
-                         line_modifier * self.SCALING)
+                         int(line_modifier * self.SCALING))
+
+    @check_pygame_enabled
+    def draw_circle(self, pos, colour, radius, layer):
+        pygame.draw.circle(layer, colour, (pos*self.SCALING).astype(int), int(radius*self.SCALING))
 
     @check_pygame_enabled
     def process_pygame_event(self):
@@ -399,42 +403,45 @@ class RRT:
             self.refresh_cnt += 1
 
 ###################################################################################
-
-        if count % 50 == 0:
-            self.redraw_paths()
+        def draw_start_goal_pt():
+            if self.startPt is not None:
+                self.draw_circle(pos=self.startPt.pos, colour=Colour.cyan, radius=GOAL_RADIUS, layer=self.path_layers)
+            if self.goalPt is not None:
+                self.draw_circle(pos=self.goalPt.pos, colour=Colour.blue, radius=GOAL_RADIUS, layer=self.path_layers)
 
         ##### Solution path
         # if count % 50 == 0:
         self.draw_solution_path()
             # self.wait_for_exit()
         # limites the screen update
-        if count % 10 == 0:
+        if count % 20 == 0:
             self.window.blit(self.background,(0,0))
 
+        if count % 50 == 0:
+            self.redraw_paths()
+            draw_start_goal_pt()
+
         ##### Tree paths
-        if count % 10 == 0:
+        if count % 20 == 0:
             self.window.blit(self.path_layers,(0,0))
             self.window.blit(self.solution_path_screen,(0,0))
-            if self.startPt is not None:
-                pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
-            if self.goalPt is not None:
-                pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
+            draw_start_goal_pt()
 
         ##### Sampler hook
-        if count % 10 == 0:
+        if count % 20 == 0:
             try:
                 self.sampler.paint(self.window)
             except AttributeError:
                 pass
 
         ##### Sampled points
-        if count % 2 == 0:
+        if count % 4 == 0:
             show_sampled_point_for = 1
             self.sampledPoint_screen.fill(ALPHA_CK)
             # Draw sampled nodes
             sampledNodes = self.stats.sampledNodes
             for i in reversed(range(len(sampledNodes))):
-                pygame.draw.circle(self.sampledPoint_screen, Colour.red, sampledNodes[i].pos*self.SCALING, 2*self.SCALING)
+                self.draw_circle(pos=sampledNodes[i].pos, colour=Colour.red, radius=2, layer=self.sampledPoint_screen)
                 sampledNodes[i].framedShowed += 1
 
                 if sampledNodes[i].framedShowed >= show_sampled_point_for:
@@ -450,7 +457,7 @@ class RRT:
                 num_nodes = len(self.nodes)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))
-            text = 'Invalid sample: {}(temp) {}(perm)'.format(self.stats.invalid_sample_temp, self.stats.invalid_sample_perm)
+            text = 'Invalid sample: {}(con) {}(obs)'.format(self.stats.invalid_samples_connections, self.stats.invalid_samples_obstacles)
             self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.95))
 
         pygame.display.update()
@@ -486,8 +493,3 @@ class RRT:
                     if new_set not in drawn_nodes_pairs:
                         drawn_nodes_pairs.add(new_set)
                         self.draw_path(n, n.parent)
-
-        if self.startPt is not None:
-            pygame.draw.circle(self.path_layers, Colour.cyan, self.startPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
-        if self.goalPt is not None:
-            pygame.draw.circle(self.path_layers, Colour.blue, self.goalPt.pos.astype(int)*self.SCALING, GOAL_RADIUS*self.SCALING)
