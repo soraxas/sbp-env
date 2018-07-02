@@ -24,14 +24,13 @@ def duplicate_col(start, end, ws, row, name_generator, multiples):
     It will obtain value of cells from generator.
     """
     # convert to 0-based system
-    start -= 1
-    end -= 1
     get_name = name_generator()
     get_name.send(None)
-    for column in range(start, (end-start)*multiples+start):
-        column += 1  # convert to 1-based system
-        val = get_name.send((column, row))
-        ws.cell(row=row, column=column, value=val)
+    for column in range(start, end):
+        for i in range(multiples):
+            val = get_name.send((column, row))
+            dup_col = start + (column - start)*multiples + i
+            ws.cell(row=row, column=dup_col, value=val)
 
 
 def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=None):
@@ -45,7 +44,7 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
     # create a list to store the newly created sheets
     sheets = []
     if len(glob.glob(filename_glob)) < 1:
-        raise ValueError("Given filename_glob is empty (None found) in current dir")
+        raise ValueError("Given filename_glob is empty (None found) in current dir: {}".format(filename_glob))
     for filename in glob.glob(filename_glob):
         newsheet = get_sheetname_func(filename)
         ws = wb.create_sheet(newsheet)
