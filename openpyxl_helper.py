@@ -87,18 +87,18 @@ def cReference(**kwargs):
 ##                      Build Graphs                      ##
 ############################################################
 
-def build_scatter_with_mean_stdev(xvalues, yvalues_refs, stdev_refs, titles, errDir='y'):
+def build_scatter_with_mean_stdev(xvalues_refs, yvalues_refs, stdev_refs, titles, errDir='y'):
     """Given x values, a list of y values, and the y values' corresponding
     stdev, it will return a scatter chart with stdev as error bars"""
     if len(yvalues_refs) != len(stdev_refs) != len(titles):
         raise ValueError("y-values and stdev list length must be the same")
     chart = ScatterChart()
-    for values, stdev, title in zip(yvalues_refs, stdev_refs, titles):
+    for xvalues, yvalues, stdev, title in zip(xvalues_refs, yvalues_refs, stdev_refs, titles):
         # convert reference to data source
         stdev_data_source = data_source.NumDataSource(numRef=data_source.NumRef(f=stdev))
         error_bars = ErrorBars(errDir=errDir, errValType='cust', plus=stdev_data_source, minus=stdev_data_source)
 
-        series = Series(values, xvalues, title=title)
+        series = Series(yvalues, xvalues, title=title)
         series.errBars = error_bars
         chart.series.append(series)
     return chart

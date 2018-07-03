@@ -27,7 +27,6 @@ DATA_COST_COL = 6  # column number of cost
 DATA_MAX_COL = 6  # amount of column for data section
 DATA_NUMNODE_COL = 1  # column number of number of nodes
 
-
 def combine_result(folder):
 
     def create_main_stats():
@@ -38,13 +37,13 @@ def combine_result(folder):
         start, end = 2, DATA_MAX_COL+1
         for i in range(start, end):
             plotting_col = (i-start)*2 + start
-
-            xvalues = Reference(wb[policies[0]], min_col=1, min_row=DATA_BEGIN_ROW+1, max_row=wb[policies[0]].max_row)
+            xvalues = []
             yvalues = []
             stdevs = []
             titles = []
             for j, policy in enumerate(policies):
                 stat_ws = wb[policy]
+                xvalues.append(Reference(stat_ws, min_col=1, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
                 yvalues.append(Reference(stat_ws, min_col=plotting_col, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
                 stdevs.append(Reference(stat_ws, min_col=plotting_col+1, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
                 titles.append(policy)
@@ -59,14 +58,34 @@ def combine_result(folder):
                     # Set values
                     val = RefFormula(worksheet=policy, min_col=col, min_row=2)
                     ws.cell(row=2+j, column=local_col_idx+2, value=val)
+            col_title = wb[sheets[0]].cell(row=DATA_BEGIN_ROW, column=i).value
+            ############################################
+            # INJECT A DIFFERENT sampled points column
+            if col_title.startswith("inv.samples"):
+                xvalues = []
+                yvalues = []
+                stdevs = []
+                if col_title == "inv.samples(con)":
+                    col_start_at = 14
+                elif col_title == "inv.samples(obs)":
+                    col_start_at = 16
+                for policy in policies:
+                    stat_ws = wb[policy]
+                    xvalues.append(Reference(stat_ws, min_col=13, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
+                    yvalues.append(Reference(stat_ws, min_col=col_start_at, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
+                    stdevs.append(Reference(stat_ws, min_col=col_start_at + 1, min_row=DATA_BEGIN_ROW+1, max_row=stat_ws.max_row))
+            ############################################
 
-            chart = build_scatter_with_mean_stdev(xvalues=xvalues,
+            chart = build_scatter_with_mean_stdev(xvalues_refs=xvalues,
                                                   yvalues_refs=yvalues,
                                                   stdev_refs=stdevs,
                                                   titles=titles)
-            chart.title = wb[sheets[0]].cell(row=DATA_BEGIN_ROW, column=i).value
+            chart.title = col_title
             # chart.style = 13
-            chart.x_axis.title = "Number of Nodes"
+            if col_title.startswith("inv.samples"):
+                chart.x_axis.title = "Number of Sampled Points"
+            else:
+                chart.x_axis.title = "Number of Nodes"
             chart.y_axis.title = wb[sheets[0]].cell(row=DATA_BEGIN_ROW, column=i).value
             ws.add_chart(chart, 'A'+str(4+15*(i-start)))
 
@@ -75,6 +94,7 @@ def combine_result(folder):
     if os.path.isfile(STATS_FILE_NAME):
         # skip as this had been processed
         return
+        pass
     print(folder)
     wb = Workbook()
     ws = wb.active
@@ -96,6 +116,7 @@ def combine_result(folder):
         ws = wb.create_sheet(policy, index=idx)
         create_stats_view(ws, sheets, num_rows=num_rows)
         create_stats_time_taken(wb, raw_sheets=sheets, stat_ws=ws)
+        create_rescaled_sampled_pt(wb, sheets, num_rows=num_rows, stat_ws=ws)
 
     create_main_stats()
 
@@ -106,6 +127,57 @@ def combine_result(folder):
     # delete other csv
     for filename in glob.glob("*.csv"):
         os.remove(filename)
+
+
+def create_rescaled_sampled_pt(wb, sheets, num_rows, stat_ws):
+    """Create three extra columns with sampled point as the independent variables (x-axis)"""
+    stats = []
+    for s in sheets:
+        valid_sampled_pts = [c[0].value for c in wb[s]['A5:A'+str(num_rows)] if c[0].value is not None]
+        invalid_pts_con = [c[0].value for c in wb[s]['D5:D'+str(num_rows)] if c[0].value is not None]
+        invalid_pts_obs = [c[0].value for c in wb[s]['E5:E'+str(num_rows)] if c[0].value is not None]
+        # print(s)
+        # print(invalid_pts_con)
+        import numpy as np
+        valid_sampled_pts = np.array(valid_sampled_pts)
+        invalid_pts_con = np.array(invalid_pts_con)
+        invalid_pts_obs = np.array(invalid_pts_obs)
+        invalid_pts_total = invalid_pts_con + invalid_pts_obs + valid_sampled_pts
+        stats.append((invalid_pts_total, invalid_pts_con, invalid_pts_obs))
+    # print(stats)
+    # find max number of sampled points for this run
+    max_sampled_size = 0
+    for sampled_pts, _ , _ in stats:
+        max_sampled_size = sampled_pts[-1] if sampled_pts[-1] > max_sampled_size else max_sampled_size
+    step_size = int(max_sampled_size / (num_rows - 5))
+    # normalize each column to same step size
+    normalized_stats_con = []
+    normalized_stats_obs = []
+    xvalues = np.arange(start=0, stop=max_sampled_size, step=step_size)
+    for s in stats:
+        normalized_stats_con.append(np.interp(xvalues, s[0], s[1]))
+        normalized_stats_obs.append(np.interp(xvalues, s[0], s[2]))
+
+    # save to stat worksheet
+    stats_connection = (np.mean(normalized_stats_con, axis=0), np.std(normalized_stats_con, axis=0))
+    stats_obstacle = (np.mean(normalized_stats_obs, axis=0), np.std(normalized_stats_obs, axis=0))
+    stat_ws['M4'] = "Sampled pts (normalized)"
+    stat_ws['N4'] = "inv.samples(con)(mean)"
+    stat_ws['O4'] = "inv.samples(con)(stdev)"
+    for i, row in enumerate(range(DATA_BEGIN_ROW + 1, num_rows + 1)):
+        stat_ws.cell(row=row, column=13, value=xvalues[i])
+        stat_ws.cell(row=row, column=14, value=stats_connection[0][i])
+        stat_ws.cell(row=row, column=15, value=stats_connection[1][i])
+    stat_ws['P4'] = "inv.samples(obs)(mean)"
+    stat_ws['Q4'] = "inv.samples(obs)(stdev)"
+    for i, row in enumerate(range(DATA_BEGIN_ROW + 1, num_rows + 1)):
+        stat_ws.cell(row=row, column=16, value=stats_obstacle[0][i])
+        stat_ws.cell(row=row, column=17, value=stats_obstacle[1][i])
+    # print(np.std(normalized_stats_con, axis=0))
+        # np.inte
+        # wb[s]['H4'] = "Sampled pts"
+        # for row in range(DATA_BEGIN_ROW + 1, num_rows + 1):
+
 
 
 def combine_all_results(maindir):
@@ -236,6 +308,10 @@ def create_stats_view(main_ws, sheets, num_rows):
                                           data=('AVERAGE','STDEV')
                                           : split_to_funcs(sheet_begin, sheet_end, data),
                       multiples=2)
+    ## Create new column of total sampled points
+    # main_ws.cell(row=DATA_BEGIN_ROW, column=DATA_MAX_COL+1, value="Total sampled pts")
+    # for row in range(DATA_BEGIN_ROW + 1, num_rows + 1):
+    #     val = "="
 
 if __name__ == '__main__':
     dirname = os.path.abspath('benchmark_copy')
