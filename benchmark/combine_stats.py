@@ -17,6 +17,7 @@ from benchmark.openpyxl_helper import (
     build_scatter_with_mean_stdev
 )
 
+POLICIES = ['random', 'disjoint']
 STATS_FILE_NAME = 'stats.xlsx'
 
 INFO_MAX_COL = 6  # amount of column for info section
@@ -41,7 +42,7 @@ def combine_result(folder):
             yvalues = []
             stdevs = []
             titles = []
-            for j, policy in enumerate(policies):
+            for j, policy in enumerate(POLICIES):
                 stat_ws = wb[policy]
                 xvalues.append(Reference(stat_ws, min_col=1, min_row=DATA_BEGIN_ROW + 1, max_row=stat_ws.max_row))
                 yvalues.append(
@@ -71,7 +72,7 @@ def combine_result(folder):
                     col_start_at = 14
                 elif col_title == "inv.samples(obs)":
                     col_start_at = 16
-                for policy in policies:
+                for policy in POLICIES:
                     stat_ws = wb[policy]
                     xvalues.append(Reference(stat_ws, min_col=13, min_row=DATA_BEGIN_ROW + 1, max_row=stat_ws.max_row))
                     yvalues.append(
@@ -104,8 +105,7 @@ def combine_result(folder):
     # remove default sheet
     wb.remove(ws)
 
-    policies = ['random', 'disjoint']
-    for idx, policy in enumerate(policies):
+    for idx, policy in enumerate(POLICIES):
         sheets, num_rows = save_csv_as_sheet(
             wb=wb,
             filename_glob="policy={}_*.csv".format(policy),
