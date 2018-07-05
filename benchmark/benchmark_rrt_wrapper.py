@@ -10,13 +10,15 @@ from timeit import default_timer
 import csv
 import time
 
+CUR_PATH = os.path.dirname(sys.argv[0])
 LOG_EVERY_X_SAMPLES = 25
-BENCHMARK_DIR_NAME = 'benchmark'
+BENCHMARK_DIR_NAME = os.path.join(CUR_PATH, '..', 'benchmark_output')
+sys.path.append(os.path.join(CUR_PATH, '..'))  # add top package to path
 
 
 def main():
-    # get rrt instance
     import main
+    # get rrt instance
     rrt = main.main()
 
     if not os.path.exists(BENCHMARK_DIR_NAME):

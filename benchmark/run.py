@@ -1,36 +1,39 @@
-import sys
-import pygame
-import csv
-
-import rrtstar
 import subprocess
+import pygame
+import random
+import sys, os
+from rrtstar import Colour
+
+CUR_PATH = os.path.dirname(sys.argv[0])
+MAPS = ['room1.png', 'maze1.png', 'maze2.png']
+POLICIES = ['random', 'disjoint']
+REPEAT_DIFFERENT_LOC = 20
+REPEAT_STATS = 20
+
+sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
 
 def main():
-
-    maps = ['room1.png', 'maze1.png', 'maze2.png']
-    policies = ['random', 'disjoint']
     # repeat for x number of times
-    REPEAT_DIFFERENT_LOC = 20
-    REPEAT_STATS = 20
 
     # Repeat the same in different map
-    for map in maps:
+    for test_map in MAPS:
         # Try different locations
         for _loc in range(REPEAT_DIFFERENT_LOC):
-            start = get_random_free_space(map)
-            goal = get_random_free_space(map)
-            # Repeat for X amount of time for statistatical significant
+            start = get_random_free_space(test_map)
+            goal = get_random_free_space(test_map)
+            # Repeat for X amount of time for statistical significant
             for _i in range(REPEAT_STATS):
                 # Repeat the same for two different policies
-                for policy in policies:
+                for policy in POLICIES:
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
-                        map=map,
+                        map=test_map,
                         policy=policy,
                         loc_repeat=_loc,
                         start=start,
                         goal=goal,
                         repeating=_i))
-                    args = ['python', 'benchmark_rrt_wrapper.py', policy, map,
+                    args = ['python', os.path.join(CUR_PATH, 'benchmark_rrt_wrapper.py'),
+                            policy, test_map,
                             "start", str(start[0]), str(start[1]),
                             "goal", str(goal[0]), str(goal[1]),
                             '--hide-sampled-points',
@@ -41,20 +44,20 @@ def main():
 
 
 def get_random_free_space(image):
-    import random
-    from rrtstar import Colour
     image = pygame.image.load(image)
+
     def collide(p):
         x = int(p[0])
         y = int(p[1])
         # make sure x and y is within image boundary
-        if(x < 0 or x >= image.get_width() or
-           y < 0 or y >= image.get_height()):
+        if (x < 0 or x >= image.get_width() or
+                y < 0 or y >= image.get_height()):
             return True
         color = image.get_at((x, y))
-        return (color != pygame.Color(*Colour.white))
+        return color != pygame.Color(*Colour.white)
+
     while True:
-        new_p = int(random.random()*image.get_width()),  int(random.random()*image.get_height())
+        new_p = int(random.random() * image.get_width()), int(random.random() * image.get_height())
         if not collide(new_p):
             return new_p
 

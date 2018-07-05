@@ -1,16 +1,15 @@
-import glob
 import csv
-
+import glob
 import itertools
-import openpyxl
-from openpyxl import Workbook
+
 from openpyxl.chart import (
     ScatterChart,
     Reference,
     Series,
 )
-from openpyxl.chart.error_bar import ErrorBars
 from openpyxl.chart import data_source
+from openpyxl.chart.error_bar import ErrorBars
+
 
 ############################################################
 ##                    Excel Mainpulate                    ##
@@ -29,7 +28,7 @@ def duplicate_col(start, end, ws, row, name_generator, multiples):
     for column in range(start, end):
         for i in range(multiples):
             val = get_name.send((column, row))
-            dup_col = start + (column - start)*multiples + i
+            dup_col = start + (column - start) * multiples + i
             ws.cell(row=row, column=dup_col, value=val)
 
 
@@ -40,7 +39,7 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
     """
     if get_sheetname_func is None:
         # get it to be just the same as the sheet name
-        get_sheetname_func = lambda *_ : filename
+        get_sheetname_func = lambda *_: filename
     # create a list to store the newly created sheets
     sheets = []
     if len(glob.glob(filename_glob)) < 1:
@@ -52,11 +51,12 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
         with open(filename) as f:
             reader = csv.reader(f)
             for row_idx, row in enumerate(reader):
-                row_idx += 1 # conver to 1-based system
+                row_idx += 1  # convert to 1-based system
                 if row_filter is not None:
                     row = row_filter(row_idx=row_idx, row=row)
                 ws.append(row)
     return sheets, ws.max_row
+
 
 ############################################################
 ##                     Openpyxl Utils                     ##
@@ -64,6 +64,7 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
 
 def RefFormula(**kwargs):
     return "={}".format(cReference(**kwargs))
+
 
 def cReference(**kwargs):
     from openpyxl.chart.reference import DummyWorksheet
@@ -78,10 +79,11 @@ def cReference(**kwargs):
         place_holder = 'XXXXX-XXXXX-XXXXX'
         kwargs['worksheet'] = DummyWorksheet(place_holder)
         val = "{}".format(Reference(**kwargs))
-        val = val.replace(place_holder, "{}:{}".format(ws_min,ws_max))
+        val = val.replace(place_holder, "{}:{}".format(ws_min, ws_max))
     else:
         val = Reference(**kwargs)
     return val
+
 
 ############################################################
 ##                      Build Graphs                      ##
@@ -103,24 +105,26 @@ def build_scatter_with_mean_stdev(xvalues_refs, yvalues_refs, stdev_refs, titles
         chart.series.append(series)
     return chart
 
+
 ############################################################
 ##                       GENERATOR                        ##
 ############################################################
 
 def split_to_append_text(sheet, data):
-    (c,r) = yield
+    (c, r) = yield
     for i in itertools.count():
         val = RefFormula(worksheet=sheet,
-                        min_col=c, min_row=r)
-        val = "{}&\"{}\"".format(val, data[i%len(data)])
-        (c,r) = yield val
+                         min_col=c, min_row=r)
+        val = "{}&\"{}\"".format(val, data[i % len(data)])
+        (c, r) = yield val
+
 
 def split_to_funcs(sheet_begin, sheet_end, data):
-    (c,r) = yield
+    (c, r) = yield
     for i in itertools.count():
         val = cReference(worksheet_min=sheet_begin,
                          worksheet_max=sheet_end,
-                        min_col=c, min_row=r)
-        val = "={func}({ref})".format(func=data[i%len(data)],
-                                     ref=val)
-        (c,r) = yield val
+                         min_col=c, min_row=r)
+        val = "={func}({ref})".format(func=data[i % len(data)],
+                                      ref=val)
+        (c, r) = yield val
