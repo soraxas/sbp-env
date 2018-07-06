@@ -10,6 +10,7 @@ from overrides import overrides
 from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
+from randomness import NormalRandomnessManager
 """
     IDEAS / TODOS:
 
@@ -56,51 +57,6 @@ ENERGY_COLLISION_LOSS = 1
 RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 1.5
 RANDOM_RESTART_EVERY = 30
 RESAMPLE_RESTART_EVERY = 0 # 200
-
-############################################################
-##                       Particles                        ##
-############################################################
-
-class RandomnessManager:
-    def __init__(self):
-        # draws of normal distribution
-        self.normal_draws_reserve = None
-        # draws of half normal distribution
-        self.half_normal_draws_reserve = None
-
-    def redraw_normal(self, kappa, sigma, use_vonmises=True):
-        self.normal_idx = 0
-        if use_vonmises:
-            dist = np.random.vonmises(0, kappa, 1000)
-        else:
-            dist = np.random.normal(0, sigma, 1000)
-        self.normal_draws_reserve = dist
-
-    def draw_normal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi / 4):
-        if self.normal_draws_reserve is None or (self.normal_idx + 2 >= self.normal_draws_reserve.size):
-            # redraw
-            self.redraw_normal(use_vonmises=True, kappa=1, sigma=math.pi / 4)
-        # draw from samples
-        draws = self.normal_draws_reserve[self.normal_idx]
-        self.normal_idx += 1
-        # shift location
-        draws += origin
-        return draws
-
-    def redraw_half_normal(self, start_at, scale):
-        self.half_normal_idx = 0
-        dist = scipy.stats.halfnorm.rvs(loc=start_at, scale=scale, size=1000)
-        self.half_normal_draws_reserve = dist
-
-    def draw_half_normal(self, start_at, scale=1):
-        if self.half_normal_draws_reserve is None or (self.half_normal_idx + 2 >= self.half_normal_draws_reserve.size):
-            # redraw
-            self.redraw_half_normal(start_at, scale)
-        # draw from samples
-        draws = self.half_normal_draws_reserve[self.half_normal_idx]
-        self.half_normal_idx += 1
-        return draws
-
 
 
 class ParticleManager:
@@ -265,6 +221,9 @@ class ParticleManager:
         self.init_energy()
 
 
+############################################################
+##                       Particles                        ##
+############################################################
 class Particle:
     def __init__(self, direction=None, pos=None):
         self.restart(direction=direction, pos=pos)
@@ -320,7 +279,7 @@ class ParticleFilterSampler(Sampler):
 
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
-        self.randomnessManager = RandomnessManager()
+        self.randomnessManager = NormalRandomnessManager()
         # probability layer
         self.particles_layer = pygame.Surface(
             (self.XDIM * self.scaling, self.YDIM * self.scaling),
