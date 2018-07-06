@@ -24,7 +24,7 @@ Display Options:
   --hide-sampled-points  Do not display sampled point as red dot on screen.
   --disable-pygame       Disable pygame display (to enhance performance).
 
-Sampler Options:
+General Sampler Options:
   --epsilon=EPSILON      Set epsilon value.
                          [default: 10.0]
   --radius=RADIUS        Set radius that will connect two nodes together.
@@ -36,12 +36,27 @@ Sampler Options:
   --goal-bias=BIAS       Probability of biasing goal position.
                          [default: 0.02]
 
+Random Sampler Options:
+  --random-method=METHOD
+                        Set a random method used to generate the random
+                        numbers. This enables the use of different
+                        quasi-random generators.
+                        Supported methods are:
+                        - pseudo_random (random from numpy)
+                        - saltelli (Saltelli's extension of Sobol sequence)
+                        - sobol_sequence (Sobol sequence generator)
+                        - latin_hypercube (Latin hypercube sampling)
+                        - finite_differences (Derivative-based global
+                                              sensitivity measure)
+                        - fast (Fourier Amplitude Sensitivity Test)
+                        [default: pseudo_random]
+
 Likelihood/Nearby Sampler Options:
   --prob-block-size=SIZE
                         Set the dimension of the discretized block.
                         [default: 5]
 """
-from docopt import docopt
+from docopt import docopt, DocoptExit
 import logging
 import sys
 
@@ -67,7 +82,7 @@ def main():
 
     if args['random']:
         from randomPolicySampler import RandomPolicySampler
-        sampler = RandomPolicySampler()
+        sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['disjoint']:
         from disjointTree import DisjointParticleFilterSampler
         sampler = DisjointParticleFilterSampler()

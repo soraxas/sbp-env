@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import rrtstar
 
 class Sampler:
     """
@@ -23,6 +22,7 @@ class Sampler:
         pass
 
     def get_valid_next_node(self):
+        import rrtstar
         """Loop until we find a valid next node"""
         while True:
             coordinate, report_success, report_fail = self.get_next_node()
