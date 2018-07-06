@@ -169,7 +169,7 @@ class RRT:
         ################################################################################
         # text
         pygame.font.init()
-        self.myfont = pygame.font.SysFont('Arial', int(15 * self.SCALING))
+        self.myfont = pygame.font.SysFont('Arial', int(self.XDIM * 0.03 * self.SCALING))
         ################################################################################
         # main window
         self.window = pygame.display.set_mode([int(self.XDIM * self.SCALING), int(self.YDIM * self.SCALING)])
@@ -409,16 +409,13 @@ class RRT:
             if self.goalPt is not None:
                 self.draw_circle(pos=self.goalPt.pos, colour=Colour.blue, radius=GOAL_RADIUS, layer=self.path_layers)
 
-        ##### Solution path
-        # if count % 50 == 0:
-        self.draw_solution_path()
-            # self.wait_for_exit()
         # limites the screen update
         if count % 20 == 0:
             self.window.blit(self.background,(0,0))
 
-        if count % 50 == 0:
+        if count % 60 == 0:
             self.redraw_paths()
+            self.draw_solution_path()
             draw_start_goal_pt()
 
         ##### Tree paths

@@ -197,6 +197,7 @@ class ParticleManager:
         """
         Restart the particle with the lowest energy.
         """
+        self.rrt.stats.lscampler_restart_counter += 1
         min_idx = np.argmin(self.particles_energy)
         p = self.particles_energy[min_idx]
         randomPt = self.rrt.nodes[random.randint(0, len(self.rrt.nodes)-1)].pos
@@ -210,6 +211,7 @@ class ParticleManager:
         than a specified amount, to a random location
         based on existing tree nodes.
         """
+        self.rrt.stats.lscampler_restart_counter += 1
         tmp = []
         for i in range(self.size()):
             if self.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
@@ -221,6 +223,7 @@ class ParticleManager:
 
     def new_pos_in_free_space(self):
         """Return a particle that is in free space (from map)"""
+        self.rrt.stats.lscampler_restart_counter += 1
         while True:
             new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
             self.rrt.stats.add_sampled_node(new_p, not_a_node=True)
@@ -252,6 +255,7 @@ class ParticleManager:
         Resampling to the same amount of particles than it was,
         based on the current particles' energy/weighting
         """
+        self.rrt.stats.lscampler_restart_counter += 1
         prob = self.get_prob()
         new_particles = []
         for _ in range(self.size()):
@@ -259,8 +263,6 @@ class ParticleManager:
             new_particles.append(Particle(pos=self.particles[choice].pos))
         self.particles[:] = new_particles
         self.init_energy()
-
-
 
 
 class Particle:
@@ -312,6 +314,9 @@ class ParticleFilterSampler(Sampler):
     @overrides
     def init(self, **kwargs):
         super().init(**kwargs)
+        # For benchmark stats tracking
+        self.rrt.stats.lscampler_restart_counter = 0
+        self.rrt.stats.lscampler_randomwalk_counter = 0
 
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
@@ -337,6 +342,7 @@ class ParticleFilterSampler(Sampler):
         self.p_manager.modify_energy(idx=idx, factor=1)
 
     def randomWalk(self, idx):
+        self.rrt.stats.lscampler_randomwalk_counter +=1
         # Randomly bias toward goal direction
         if random.random() < self.goalBias:
             dx = self.goalPt[0] - self.p_manager.get_pos(idx)[0]
@@ -422,6 +428,7 @@ class ParticleFilterSampler(Sampler):
 
     @overrides
     def paint(self, window):
+        from rrtstar import Colour
         if self._last_prob is None:
             return
         max_num = self._last_prob.max()
@@ -434,3 +441,6 @@ class ParticleFilterSampler(Sampler):
             color = (100, c, 0)
             self.rrt.draw_circle(pos=p.pos, colour=color, radius=4, layer=self.particles_layer)
             window.blit(self.particles_layer, (0, 0))
+        ##### Texts
+        text = 'L.S.Walk:{}Res:{}'.format(self.rrt.stats.lscampler_randomwalk_counter, self.rrt.stats.lscampler_restart_counter)
+        window.blit(self.rrt.myfont.render(text, False, Colour.black, Colour.white), (self.rrt.XDIM * self.rrt.SCALING * 0.5, self.rrt.YDIM * self.rrt.SCALING * 0.95))
