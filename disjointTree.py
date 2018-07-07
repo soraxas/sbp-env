@@ -82,7 +82,6 @@ class TreesManager:
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
         """Try to add pos to existing tree. If success, return True."""
-        merged = False
         nearest_nodes = self.find_nearest_node_from_neighbour(
             node=newnode,
             parent_tree=parent_tree,
@@ -101,8 +100,7 @@ class TreesManager:
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
                     except AssertionError as e:
                         LOGGER.debug("== Assertion error in joining sampled point to existing tree... Skipping this node...")
-                merged = True
-        return merged
+        return parent_tree
 
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
         """
@@ -201,17 +199,16 @@ class TreesManager:
         del tree2.nodes
         self.disjointedTrees.remove(tree2)
 
-        if len(tree2.particle_handler) > 0:
-            if self.restart_when_merge:
-                # restart all particles
-                for p in tree2.particle_handler:
-                    p.restart()
-                del tree2.particle_handler
-            else:
-                # pass the remaining particle to the remaining tree
-                for p in tree2.particle_handler:
-                    p.tree = tree1
-                    tree1.particle_handler.append(p)
+        if self.restart_when_merge:
+            # restart all particles
+            for p in tree2.particle_handler:
+                p.restart()
+            del tree2.particle_handler
+        else:
+            # pass the remaining particle to the remaining tree
+            for p in tree2.particle_handler:
+                p.tree = tree1
+                tree1.particle_handler.append(p)
         return tree1
 
 
@@ -232,6 +229,7 @@ class DisjointTreeParticle(Particle):
         self.isroot = isroot
         self.p_manager = p_manager
         self.tree_manager = tree_manager
+        self.last_node = None
         if isroot:
             self.tree_manager.root = TreeRoot(particle_handler=self)
             self.tree = self.tree_manager.root
@@ -246,27 +244,32 @@ class DisjointTreeParticle(Particle):
             self.isroot = False
             super().restart(direction, pos)
             return
+        self.last_node = None
+        merged_tree = None
+        if pos is None:
+            # get random position
+            pos = self.p_manager.new_pos_in_free_space()
+            merged_tree = self.tree_manager.add_pos_to_existing_tree(Node(pos), None)
+            if merged_tree is not None and restart_when_merge:
+                # Successfully found a new valid node that's close to existing tree
+                # Return False to indicate it (and abort restart if we want more exploration)
+                self.p_manager.add_to_restart(self)
+                # we need to abort the restart procedure. add this to pending restart
+                return False
         try:
-            # remove tree reference to his particle
             self.tree.particle_handler.remove(self)
         except AttributeError:
             # probably this is its first init
             pass
-        if pos is None:
-            # get random position
-            pos = self.p_manager.new_pos_in_free_space()
-            if self.tree_manager.add_pos_to_existing_tree(Node(pos), None):
-                # Successfully found a new valid node that's close to existing tree
-                # Return true to indicate it (and abort restart if we want more exploration)
-                if restart_when_merge:
-                    # we need to abort the restart procedure. add this to pending restart
-                    self.p_manager.add_to_restart(self)
-                    return False
         # initialise to initial value, create new d-tree
         self.p_manager.modify_energy(particle_ref=self, set_val=ENERGY_START)
-        self.tree = TreeDisjoint(particle_handler=self)
-        self.tree.nodes.append(Node(pos))
-        self.tree_manager.disjointedTrees.append(self.tree)
+        if merged_tree is not None:
+            self.tree = merged_tree
+            merged_tree.particle_handler.append(self)
+        else:
+            self.tree = TreeDisjoint(particle_handler=self)
+            self.tree.nodes.append(Node(pos))
+            self.tree_manager.disjointedTrees.append(self.tree)
         super().restart(direction, pos)
         return True
 
@@ -323,9 +326,9 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
 
     @overrides
     def report_success(self, idx, **kwargs):
-        self.p_manager.particles[idx].tree.last_node = kwargs['newnode']
+        self.p_manager.particles[idx].last_node = kwargs['newnode']
         self.p_manager.confirm(idx, kwargs['pos'])
-        self.p_manager.modify_energy(idx=idx, factor=0.99)
+        self.p_manager.modify_energy(idx=idx, factor=0.95)
 
     @overrides
     def get_valid_next_node(self):
@@ -336,11 +339,11 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
                 # This denotes a particle had tried to restart and added the new node
                 # to existing tree instead. Skip remaining steps and iterate to next loop
                 return None
-            coordinate, parent_tree, report_success, report_fail = _tmp
-            rand = Node(coordinate)
+            rand = _tmp[0]
             self.rrt.stats.add_sampled_node(rand)
             if not self.rrt.collides(rand.pos):
-                return rand, parent_tree, report_success, report_fail
+                return _tmp
+            report_fail = _tmp[-1]
             report_fail(pos=rand, obstacle=True)
             self.rrt.stats.add_invalid(obs=True)
 
@@ -375,7 +378,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         pos = self.randomWalk(choice)
         # pos, choice = self.randomWalk_by_mouse()
 
-        return (pos, self.p_manager.particles[choice].tree,
+        return (Node(pos), self.p_manager.particles[choice].tree, self.p_manager.particles[choice].last_node,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
                 lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
 
@@ -437,11 +440,11 @@ def rrt_dt_patched_run_once(self):
     if _tmp is None:
         # we have added a new samples when respawning a local sampler
         return
-    rand, parent_tree, report_success, report_fail = _tmp
-    if parent_tree.last_node is not None:
+    rand, parent_tree, last_node, report_success, report_fail = _tmp
+    if last_node is not None:
         # use the last succesful node as the nearest node
         # This is expliting the advantage of local sampler :)
-        nn = parent_tree.last_node
+        nn = last_node
         newnode = rand
     else:
         nn = self.find_nearest_neighbour(rand, parent_tree.nodes)
@@ -471,7 +474,6 @@ class TreeRoot:
         self.particle_handler = [particle_handler]
         self.nodes = []
         # This stores the last node added to this tree (by local sampler)
-        self.last_node = None
 
     def __repr__(self):
         string = super().__repr__()
