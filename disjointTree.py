@@ -61,7 +61,7 @@ class BFS:
 
 class TreesManager:
     def __init__(self, RRT, restart_when_merge):
-        self.root = TreeRoot(particle_handler=self)
+        self.root = None
         self.disjointedTrees = []
         self.rrt = RRT
         self.restart_when_merge = restart_when_merge
@@ -200,8 +200,18 @@ class TreesManager:
             tree1.nodes.extend(tree2.nodes)
         del tree2.nodes
         self.disjointedTrees.remove(tree2)
-        if tree2.particle_handler is not None and self.restart_when_merge:
-            tree2.particle_handler.restart()
+
+        if len(tree2.particle_handler) > 0:
+            if self.restart_when_merge:
+                # restart all particles
+                for p in tree2.particle_handler:
+                    p.restart()
+                del tree2.particle_handler
+            else:
+                # pass the remaining particle to the remaining tree
+                for p in tree2.particle_handler:
+                    p.tree = tree1
+                    tree1.particle_handler.append(p)
         return tree1
 
 
@@ -223,6 +233,7 @@ class DisjointTreeParticle(Particle):
         self.p_manager = p_manager
         self.tree_manager = tree_manager
         if isroot:
+            self.tree_manager.root = TreeRoot(particle_handler=self)
             self.tree = self.tree_manager.root
             self.tree.nodes.append(startPtNode)
         super().__init__(direction=direction, pos=pos)
@@ -233,12 +244,11 @@ class DisjointTreeParticle(Particle):
             # root particles has a different initialisation method
             # (for the first time)
             self.isroot = False
-            self.tree.particle_handler = self
             super().restart(direction, pos)
             return
         try:
             # remove tree reference to his particle
-            self.tree.particle_handler = None
+            self.tree.particle_handler.remove(self)
         except AttributeError:
             # probably this is its first init
             pass
@@ -257,7 +267,6 @@ class DisjointTreeParticle(Particle):
         self.tree = TreeDisjoint(particle_handler=self)
         self.tree.nodes.append(Node(pos))
         self.tree_manager.disjointedTrees.append(self.tree)
-        self.tree.particle_handler = self
         super().restart(direction, pos)
         return True
 
@@ -459,7 +468,7 @@ def rrt_dt_patched_run_once(self):
 
 class TreeRoot:
     def __init__(self, particle_handler):
-        self.particle_handler = particle_handler
+        self.particle_handler = [particle_handler]
         self.nodes = []
         # This stores the last node added to this tree (by local sampler)
         self.last_node = None
