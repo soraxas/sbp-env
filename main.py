@@ -51,6 +51,16 @@ Random Sampler Options:
                         - fast (Fourier Amplitude Sensitivity Test)
                         [default: pseudo_random]
 
+Disjoint Sampler Options:
+  --no-restart-when-merge
+                        This flag denotes if the local sampler from disjoint-
+                        tree sampler should restart at a new location when
+                        the disjointed tree branches jointed to an existing
+                        one. The default behaviour is restart as soon as merged
+                        to another existing tree (to encourage exploration).
+                        When this flag is set, it will remain until its energy
+                        is exhausted.
+
 Likelihood/Nearby Sampler Options:
   --prob-block-size=SIZE
                         Set the dimension of the discretized block.
@@ -85,7 +95,7 @@ def main():
         sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['disjoint']:
         from disjointTree import DisjointParticleFilterSampler
-        sampler = DisjointParticleFilterSampler()
+        sampler = DisjointParticleFilterSampler(restart_when_merge=not args['--no-restart-when-merge'])
     elif args['particle']:
         from particleFilterSampler import ParticleFilterSampler
         sampler = ParticleFilterSampler()

@@ -78,18 +78,6 @@ class ParticleManager:
         if lsampler not in self.local_samplers_to_be_rstart:
             self.local_samplers_to_be_rstart.append(lsampler)
 
-    def restart_all_pending_local_samplers(self):
-        # restart all pending local samplers
-        while len(self.local_samplers_to_be_rstart) > 0:
-            # during the proces of restart, if the new restart position
-            # is close to an existing tree, it will simply add to that new tree.
-            if not self.local_samplers_to_be_rstart[0].restart():
-                # This flag denotes that a new position was found among the trees,
-                # And it NEEDS to get back to restarting particles in the next ierations
-                return False
-            self.local_samplers_to_be_rstart.pop(0)
-        return True
-
     def init_energy(self):
         self.particles_energy = np.ones(self.num_particles)
         self.particles_energy *= ENERGY_START

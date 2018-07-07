@@ -99,10 +99,7 @@ class RRT:
         # so that in the next run other functions (eg choose_least_cost_parent and rwire)
         # and take advantage to the already computed values
         self._new_node_dist_to_all_others = {}
-
-        self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
-
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
@@ -141,7 +138,7 @@ class RRT:
         self.angle = math.atan2(-dy, dx)
 
         self.sampler.init(RRT=self, XDIM=self.XDIM, YDIM=self.YDIM, SCALING=self.SCALING, EPSILON=self.EPSILON, goalBias=self.goalBias,
-                          startPt=self.startPt.pos, goalPt=self.goalPt.pos, tree_manager=self.tree_manager)
+                          startPt=self.startPt.pos, goalPt=self.goalPt.pos)
 
     ############################################################
 
@@ -415,8 +412,8 @@ class RRT:
         ##### Texts
         if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
-            if 'DisjointParticleFilterSampler' in self.sampler.__str__():
-                num_nodes = sum(len(tree.nodes) for tree in (*self.tree_manager.disjointedTrees, self.tree_manager.root))
+            if 'DisjointParticleFilterSampler' in self.sampler.__str__() and count > 0:
+                num_nodes = sum(len(tree.nodes) for tree in (*self.sampler.tree_manager.disjointedTrees, self.sampler.tree_manager.root))
             else:
                 num_nodes = len(self.nodes)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
@@ -431,9 +428,9 @@ class RRT:
         # these had already been drawn
         drawn_nodes_pairs = set()
         self.path_layers.fill(Colour.ALPHA_CK)
-        if 'DisjointParticleFilterSampler' in self.sampler.__str__():
+        if 'DisjointParticleFilterSampler' in self.sampler.__str__() and 'tree_manager' in self.sampler.__dict__:
             # Draw disjointed trees
-            for tree in self.tree_manager.disjointedTrees:
+            for tree in self.sampler.tree_manager.disjointedTrees:
                 bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
                 while bfs.has_next():
                     newnode = bfs.next()
@@ -443,7 +440,7 @@ class RRT:
                             drawn_nodes_pairs.add(new_set)
                             self.draw_path(newnode, e)
             # Draw root tree
-            for n in self.tree_manager.root.nodes:
+            for n in self.sampler.tree_manager.root.nodes:
                 if n.parent is not None:
                     new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
