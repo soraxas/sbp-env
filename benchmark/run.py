@@ -25,9 +25,10 @@ def main():
             for _i in range(REPEAT_STATS):
                 # Repeat the same for two different policies
                 for policy in POLICIES:
+                    policyname = '{}'.format(policy)
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
                         map=test_map,
-                        policy=policy,
+                        policy=policyname,
                         loc_repeat=_loc,
                         start=start,
                         goal=goal,
@@ -38,7 +39,8 @@ def main():
                             "goal", str(goal[0]), str(goal[1]),
                             '--hide-sampled-points',
                             '--max-number-nodes=15000',
-                            '--disable-pygame'
+                            '--disable-pygame',
+                            '--policy-name={}'.format(policyname)
                             ]
                     subprocess.check_call(args)
 

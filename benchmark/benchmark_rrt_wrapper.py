@@ -18,6 +18,15 @@ sys.path.append(os.path.join(CUR_PATH, '..'))  # add top package to path
 
 def main():
     import main
+    policyname = None
+    for i in range(len(sys.argv)):
+        if sys.argv[i].startswith('--policy-name='):
+            policyname = sys.argv.pop(i)
+            policyname = policyname.replace('--policy-name=', '')
+    if policyname is None:
+        # default to policy's name
+        policyname = sys.argv[1]
+
     # get rrt instance
     rrt = main.main()
 
@@ -32,7 +41,7 @@ def main():
                 )
     directoryname = os.path.join(BENCHMARK_DIR_NAME, directoryname)
     filename = "policy={policy}_timestamp={timestamp}".format(
-                    policy=sys.argv[1],
+                    policy=policyname,
                     timestamp=timestamp
                 )
     # save inside a directory
