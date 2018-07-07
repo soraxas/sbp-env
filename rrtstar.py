@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-
-# rrtstar.py
-# This program generates a
-# asymptotically optimal rapidly exploring random tree (RRT*) in a rectangular region.
-
 import sys
 import random
 import math
@@ -21,12 +16,10 @@ LOGGER = logging.getLogger(__name__)
 
 # constants
 INF = float('inf')
-ALPHA_CK = 255,0,255
-
 GOAL_RADIUS = 10
-GOAL_BIAS = 0.005
 
 class Colour:
+    ALPHA_CK = 255,0,255
     white = 255, 255, 255
     black = 20, 20, 40
     red = 255, 0, 0
@@ -41,11 +34,6 @@ class Node:
         self.cost = 0  # index 0 is x, index 1 is y
         self.parent = None
         self.children = []
-
-class SampledNodes:
-    def __init__(self, p):
-        self.pos = p
-        self.framedShowed = 0
 
 class Stats:
     def __init__(self, showSampledPoint=True):
@@ -70,7 +58,7 @@ class Stats:
             return
         if not_a_node:
             node = Node(node)
-        self.sampledNodes.append(SampledNodes(node.pos.astype(int)))
+        self.sampledNodes.append(node.pos)
 
 
 ############################################################
@@ -114,7 +102,6 @@ class RRT:
 
         self.tree_manager = dt.TreesManager(RRT=self)
         self.nodes = []
-        self.sampledNodes = []
 
         self.sampler = sampler
         ##################################################
@@ -182,18 +169,18 @@ class RRT:
         ################################################################################
         # path of RRT*
         self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.path_layers.fill(ALPHA_CK)
-        self.path_layers.set_colorkey(ALPHA_CK)
+        self.path_layers.fill(Colour.ALPHA_CK)
+        self.path_layers.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the solution path
         self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.solution_path_screen.fill(ALPHA_CK)
-        self.solution_path_screen.set_colorkey(ALPHA_CK)
+        self.solution_path_screen.fill(Colour.ALPHA_CK)
+        self.solution_path_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the sampled points
         self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
-        self.sampledPoint_screen.fill(ALPHA_CK)
-        self.sampledPoint_screen.set_colorkey(ALPHA_CK)
+        self.sampledPoint_screen.fill(Colour.ALPHA_CK)
+        self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         if not self.enable_pygame:
             self.pygame_hide()
@@ -253,7 +240,6 @@ class RRT:
 
         return newnode, nn
 
-
     def rewire(self, newnode, nodes, already_rewired=None):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         if len(nodes) < 1:
@@ -290,26 +276,12 @@ class RRT:
                 _newnode_nn_dist = _newnode_p_dist
         return nn
 
-    # @staticmethod
-    # def find_nearest_neighbour(node, nodes):
-    #     nn = nodes[0]
-    #     _nn_to_node_dist = dist(nn.pos, node.pos)
-    #     for p in nodes:
-    #         _p_to_node_dist = dist(p.pos, node.pos)
-    #         # filter out unwanted distance
-    #         if _p_to_node_dist < _nn_to_node_dist:
-    #             # this node is closer
-    #             nn = p
-    #             _nn_to_node_dist = _p_to_node_dist
-    #     return nn
-
     def run(self):
         """Run until we reached the specified max nodes"""
         while self.stats.valid_sample < self.NUMNODES:
             self.process_pygame_event()
             self.update_screen()
             self.run_once()
-
 
     def run_once(self):
             # Get an sample that is free (not in blocked space)
@@ -340,7 +312,6 @@ class RRT:
                         self.goalPt.parent = newnode
                         newnode.children.append(self.goalPt.parent)
                         self.draw_solution_path()
-
 
     @check_pygame_enabled
     def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1, layer=None):
@@ -379,7 +350,7 @@ class RRT:
             return
 
         # redraw new path
-        self.solution_path_screen.fill(ALPHA_CK)
+        self.solution_path_screen.fill(Colour.ALPHA_CK)
         nn = self.goalPt.parent
         self.c_max = nn.cost
         while nn != self.startPt:
@@ -433,17 +404,13 @@ class RRT:
 
         ##### Sampled points
         if count % 4 == 0:
-            show_sampled_point_for = 1
-            self.sampledPoint_screen.fill(ALPHA_CK)
+            self.sampledPoint_screen.fill(Colour.ALPHA_CK)
             # Draw sampled nodes
-            sampledNodes = self.stats.sampledNodes
-            for i in reversed(range(len(sampledNodes))):
-                self.draw_circle(pos=sampledNodes[i].pos, colour=Colour.red, radius=2, layer=self.sampledPoint_screen)
-                sampledNodes[i].framedShowed += 1
-
-                if sampledNodes[i].framedShowed >= show_sampled_point_for:
-                    sampledNodes.pop(i)
+            for sampledPos in self.stats.sampledNodes:
+                self.draw_circle(pos=sampledPos, colour=Colour.red, radius=2, layer=self.sampledPoint_screen)
             self.window.blit(self.sampledPoint_screen,(0,0))
+            # remove them from list
+            del self.stats.sampledNodes[:]
 
         ##### Texts
         if count % 10 == 0:
@@ -463,7 +430,7 @@ class RRT:
         from disjointTree import BFS
         # these had already been drawn
         drawn_nodes_pairs = set()
-        self.path_layers.fill(ALPHA_CK)
+        self.path_layers.fill(Colour.ALPHA_CK)
         if 'DisjointParticleFilterSampler' in self.sampler.__str__():
             # Draw disjointed trees
             for tree in self.tree_manager.disjointedTrees:
