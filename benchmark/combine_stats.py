@@ -108,17 +108,17 @@ def combine_result(folder):
     POLICIES = set()
     POLICIES.update(re.search('policy=(.*)_timestamp', fn).group(1)
                     for fn in glob.glob('policy=*.csv'))
-
+    POLICIES = [p[-31:] for p in POLICIES]
     for idx, policy in enumerate(POLICIES):
         sheets, num_rows = save_csv_as_sheet(
             wb=wb,
-            filename_glob="policy={}_*.csv".format(policy),
+            filename_glob="policy=*{}*.csv".format(policy),
             get_sheetname_func=lambda fn, policy=policy: "{}_{}".format(policy,
                                                                         re.search('.*timestamp=[0-9]+-([0-9]{4})[0-9]{2}.csv',
                                                                                   fn).group(1)),
             row_filter=lambda row_idx, row, z=DATA_BEGIN_ROW:
-            row if row_idx <= z
-            else (float(x) if x != 'inf' else x for x in row))
+                        row if row_idx <= z
+                        else (float(x) if x != 'inf' else x for x in row))
 
         ws = wb.create_sheet(policy, index=idx)
         create_stats_view(ws, sheets, num_rows=num_rows)

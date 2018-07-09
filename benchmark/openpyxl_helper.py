@@ -46,6 +46,10 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
         raise ValueError("Given filename_glob is empty (None found) in current dir: {}".format(filename_glob))
     for filename in glob.glob(filename_glob):
         newsheet = get_sheetname_func(filename)
+        if len(newsheet) > 31:
+            # trim it to not exceed the limits
+            print("triming sheet name as it > 31 characters")
+            newsheet = newsheet[-31:]
         ws = wb.create_sheet(newsheet)
         sheets.append(newsheet)
         with open(filename) as f:
