@@ -66,7 +66,7 @@ Likelihood/Nearby Sampler Options:
                         Set the dimension of the discretized block.
                         [default: 5]
 """
-from docopt import docopt, DocoptExit
+from docopt import docopt
 import logging
 import sys
 

@@ -17,7 +17,6 @@ from benchmark.openpyxl_helper import (
     build_scatter_with_mean_stdev
 )
 
-POLICIES = ['random', 'disjoint']
 STATS_FILE_NAME = 'stats.xlsx'
 
 INFO_MAX_COL = 6  # amount of column for info section
@@ -105,12 +104,17 @@ def combine_result(folder):
     # remove default sheet
     wb.remove(ws)
 
+    # find all the unique name of policies exists in this dir
+    POLICIES = set()
+    POLICIES.update(re.search('policy=(.*)_timestamp', fn).group(1)
+                    for fn in glob.glob('policy=*.csv'))
+
     for idx, policy in enumerate(POLICIES):
         sheets, num_rows = save_csv_as_sheet(
             wb=wb,
             filename_glob="policy={}_*.csv".format(policy),
             get_sheetname_func=lambda fn, policy=policy: "{}_{}".format(policy,
-                                                                        re.search('.*timestamp=([0-9]+-[0-9]+).csv',
+                                                                        re.search('.*timestamp=[0-9]+-([0-9]{4})[0-9]{2}.csv',
                                                                                   fn).group(1)),
             row_filter=lambda row_idx, row, z=DATA_BEGIN_ROW:
             row if row_idx <= z
