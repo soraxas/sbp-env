@@ -7,6 +7,23 @@ def dist(p1, p2):
     p = p1-p2;
     return math.sqrt(p[0]**2 + p[1]**2)
 
+def dist_all(p, pts):
+    return np.linalg.norm(pts - p, axis=1)
+    # p = p1-p2;
+    # return math.sqrt(p[0]**2 + p[1]**2)
+
+def dist_all2(node, nodes):
+    shortest = node.pos - nodes[0].pos
+    shortest = math.sqrt(shortest[0]**2 + shortest[1]**2)
+    idx = 0
+    for i in range(len(nodes)):
+        shortest_tmp = node.pos - nodes[i].pos
+        shortest_tmp = math.sqrt(shortest_tmp[0]**2 + shortest_tmp[1]**2)
+        if shortest_tmp < shortest:
+            shortest = shortest_tmp
+            idx = i
+    return i
+
 def get_line(start, end):
     """Bresenham's Line Algorithm
     Produces a list of tuples from start and end

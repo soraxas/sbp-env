@@ -8,6 +8,8 @@ from overrides import overrides
 
 LOGGER = logging.getLogger(__name__)
 
+MAX_NUMBER_NODES = 20000
+
 def update_progress(progress, total_num, num_of_blocks=10):
     if not logging.getLogger().isEnabledFor(logging.INFO):
         return
@@ -74,7 +76,7 @@ class TreesManager:
                 newnode.edges.append(nn)
                 nn.edges.append(newnode)
             if parent_tree is not None:
-                parent_tree.nodes.append(newnode)
+                parent_tree.add_newnode(newnode)
         self.rrt.draw_path(newnode, nn)
         return newnode, nn
 
@@ -114,7 +116,8 @@ class TreesManager:
             if tree is parent_tree:
                 # skip self
                 continue
-            nn = self.rrt.find_nearest_neighbour(node.pos, tree.nodes)
+            idx = self.rrt.find_nearest_neighbour_idx(node.pos, tree.poses[:len(tree.nodes)])
+            nn = tree.nodes[idx]
             if dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
             # nn = None
@@ -196,8 +199,9 @@ class TreesManager:
             self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
         else:
             self.connect_two_nodes(tree1_node, tree2_node)
-            tree1.nodes.extend(tree2.nodes)
+            tree1.extend_tree(tree2)
         del tree2.nodes
+        del tree2.poses
         self.disjointedTrees.remove(tree2)
 
         if self.restart_when_merge:
@@ -234,7 +238,7 @@ class DisjointTreeParticle(Particle):
         if isroot:
             self.tree_manager.root = TreeRoot(particle_handler=self)
             self.tree = self.tree_manager.root
-            self.tree.nodes.append(startPtNode)
+            self.tree.add_newnode(startPtNode)
         super().__init__(direction=direction, pos=pos)
 
     @overrides
@@ -269,7 +273,7 @@ class DisjointTreeParticle(Particle):
             merged_tree.particle_handler.append(self)
         else:
             self.tree = TreeDisjoint(particle_handler=self)
-            self.tree.nodes.append(Node(pos))
+            self.tree.add_newnode(Node(pos))
             self.tree_manager.disjointedTrees.append(self.tree)
         super().restart(direction, pos)
         return True
@@ -287,6 +291,8 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
     def init(self, **kwargs):
 
         super().init(**kwargs)
+        global MAX_NUMBER_NODES
+        MAX_NUMBER_NODES = self.rrt.NUMNODES
         # Monkey patch the RRT for this smapler's specific stuff
         import types
 
@@ -448,7 +454,8 @@ def rrt_dt_patched_run_once(self):
         nn = last_node
         newpos = rand_pos
     else:
-        nn = self.find_nearest_neighbour(rand_pos, parent_tree.nodes)
+        idx = self.find_nearest_neighbour_idx(rand_pos, parent_tree.poses[:len(parent_tree.nodes)])
+        nn = parent_tree.nodes[idx]
         # get an intermediate node according to step-size
         newpos = self.step_from_to(nn.pos, rand_pos)
     # check if it is free or not ofree
@@ -475,7 +482,16 @@ class TreeRoot:
     def __init__(self, particle_handler):
         self.particle_handler = [particle_handler]
         self.nodes = []
+        self.poses = np.empty((MAX_NUMBER_NODES, 2))
         # This stores the last node added to this tree (by local sampler)
+
+    def add_newnode(self, node):
+        self.poses[len(self.nodes)] = node.pos
+        self.nodes.append(node)
+
+    def extend_tree(self, tree):
+        self.poses[len(self.nodes):len(self.nodes)+len(tree.nodes)] = tree.poses[:len(tree.nodes)]
+        self.nodes.extend(tree.nodes)
 
     def __repr__(self):
         string = super().__repr__()

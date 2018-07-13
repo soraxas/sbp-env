@@ -98,6 +98,7 @@ class RRT:
         # and take advantage to the already computed values
         self._new_node_dist_to_all_others = {}
         self.nodes = []
+        self.poses = np.empty((self.NUMNODES,2))
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
@@ -125,7 +126,7 @@ class RRT:
             if goalPt is not None and self.goalPt is None:
                 self.goalPt = Node(goalPt)
             self.update_screen(update_all=True)
-        self.nodes.append(self.startPt)
+        self.add_newnode(self.startPt)
 
         ##################################################
         # calculate information regarding shortest path
@@ -187,6 +188,10 @@ class RRT:
         self.enable_pygame = False
         pygame.display.iconify()
         # pygame.quit()
+
+    def add_newnode(self, node):
+        self.poses[len(self.nodes)] = node.pos
+        self.nodes.append(node)
 
     def collides(self, p):
         """check if point is white (which means free space)"""
@@ -259,17 +264,10 @@ class RRT:
                 self.draw_path(n, newnode, Colour.blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
-    def find_nearest_neighbour(self, pos, nodes):
-        nn = nodes[0]
-        _newnode_nn_dist = dist(pos, nn.pos)
-        for p in nodes:
-            _newnode_p_dist = dist(pos, p.pos)
-            # filter out unwanted distance
-            if _newnode_p_dist < _newnode_nn_dist:
-                # this node is closer
-                nn = p
-                _newnode_nn_dist = _newnode_p_dist
-        return nn
+    def find_nearest_neighbour_idx(self, pos, poses):
+        # Make use of numpy fast parallel operation to find all distance with one operation.
+        distances = np.linalg.norm(poses - pos, axis=1)
+        return np.argmin(distances)
 
     def run(self):
         """Run until we reached the specified max nodes"""
@@ -283,7 +281,8 @@ class RRT:
             rand_pos, report_success, report_fail = self.sampler.get_valid_next_pos()
             # Found a node that is not in X_obs
 
-            nn = self.find_nearest_neighbour(rand_pos, self.nodes)
+            idx = self.find_nearest_neighbour_idx(rand_pos, self.poses[:len(self.nodes)])
+            nn = self.nodes[idx]
             # get an intermediate node according to step-size
             newpos = self.step_from_to(nn.pos, rand_pos)
             # check if it has a free path to nn or not
@@ -297,7 +296,7 @@ class RRT:
                 report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
                 ######################
                 newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
-                self.nodes.append(newnode)
+                self.add_newnode(newnode)
                 # rewire to see what the newly added node can do for us
                 self.rewire(newnode, self.nodes)
                 self.draw_path(nn, newnode)
