@@ -2,9 +2,10 @@
 """RRT* Research
 
 Usage:
-  main.py (random|disjoint|particle|likelihood|nearby|mouse) <MAP> [options]
   main.py (random|disjoint|particle|likelihood|nearby|mouse) <MAP>
-          start <sx> <sy> goal <gx> <gy> [options]
+          [options] [-v|-vv|-vvv]
+  main.py (random|disjoint|particle|likelihood|nearby|mouse) <MAP>
+          start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
 
@@ -15,11 +16,11 @@ Arguments:
 General Options:
   -h --help              Show this screen.
   --version              Show version.
-  -v --verbose          Display debug message.
+  -v --verbose           Display debug message.
 
 Display Options:
   --always-refresh       Set if the display should refresh on every ticks.
-  -s --scaling=SCALING  Set scaling for display (ratio will be maintained).
+  -s --scaling=SCALING   Set scaling for display (ratio will be maintained).
                          [default: 1.5]
   --hide-sampled-points  Do not display sampled point as red dot on screen.
   --disable-pygame       Disable pygame display (to enhance performance).
@@ -77,8 +78,12 @@ LOGGER = logging.getLogger()
 def main():
     args = docopt(__doc__, version='RRT* Research v1.0')
 
-    if args['--verbose']:
+    if args['--verbose'] > 2:
         LOGGER.setLevel(logging.DEBUG)
+    elif args['--verbose'] > 1:
+        LOGGER.setLevel(logging.INFO)
+    elif args['--verbose'] > 0:
+        LOGGER.setLevel(logging.WARNING)
     else:
         LOGGER.setLevel(logging.ERROR)
     # INFO includes only loading

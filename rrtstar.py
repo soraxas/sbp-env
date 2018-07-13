@@ -229,7 +229,7 @@ class RRT:
                     nn = p
                     _newnode_to_nn_cost = _newnode_to_p_cost
         if nn is None:
-            raise Exception(
+            raise LookupError(
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?")
         newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
         newnode.parent = nn

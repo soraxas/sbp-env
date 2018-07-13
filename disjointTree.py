@@ -8,8 +8,6 @@ from overrides import overrides
 
 LOGGER = logging.getLogger(__name__)
 
-JOIN_TREES_RADIUS = 10
-
 def update_progress(progress, total_num, num_of_blocks=10):
     if not logging.getLogger().isEnabledFor(logging.INFO):
         return
@@ -99,7 +97,7 @@ class TreesManager:
                         parent_tree = self.join_trees(parent_tree, nearest_neighbour_tree,
                                                                tree1_node=newnode, tree2_node=nearest_neighbour_node)
                     except AssertionError as e:
-                        LOGGER.debug("== Assertion error in joining sampled point to existing tree... Skipping this node...")
+                        LOGGER.warning("== Assertion error in joining sampled point to existing tree... Skipping this node...")
         return parent_tree
 
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
@@ -152,7 +150,10 @@ class TreesManager:
             # draw white (remove edge for visual) on top of disjointed tree
             for e in (x for x in newnode.edges if x not in bfs.visitedNodes and x in bfs.validNodes):
                 self.rrt.draw_path(e, newnode, Colour.white)
-            self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+            try:
+                self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+            except LookupError:
+                LOGGER.warning("nn not found when attempting to joint to root. Ignoring...")
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
 
