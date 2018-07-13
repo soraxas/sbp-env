@@ -223,7 +223,7 @@ class RRT:
         for p in nodes:
             _newnode_to_p_cost = dist(newnode.pos, p.pos)
             self._new_node_dist_to_all_others[(newnode, p)] = _newnode_to_p_cost
-            if _newnode_to_p_cost < self.RADIUS and self.cc.path_is_free(newnode, p):
+            if _newnode_to_p_cost <= self.RADIUS and self.cc.path_is_free(newnode, p):
                 # This is another valid parent. Check if it's better than our current one.
                 if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
                     nn = p
@@ -248,7 +248,7 @@ class RRT:
                 _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode, n]
             else:
                 _newnode_to_n_cost = dist(newnode.pos, n.pos)
-            if (n != newnode.parent and _newnode_to_n_cost < self.RADIUS and
+            if (n != newnode.parent and _newnode_to_n_cost <= self.RADIUS and
                     self.cc.path_is_free(n, newnode) and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
                 self.draw_path(n, n.parent, Colour.white)
