@@ -9,7 +9,7 @@ For demo / testing only. This policy wait for user mouse input for next sampling
 class MouseSampler(Sampler):
 
     @overrides
-    def get_next_node(self):
+    def get_next_pos(self):
         return self.get_mouse_click_position(scaling=self.scaling), self.report_success, self.report_fail
 
     @staticmethod

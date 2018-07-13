@@ -85,7 +85,7 @@ class TreesManager:
             parent_tree=parent_tree,
             radius=self.rrt.RADIUS)
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
-            if self.rrt.cc.path_is_free(newnode, nearest_neighbour_node):
+            if self.rrt.cc.path_is_free(newnode.pos, nearest_neighbour_node.pos):
                 if parent_tree is None:
                     ### joining ORPHAN NODE to a tree
                     self.connect_two_nodes(newnode, nearest_neighbour_node, nearest_neighbour_tree)
@@ -114,7 +114,7 @@ class TreesManager:
             if tree is parent_tree:
                 # skip self
                 continue
-            nn = self.rrt.find_nearest_neighbour(node, tree.nodes)
+            nn = self.rrt.find_nearest_neighbour(node.pos, tree.nodes)
             if dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
             # nn = None
@@ -332,20 +332,20 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         self.p_manager.modify_energy(idx=idx, factor=0.95)
 
     @overrides
-    def get_valid_next_node(self):
+    def get_valid_next_pos(self):
         """Loop until we find a valid next node"""
         while True:
-            _tmp = self.get_next_node()
+            _tmp = self.get_next_pos()
             if _tmp is None:
                 # This denotes a particle had tried to restart and added the new node
                 # to existing tree instead. Skip remaining steps and iterate to next loop
                 return None
-            rand = _tmp[0]
-            self.rrt.stats.add_sampled_node(rand)
-            if not self.rrt.collides(rand.pos):
+            rand_pos = _tmp[0]
+            self.rrt.stats.add_sampled_node(rand_pos)
+            if not self.rrt.collides(rand_pos):
                 return _tmp
             report_fail = _tmp[-1]
-            report_fail(pos=rand, obstacle=True)
+            report_fail(pos=rand_pos, obstacle=True)
             self.rrt.stats.add_invalid(obs=True)
 
     def restart_all_pending_local_samplers(self):
@@ -361,7 +361,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         return True
 
     @overrides
-    def get_next_node(self):
+    def get_next_pos(self):
         self.counter += 1
         self._c_random += 1
         self._c_resample += 1
@@ -379,7 +379,7 @@ class DisjointParticleFilterSampler(ParticleFilterSampler):
         pos = self.randomWalk(choice)
         # pos, choice = self.randomWalk_by_mouse()
 
-        return (Node(pos), self.p_manager.particles[choice].tree, self.p_manager.particles[choice].last_node,
+        return (pos, self.p_manager.particles[choice].tree, self.p_manager.particles[choice].last_node,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
                 lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
 
@@ -437,25 +437,26 @@ def rrt_star_add_node(self, newnode, nn=None):
 
 def rrt_dt_patched_run_once(self):
     # Get an sample that is free (not in blocked space)
-    _tmp = self.sampler.get_valid_next_node()
+    _tmp = self.sampler.get_valid_next_pos()
     if _tmp is None:
         # we have added a new samples when respawning a local sampler
         return
-    rand, parent_tree, last_node, report_success, report_fail = _tmp
+    rand_pos, parent_tree, last_node, report_success, report_fail = _tmp
     if last_node is not None:
         # use the last succesful node as the nearest node
         # This is expliting the advantage of local sampler :)
         nn = last_node
-        newnode = rand
+        newpos = rand_pos
     else:
-        nn = self.find_nearest_neighbour(rand, parent_tree.nodes)
+        nn = self.find_nearest_neighbour(rand_pos, parent_tree.nodes)
         # get an intermediate node according to step-size
-        newnode = Node(self.step_from_to(nn.pos, rand.pos))
+        newpos = self.step_from_to(nn.pos, rand_pos)
     # check if it is free or not ofree
-    if not self.cc.path_is_free(nn, newnode):
+    if not self.cc.path_is_free(nn.pos, newpos):
         self.stats.add_invalid(obs=False)
-        report_fail(pos=rand, free=False)
+        report_fail(pos=rand_pos, free=False)
     else:
+        newnode = Node(newpos)
         self.stats.add_free()
         self.sampler.add_tree_node(newnode.pos)
         report_success(newnode=newnode, pos=newnode.pos)

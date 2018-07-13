@@ -18,19 +18,18 @@ class Sampler:
         self.goalPt = kwargs['goalPt']
 
 
-    def get_next_node(self, *argv, **kwargs):
+    def get_next_pos(self, *argv, **kwargs):
         pass
 
-    def get_valid_next_node(self):
+    def get_valid_next_pos(self):
         import rrtstar
         """Loop until we find a valid next node"""
         while True:
-            coordinate, report_success, report_fail = self.get_next_node()
-            rand = rrtstar.Node(coordinate)
-            self.rrt.stats.add_sampled_node(rand)
-            if not self.rrt.collides(rand.pos):
-                return rand, report_success, report_fail
-            report_fail(pos=rand, obstacle=True)
+            coordinate, report_success, report_fail = self.get_next_pos()
+            self.rrt.stats.add_sampled_node(coordinate)
+            if not self.rrt.collides(coordinate):
+                return coordinate, report_success, report_fail
+            report_fail(pos=coordinate, obstacle=True)
             self.rrt.stats.add_invalid(obs=True)
 
     def report_success(self, *argv, **kwargs):

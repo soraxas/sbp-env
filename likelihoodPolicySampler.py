@@ -39,10 +39,10 @@ class LikelihoodPolicySampler(Sampler):
         self.sampleCount = 0
 
     @overrides
-    def get_next_node(self):
+    def get_next_pos(self):
         if self.prob_vector_normalized is None or random.random() < 0.05:
             LOGGER.debug('rand')
-            p =  self.randomSampler.get_next_node()[0]
+            p =  self.randomSampler.get_next_pos()[0]
         else:
             choice = np.random.choice(range(self.prob_vector_normalized.size), p=self.prob_vector_normalized.ravel())
             y = choice % self.prob_vector_normalized.shape[1]
@@ -71,7 +71,7 @@ class LikelihoodPolicySampler(Sampler):
     def report_success(self, **kwargs):
         x, y = kwargs['pos']
         # add all in between point of nearest node of the random pt as valid
-        x1, y1 = self.rrt.cc.get_coor_before_collision(kwargs['nn'], kwargs['rand'])
+        x1, y1 = self.rrt.cc.get_coor_before_collision(kwargs['nn'].pos, kwargs['rand_pos'])
         self.add_sample_line(x, y, x1, y1)
 
     @overrides

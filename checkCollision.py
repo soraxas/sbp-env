@@ -21,8 +21,8 @@ def get_line(start, end):
     http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm
     """
     # Setup initial conditions
-    x1, y1 = start
-    x2, y2 = end
+    x1, y1 = map(int, start)
+    x2, y2 = map(int, end)
     dx = x2 - x1
     dy = y2 - y1
 
@@ -97,10 +97,10 @@ class CollisionChecker:
     def __init__(self, img):
         self.img = img
 
-    def get_coor_before_collision(self, nodeA, nodeB):
-        pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
+    def get_coor_before_collision(self, posA, posB):
+        pixels = get_line(posA, posB)
         # check that all pixel are white (free space)
-        endPos = nodeB.pos
+        endPos = posB
         for p in pixels:
             endPos = (p[0], p[1])
             color = self.img.get_at(endPos)
@@ -108,11 +108,11 @@ class CollisionChecker:
                 break
         return endPos
 
-    def path_is_free(self, nodeA,nodeB):
+    def path_is_free(self, posA, posB):
         white = 255, 255, 255
         # get list of pixel between node A and B
-        # pixels = lineGenerationAlgorithm(nodeA.pos, nodeB.pos)
-        pixels = get_line(nodeA.pos.astype(int), nodeB.pos.astype(int))
+        # pixels = lineGenerationAlgorithm(posA, posB)
+        pixels = get_line(posA, posB)
 
         # check that all pixel are white (free space)
         for p in pixels:

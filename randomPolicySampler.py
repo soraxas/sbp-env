@@ -16,7 +16,7 @@ class RandomPolicySampler(Sampler):
         self.random = RandomnessManager()
 
     @overrides
-    def get_next_node(self):
+    def get_next_pos(self):
         # Random path
         while True:
             if random.random() < self.goalBias:

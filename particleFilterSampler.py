@@ -170,7 +170,7 @@ class ParticleManager:
         self.rrt.stats.lscampler_restart_counter += 1
         while True:
             new_p = random.random()*self.rrt.XDIM,  random.random()*self.rrt.YDIM
-            self.rrt.stats.add_sampled_node(new_p, not_a_node=True)
+            self.rrt.stats.add_sampled_node(new_p)
             if self.rrt.collides(new_p):
                 self.rrt.stats.add_invalid(obs=True)
             else:
@@ -327,7 +327,7 @@ class ParticleFilterSampler(Sampler):
         return choice
 
     @overrides
-    def get_next_node(self):
+    def get_next_pos(self):
         self.counter += 1
         self._c_random += 1
         self._c_resample += 1
@@ -349,7 +349,7 @@ class ParticleFilterSampler(Sampler):
 
         if random.random() < 0:
             LOGGER.debug('rand')
-            p = self.randomSampler.get_next_node()
+            p = self.randomSampler.get_next_pos()
             choice = -1
         else:
             # get a node to random walk

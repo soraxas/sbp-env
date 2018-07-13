@@ -52,13 +52,11 @@ class Stats:
     def add_free(self):
         self.valid_sample += 1
 
-    def add_sampled_node(self, node, not_a_node=False):
+    def add_sampled_node(self, pos):
         # if pygame is not enabled, skip showing sampled point
         if not self.showSampledPoint:
             return
-        if not_a_node:
-            node = Node(node)
-        self.sampledNodes.append(node.pos)
+        self.sampledNodes.append(pos)
 
 
 ############################################################
@@ -223,7 +221,7 @@ class RRT:
         for p in nodes:
             _newnode_to_p_cost = dist(newnode.pos, p.pos)
             self._new_node_dist_to_all_others[(newnode, p)] = _newnode_to_p_cost
-            if _newnode_to_p_cost <= self.RADIUS and self.cc.path_is_free(newnode, p):
+            if _newnode_to_p_cost <= self.RADIUS and self.cc.path_is_free(newnode.pos, p.pos):
                 # This is another valid parent. Check if it's better than our current one.
                 if nn is None or (p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost):
                     nn = p
@@ -249,7 +247,7 @@ class RRT:
             else:
                 _newnode_to_n_cost = dist(newnode.pos, n.pos)
             if (n != newnode.parent and _newnode_to_n_cost <= self.RADIUS and
-                    self.cc.path_is_free(n, newnode) and newnode.cost + _newnode_to_n_cost < n.cost):
+                    self.cc.path_is_free(n.pos, newnode.pos) and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
                 self.draw_path(n, n.parent, Colour.white)
                 reconsider = (n.parent, *n.children)
@@ -261,11 +259,11 @@ class RRT:
                 self.draw_path(n, newnode, Colour.blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
-    def find_nearest_neighbour(self, node, nodes):
+    def find_nearest_neighbour(self, pos, nodes):
         nn = nodes[0]
-        _newnode_nn_dist = dist(node.pos, nn.pos)
+        _newnode_nn_dist = dist(pos, nn.pos)
         for p in nodes:
-            _newnode_p_dist = dist(node.pos, p.pos)
+            _newnode_p_dist = dist(pos, p.pos)
             # filter out unwanted distance
             if _newnode_p_dist < _newnode_nn_dist:
                 # this node is closer
@@ -282,20 +280,21 @@ class RRT:
 
     def run_once(self):
             # Get an sample that is free (not in blocked space)
-            rand, report_success, report_fail = self.sampler.get_valid_next_node()
+            rand_pos, report_success, report_fail = self.sampler.get_valid_next_pos()
             # Found a node that is not in X_obs
 
-            nn = self.find_nearest_neighbour(rand, self.nodes)
+            nn = self.find_nearest_neighbour(rand_pos, self.nodes)
             # get an intermediate node according to step-size
-            newnode = Node(self.step_from_to(nn.pos, rand.pos))
+            newpos = self.step_from_to(nn.pos, rand_pos)
             # check if it has a free path to nn or not
-            if not self.cc.path_is_free(nn, newnode):
+            if not self.cc.path_is_free(nn.pos, newpos):
                 self.stats.add_invalid(obs=False)
-                report_fail(pos=rand, free=False)
+                report_fail(pos=rand_pos, free=False)
             else:
+                newnode = Node(newpos)
                 self.stats.add_free()
                 self.sampler.add_tree_node(newnode.pos)
-                report_success(pos=newnode.pos, nn=nn, rand=rand)
+                report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
                 ######################
                 newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
                 self.nodes.append(newnode)
@@ -321,7 +320,8 @@ class RRT:
 
     @check_pygame_enabled
     def draw_circle(self, pos, colour, radius, layer):
-        pygame.draw.circle(layer, colour, (pos*self.SCALING).astype(int), int(radius*self.SCALING))
+        draw_pos = int(pos[0]*self.SCALING), int(pos[1]*self.SCALING)
+        pygame.draw.circle(layer, colour, draw_pos, int(radius*self.SCALING))
 
     @check_pygame_enabled
     def process_pygame_event(self):
