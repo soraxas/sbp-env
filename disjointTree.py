@@ -482,7 +482,7 @@ class TreeRoot:
     def __init__(self, particle_handler):
         self.particle_handler = [particle_handler]
         self.nodes = []
-        self.poses = np.empty((MAX_NUMBER_NODES, 2))
+        self.poses = np.empty((MAX_NUMBER_NODES+50,2))  # +50 to prevent over flow
         # This stores the last node added to this tree (by local sampler)
 
     def add_newnode(self, node):

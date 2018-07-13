@@ -98,7 +98,7 @@ class RRT:
         # and take advantage to the already computed values
         self._new_node_dist_to_all_others = {}
         self.nodes = []
-        self.poses = np.empty((self.NUMNODES,2))
+        self.poses = np.empty((self.NUMNODES+50,2))  # +50 to prevent over flow
         self.sampler = sampler
         ##################################################
         # Get starting and ending point
