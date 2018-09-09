@@ -24,6 +24,7 @@ class Colour:
     black = 20, 20, 40
     red = 255, 0, 0
     blue = 0, 0, 255
+    path_blue = 26, 128, 178
     green = 0,150,0
     cyan = 20,200,200
     orange = 255, 160, 16
@@ -261,7 +262,7 @@ class RRT:
                 newnode.children.append(n)
                 n.cost = newnode.cost + _newnode_to_n_cost
                 already_rewired.add(n)
-                self.draw_path(n, newnode, Colour.blue)
+                self.draw_path(n, newnode, Colour.path_blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
 
     def find_nearest_neighbour_idx(self, pos, poses):
@@ -309,7 +310,7 @@ class RRT:
                         self.draw_solution_path()
 
     @check_pygame_enabled
-    def draw_path(self, node1, node2, colour=Colour.black, line_modifier=1, layer=None):
+    def draw_path(self, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None):
         if layer is None:
             layer = self.path_layers
         pygame.draw.line(layer, colour,
@@ -350,7 +351,7 @@ class RRT:
         nn = self.goalPt.parent
         self.c_max = nn.cost
         while nn != self.startPt:
-            self.draw_path(nn, nn.parent, colour=Colour.green, line_modifier=5,
+            self.draw_path(nn, nn.parent, colour=Colour.blue, line_modifier=5,
                            layer=self.solution_path_screen)
             nn = nn.parent
         self.window.blit(self.path_layers,(0,0))
@@ -372,9 +373,9 @@ class RRT:
 ###################################################################################
         def draw_start_goal_pt():
             if self.startPt is not None:
-                self.draw_circle(pos=self.startPt.pos, colour=Colour.cyan, radius=GOAL_RADIUS, layer=self.path_layers)
+                self.draw_circle(pos=self.startPt.pos, colour=Colour.red, radius=GOAL_RADIUS, layer=self.path_layers)
             if self.goalPt is not None:
-                self.draw_circle(pos=self.goalPt.pos, colour=Colour.blue, radius=GOAL_RADIUS, layer=self.path_layers)
+                self.draw_circle(pos=self.goalPt.pos, colour=Colour.green, radius=GOAL_RADIUS, layer=self.path_layers)
 
         # limites the screen update
         if count % 20 == 0:
