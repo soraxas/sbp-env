@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""RRT* Research
+"""RRdT* Research
 
 Usage:
-  main.py (random|disjoint|particle|likelihood|nearby|mouse) <MAP>
+  main.py (random|birrt|disjoint|particle|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (random|disjoint|particle|likelihood|nearby|mouse) <MAP>
+  main.py (random|birrt|disjoint|particle|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
@@ -98,6 +98,9 @@ def main():
     if args['random']:
         from randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
+    elif args['birrt']:
+        from biRRTSampler import BiRRTSampler
+        sampler = BiRRTSampler()
     elif args['disjoint']:
         from disjointTree import DisjointParticleFilterSampler
         sampler = DisjointParticleFilterSampler(restart_when_merge=not args['--no-restart-when-merge'])
