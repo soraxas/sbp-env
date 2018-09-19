@@ -280,7 +280,7 @@ class DisjointTreeParticle(Particle):
 
 
 
-class DisjointParticleFilterSampler(ParticleFilterSampler):
+class RRdTSampler(ParticleFilterSampler):
 
     @overrides
     def __init__(self, restart_when_merge=True):

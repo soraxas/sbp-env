@@ -2,15 +2,15 @@
 """RRdT* Research
 
 Usage:
-  main.py (random|birrt|disjoint|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|particle|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (random|birrt|disjoint|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|particle|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
 
 Arguments:
-  (random|...|...)       Set the sampler to be used by the RRT*.
+  (rrdt|...|...)       Set the sampler to be used by the RRT*.
   <MAP>                  An image file that represent the map.
 
 General Options:
@@ -95,15 +95,15 @@ def main():
 
     LOGGER.debug("commandline args: {}".format(args))
 
-    if args['random']:
+    if args['rrt']:
         from randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['birrt']:
         from biRRTSampler import BiRRTSampler
         sampler = BiRRTSampler()
-    elif args['disjoint']:
-        from disjointTree import DisjointParticleFilterSampler
-        sampler = DisjointParticleFilterSampler(restart_when_merge=not args['--no-restart-when-merge'])
+    elif args['rrdt']:
+        from disjointTree import RRdTSampler
+        sampler = RRdTSampler(restart_when_merge=not args['--no-restart-when-merge'])
     elif args['particle']:
         from particleFilterSampler import ParticleFilterSampler
         sampler = ParticleFilterSampler()

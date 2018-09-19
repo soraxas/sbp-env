@@ -412,7 +412,7 @@ class RRT:
         ##### Texts
         if count % 10 == 0:
             _cost = 'INF' if self.c_max == INF else round(self.c_max, 2)
-            if 'DisjointParticleFilterSampler' in self.sampler.__str__() and count > 0:
+            if 'RRdTSampler' in self.sampler.__str__() and count > 0:
                 num_nodes = sum(len(tree.nodes) for tree in (*self.sampler.tree_manager.disjointedTrees, self.sampler.tree_manager.root))
             else:
                 num_nodes = len(self.nodes)
@@ -428,7 +428,7 @@ class RRT:
         # these had already been drawn
         drawn_nodes_pairs = set()
         self.path_layers.fill(Colour.ALPHA_CK)
-        if 'DisjointParticleFilterSampler' in self.sampler.__str__() and 'tree_manager' in self.sampler.__dict__:
+        if 'RRdTSampler' in self.sampler.__str__() and 'tree_manager' in self.sampler.__dict__:
             # Draw disjointed trees
             for tree in self.sampler.tree_manager.disjointedTrees:
                 bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
