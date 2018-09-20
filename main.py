@@ -2,9 +2,9 @@
 """RRdT* Research
 
 Usage:
-  main.py (rrdt|rrt|birrt|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|prm|particle|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (rrdt|rrt|birrt|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|prm|particle|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
@@ -104,6 +104,9 @@ def main():
     elif args['rrdt']:
         from disjointTree import RRdTSampler
         sampler = RRdTSampler(restart_when_merge=not args['--no-restart-when-merge'])
+    elif args['prm']:
+        from prmSampler import PRMSampler
+        sampler = PRMSampler()
     elif args['particle']:
         from particleFilterSampler import ParticleFilterSampler
         sampler = ParticleFilterSampler()
