@@ -371,7 +371,7 @@ class ParticleFilterSampler(Sampler):
         denominator = max_prob - min_prob
         if denominator == 0:
             denominator = 1  # prevent division by zero
-        return 220 - 220 * (1 - (value - min_prob) / denominator)
+        return 220 - 180 * (1 - (value - min_prob) / denominator)
 
     @overrides
     def paint(self, window):
@@ -384,8 +384,8 @@ class ParticleFilterSampler(Sampler):
             self.particles_layer.fill((255, 128, 255, 0))
             # get a transition from green to red
             c = self.get_color_transists(self._last_prob[i], max_num, min_num)
-            c = max(min(255, c), 0)
-            color = (100, c, 0)
+            c = max(min(255, c), 50)
+            color = (c, c, 0)
             self.rrt.draw_circle(pos=p.pos, colour=color, radius=4, layer=self.particles_layer)
             window.blit(self.particles_layer, (0, 0))
         ##### Texts
