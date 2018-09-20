@@ -83,6 +83,7 @@ class RRT:
         self.YDIM = self.img.get_height()
         self.SCALING = scaling
         self.always_refresh = always_refresh
+        self.extra = 38
 
         self.EPSILON = epsilon
         self.NUMNODES = max_number_nodes
@@ -153,29 +154,29 @@ class RRT:
         ################################################################################
         # text
         pygame.font.init()
-        self.myfont = pygame.font.SysFont('Arial', int(self.XDIM * 0.03 * self.SCALING))
+        self.myfont = pygame.font.SysFont('Arial', int(self.XDIM * 0.04 * self.SCALING))
         ################################################################################
         # main window
-        self.window = pygame.display.set_mode([int(self.XDIM * self.SCALING), int(self.YDIM * self.SCALING)])
+        self.window = pygame.display.set_mode([int(self.XDIM * self.SCALING), int((self.YDIM + self.extra) * self.SCALING)])
         ################################################################################
         # background aka the room
-        self.background = pygame.Surface( [self.XDIM, self.YDIM] )
+        self.background = pygame.Surface( [self.XDIM, (self.YDIM + self.extra)] )
         self.background.blit(self.img,(0,0))
         # resize background to match windows
-        self.background = pygame.transform.scale(self.background, [int(self.XDIM * self.SCALING), int(self.YDIM * self.SCALING)])
+        self.background = pygame.transform.scale(self.background, [int(self.XDIM * self.SCALING), int((self.YDIM + self.extra) * self.SCALING)])
         ################################################################################
         # path of RRT*
-        self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.path_layers = pygame.Surface( [self.XDIM * self.SCALING, (self.YDIM + self.extra) * self.SCALING] )
         self.path_layers.fill(Colour.ALPHA_CK)
         self.path_layers.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the solution path
-        self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.solution_path_screen = pygame.Surface( [self.XDIM * self.SCALING, (self.YDIM + self.extra) * self.SCALING] )
         self.solution_path_screen.fill(Colour.ALPHA_CK)
         self.solution_path_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the sampled points
-        self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, self.YDIM * self.SCALING] )
+        self.sampledPoint_screen = pygame.Surface( [self.XDIM * self.SCALING, (self.YDIM + self.extra) * self.SCALING] )
         self.sampledPoint_screen.fill(Colour.ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
@@ -417,9 +418,9 @@ class RRT:
             else:
                 num_nodes = len(self.nodes)
             text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
-            self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))
-            text = 'Invalid sample: {}(con) {}(obs)'.format(self.stats.invalid_samples_connections, self.stats.invalid_samples_obstacles)
-            self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.95))
+            self.window.blit(self.myfont.render(text, False, Colour.white, Colour.black), (10,(self.YDIM+self.extra) * self.SCALING * 0.90))
+            text = 'Inv.Samples: {}(con) {}(obs)'.format(self.stats.invalid_samples_connections, self.stats.invalid_samples_obstacles)
+            self.window.blit(self.myfont.render(text, False, Colour.white, Colour.black), (10,(self.YDIM+self.extra) * self.SCALING * 0.95))
 
         pygame.display.update()
 
