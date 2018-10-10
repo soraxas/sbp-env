@@ -83,7 +83,7 @@ class RRT:
         self.YDIM = self.img.get_height()
         self.SCALING = scaling
         self.always_refresh = always_refresh
-        self.extra = 38
+        self.extra = 25
 
         self.EPSILON = epsilon
         self.NUMNODES = max_number_nodes
@@ -417,9 +417,9 @@ class RRT:
                 num_nodes = sum(len(tree.nodes) for tree in (*self.sampler.tree_manager.disjointedTrees, self.sampler.tree_manager.root))
             else:
                 num_nodes = len(self.nodes)
-            text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
-            self.window.blit(self.myfont.render(text, False, Colour.white, Colour.black), (10,(self.YDIM+self.extra) * self.SCALING * 0.90))
-            text = 'Inv.Samples: {}(con) {}(obs)'.format(self.stats.invalid_samples_connections, self.stats.invalid_samples_obstacles)
+            # text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
+            # self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.SCALING * 0.88))
+            text = 'Cost: {} | Inv.Samples: {}(con) {}(obs)'.format(_cost, self.stats.invalid_samples_connections, self.stats.invalid_samples_obstacles)
             self.window.blit(self.myfont.render(text, False, Colour.white, Colour.black), (10,(self.YDIM+self.extra) * self.SCALING * 0.95))
 
         pygame.display.update()

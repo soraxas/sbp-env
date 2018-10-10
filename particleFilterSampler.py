@@ -389,5 +389,5 @@ class ParticleFilterSampler(Sampler):
             self.rrt.draw_circle(pos=p.pos, colour=color, radius=4, layer=self.particles_layer)
             window.blit(self.particles_layer, (0, 0))
         ##### Texts
-        text = 'L.S.Walk:{}Res:{}'.format(self.rrt.stats.lscampler_randomwalk_counter, self.rrt.stats.lscampler_restart_counter)
-        window.blit(self.rrt.myfont.render(text, False, Colour.black, Colour.white), (self.rrt.XDIM * self.rrt.SCALING * 0.5, self.rrt.YDIM * self.rrt.SCALING * 0.95))
+        # text = 'L.S.Walk:{}Res:{}'.format(self.rrt.stats.lscampler_randomwalk_counter, self.rrt.stats.lscampler_restart_counter)
+        # window.blit(self.rrt.myfont.render(text, False, Colour.black, Colour.white), (self.rrt.XDIM * self.rrt.SCALING * 0.5, self.rrt.YDIM * self.rrt.SCALING * 0.95))
