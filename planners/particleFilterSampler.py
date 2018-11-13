@@ -5,8 +5,8 @@ import math
 import logging
 from overrides import overrides
 
-from baseSampler import Sampler
-from randomPolicySampler import RandomPolicySampler
+from planners.baseSampler import Sampler
+from planners.randomPolicySampler import RandomPolicySampler
 from randomness import NormalRandomnessManager
 """
     IDEAS / TODOS:
@@ -372,7 +372,6 @@ class ParticleFilterSampler(Sampler):
 
     @overrides
     def paint(self, window):
-        from env import Colour
         if self._last_prob is None:
             return
         max_num = self._last_prob.max()

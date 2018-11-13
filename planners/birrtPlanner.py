@@ -3,10 +3,10 @@ import random
 import numpy as np
 from overrides import overrides
 
-from baseSampler import Sampler
-from env import Node, dist
-from randomPolicySampler import RandomPolicySampler
-from rrtPlanner import RRTPlanner
+from planners.baseSampler import Sampler
+from env import Node
+from planners.randomPolicySampler import RandomPolicySampler
+from planners.rrtPlanner import RRTPlanner
 
 
 class BiRRTSampler(Sampler):

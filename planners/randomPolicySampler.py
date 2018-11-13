@@ -1,6 +1,6 @@
 import random
 from overrides import overrides
-from baseSampler import Sampler
+from planners.baseSampler import Sampler
 from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
 
 class RandomPolicySampler(Sampler):

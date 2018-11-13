@@ -73,9 +73,7 @@ import sys
 from docopt import docopt
 
 import env
-import rrtPlanner
 from helpers import MagicDict
-from rrtPlanner import RRTPlanner
 
 LOGGER = logging.getLogger()
 
@@ -100,36 +98,37 @@ def main():
 
     LOGGER.debug("commandline args: {}".format(args))
 
+    from planners.rrtPlanner import RRTPlanner
     planner_type = RRTPlanner # default planner type
     if args['rrt']:
-        from randomPolicySampler import RandomPolicySampler
+        from planners.randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['birrt']:
-        from birrtPlanner import BiRRTSampler, BiRRTPlanner
+        from planners.birrtPlanner import BiRRTSampler, BiRRTPlanner
         sampler = BiRRTSampler()
         planner_type = BiRRTPlanner
     elif args['rrdt']:
-        from rrdtPlanner import RRdTSampler, RRdTPlanner
+        from planners.rrdtPlanner import RRdTSampler, RRdTPlanner
         sampler = RRdTSampler(
             restart_when_merge=not args['--no-restart-when-merge'])
         planner_type = RRdTPlanner
     elif args['prm']:
-        from prmPlanner import PRMSampler, PRMPlanner
+        from planners.prmPlanner import PRMSampler, PRMPlanner
         sampler = PRMSampler()
         planner_type = PRMPlanner
     elif args['particle']:
-        from particleFilterSampler import ParticleFilterSampler
+        from planners.particleFilterSampler import ParticleFilterSampler
         sampler = ParticleFilterSampler()
     elif args['likelihood']:
-        from likelihoodPolicySampler import LikelihoodPolicySampler
+        from planners.likelihoodPolicySampler import LikelihoodPolicySampler
         sampler = LikelihoodPolicySampler(
             prob_block_size=int(args['--prob-block-size']))
     elif args['nearby']:
-        from nearbyPolicySampler import NearbyPolicySampler
+        from planners.nearbyPolicySampler import NearbyPolicySampler
         sampler = NearbyPolicySampler(
             prob_block_size=int(args['--prob-block-size']))
     elif args['mouse']:
-        from mouseSampler import MouseSampler
+        from planners.mouseSampler import MouseSampler
         sampler = MouseSampler()
 
     rrt_options = MagicDict({

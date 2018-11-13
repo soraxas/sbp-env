@@ -1,14 +1,11 @@
-import random
-
 import networkx as nx
 import numpy as np
 from overrides import overrides
 
-from baseSampler import Sampler
+from planners.baseSampler import Sampler
 from env import Node, dist
-from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
-from randomPolicySampler import RandomPolicySampler
-from rrtPlanner import RRTPlanner
+from planners.randomPolicySampler import RandomPolicySampler
+from planners.rrtPlanner import RRTPlanner
 
 volume_of_unit_ball = {
     1: 2,

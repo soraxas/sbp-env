@@ -1,19 +1,17 @@
 import logging
-import math
 import random
-import sys
 
 from overrides import overrides
-from rrtPlanner import RRTPlanner
+from planners.rrtPlanner import RRTPlanner
 from helpers import *
 
 from checkCollision import *
 ############################################################
 ##              Disjointed Particles Sampler              ##
 ############################################################
-from particleFilterSampler import (ENERGY_START,
-                                   RANDOM_RESTART_PARTICLES_ENERGY_UNDER,
-                                   Particle, ParticleFilterSampler)
+from planners.particleFilterSampler import (ENERGY_START,
+                                            RANDOM_RESTART_PARTICLES_ENERGY_UNDER,
+                                            Particle, ParticleFilterSampler)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -409,7 +407,7 @@ class RRdTSampler(ParticleFilterSampler):
 
     def random_walk_by_mouse(self):
         """FOR testing purpose. Mimic random walk, but do so via mouse click."""
-        from mouseSampler import MouseSampler as mouse
+        from planners.mouseSampler import MouseSampler as mouse
         pos = mouse.get_mouse_click_position(scaling=self.scaling)
         # find the cloest particle from this position
         _dist = None

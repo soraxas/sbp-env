@@ -6,8 +6,8 @@ import scipy.ndimage
 import logging
 from overrides import overrides
 
-from baseSampler import Sampler
-from randomPolicySampler import RandomPolicySampler
+from planners.baseSampler import Sampler
+from planners.randomPolicySampler import RandomPolicySampler
 from checkCollision import get_line
 
 LOGGER = logging.getLogger(__name__)

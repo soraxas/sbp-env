@@ -1,11 +1,10 @@
 
 import numpy as np
-import random
 import scipy as sp
 import scipy.ndimage
 from overrides import overrides
 
-from likelihoodPolicySampler import LikelihoodPolicySampler
+from planners.likelihoodPolicySampler import LikelihoodPolicySampler
 
 class NearbyPolicySampler(LikelihoodPolicySampler):
 
