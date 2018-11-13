@@ -6,7 +6,7 @@ from env import Colour
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 MAPS = ['room1.png', 'maze1.png', 'maze2.png']
-POLICIES = ['random', 'disjoint']
+POLICIES = ['rrt', 'rrdt']
 REPEAT_DIFFERENT_LOC = 20
 REPEAT_STATS = 20
 

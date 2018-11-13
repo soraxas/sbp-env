@@ -28,7 +28,7 @@ def main():
         policyname = sys.argv[1]
 
     # get rrt instance
-    rrt = main.main()
+    env = main.main()
 
     if not os.path.exists(BENCHMARK_DIR_NAME):
         os.makedirs(BENCHMARK_DIR_NAME)
@@ -36,8 +36,8 @@ def main():
     timestamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     directoryname = "map={map}_start={start}_goal={goal}".format(
                     map=sys.argv[2],
-                    start='-'.join((str(x) for x in rrt.startPt.pos)),
-                    goal='-'.join((str(x) for x in rrt.goalPt.pos)),
+                    start='-'.join((str(x) for x in env.startPt.pos)),
+                    goal='-'.join((str(x) for x in env.goalPt.pos)),
                 )
     directoryname = os.path.join(BENCHMARK_DIR_NAME, directoryname)
     filename = "policy={policy}_timestamp={timestamp}".format(
@@ -56,37 +56,37 @@ def main():
         writer = csv.writer(f)
         # write basic information
         writer.writerow(('Map', 'Start pt (x,y)', 'End pt (x,y)', 'epsilon', 'goal bias', 'max nodes'))
-        writer.writerow((sys.argv[2], rrt.startPt.pos, rrt.goalPt.pos, rrt.EPSILON, rrt.goalBias, rrt.NUMNODES))
+        writer.writerow((sys.argv[2], env.startPt.pos, env.goalPt.pos, env.args.epsilon, env.args.goalBias, env.args.max_number_nodes))
         writer.writerow([])
 
         writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost'))
         start_time = default_timer()
 
         def take_screenshot(term=False):
-            rrt.pygame_show()
-            rrt.update_screen(update_all=True)
+            env.pygame_show()
+            env.update_screen(update_all=True)
             if term:
                 # terminating
-                pygame.image.save(rrt.window,'{}_term.jpg'.format(filename))
+                pygame.image.save(env.window,'{}_term.jpg'.format(filename))
             else:
-                pygame.image.save(rrt.window,'{}.jpg'.format(filename))
-            rrt.pygame_hide()
+                pygame.image.save(env.window,'{}.jpg'.format(filename))
+            env.pygame_hide()
 
         def log_performance():
-            msg = rrt.stats.valid_sample, default_timer() - start_time, memory_usage()[0], rrt.stats.invalid_samples_connections, rrt.stats.invalid_samples_obstacles, rrt.c_max
+            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max
             writer.writerow(msg)
             f.flush()
 
-        while rrt.stats.valid_sample < rrt.NUMNODES:
-            if rrt.stats.valid_sample >= count:
+        while env.stats.valid_sample < env.args.max_number_nodes:
+            if env.stats.valid_sample >= count:
                 count += LOG_EVERY_X_SAMPLES
                 log_performance()
 
-            if not found_solution and rrt.c_max != float('inf'):
+            if not found_solution and env.args.planner.c_max != float('inf'):
                 log_performance()
                 found_solution = True
                 take_screenshot()
-            rrt.run_once()
+            env.planner.run_once()
 
         # take another screenshot and log when terminates
         log_performance()
