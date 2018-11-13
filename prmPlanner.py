@@ -32,13 +32,6 @@ class PRMSampler(Sampler):
         kwargs['goalBias'] = 0
         self.randomSampler.init(**kwargs)
 
-    @overrides
-    def get_next_pos(self):
-        # Random pathx`
-        while True:
-            p = self.randomSampler.get_next_pos()[0]
-            return p, self.report_success, self.report_fail
-
 
 def nearest_neighbours(nodes, poses, pos, radius):
     distances = np.linalg.norm(poses[:len(nodes)] - pos, axis=1)
