@@ -2,7 +2,7 @@ import subprocess
 import pygame
 import random
 import sys, os
-from rrtstar import Colour
+from env import Colour
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 MAPS = ['room1.png', 'maze1.png', 'maze2.png']

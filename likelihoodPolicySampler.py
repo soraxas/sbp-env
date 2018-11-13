@@ -1,4 +1,3 @@
-
 import numpy as np
 import random
 import pygame
@@ -26,9 +25,9 @@ class LikelihoodPolicySampler(Sampler):
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
         # probability layer
-        self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.scaling,self.PROB_BLOCK_SIZE * self.scaling), pygame.SRCALPHA)
+        self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.args.scaling,self.PROB_BLOCK_SIZE * self.args.scaling), pygame.SRCALPHA)
 
-        self.shape = (int(self.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.YDIM/self.PROB_BLOCK_SIZE) + 1 )
+        self.shape = (int(self.args.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.args.YDIM/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(self.shape)
         self.prob_vector *= 1 # IMPORTANT because we are using log2
         self.obst_vector = np.ones(self.shape)
@@ -71,7 +70,7 @@ class LikelihoodPolicySampler(Sampler):
     def report_success(self, **kwargs):
         x, y = kwargs['pos']
         # add all in between point of nearest node of the random pt as valid
-        x1, y1 = self.rrt.cc.get_coor_before_collision(kwargs['nn'].pos, kwargs['rand_pos'])
+        x1, y1 = self.args.env.cc.get_coor_before_collision(kwargs['nn'].pos, kwargs['rand_pos'])
         self.add_sample_line(x, y, x1, y1)
 
     @overrides
@@ -166,4 +165,4 @@ class LikelihoodPolicySampler(Sampler):
                     # else:
                     self.prob_layer.fill((255,128,255,alpha))
                     # print(self.prob_vector_normalized[i][j])
-                    window.blit(self.prob_layer, (i*self.PROB_BLOCK_SIZE*self.scaling,j*self.PROB_BLOCK_SIZE*self.scaling))
+                    window.blit(self.prob_layer, (i*self.PROB_BLOCK_SIZE*self.args.scaling,j*self.PROB_BLOCK_SIZE*self.args.scaling))

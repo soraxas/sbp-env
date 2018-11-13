@@ -67,13 +67,18 @@ Likelihood/Nearby Sampler Options:
                         Set the dimension of the discretized block.
                         [default: 5]
 """
-from docopt import docopt
 import logging
 import sys
 
-import rrtstar
+from docopt import docopt
+
+import env
+import rrtPlanner
+from helpers import MagicDict
+from rrtPlanner import RRTPlanner
 
 LOGGER = logging.getLogger()
+
 
 def main():
     args = docopt(__doc__, version='RRT* Research v1.0')
@@ -95,52 +100,78 @@ def main():
 
     LOGGER.debug("commandline args: {}".format(args))
 
+    planner_type = RRTPlanner # default planner type
     if args['rrt']:
         from randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['birrt']:
-        from biRRTSampler import BiRRTSampler
+        from biRRTPlanner import BiRRTSampler, BiRRTPlanner
         sampler = BiRRTSampler()
+        planner_type = BiRRTPlanner
     elif args['rrdt']:
-        from disjointTree import RRdTSampler
-        sampler = RRdTSampler(restart_when_merge=not args['--no-restart-when-merge'])
+        from disjointTree import RRdTSampler, RRdTPlanner
+        sampler = RRdTSampler(
+            restart_when_merge=not args['--no-restart-when-merge'])
+        planner_type = RRdTPlanner
     elif args['prm']:
-        from prmSampler import PRMSampler
+        from prmPlanner import PRMSampler, PRMPlanner
         sampler = PRMSampler()
+        planner_type = PRMPlanner
     elif args['particle']:
         from particleFilterSampler import ParticleFilterSampler
         sampler = ParticleFilterSampler()
     elif args['likelihood']:
         from likelihoodPolicySampler import LikelihoodPolicySampler
-        sampler = LikelihoodPolicySampler(prob_block_size=int(args['--prob-block-size']))
+        sampler = LikelihoodPolicySampler(
+            prob_block_size=int(args['--prob-block-size']))
     elif args['nearby']:
         from nearbyPolicySampler import NearbyPolicySampler
-        sampler = NearbyPolicySampler(prob_block_size=int(args['--prob-block-size']))
+        sampler = NearbyPolicySampler(
+            prob_block_size=int(args['--prob-block-size']))
     elif args['mouse']:
         from mouseSampler import MouseSampler
         sampler = MouseSampler()
 
-    rrt_options = {
-        'showSampledPoint' : not args['--hide-sampled-points'],
-        'scaling' : float(args['--scaling']),
-        'sampler' : sampler,
-        'goalBias' : float(args['--goal-bias']),
-        'image' : args['<MAP>'],
-        'epsilon' : float(args['--epsilon']),
-        'max_number_nodes' : int(args['--max-number-nodes']),
-        'radius' : float(args['--radius']),
-        'ignore_step_size' : args['--ignore-step-size'],
-        'always_refresh' : args['--always-refresh'],
-        'enable_pygame' : not args['--disable-pygame'],
-    }
+    rrt_options = MagicDict({
+        'showSampledPoint':
+        not args['--hide-sampled-points'],
+        'scaling':
+        float(args['--scaling']),
+        'goalBias':
+        float(args['--goal-bias']),
+        'image':
+        args['<MAP>'],
+        'epsilon':
+        float(args['--epsilon']),
+        'max_number_nodes':
+        int(args['--max-number-nodes']),
+        'radius':
+        float(args['--radius']),
+        'goal_radius':
+        2 / 3 * float(args['--radius']),
+        'ignore_step_size':
+        args['--ignore-step-size'],
+        'always_refresh':
+        args['--always-refresh'],
+        'enable_pygame':
+        not args['--disable-pygame'],
+        'sampler':
+        sampler,
+    })
+    rrtplanner = planner_type(**rrt_options)
+    rrt_options.update({
+        'planner': rrtplanner,
+    })
 
     if args['start'] and args['goal']:
-        rrt_options.update({'startPt' : (float(args['<sx>']), float(args['<sy>'])),
-                            'goalPt' : (float(args['<gx>']), float(args['<gy>']))
-                            })
+        rrt_options.update({
+            'startPt': (float(args['<sx>']), float(args['<sy>'])),
+            'goalPt': (float(args['<gx>']), float(args['<gy>']))
+        })
 
-    rrt = rrtstar.RRT(**rrt_options)
+    rrt = env.Env(**rrt_options)
     return rrt
+
 
 if __name__ == '__main__':
     # run if run from commandline

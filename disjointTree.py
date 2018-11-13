@@ -1,25 +1,37 @@
-import random
-import math
-import sys
 import logging
+import math
+import random
+import sys
+
+from overrides import overrides
+from rrtPlanner import RRTPlanner
+from helpers import *
 
 from checkCollision import *
-from overrides import overrides
+############################################################
+##              Disjointed Particles Sampler              ##
+############################################################
+from particleFilterSampler import (ENERGY_START,
+                                   RANDOM_RESTART_PARTICLES_ENERGY_UNDER,
+                                   Particle, ParticleFilterSampler)
 
 LOGGER = logging.getLogger(__name__)
 
 MAX_NUMBER_NODES = 20000
 
+
 def update_progress(progress, total_num, num_of_blocks=10):
     if not logging.getLogger().isEnabledFor(logging.INFO):
         return
     percentage = progress / total_num
-    print('\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
-        bar='#' * int(percentage * num_of_blocks),
-        cur=progress,
-        total=total_num,
-        percen=percentage * 100,
-        num_of_blocks=num_of_blocks), end='')
+    print(
+        '\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
+            bar='#' * int(percentage * num_of_blocks),
+            cur=progress,
+            total=total_num,
+            percen=percentage * 100,
+            num_of_blocks=num_of_blocks),
+        end='')
     if percentage == 1:
         print()
 
@@ -60,46 +72,54 @@ class BFS:
 
 
 class TreesManager:
-    def __init__(self, RRT, restart_when_merge):
+    def __init__(self, args, restart_when_merge):
         self.root = None
         self.disjointedTrees = []
-        self.rrt = RRT
+        self.args = args
         self.restart_when_merge = restart_when_merge
 
-    def connect_two_nodes(self, newnode, nn, parent_tree=None, draw_only=False):
+    def connect_two_nodes(self, newnode, nn, parent_tree=None,
+                          draw_only=False):
         """Add node to disjoint tree OR root tree. Draw line for it too."""
         if not draw_only:
             if parent_tree is self.root:
                 # using rrt* algorithm to add each nodes
-                newnode, nn = self.rrt.rrt_star_add_node(newnode, nn)
+                newnode, nn = self.args.planner.rrt_star_add_node(newnode, nn)
             else:
                 newnode.edges.append(nn)
                 nn.edges.append(newnode)
             if parent_tree is not None:
                 parent_tree.add_newnode(newnode)
-        self.rrt.draw_path(newnode, nn)
+        self.args.env.draw_path(newnode, nn)
         return newnode, nn
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
         """Try to add pos to existing tree. If success, return True."""
         nearest_nodes = self.find_nearest_node_from_neighbour(
-            node=newnode,
-            parent_tree=parent_tree,
-            radius=self.rrt.RADIUS)
+            node=newnode, parent_tree=parent_tree, radius=self.args.radius)
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
-            if self.rrt.cc.path_is_free(newnode.pos, nearest_neighbour_node.pos):
+            if self.args.env.cc.path_is_free(newnode.pos,
+                                        nearest_neighbour_node.pos):
                 if parent_tree is None:
                     ### joining ORPHAN NODE to a tree
-                    self.connect_two_nodes(newnode, nearest_neighbour_node, nearest_neighbour_tree)
+                    self.connect_two_nodes(newnode, nearest_neighbour_node,
+                                           nearest_neighbour_tree)
                     parent_tree = nearest_neighbour_tree
-                    LOGGER.debug(" ==> During respawning particle, joining to existing tree with size: {}".format(len(nearest_neighbour_tree.nodes)))
+                    LOGGER.debug(
+                        " ==> During respawning particle, joining to existing tree with size: {}"
+                        .format(len(nearest_neighbour_tree.nodes)))
                 else:
                     ### joining a TREE to another tree
                     try:
-                        parent_tree = self.join_trees(parent_tree, nearest_neighbour_tree,
-                                                               tree1_node=newnode, tree2_node=nearest_neighbour_node)
+                        parent_tree = self.join_trees(
+                            parent_tree,
+                            nearest_neighbour_tree,
+                            tree1_node=newnode,
+                            tree2_node=nearest_neighbour_node)
                     except AssertionError as e:
-                        LOGGER.warning("== Assertion error in joining sampled point to existing tree... Skipping this node...")
+                        LOGGER.warning(
+                            "== Assertion error in joining sampled point to existing tree... Skipping this node..."
+                        )
         return parent_tree
 
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
@@ -116,7 +136,8 @@ class TreesManager:
             if tree is parent_tree:
                 # skip self
                 continue
-            idx = self.rrt.find_nearest_neighbour_idx(node.pos, tree.poses[:len(tree.nodes)])
+            idx = self.args.planner.find_nearest_neighbour_idx(
+                node.pos, tree.poses[:len(tree.nodes)])
             nn = tree.nodes[idx]
             if dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
@@ -133,14 +154,15 @@ class TreesManager:
             #             nearest_nodes[tree] = nn
         # construct list of the found solution. And root at last (or else the result won't be stable)
         root_nn = nearest_nodes.pop(self.root, None)
-        nearest_nodes_list = [(nearest_nodes[key], key) for key in nearest_nodes]
+        nearest_nodes_list = [(nearest_nodes[key], key)
+                              for key in nearest_nodes]
         if root_nn is not None:
             nearest_nodes_list.append((root_nn, self.root))
         return nearest_nodes_list
 
     def join_tree_to_root(self, tree, middle_node):
         """It will join the given tree to the root"""
-        from rrtstar import Colour
+        from env import Colour
         bfs = BFS(middle_node, validNodes=tree.nodes)
         # add all nodes from disjoint tree via rrt star method
         total_num = len(tree.nodes)
@@ -151,16 +173,20 @@ class TreesManager:
             progress += 1
             update_progress(progress, total_num, num_of_blocks=20)
             # draw white (remove edge for visual) on top of disjointed tree
-            for e in (x for x in newnode.edges if x not in bfs.visitedNodes and x in bfs.validNodes):
-                self.rrt.draw_path(e, newnode, Colour.white)
+            for e in (x for x in newnode.edges
+                      if x not in bfs.visitedNodes and x in bfs.validNodes):
+                self.args.env.draw_path(e, newnode, Colour.white)
             try:
                 self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
             except LookupError:
-                LOGGER.warning("nn not found when attempting to joint to root. Ignoring...")
+                LOGGER.warning(
+                    "nn not found when attempting to joint to root. Ignoring..."
+                )
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
 
-        assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(progress, total_num)
+        assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
+            progress, total_num)
 
         # raise Exception("NOT implemented yet")
 
@@ -177,11 +203,14 @@ class TreesManager:
         """
         assert tree1 is not tree2, "Both given tree should not be the same"
         if tree1 not in self.disjointedTrees:
-            assert tree1 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(tree1)
+            assert tree1 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+                tree1)
         if tree2 not in self.disjointedTrees:
-            assert tree2 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(tree2)
+            assert tree2 is self.root, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+                tree2)
 
-        LOGGER.info(" => Joining trees with size {} to {}".format(len(tree1.nodes), len(tree2.nodes)))
+        LOGGER.info(" => Joining trees with size {} to {}".format(
+            len(tree1.nodes), len(tree2.nodes)))
         # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
         # And tree1 node must always be belong to tree1, tree2 node belong to tree2
         if tree1 is not self.root:
@@ -217,10 +246,6 @@ class TreesManager:
         return tree1
 
 
-############################################################
-##              Disjointed Particles Sampler              ##
-############################################################
-from particleFilterSampler import ParticleFilterSampler, Particle, RANDOM_RESTART_PARTICLES_ENERGY_UNDER, ENERGY_START
 
 RANDOM_RESTART_EVERY = 20
 ENERGY_START = 10
@@ -229,7 +254,12 @@ RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.75
 
 class DisjointTreeParticle(Particle):
     @overrides
-    def __init__(self, tree_manager, p_manager, direction=None, pos=None, isroot=False,
+    def __init__(self,
+                 tree_manager,
+                 p_manager,
+                 direction=None,
+                 pos=None,
+                 isroot=False,
                  startPtNode=None):
         self.isroot = isroot
         self.p_manager = p_manager
@@ -254,7 +284,8 @@ class DisjointTreeParticle(Particle):
         if pos is None:
             # get random position
             pos = self.p_manager.new_pos_in_free_space()
-            merged_tree = self.tree_manager.add_pos_to_existing_tree(Node(pos), None)
+            merged_tree = self.tree_manager.add_pos_to_existing_tree(
+                Node(pos), None)
             if merged_tree is not None and restart_when_merge:
                 # Successfully found a new valid node that's close to existing tree
                 # Return False to indicate it (and abort restart if we want more exploration)
@@ -279,9 +310,7 @@ class DisjointTreeParticle(Particle):
         return True
 
 
-
 class RRdTSampler(ParticleFilterSampler):
-
     @overrides
     def __init__(self, restart_when_merge=True):
         self.restart_when_merge = restart_when_merge
@@ -292,15 +321,11 @@ class RRdTSampler(ParticleFilterSampler):
 
         super().init(**kwargs)
         global MAX_NUMBER_NODES
-        MAX_NUMBER_NODES = self.rrt.NUMNODES
-        # Monkey patch the RRT for this smapler's specific stuff
-        import types
-
-        self.rrt.run_once = types.MethodType(rrt_dt_patched_run_once, self.rrt)
-        self.rrt.rrt_star_add_node = types.MethodType(rrt_star_add_node, self.rrt)
+        MAX_NUMBER_NODES = self.args.max_number_nodes
 
         self.lsamplers_to_be_restart = []
-        self.tree_manager = TreesManager(RRT=self.rrt, restart_when_merge=self.restart_when_merge)
+        self.tree_manager = TreesManager(
+            args=self.args, restart_when_merge=self.restart_when_merge)
 
         # ditch the particles created by the original particle filter sampler, and
         # create ones that has link towards the disjointed tree
@@ -318,17 +343,19 @@ class RRdTSampler(ParticleFilterSampler):
             self.p_manager.particles.append(dt_p)
         # spawn one that comes from the root
         self.p_manager.particles.append(
-            DisjointTreeParticle(direction=random.uniform(0, math.pi * 2),
-                                 pos=self.startPt,
-                                 isroot=True,
-                                 startPtNode=self.rrt.startPt,
-                                 tree_manager=self.tree_manager,
-                                 p_manager=self.p_manager,
-                                 ))
+            DisjointTreeParticle(
+                direction=random.uniform(0, math.pi * 2),
+                pos=self.start_pos,
+                isroot=True,
+                startPtNode=self.args.env.startPt,
+                tree_manager=self.tree_manager,
+                p_manager=self.p_manager,
+            ))
 
     def particles_random_free_space_restart(self):
         for i in range(self.p_manager.size()):
-            if self.p_manager.particles_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
+            if self.p_manager.particles_energy[
+                    i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 self.p_manager.add_to_restart(self.p_manager.particles[i])
 
     @overrides
@@ -347,19 +374,20 @@ class RRdTSampler(ParticleFilterSampler):
                 # to existing tree instead. Skip remaining steps and iterate to next loop
                 return None
             rand_pos = _tmp[0]
-            self.rrt.stats.add_sampled_node(rand_pos)
-            if not self.rrt.collides(rand_pos):
+            self.args.env.stats.add_sampled_node(rand_pos)
+            if not self.args.env.collides(rand_pos):
                 return _tmp
             report_fail = _tmp[-1]
             report_fail(pos=rand_pos, obstacle=True)
-            self.rrt.stats.add_invalid(obs=True)
+            self.args.env.stats.add_invalid(obs=True)
 
     def restart_all_pending_local_samplers(self):
         # restart all pending local samplers
         while len(self.p_manager.local_samplers_to_be_rstart) > 0:
             # during the proces of restart, if the new restart position
             # is close to an existing tree, it will simply add to that new tree.
-            if not self.p_manager.local_samplers_to_be_rstart[0].restart(restart_when_merge=self.restart_when_merge):
+            if not self.p_manager.local_samplers_to_be_rstart[0].restart(
+                    restart_when_merge=self.restart_when_merge):
                 # This flag denotes that a new position was found among the trees,
                 # And it NEEDS to get back to restarting particles in the next ierations
                 return False
@@ -385,7 +413,8 @@ class RRdTSampler(ParticleFilterSampler):
         pos = self.randomWalk(choice)
         # pos, choice = self.randomWalk_by_mouse()
 
-        return (pos, self.p_manager.particles[choice].tree, self.p_manager.particles[choice].last_node,
+        return (pos, self.p_manager.particles[choice].tree,
+                self.p_manager.particles[choice].last_node,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
                 lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
 
@@ -401,10 +430,9 @@ class RRdTSampler(ParticleFilterSampler):
             if _dist is None or _dist > dist(pos, p.pos):
                 _dist = dist(pos, p.pos)
                 p_idx = i
-        LOGGER.debug("num of tree: {}".format(len(self.tree_manager.disjointedTrees)))
-        self.p_manager.new_pos(idx=p_idx,
-                               pos=pos,
-                               dir=0)
+        LOGGER.debug("num of tree: {}".format(
+            len(self.tree_manager.disjointedTrees)))
+        self.p_manager.new_pos(idx=p_idx, pos=pos, dir=0)
         return pos, p_idx
 
 
@@ -412,65 +440,116 @@ class RRdTSampler(ParticleFilterSampler):
 ##    PATCHING RRT with disjointed-tree specific stuff    ##
 ############################################################
 
+
 class Node:
     def __init__(self, pos):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
         self.edges = []
         self.children = []
+
     def __repr__(self):
         try:
             num_edges = len(self.edges)
         except AttributeError:
             num_edges = "DELETED"
-        return "Node(pos={}, cost={}, num_edges={})".format(self.pos, self.cost, num_edges)
+        return "Node(pos={}, cost={}, num_edges={})".format(
+            self.pos, self.cost, num_edges)
 
 
-def rrt_star_add_node(self, newnode, nn=None):
-    """This function perform finding optimal parent, and rewiring."""
-    from rrtstar import Colour, GOAL_RADIUS
+class RRdTPlanner(RRTPlanner):
 
-    newnode, nn = self.choose_least_cost_parent(newnode, nn=nn, nodes=self.sampler.tree_manager.root.nodes)
-    self.rewire(newnode, nodes=self.sampler.tree_manager.root.nodes)
-    # check for goal condition
-    if dist(newnode.pos, self.goalPt.pos) < GOAL_RADIUS:
-        if newnode.cost < self.c_max:
-            self.c_max = newnode.cost
-            self.goalPt.parent = newnode
-            newnode.children.append(self.goalPt.parent)
-    return newnode, nn
+    @overrides
+    def init(self, *argv, **kwargs):
+        super().init(*argv, **kwargs)
+        self.goal_tree_nodes = []
+        self.goal_tree_poses = np.empty((self.args.max_number_nodes + 50,
+                                         2))  # +50 to prevent over flow
+        self.goal_tree_nodes.append(self.args.env.goalPt)
+        self.goal_tree_poses[0] = self.args.env.goalPt.pos
+
+        self.found_solution = False
+        self.goal_tree_turn = False
+
+    @overrides
+    def run_once(self):
+        # Get an sample that is free (not in blocked space)
+        _tmp = self.args.sampler.get_valid_next_pos()
+        if _tmp is None:
+            # we have added a new samples when respawning a local sampler
+            return
+        rand_pos, parent_tree, last_node, report_success, report_fail = _tmp
+        if last_node is not None:
+            # use the last succesful node as the nearest node
+            # This is expliting the advantage of local sampler :)
+            nn = last_node
+            newpos = rand_pos
+        else:
+            idx = self.find_nearest_neighbour_idx(
+                rand_pos, parent_tree.poses[:len(parent_tree.nodes)])
+            nn = parent_tree.nodes[idx]
+            # get an intermediate node according to step-size
+            newpos = self.args.env.step_from_to(nn.pos, rand_pos)
+        # check if it is free or not ofree
+        if not self.args.env.cc.path_is_free(nn.pos, newpos):
+            self.args.env.stats.add_invalid(obs=False)
+            report_fail(pos=rand_pos, free=False)
+        else:
+            newnode = Node(newpos)
+            self.args.env.stats.add_free()
+            self.args.sampler.add_tree_node(newnode.pos)
+            report_success(newnode=newnode, pos=newnode.pos)
+            ######################
+            newnode, nn = self.args.sampler.tree_manager.connect_two_nodes(
+                newnode, nn, parent_tree)
+            # try to add this newnode to existing trees
+            self.args.sampler.tree_manager.add_pos_to_existing_tree(
+                newnode, parent_tree)
+
+    def rrt_star_add_node(self, newnode, nn=None):
+        """This function perform finding optimal parent, and rewiring."""
+
+        newnode, nn = self.choose_least_cost_parent(
+            newnode, nn=nn, nodes=self.args.sampler.tree_manager.root.nodes)
+        self.rewire(newnode, nodes=self.args.sampler.tree_manager.root.nodes)
+        # check for goal condition
+        if dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+            if newnode.cost < self.c_max:
+                self.c_max = newnode.cost
+                self.goalPt.parent = newnode
+                newnode.children.append(self.goalPt.parent)
+        return newnode, nn
 
 
-def rrt_dt_patched_run_once(self):
-    # Get an sample that is free (not in blocked space)
-    _tmp = self.sampler.get_valid_next_pos()
-    if _tmp is None:
-        # we have added a new samples when respawning a local sampler
-        return
-    rand_pos, parent_tree, last_node, report_success, report_fail = _tmp
-    if last_node is not None:
-        # use the last succesful node as the nearest node
-        # This is expliting the advantage of local sampler :)
-        nn = last_node
-        newpos = rand_pos
-    else:
-        idx = self.find_nearest_neighbour_idx(rand_pos, parent_tree.poses[:len(parent_tree.nodes)])
-        nn = parent_tree.nodes[idx]
-        # get an intermediate node according to step-size
-        newpos = self.step_from_to(nn.pos, rand_pos)
-    # check if it is free or not ofree
-    if not self.cc.path_is_free(nn.pos, newpos):
-        self.stats.add_invalid(obs=False)
-        report_fail(pos=rand_pos, free=False)
-    else:
-        newnode = Node(newpos)
-        self.stats.add_free()
-        self.sampler.add_tree_node(newnode.pos)
-        report_success(newnode=newnode, pos=newnode.pos)
-        ######################
-        newnode, nn = self.sampler.tree_manager.connect_two_nodes(newnode, nn, parent_tree)
-        # try to add this newnode to existing trees
-        self.sampler.tree_manager.add_pos_to_existing_tree(newnode, parent_tree)
+    @overrides
+    def paint(self):
+        drawn_nodes_pairs = set()
+        # Draw disjointed trees
+        for tree in self.args.sampler.tree_manager.disjointedTrees:
+            bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
+            while bfs.has_next():
+                newnode = bfs.next()
+                for e in newnode.edges:
+                    new_set = frozenset({newnode, e})
+                    if new_set not in drawn_nodes_pairs:
+                        drawn_nodes_pairs.add(new_set)
+                        self.args.env.draw_path(newnode, e)
+        # Draw root tree
+        for n in self.args.sampler.tree_manager.root.nodes:
+            if n.parent is not None:
+                new_set = frozenset({n, n.parent})
+                if new_set not in drawn_nodes_pairs:
+                    drawn_nodes_pairs.add(new_set)
+                    self.args.env.draw_path(n, n.parent, Colour.orange)
+
+        # for nodes in (self.nodes, self.goal_tree_nodes):
+        #     for n in nodes:
+        #         if n.parent is not None:
+        #             new_set = frozenset({n, n.parent})
+        #             if new_set not in drawn_nodes_pairs:
+        #                 drawn_nodes_pairs.add(new_set)
+        #                 self.args.env.draw_path(n, n.parent)
+        self.draw_solution_path()
 
 
 ############################################################
@@ -482,7 +561,8 @@ class TreeRoot:
     def __init__(self, particle_handler):
         self.particle_handler = [particle_handler]
         self.nodes = []
-        self.poses = np.empty((MAX_NUMBER_NODES+50,2))  # +50 to prevent over flow
+        self.poses = np.empty((MAX_NUMBER_NODES + 50,
+                               2))  # +50 to prevent over flow
         # This stores the last node added to this tree (by local sampler)
 
     def add_newnode(self, node):
@@ -490,7 +570,8 @@ class TreeRoot:
         self.nodes.append(node)
 
     def extend_tree(self, tree):
-        self.poses[len(self.nodes):len(self.nodes)+len(tree.nodes)] = tree.poses[:len(tree.nodes)]
+        self.poses[len(self.nodes):len(self.nodes) +
+                   len(tree.nodes)] = tree.poses[:len(tree.nodes)]
         self.nodes.extend(tree.nodes)
 
     def __repr__(self):
@@ -506,6 +587,7 @@ class TreeDisjoint(TreeRoot):
     @overrides
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
 
 ##########################################################################################
 ##########################################################################################

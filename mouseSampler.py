@@ -10,7 +10,7 @@ class MouseSampler(Sampler):
 
     @overrides
     def get_next_pos(self):
-        return self.get_mouse_click_position(scaling=self.scaling), self.report_success, self.report_fail
+        return self.get_mouse_click_position(scaling=self.args.scaling), self.report_success, self.report_fail
 
     @staticmethod
     def get_mouse_click_position(scaling):
