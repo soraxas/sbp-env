@@ -105,11 +105,11 @@ def main():
         from randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
     elif args['birrt']:
-        from biRRTPlanner import BiRRTSampler, BiRRTPlanner
+        from birrtPlanner import BiRRTSampler, BiRRTPlanner
         sampler = BiRRTSampler()
         planner_type = BiRRTPlanner
     elif args['rrdt']:
-        from disjointTree import RRdTSampler, RRdTPlanner
+        from rrdtPlanner import RRdTSampler, RRdTPlanner
         sampler = RRdTSampler(
             restart_when_merge=not args['--no-restart-when-merge'])
         planner_type = RRdTPlanner

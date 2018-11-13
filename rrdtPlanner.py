@@ -141,17 +141,6 @@ class TreesManager:
             nn = tree.nodes[idx]
             if dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
-            # nn = None
-            # nn_dist = None
-            # for n in tree.nodes:
-            #     # only add the closest node form each trees
-            #     _dist = dist(node.pos, n.pos)
-            #     if _dist < radius:
-            #         if nn_dist is None or _dist < nn_dist:
-            #             # this node is not closer than other found nodes.
-            #             nn = n
-            #             nn_dist = _dist
-            #             nearest_nodes[tree] = nn
         # construct list of the found solution. And root at last (or else the result won't be stable)
         root_nn = nearest_nodes.pop(self.root, None)
         nearest_nodes_list = [(nearest_nodes[key], key)
@@ -411,14 +400,14 @@ class RRdTSampler(ParticleFilterSampler):
 
         # NOTE This controls if testing (via mouse) or actual runs
         pos = self.randomWalk(choice)
-        # pos, choice = self.randomWalk_by_mouse()
+        # pos, choice = self.random_walk_by_mouse()
 
         return (pos, self.p_manager.particles[choice].tree,
                 self.p_manager.particles[choice].last_node,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
                 lambda c=choice, **kwargs: self.report_fail(c, **kwargs))
 
-    def randomWalk_by_mouse(self):
+    def random_walk_by_mouse(self):
         """FOR testing purpose. Mimic random walk, but do so via mouse click."""
         from mouseSampler import MouseSampler as mouse
         pos = mouse.get_mouse_click_position(scaling=self.scaling)

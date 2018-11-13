@@ -1,15 +1,12 @@
 import numpy as np
 import random
 import pygame
-import scipy.stats
 import math
 import logging
-from functools import partialmethod
 from overrides import overrides
 
 from baseSampler import Sampler
 from randomPolicySampler import RandomPolicySampler
-from checkCollision import get_line
 from randomness import NormalRandomnessManager
 """
     IDEAS / TODOS:
