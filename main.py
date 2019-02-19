@@ -2,9 +2,9 @@
 """RRdT* Research
 
 Usage:
-  main.py (rrdt|rrt|birrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|multirrt|prm|particle|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (rrdt|rrt|birrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|multirrt|prm|particle|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
@@ -107,11 +107,19 @@ def main():
         from planners.birrtPlanner import BiRRTSampler, BiRRTPlanner
         sampler = BiRRTSampler()
         planner_type = BiRRTPlanner
+    elif args['multirrt']:
+        from planners.multirrtPlanner import MultiRRTSampler, MultiRRTPlanner
+        sampler = MultiRRTSampler()
+        planner_type = MultiRRTPlanner
     elif args['rrdt']:
         from planners.rrdtPlanner import RRdTSampler, RRdTPlanner
         sampler = RRdTSampler(
             restart_when_merge=not args['--no-restart-when-merge'])
         planner_type = RRdTPlanner
+    elif args['informedrrt']:
+        from planners.informedrrtPlanner import InformedRRTPlanner, InformedRRTSampler
+        sampler = InformedRRTSampler()
+        planner_type = InformedRRTPlanner
     elif args['prm']:
         from planners.prmPlanner import PRMSampler, PRMPlanner
         sampler = PRMSampler()
@@ -182,4 +190,7 @@ if __name__ == '__main__':
         LOGGER.exception("Exception occured: {}".format(e))
         LOGGER.error("==============================")
         LOGGER.error("Waiting to be exit...")
-        rrt.wait_for_exit()
+        try:
+            rrt.wait_for_exit()
+        except KeyboardInterrupt:
+            pass
