@@ -18,12 +18,11 @@ class RandomPolicySampler(Sampler):
     @overrides
     def get_next_pos(self):
         # Random path
-        while True:
-            if random.random() < self.args.goalBias:
-                # goal bias
-                p = self.goal_pos
-            else:
-                p = self.random.get_random(self.random_method)
-                p[0] *= self.args.XDIM
-                p[1] *= self.args.YDIM
-                return p, self.report_success, self.report_fail
+        if random.random() < self.args.goalBias:
+            # goal bias
+            p = self.goal_pos
+        else:
+            p = self.random.get_random(self.random_method)
+            p[0] *= self.args.XDIM
+            p[1] *= self.args.YDIM
+        return p, self.report_success, self.report_fail
