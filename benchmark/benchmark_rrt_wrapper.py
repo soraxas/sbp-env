@@ -64,12 +64,14 @@ def main():
 
         def take_screenshot(term=False):
             env.pygame_show()
+            env.args.enable_pygame = True
             env.update_screen(update_all=True)
             if term:
                 # terminating
                 pygame.image.save(env.window,'{}_term.jpg'.format(filename))
             else:
                 pygame.image.save(env.window,'{}.jpg'.format(filename))
+            env.args.enable_pygame = False
             env.pygame_hide()
 
         def log_performance():
