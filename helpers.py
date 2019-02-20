@@ -4,6 +4,14 @@ import numpy as np
 class MagicDict(dict):
     """Content is accessable like property."""
 
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v, memo))
+        return result
+
     def __getattr__(self, attr):
         """called what self.attr doesn't exist."""
         return self[attr]
