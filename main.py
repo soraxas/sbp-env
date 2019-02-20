@@ -69,8 +69,12 @@ Likelihood/Nearby Sampler Options:
 """
 import logging
 import sys
-
 from docopt import docopt
+
+# workaround to prevent pygame message
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 
 import env
 from helpers import MagicDict
