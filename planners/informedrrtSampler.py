@@ -81,7 +81,11 @@ class InformedRRTSampler(Sampler):
             angle = self.etheta
             # rotate via surface
             ellipse_surface = pygame.Surface((b, a), pygame.SRCALPHA, 32).convert_alpha()
-            pygame.draw.ellipse(ellipse_surface, Colour.black, r, int(2 * self.args.scaling))
+            try:
+                pygame.draw.ellipse(ellipse_surface, Colour.black, r, int(2 * self.args.scaling))
+            except ValueError:
+                # sometime it will fail to draw due to ellipse being too narrow
+                pass
             # rotate
             ellipse_surface = pygame.transform.rotate(ellipse_surface, -angle * 180 / math.pi)
 
