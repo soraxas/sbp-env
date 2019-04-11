@@ -168,4 +168,3 @@ class RRTPlanner:
             nn = nn.parent
         self.args.env.window.blit(self.args.env.path_layers, (0, 0))
         self.args.env.window.blit(self.args.env.solution_path_screen, (0, 0))
-        pygame.display.update()
