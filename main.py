@@ -68,8 +68,10 @@ Likelihood/Nearby Sampler Options:
                         [default: 5]
 """
 import logging
-import sys
+import sys, os
 from docopt import docopt
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '' # hide pygame prompt
+import pygame
 
 # workaround to prevent pygame message
 import contextlib
