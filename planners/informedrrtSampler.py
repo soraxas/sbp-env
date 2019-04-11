@@ -1,10 +1,11 @@
 """Represent a planner."""
 import random
-import numpy as np
+
 import pygame
+from overrides import overrides
+
 from checkCollision import *
 from helpers import *
-from overrides import overrides
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 

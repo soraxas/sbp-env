@@ -67,16 +67,14 @@ Likelihood/Nearby Sampler Options:
                         Set the dimension of the discretized block.
                         [default: 5]
 """
-import logging
-import sys, os
-from docopt import docopt
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '' # hide pygame prompt
-import pygame
 
-# workaround to prevent pygame message
-import contextlib
-with contextlib.redirect_stdout(None):
-    import pygame
+import os
+import sys
+import logging
+
+from docopt import docopt
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
 
 import env
 from helpers import MagicDict
@@ -105,7 +103,7 @@ def main():
     LOGGER.debug("commandline args: {}".format(args))
 
     from planners.rrtPlanner import RRTPlanner
-    planner_type = RRTPlanner # default planner type
+    planner_type = RRTPlanner  # default planner type
     if args['rrt']:
         from planners.randomPolicySampler import RandomPolicySampler
         sampler = RandomPolicySampler(random_method=args['--random-method'])
@@ -142,29 +140,29 @@ def main():
 
     rrt_options = MagicDict({
         'showSampledPoint':
-        not args['--hide-sampled-points'],
+            not args['--hide-sampled-points'],
         'scaling':
-        float(args['--scaling']),
+            float(args['--scaling']),
         'goalBias':
-        float(args['--goal-bias']),
+            float(args['--goal-bias']),
         'image':
-        args['<MAP>'],
+            args['<MAP>'],
         'epsilon':
-        float(args['--epsilon']),
+            float(args['--epsilon']),
         'max_number_nodes':
-        int(args['--max-number-nodes']),
+            int(args['--max-number-nodes']),
         'radius':
-        float(args['--radius']),
+            float(args['--radius']),
         'goal_radius':
-        2 / 3 * float(args['--radius']),
+            2 / 3 * float(args['--radius']),
         'ignore_step_size':
-        args['--ignore-step-size'],
+            args['--ignore-step-size'],
         'always_refresh':
-        args['--always-refresh'],
+            args['--always-refresh'],
         'enable_pygame':
-        not args['--disable-pygame'],
+            not args['--disable-pygame'],
         'sampler':
-        sampler,
+            sampler,
     })
     rrtplanner = planner_type(**rrt_options)
     rrt_options.update({

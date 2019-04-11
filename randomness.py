@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 import scipy
 from SALib.sample import (
@@ -7,8 +8,8 @@ from SALib.sample import (
     latin,
     finite_diff,
     fast_sampler,
-    ff,
 )
+
 NUM_DATA_POINTS = 10000
 SUPPORTED_RANDOM_METHODS_TITLES = {
     'pseudo_random' : "Pseudo Random",

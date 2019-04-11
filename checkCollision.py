@@ -1,5 +1,7 @@
-import numpy as np
 import math
+
+import numpy as np
+
 
 def dist(p1, p2):
     # THIS IS MUCH SLOWER for small array

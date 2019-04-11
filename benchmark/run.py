@@ -1,12 +1,15 @@
-import subprocess
-import pygame
+import os
 import random
-import sys, os
+import subprocess
+import sys
+
+import pygame
+
 from env import Colour
 
 CUR_PATH = os.path.dirname(sys.argv[0])
-MAPS = ['maps/room1.png', 'maps/maze1.png', 'maps/maze2.png']
-POLICIES = ['rrt', 'rrdt']
+MAPS = ['maps/room1.png', 'maps/maze1.png', 'maps/noise.png']
+POLICIES = ['informedrrt', 'multirrt']
 REPEAT_DIFFERENT_LOC = 20
 REPEAT_STATS = 20
 
@@ -38,7 +41,7 @@ def main():
                             "start", str(start[0]), str(start[1]),
                             "goal", str(goal[0]), str(goal[1]),
                             '--hide-sampled-points',
-                            '--max-number-nodes=15000',
+                            '--max-number-nodes=10000',
                             '--disable-pygame',
                             '--policy-name={}'.format(policyname)
                             ]

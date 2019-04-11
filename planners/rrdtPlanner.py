@@ -2,16 +2,13 @@ import logging
 import random
 
 from overrides import overrides
-from planners.rrtPlanner import RRTPlanner
-from helpers import *
 
 from checkCollision import *
-############################################################
-##              Disjointed Particles Sampler              ##
-############################################################
+from helpers import *
 from planners.particleFilterSampler import (ENERGY_START,
                                             RANDOM_RESTART_PARTICLES_ENERGY_UNDER,
                                             Particle, ParticleFilterSampler)
+from planners.rrtPlanner import RRTPlanner
 
 LOGGER = logging.getLogger(__name__)
 

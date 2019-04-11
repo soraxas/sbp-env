@@ -1,7 +1,10 @@
-import pygame
 import time
+
+import pygame
 from overrides import overrides
+
 from planners.baseSampler import Sampler
+
 """
 For demo / testing only. This policy wait for user mouse input for next sampling node.
 """

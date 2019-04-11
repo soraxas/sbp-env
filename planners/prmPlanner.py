@@ -2,8 +2,8 @@ import networkx as nx
 import numpy as np
 from overrides import overrides
 
-from planners.baseSampler import Sampler
 from env import Node, dist
+from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
 

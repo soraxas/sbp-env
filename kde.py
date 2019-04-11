@@ -1,8 +1,8 @@
 import numpy as np
-from scipy.stats import gaussian_kde
-from matplotlib import pyplot as plt
-import random
 from fastkde import fastKDE
+from matplotlib import pyplot as plt
+from scipy.stats import gaussian_kde
+
 width = 300
 height = 100
 

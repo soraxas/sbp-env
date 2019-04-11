@@ -1,13 +1,15 @@
-import numpy as np
-import random
-import pygame
-import math
 import logging
+import math
+import random
+
+import numpy as np
+import pygame
 from overrides import overrides
 
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 from randomness import NormalRandomnessManager
+
 """
     IDEAS / TODOS:
 

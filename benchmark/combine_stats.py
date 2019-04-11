@@ -1,7 +1,8 @@
-import sys, glob
+import glob
 import os
 import re
 import statistics
+import sys
 
 from openpyxl import Workbook
 from openpyxl.chart import (

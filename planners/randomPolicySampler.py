@@ -1,7 +1,10 @@
 import random
+
 from overrides import overrides
+
 from planners.baseSampler import Sampler
 from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
+
 
 class RandomPolicySampler(Sampler):
 

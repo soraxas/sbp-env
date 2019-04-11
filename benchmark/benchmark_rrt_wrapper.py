@@ -2,13 +2,14 @@
 This wrapper is to make it so that the module will output directly to csv formatted
 file along with a screenshot when it initially found a solution, and one when it termiinated
 """
-import sys
+import csv
 import os
+import sys
+import time
+from timeit import default_timer
+
 import pygame
 from memory_profiler import memory_usage
-from timeit import default_timer
-import csv
-import time
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 LOG_EVERY_X_SAMPLES = 25

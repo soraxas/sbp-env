@@ -1,14 +1,15 @@
-import numpy as np
+import logging
 import random
+
+import numpy as np
 import pygame
 import scipy as sp
 import scipy.ndimage
-import logging
 from overrides import overrides
 
+from checkCollision import get_line
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
-from checkCollision import get_line
 
 LOGGER = logging.getLogger(__name__)
 

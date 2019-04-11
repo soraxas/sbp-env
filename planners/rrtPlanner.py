@@ -1,6 +1,4 @@
 """Represent a planner."""
-import numpy as np
-import pygame
 
 from checkCollision import *
 from helpers import *
