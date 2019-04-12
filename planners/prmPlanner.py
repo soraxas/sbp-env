@@ -21,13 +21,13 @@ volume_of_unit_ball = {
 }
 
 
-class PRMSampler(Sampler):
+class PRMSampler(RandomPolicySampler):
     @overrides
     def init(self, **kwargs):
-        super().init(**kwargs)
-        self.randomSampler = RandomPolicySampler()
         kwargs['goalBias'] = 0
-        self.randomSampler.init(**kwargs)
+        super().init(**kwargs)
+        # self.randomSampler = RandomPolicySampler()
+        # self.randomSampler.init(**kwargs)
 
 
 def nearest_neighbours(nodes, poses, pos, radius):
