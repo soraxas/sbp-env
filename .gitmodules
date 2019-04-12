@@ -1,3 +1,0 @@
-[submodule "benchmark_output"]
-	path = benchmark_output
-	url = git@github.com:soraxas/Disjointed-RRT_benchmark-dumps.git
