@@ -37,17 +37,17 @@ but the basic syntax is
 ```sh
 python main.py <PLANNER> <MAP> [options]
 ```
-It will open a new window that display a map on it. Every white pixel is assumed to be free, and non-white pixels are obstacles. You will need to use your mouse to perform two points on the map, the first will be set as the starting point and the second as the goal point.
+It will open a new window that display a map on it. Every white pixel is assumed to be free, and non-white pixels are obstacles. You will need to use your mouse to select two points on the map, the first will be set as the starting point and the second as the goal point.
 
+## Demos
 
-## Available Planners
+### Run maps with different available Planners
 
 This repository contains a framework to performs quick experiments for Sampling-Based Planners (SBPs) that are implemented in Python. The followings are planners that had implemented and experimented in this framework.
 
-Note that the command provided here can be customised with additional options. The one provided here are useful for debugging as it enables verbose mode. In fact, the actual command format used for the demonstrations is
+Note that the commands shown in the respective demos can be customised with additional options. In fact, the actual command format used for the demonstrations is
 ```sh
 python main.py <PLANNER> maps/room1.png start <sx> <sy> goal <sx> <sy> -vv
-python main.py <PLANNER> maps/room1.png start 86 214 goal 454 350 -vv
 ```
 to have a fix set of starting and goal points for consistent visualisation, but we omitted the start/goal options in the following commands for clarity.
 
@@ -57,11 +57,19 @@ to have a fix set of starting and goal points for consistent visualisation, but 
 python main.py rrdt maps/room1.png -vv
 ```
 
+<p align="center">
+    <img width="600" height="auto" src="doc/images/rrdt.gif" alt="RRdT* Planner" />
+</p>
+
 ### RRT*
 
 ```sh
 python main.py rrt maps/room1.png -vv
 ```
+
+<p align="center">
+    <img width="600" height="auto" src="doc/images/rrt.gif" alt="RRT* Planner" />
+</p>
 
 ### Bi-RRT*
 
@@ -69,11 +77,25 @@ python main.py rrt maps/room1.png -vv
 python main.py birrt maps/room1.png -vv
 ```
 
-### Informed-RRT*
+<p align="center">
+    <img width="600" height="auto" src="doc/images/birrt.gif" alt="Bi-RRT* Planner" />
+</p>
+
+### Informed RRT*
 
 ```sh
-python main.py prm maps/room1.png -vv --max-number-nodes=10000
+python main.py informedrrt maps/room1.png -vv
 ```
+
+<p align="center">
+<img width="600" height="auto" src="doc/images/informedrrt.gif" alt="Informed RRT* Planner" />
+</p>
+
+The red ellipse shown is the dynamic sampling area for Informed RRT*
+
+### Others
+
+There are also some other planners included in this repository. Some are preliminary planner that inspired RRdT*, some are planners with preliminary ideas, and some are useful for debugging.
 
 ## BibTeX
 If you found the algorithm or the implementations of SBPs framework useful, please cite the following paper.
