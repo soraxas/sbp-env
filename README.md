@@ -4,7 +4,7 @@ RRdT* uses multiple disjointed-trees to exploit local-connectivity of spaces via
 
 This is a repository that contains a Python implementation of the algorithm describe in the paper, along with implementation of other state-of-the-art planners that had been experimentally compared to RRdT*.
 
-The algorithm is described in the [paper](https://arxiv.org/abs/1810.03749) from ICRA'19. A complementary video that explains the concept can be found [here](https://www.youtube.com/watch?v=6kAZnQeULdY). If you want to cite this work in your research, you can use [this BibTex entry](#bibtex).
+The algorithm is described in the [paper](https://arxiv.org/abs/1810.03749) from ICRA'19. A complementary video that explains the concept can be found [here](https://youtu.be/Cy-kYrzkPvA). If you want to cite this work in your research, you can use [this BibTex entry](#bibtex).
 
 
 ## Installation
@@ -96,6 +96,13 @@ The red ellipse shown is the dynamic sampling area for Informed RRT*
 ### Others
 
 There are also some other planners included in this repository. Some are preliminary planner that inspired RRdT*, some are planners with preliminary ideas, and some are useful for debugging.
+
+## How does it works
+
+You can have a look of the paper *[Balancing Global Exploration and Local-connectivity Exploitation with RRdT](https://arxiv.org/abs/1810.03749)*, or this video that briefly explain the concepts:
+<p align="center">
+<a href="https://youtu.be/Cy-kYrzkPvA"><img width="600" height="auto" src="doc/images/rrdt-video-thumbnail.png" alt="RRdT youtube video" /></a>
+</p>
 
 ## BibTeX
 If you found the algorithm or the implementations of SBPs framework useful, please cite the following paper.
