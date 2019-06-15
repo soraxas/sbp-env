@@ -36,7 +36,7 @@ def main():
 
     timestamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     directoryname = "map={map}_start={start}_goal={goal}".format(
-                    map=sys.argv[2],
+                    map=sys.argv[2].replace('/', '_'),
                     start='-'.join((str(x) for x in env.startPt.pos)),
                     goal='-'.join((str(x) for x in env.goalPt.pos)),
                 )
