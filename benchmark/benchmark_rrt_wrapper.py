@@ -16,6 +16,8 @@ LOG_EVERY_X_SAMPLES = 25
 BENCHMARK_DIR_NAME = os.path.join(CUR_PATH, '..', 'benchmark_output')
 sys.path.append(os.path.join(CUR_PATH, '..'))  # add top package to path
 
+# controls whether we want to entirely skip pygame (not even initialise window, for use in server)
+SKIP_PYGAME_CAPTURE = True
 
 def main():
     import main
@@ -31,6 +33,9 @@ def main():
     # get rrt instance
     env = main.main()
 
+    if not SKIP_PYGAME_CAPTURE:
+        env.pygame_init(enable_pygame=True)
+        env.pygame_hide()
     if not os.path.exists(BENCHMARK_DIR_NAME):
         os.makedirs(BENCHMARK_DIR_NAME)
 
@@ -64,15 +69,15 @@ def main():
         start_time = default_timer()
 
         def take_screenshot(term=False):
+            if SKIP_PYGAME_CAPTURE:
+                return
             env.pygame_show()
-            env.args.enable_pygame = True
             env.update_screen(update_all=True)
             if term:
                 # terminating
                 pygame.image.save(env.window,'{}_term.jpg'.format(filename))
             else:
                 pygame.image.save(env.window,'{}.jpg'.format(filename))
-            env.args.enable_pygame = False
             env.pygame_hide()
 
         def log_performance():

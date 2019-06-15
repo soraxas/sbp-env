@@ -39,23 +39,24 @@ class Env:
         self.startPt = None
         self.goalPt = None
         while self.startPt is None or self.goalPt is None:
-            for e in pygame.event.get():
-                if e.type == MOUSEBUTTONDOWN:
-                    mousePos = (int(e.pos[0] / self.args.scaling),
-                                int(e.pos[1] / self.args.scaling))
-                    if startPt is None:
-                        if not self.collides(mousePos):
-                            LOGGER.info(
-                                ('starting point set: ' + str(mousePos)))
-                            startPt = mousePos
-                    elif goalPt is None:
-                        if not self.collides(mousePos):
-                            LOGGER.info(('goal point set: ' + str(mousePos)))
-                            goalPt = mousePos
-                    elif e.type == QUIT or (e.type == KEYUP
-                                            and e.key == K_ESCAPE):
-                        LOGGER.info("Leaving.")
-                        return
+            if self.args.enable_pygame:
+                for e in pygame.event.get():
+                    if e.type == MOUSEBUTTONDOWN:
+                        mousePos = (int(e.pos[0] / self.args.scaling),
+                                    int(e.pos[1] / self.args.scaling))
+                        if startPt is None:
+                            if not self.collides(mousePos):
+                                LOGGER.info(
+                                    ('starting point set: ' + str(mousePos)))
+                                startPt = mousePos
+                        elif goalPt is None:
+                            if not self.collides(mousePos):
+                                LOGGER.info(('goal point set: ' + str(mousePos)))
+                                goalPt = mousePos
+                        elif e.type == QUIT or (e.type == KEYUP
+                                                and e.key == K_ESCAPE):
+                            LOGGER.info("Leaving.")
+                            return
             # convert mouse pos to Node
             if startPt is not None and self.startPt is None:
                 self.startPt = Node(startPt)
@@ -84,7 +85,9 @@ class Env:
     ############################################################
 
     def pygame_init(self, enable_pygame=True):
-        self.enable_pygame = enable_pygame
+        self.args.enable_pygame = enable_pygame
+        if not self.args.enable_pygame:
+            return
         pygame.init()
         self.fpsClock = pygame.time.Clock()
         # self.fpsClock.tick(10)
@@ -133,14 +136,12 @@ class Env:
         self.sampledPoint_screen.fill(Colour.ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
-        if not self.enable_pygame:
-            self.pygame_hide()
 
     def pygame_show(self):
-        self.enable_pygame = True
+        self.args.enable_pygame = True
 
     def pygame_hide(self):
-        self.enable_pygame = False
+        self.args.enable_pygame = False
         pygame.display.iconify()
         # pygame.quit()
 
