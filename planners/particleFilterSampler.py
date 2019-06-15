@@ -256,6 +256,8 @@ class ParticleFilterSampler(Sampler):
         self.counter = 0
         self._c_random = 0
         self._c_resample = 0
+        self.last_choice = 0
+        self.last_failed = True
 
     @overrides
     def init(self, **kwargs):
@@ -294,9 +296,11 @@ class ParticleFilterSampler(Sampler):
             dx = self.goal_pos[0] - self.p_manager.get_pos(idx)[0]
             dy = self.goal_pos[1] - self.p_manager.get_pos(idx)[1]
             goal_direction = math.atan2(dy, dx)
-            new_direction = self.randomnessManager.draw_normal(origin=goal_direction, kappa=1.5)
+            # new_direction = self.randomnessManager.draw_normal(origin=goal_direction, kappa=1.5)
+            new_direction = self.p_manager.particles[idx].draw_sample(origin=goal_direction)
         else:
-            new_direction = self.randomnessManager.draw_normal(origin=self.p_manager.get_dir(idx), kappa=1.5)
+            # new_direction = self.randomnessManager.draw_normal(origin=self.p_manager.get_dir(idx), kappa=1.5)
+            new_direction = self.p_manager.particles[idx].draw_sample()
 
         # scale the half norm by a factor of epsilon
         # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
@@ -312,6 +316,12 @@ class ParticleFilterSampler(Sampler):
         return (x, y)
 
     def get_random_choice(self):
+        if self.p_manager.num_particles == 1:
+            return 0
+        # check if we can skip the rest in ray-casting method by priortising straight line
+        if self.p_manager.particles[0].proposal_type == 'ray-casting' and not self.last_failed:
+            return self.last_choice
+
         prob = self.p_manager.get_prob()
         self._last_prob = prob  # this will be used to paint particles
         try:
@@ -323,6 +333,7 @@ class ParticleFilterSampler(Sampler):
             prob = self.p_manager.get_prob()
             self._last_prob = prob
             choice = np.random.choice(range(self.p_manager.size()), p=prob)
+        self.last_choice = choice
         return choice
 
     @overrides

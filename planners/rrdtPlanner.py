@@ -1,5 +1,7 @@
 import logging
 import random
+import matplotlib.pyplot as plt
+from scipy.special import i0
 
 from overrides import overrides
 
@@ -13,7 +15,8 @@ from planners.rrtPlanner import RRTPlanner
 LOGGER = logging.getLogger(__name__)
 
 MAX_NUMBER_NODES = 20000
-
+from randomness import NormalRandomnessManager
+randomnessManager = NormalRandomnessManager()
 
 def update_progress(progress, total_num, num_of_blocks=10):
     if not logging.getLogger().isEnabledFor(logging.INFO):
@@ -294,6 +297,125 @@ class DisjointTreeParticle(Particle):
         return True
 
 
+class DynamicDisjointTreeParticle(DisjointTreeParticle):
+    def __init__(self, proposal_type='dynamic-vonmises', *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.last_failed = False
+
+        if proposal_type not in ('dynamic-vonmises', 'ray-casting', 'original'):
+            raise Exception("Given proposal type is not supported.")
+        self.proposal_type = proposal_type
+        # self.proposal_type = 'dynamic-vonmises'
+        # self.proposal_type = 'ray-casting'
+        # self.proposal_type = 'original'
+
+        self.show_fig = True
+        self.show_fig = False
+
+        kappa = np.pi / 4
+        # kappa = 1.5
+
+        mu = 0
+
+        x = np.linspace(-np.pi, np.pi, num=51)
+        y = np.exp(kappa*np.cos(x-mu))/(2*np.pi*i0(kappa))
+        self.x = x
+        self.y = y
+
+        self.A = self.y.copy()
+        self.last_origin = 0
+
+    ############################################## https://stackoverflow.com/questions/4098131/how-to-update-a-plot-in-matplotlib
+        if self.show_fig:
+            self.fig = plt.figure()
+            self.ax = self.fig.add_subplot(111)
+            self.line1, = self.ax.plot(x, y, 'r-') # Returns a tuple of line objects, thus the comma
+
+            # for phase in self.x:
+            plt.draw()
+            plt.pause(1e-4)
+
+    def draw_sample(self, origin=None):
+        if origin is None:
+            # use self direction if none is given.
+            origin = self.direction
+
+        self.last_origin = origin
+
+        # use argmax or draw probabilistically
+        if self.proposal_type == 'ray-casting':
+            if not self.last_failed:
+                # skip drawing if we haven't failed (if we are using ray-casting)
+                # this should return the origin of where we came from
+                return origin
+            x_idx = y_idx = np.argmax(self.A)
+            xi = self.x[x_idx]
+
+        elif self.proposal_type == 'dynamic-vonmises':
+            xi = np.random.choice(self.x, p=self.A/self.A.sum())
+
+        elif self.proposal_type == 'original':
+            global randomnessManager
+            return randomnessManager.draw_normal(origin=self.direction, kappa=1.5)
+
+        else:
+            raise Exception("BUGS?")
+
+        return xi + origin
+
+    def success(self):
+        # reset to the original von mises
+        # TODO make a sharper von mises distribution (higher kappa) when succes
+        self.A = self.y.copy()
+
+        self.last_failed = False
+
+        if self.show_fig:
+
+            self.ax.clear()
+            self.ax.set_xlim([-4,4])
+            self.ax.set_ylim([0, .8])
+            # self.reset_vonmises()
+            self.line1, = self.ax.plot(self.x, self.y, 'r-') # Returns a tuple of line objects, thus the comma
+            plt.draw()
+            plt.pause(1e-4)
+
+    def fail(self):
+        self.last_failed = True
+        def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
+            return sigma**2 * np.exp(-((x - xprime)**2)/ (2*length_scale**2))
+
+        # get previous trying direction
+        xi = self._trying_this_dir
+
+        # revert effect of shifting origin
+        xi -= self.last_origin
+
+        # find cloest x idx
+        x_idx = np.abs(self.x - xi).argmin() # <---- FIXME this is dumb. store the x_idx used when we do the sampling to save computational time
+
+        y_val = self.y[x_idx]
+
+        self.A = self.A - k(self.x, xi, sigma=np.sqrt(y_val)*.6, length_scale=np.pi/12)
+
+        # zero out negative value
+        self.A[self.A < 0] = 0
+
+
+        if self.show_fig:
+            self.ax.plot(self.x, self.y)
+            self.ax.plot([xi, xi], [y_val-.05, y_val+.05], 'r-', lw=2)
+
+            self.line1.set_ydata(self.A)
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
+
+            plt.draw()
+            plt.pause(1e-4)
+
+
+
 class RRdTSampler(ParticleFilterSampler):
     @overrides
     def __init__(self, restart_when_merge=True):
@@ -317,7 +439,7 @@ class RRdTSampler(ParticleFilterSampler):
         for _ in range(self.p_manager.num_particles - 1):
             pos = self.p_manager.new_pos_in_free_space()
 
-            dt_p = DisjointTreeParticle(
+            dt_p = DynamicDisjointTreeParticle(
                 direction=random.uniform(0, math.pi * 2),
                 pos=pos,
                 tree_manager=self.tree_manager,
@@ -327,7 +449,7 @@ class RRdTSampler(ParticleFilterSampler):
             self.p_manager.particles.append(dt_p)
         # spawn one that comes from the root
         self.p_manager.particles.append(
-            DisjointTreeParticle(
+            DynamicDisjointTreeParticle(
                 direction=random.uniform(0, math.pi * 2),
                 pos=self.start_pos,
                 isroot=True,
@@ -346,7 +468,17 @@ class RRdTSampler(ParticleFilterSampler):
     def report_success(self, idx, **kwargs):
         self.p_manager.particles[idx].last_node = kwargs['newnode']
         self.p_manager.confirm(idx, kwargs['pos'])
-        self.p_manager.modify_energy(idx=idx, factor=0.95)
+        self.last_failed = False
+
+        if self.p_manager.particles[0].proposal_type != 'ray-casting':
+            self.p_manager.modify_energy(idx=idx, factor=0.99)
+
+    @overrides
+    def report_fail(self, idx, **kwargs):
+        self.last_failed = True
+        if idx >= 0:
+            self.p_manager.modify_energy(idx=idx, factor=0.7)
+            self.p_manager.particles[idx].success()
 
     @overrides
     def get_valid_next_pos(self):
