@@ -440,6 +440,7 @@ class RRdTSampler(ParticleFilterSampler):
             pos = self.p_manager.new_pos_in_free_space()
 
             dt_p = DynamicDisjointTreeParticle(
+                proposal_type=self.args.rrdt_proposal_distribution,
                 direction=random.uniform(0, math.pi * 2),
                 pos=pos,
                 tree_manager=self.tree_manager,

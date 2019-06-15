@@ -53,6 +53,14 @@ Random Sampler Options:
                         [default: pseudo_random]
 
 Disjoint Sampler Options:
+  --proposal-dist=METHOD
+                        Set the proposal distribution to use in the MCMC random
+                        walk.
+                        Supported methods are:
+                        - original (from the original RRdT paper)
+                        - dynamic-vonmises
+                        - ray-casting
+                        [default: dynamic-vonmises]
   --no-restart-when-merge
                         This flag denotes if the local sampler from disjoint-
                         tree sampler should restart at a new location when
@@ -163,6 +171,8 @@ def main():
             not args['--disable-pygame'],
         'sampler':
             sampler,
+        'rrdt_proposal_distribution':
+            args['--proposal-dist'],
     })
     rrtplanner = planner_type(**rrt_options)
     rrt_options.update({
