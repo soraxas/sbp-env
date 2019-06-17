@@ -8,6 +8,8 @@ import sys
 import time
 from timeit import default_timer
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
+
 import pygame
 from memory_profiler import memory_usage
 
