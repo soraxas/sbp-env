@@ -429,6 +429,8 @@ class RRdTSampler(ParticleFilterSampler):
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
+        self.keep_go_forth = self.args.keep_go_forth
+
         self.lsamplers_to_be_restart = []
         self.tree_manager = TreesManager(
             args=self.args, restart_when_merge=self.restart_when_merge)
@@ -471,8 +473,8 @@ class RRdTSampler(ParticleFilterSampler):
         self.p_manager.confirm(idx, kwargs['pos'])
         self.last_failed = False
 
-        if self.p_manager.particles[0].proposal_type != 'ray-casting':
-            self.p_manager.modify_energy(idx=idx, factor=0.99)
+        # if self.p_manager.particles[0].proposal_type != 'ray-casting':
+        self.p_manager.modify_energy(idx=idx, factor=0.99)
 
     @overrides
     def report_fail(self, idx, **kwargs):

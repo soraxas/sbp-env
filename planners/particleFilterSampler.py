@@ -323,9 +323,10 @@ class ParticleFilterSampler(Sampler):
     def get_random_choice(self):
         if self.p_manager.num_particles == 1:
             return 0
-        # check if we can skip the rest in ray-casting method by priortising straight line
-        if self.p_manager.particles[0].proposal_type == 'ray-casting' and not self.last_failed:
-            return self.last_choice
+        if self.keep_go_forth:
+            # check if we can skip the rest in ray-casting method by priortising straight line
+            if self.p_manager.particles[0].proposal_type == 'ray-casting' and not self.last_failed:
+                return self.last_choice
 
         prob = self.p_manager.get_prob()
         self._last_prob = prob  # this will be used to paint particles
