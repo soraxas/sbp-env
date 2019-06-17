@@ -134,6 +134,11 @@ class ParticleManager:
         return self.particles_energy / self.cur_energy_sum
 
     def resync_prob(self):
+        self.particles_energy = np.nan_to_num(self.particles_energy)
+        if self.particles_energy.sum() < 1e-10:
+            # particle_energy demonlished to 0...
+            # work around to add energy all particles
+            self.particles_energy[:] = 1
         self.cur_energy_sum = self.particles_energy.sum()
 
     def random_restart_lowest(self):
