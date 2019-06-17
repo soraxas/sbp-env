@@ -50,6 +50,7 @@ Random Sampler Options:
                         - fast (Fourier Amplitude Sensitivity Test)
                         [default: pseudo_random]
 
+  --keep-go             asdoaskdsioa
 Disjoint Sampler Options:
   --proposal-dist=METHOD
                         Set the proposal distribution to use in the MCMC random
@@ -145,6 +146,8 @@ def main():
         sampler = MouseSampler()
 
     rrt_options = MagicDict({
+        'keep_go_forth':
+            args['--keep-go'],
         'showSampledPoint':
             not args['--hide-sampled-points'],
         'scaling':
