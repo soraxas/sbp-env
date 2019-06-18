@@ -473,6 +473,7 @@ class RRdTSampler(ParticleFilterSampler):
         self.p_manager.confirm(idx, kwargs['pos'])
         self.last_failed = False
 
+        self.p_manager.particles[idx].success()
         # if self.p_manager.particles[0].proposal_type != 'ray-casting':
         self.p_manager.modify_energy(idx=idx, factor=0.99)
 
@@ -481,7 +482,7 @@ class RRdTSampler(ParticleFilterSampler):
         self.last_failed = True
         if idx >= 0:
             self.p_manager.modify_energy(idx=idx, factor=0.7)
-            self.p_manager.particles[idx].success()
+            self.p_manager.particles[idx].fail()
 
     @overrides
     def get_valid_next_pos(self):
