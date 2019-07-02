@@ -44,6 +44,9 @@ class Stats:
         self.valid_sample = 0
         self.sampledNodes = []
         self.showSampledPoint = showSampledPoint
+        self.sampler_success = 0
+        self.sampler_success_all = 0
+        self.sampler_fail = 0
 
     def add_invalid(self, obs):
         if obs:

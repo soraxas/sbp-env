@@ -67,7 +67,7 @@ def main():
         writer.writerow((sys.argv[2], env.startPt.pos, env.goalPt.pos, env.args.epsilon, env.args.goalBias, env.args.max_number_nodes))
         writer.writerow([])
 
-        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost'))
+        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost', 'sam_succ', 'sam_fail', 'sam_succall'))
         start_time = default_timer()
 
         def take_screenshot(term=False):
@@ -83,7 +83,7 @@ def main():
             env.pygame_hide()
 
         def log_performance():
-            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max
+            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max, env.stats.sampler_success, env.stats.sampler_fail, env.stats.sampler_success_all
             writer.writerow(msg)
             f.flush()
 
