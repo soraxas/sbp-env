@@ -592,7 +592,28 @@ class RRdTPlanner(RRTPlanner):
     @overrides
     def run_once(self):
         # Get an sample that is free (not in blocked space)
-        _tmp = self.args.sampler.get_valid_next_pos()
+        # _tmp = self.args.sampler.get_valid_next_pos()
+
+        while True:
+            _tmp = self.args.sampler.get_next_pos()
+            if _tmp is None:
+                # This denotes a particle had tried to restart and added the new node
+                # to existing tree instead. Skip remaining steps and iterate to next loop
+                _tmp = None
+                break
+            rand_pos = _tmp[0]
+            self.args.sampler.args.env.stats.add_sampled_node(rand_pos)
+            if not self.args.sampler.args.env.collides(rand_pos):
+                pass
+                self.args.sampler.args.env.stats.sampler_success += 1
+                break
+            report_fail = _tmp[-1]
+            report_fail(pos=rand_pos, obstacle=True)
+            self.args.sampler.args.env.stats.add_invalid(obs=True)
+            self.args.sampler.args.env.stats.sampler_fail += 1
+
+        self.args.sampler.args.env.stats.sampler_success_all += 1
+
         if _tmp is None:
             # we have added a new samples when respawning a local sampler
             return
