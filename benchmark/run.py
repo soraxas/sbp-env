@@ -9,7 +9,7 @@ from env import Colour
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 MAPS = ['maps/room1.png', 'maps/maze1.png', 'maps/noise.png']
-POLICIES = ['informedrrt', 'rrdt']
+POLICIES = ['rrdt']
 REPEAT_DIFFERENT_LOC = 20
 REPEAT_STATS = 20
 
