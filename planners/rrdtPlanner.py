@@ -313,15 +313,15 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.show_fig = True
         self.show_fig = False
 
-        kappa = np.pi / 4
+        kappa = np.pi / 2
         # kappa = 1.5
 
         mu = 0
 
-        x = np.linspace(-np.pi, np.pi, num=51)
+        x = np.linspace(-np.pi, np.pi, num=61)
         y = np.exp(kappa*np.cos(x-mu))/(2*np.pi*i0(kappa))
         self.x = x
-        self.y = y
+        self.y = y / np.linalg.norm(y, ord=1)
 
         self.A = self.y.copy()
         self.last_origin = 0
@@ -353,7 +353,9 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
             xi = self.x[x_idx]
 
         elif self.proposal_type == 'dynamic-vonmises':
-            xi = np.random.choice(self.x, p=self.A/self.A.sum())
+            bin_width = self.x[1] - self.x[0]
+            xi = np.random.choice(self.x, p=self.A)
+            xi = np.random.uniform(xi, xi + bin_width)
 
         elif self.proposal_type == 'original':
             global randomnessManager
@@ -361,7 +363,6 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
         else:
             raise Exception("BUGS?")
-
         return xi + origin
 
     def success(self):
@@ -375,7 +376,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
             self.ax.clear()
             self.ax.set_xlim([-4,4])
-            self.ax.set_ylim([0, .8])
+            self.ax.set_ylim([0, .1])
             # self.reset_vonmises()
             self.line1, = self.ax.plot(self.x, self.y, 'r-') # Returns a tuple of line objects, thus the comma
             plt.draw()
@@ -384,7 +385,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
     def fail(self):
         self.last_failed = True
         def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
-            return sigma**2 * np.exp(-((x - xprime)**2)/ (2*length_scale**2))
+            return sigma**2 * np.exp(-(2 *np.sin((x - xprime)/2)**2)/ (length_scale**2))
 
         # get previous trying direction
         xi = self._trying_this_dir
@@ -393,19 +394,15 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         xi -= self.last_origin
 
         # find cloest x idx
-        x_idx = np.abs(self.x - xi).argmin() # <---- FIXME this is dumb. store the x_idx used when we do the sampling to save computational time
-
-        y_val = self.y[x_idx]
-
-        self.A = self.A - k(self.x, xi, sigma=np.sqrt(y_val)*.6, length_scale=np.pi/12)
-
-        # zero out negative value
-        self.A[self.A < 0] = 0
-
+        # x_idx = np.abs(self.x - xi).argmin() # <---- FIXME this is dumb. store the x_idx used when we do the sampling to save computational time
+        #
+        # y_val = self.y[x_idx]
+        self.A = self.A - k(self.x, xi, sigma=np.sqrt(self.A)*.9, length_scale=np.pi/10)
+        self.A = self.A / np.linalg.norm(self.A, ord=1)
 
         if self.show_fig:
             self.ax.plot(self.x, self.y)
-            self.ax.plot([xi, xi], [y_val-.05, y_val+.05], 'r-', lw=2)
+            self.ax.plot([xi, xi], [0, .05], 'r-', lw=2)
 
             self.line1.set_ydata(self.A)
             self.fig.canvas.draw()
@@ -453,6 +450,7 @@ class RRdTSampler(ParticleFilterSampler):
         # spawn one that comes from the root
         self.p_manager.particles.append(
             DynamicDisjointTreeParticle(
+                proposal_type=self.args.rrdt_proposal_distribution,
                 direction=random.uniform(0, math.pi * 2),
                 pos=self.start_pos,
                 isroot=True,

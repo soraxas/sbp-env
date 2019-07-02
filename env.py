@@ -175,6 +175,8 @@ class Env:
             self.process_pygame_event()
             self.update_screen()
             self.planner.run_once()
+            # import time
+            # time.sleep(.1)
         self.planner.terminates_hook()
 
     @check_pygame_enabled
