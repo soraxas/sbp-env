@@ -314,7 +314,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.show_fig = False
 
         kappa = np.pi / 2
-        # kappa = 1.5
+        kappa = np.pi * 1.5
 
         mu = 0
 
@@ -473,7 +473,8 @@ class RRdTSampler(ParticleFilterSampler):
 
         self.p_manager.particles[idx].success()
         # if self.p_manager.particles[0].proposal_type != 'ray-casting':
-        self.p_manager.modify_energy(idx=idx, factor=0.99)
+        # self.p_manager.modify_energy(idx=idx, factor=1-1e-9)
+        # self.p_manager.modify_energy(idx=idx, factor=.99)
 
     @overrides
     def report_fail(self, idx, **kwargs):

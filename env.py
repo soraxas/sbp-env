@@ -177,12 +177,14 @@ class Env:
             self.planner.run_once()
             # import time
             # time.sleep(.1)
-            # print('invalid c, invalid o, valid s, \n sampler s, f',
+            # if self.stats.valid_sample % 5 != 0:
+            #     continue
+            # print('invalid c, invalid o, valid s, sampler s, f \n',
             #     self.stats.invalid_samples_connections,
             #     self.stats.invalid_samples_obstacles,
             #     self.stats.valid_sample,
             #     self.stats.sampler_success,
-            #     self.stats.sampler_fail
+            #     self.stats.sampler_fail,
             #     )
         self.planner.terminates_hook()
 
