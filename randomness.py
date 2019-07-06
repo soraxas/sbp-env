@@ -38,7 +38,7 @@ class NormalRandomnessManager:
     def draw_normal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi / 4):
         if (self.normal_draws_reserve is None or
             self.normal_draws_reserve.size < 1):
-            self.redraw_normal(use_vonmises=True, kappa=1, sigma=math.pi / 4)
+            self.redraw_normal(use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4)
         # draw from samples
         draw = self.normal_draws_reserve[-1]
         self.normal_draws_reserve = self.normal_draws_reserve[:-1]

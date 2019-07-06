@@ -313,13 +313,12 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.show_fig = True
         self.show_fig = False
 
-        kappa = np.pi / 2
-        kappa = np.pi * 1.5
+        self.kappa = np.pi * 1.5
 
         mu = 0
 
         x = np.linspace(-np.pi, np.pi, num=61)
-        y = np.exp(kappa*np.cos(x-mu))/(2*np.pi*i0(kappa))
+        y = np.exp(self.kappa*np.cos(x-mu))/(2*np.pi*i0(self.kappa))
         self.x = x
         self.y = y / np.linalg.norm(y, ord=1)
 
@@ -359,7 +358,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
         elif self.proposal_type == 'original':
             global randomnessManager
-            return randomnessManager.draw_normal(origin=self.direction, kappa=1.5)
+            xi = randomnessManager.draw_normal(origin=0, kappa=self.kappa)
 
         else:
             raise Exception("BUGS?")

@@ -7,6 +7,8 @@ from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
 
+from helpers import Colour
+
 volume_of_unit_ball = {
     1: 2,
     2: 3.142,
@@ -62,6 +64,9 @@ class PRMPlanner(RRTPlanner):
     def terminates_hook(self):
         """Run until we reached the specified max nodes"""
         self.build_graph()
+        # draw all edges
+        for n1, n2 in self.tree.edges():
+            self.args.env.draw_path(n1, n2, Colour.path_blue)
         self.get_solution()
         self.args.env.update_screen()
 
