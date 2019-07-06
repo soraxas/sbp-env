@@ -99,19 +99,7 @@ class ParticleManager:
         if set_val is not None:
             self.particles_energy[idx] = set_val
         elif factor is not None:
-            if False:
-                # NOTE WE ARE NOT DOING THIS FOR NOW
-                self.particles_energy[idx] *= factor
-            else:
-                # TODO: mayne redo this nasty
-                factor -= 1
-                if factor > 0:
-                    diff = ENERGY_MAX - self.particles_energy[idx]
-                    self.particles_energy[idx] += diff*factor
-                elif factor < 0:
-                    diff = self.particles_energy[idx] - ENERGY_MIN
-                    self.particles_energy[idx] += diff*factor
-                    self.particles_energy[idx] = max(0, self.particles_energy[idx] - ENERGY_COLLISION_LOSS)
+            self.particles_energy[idx] *= factor
         else:
             raise Exception("Nothing set in modify_energy")
 
@@ -233,6 +221,9 @@ class Particle:
 
         self._trying_this_pos = np.copy(pos)
         self._trying_this_dir = None
+        self.successed = 0
+        self.failed = 0
+        self.failed_reset = 0
 
     def try_new_pos(self, new_pos, new_dir):
         # pos is a 2 index list-type object

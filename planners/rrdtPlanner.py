@@ -236,7 +236,7 @@ class TreesManager:
 
 RANDOM_RESTART_EVERY = 20
 ENERGY_START = 10
-RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.75
+RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.1#.75
 
 
 class DisjointTreeParticle(Particle):
@@ -316,24 +316,28 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.kappa = np.pi * 1.5
 
         mu = 0
+        self.successed = 0
+        self.failed = 0
+        self.failed_reset = 0
 
-        x = np.linspace(-np.pi, np.pi, num=61)
-        y = np.exp(self.kappa*np.cos(x-mu))/(2*np.pi*i0(self.kappa))
-        self.x = x
-        self.y = y / np.linalg.norm(y, ord=1)
+        if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
+            x = np.linspace(-np.pi, np.pi, num=61)
+            y = np.exp(self.kappa*np.cos(x-mu))/(2*np.pi*i0(self.kappa))
+            self.x = x
+            self.y = y / np.linalg.norm(y, ord=1)
 
-        self.A = self.y.copy()
-        self.last_origin = 0
+            self.A = self.y.copy()
+            self.last_origin = 0
 
-    ############################################## https://stackoverflow.com/questions/4098131/how-to-update-a-plot-in-matplotlib
-        if self.show_fig:
-            self.fig = plt.figure()
-            self.ax = self.fig.add_subplot(111)
-            self.line1, = self.ax.plot(x, y, 'r-') # Returns a tuple of line objects, thus the comma
+        ############################################## https://stackoverflow.com/questions/4098131/how-to-update-a-plot-in-matplotlib
+            if self.show_fig:
+                self.fig = plt.figure()
+                self.ax = self.fig.add_subplot(111)
+                self.line1, = self.ax.plot(x, y, 'r-') # Returns a tuple of line objects, thus the comma
 
-            # for phase in self.x:
-            plt.draw()
-            plt.pause(1e-4)
+                # for phase in self.x:
+                plt.draw()
+                plt.pause(1e-4)
 
     def draw_sample(self, origin=None):
         if origin is None:
@@ -365,50 +369,57 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         return xi + origin
 
     def success(self):
-        # reset to the original von mises
-        # TODO make a sharper von mises distribution (higher kappa) when succes
-        self.A = self.y.copy()
+        self.successed += 1
+        self.failed_reset = 0
+        if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
+            # reset to the original von mises
+            # TODO make a sharper von mises distribution (higher kappa) when succes
+            self.A = self.y.copy()
 
-        self.last_failed = False
+            self.last_failed = False
 
-        if self.show_fig:
+            if self.show_fig:
 
-            self.ax.clear()
-            self.ax.set_xlim([-4,4])
-            self.ax.set_ylim([0, .1])
-            # self.reset_vonmises()
-            self.line1, = self.ax.plot(self.x, self.y, 'r-') # Returns a tuple of line objects, thus the comma
-            plt.draw()
-            plt.pause(1e-4)
+                self.ax.clear()
+                self.ax.set_xlim([-4,4])
+                self.ax.set_ylim([0, .1])
+                # self.reset_vonmises()
+                self.line1, = self.ax.plot(self.x, self.y, 'r-') # Returns a tuple of line objects, thus the comma
+                plt.draw()
+                plt.pause(1e-4)
 
     def fail(self):
-        self.last_failed = True
-        def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
-            return sigma**2 * np.exp(-(2 *np.sin((x - xprime)/2)**2)/ (length_scale**2))
+        self.failed_reset += 1
+        self.failed += 1
+        if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
 
-        # get previous trying direction
-        xi = self._trying_this_dir
+            self.last_failed = True
+            def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
+                return sigma**2 * np.exp(-(2 *np.sin((x - xprime)/2)**2)/ (length_scale**2))
 
-        # revert effect of shifting origin
-        xi -= self.last_origin
+            # get previous trying direction
+            xi = self._trying_this_dir
 
-        # find cloest x idx
-        # x_idx = np.abs(self.x - xi).argmin() # <---- FIXME this is dumb. store the x_idx used when we do the sampling to save computational time
-        #
-        # y_val = self.y[x_idx]
-        self.A = self.A - k(self.x, xi, sigma=np.sqrt(self.A)*.9, length_scale=np.pi/10)
-        self.A = self.A / np.linalg.norm(self.A, ord=1)
+            # revert effect of shifting origin
+            xi -= self.last_origin
 
-        if self.show_fig:
-            self.ax.plot(self.x, self.y)
-            self.ax.plot([xi, xi], [0, .05], 'r-', lw=2)
+            # find cloest x idx
+            # x_idx = np.abs(self.x - xi).argmin() # <---- FIXME this is dumb. store the x_idx used when we do the sampling to save computational time
+            #
+            # y_val = self.y[x_idx]
+            self.A = self.A - k(self.x, xi, sigma=np.sqrt(self.A)*.9, length_scale=np.pi/10)
+            self.A = self.A / np.linalg.norm(self.A, ord=1)
 
-            self.line1.set_ydata(self.A)
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
+            if self.show_fig:
+                self.ax.plot(self.x, self.y)
+                self.ax.plot([xi, xi], [0, .05], 'r-', lw=2)
 
-            plt.draw()
-            plt.pause(1e-4)
+                self.line1.set_ydata(self.A)
+                self.fig.canvas.draw()
+                self.fig.canvas.flush_events()
+
+                plt.draw()
+                plt.pause(1e-4)
 
 
 
@@ -463,6 +474,8 @@ class RRdTSampler(ParticleFilterSampler):
             if self.p_manager.particles_energy[
                     i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 self.p_manager.add_to_restart(self.p_manager.particles[i])
+                # _z = self.p_manager.particles[i]
+                # print(_z.successed, _z.failed, _z.failed_reset)
 
     @overrides
     def report_success(self, idx, **kwargs):
@@ -618,7 +631,7 @@ class RRdTPlanner(RRTPlanner):
             # we have added a new samples when respawning a local sampler
             return
         rand_pos, parent_tree, last_node, report_success, report_fail = _tmp
-        if last_node is not None:
+        if last_node is not None and False:
             # use the last succesful node as the nearest node
             # This is expliting the advantage of local sampler :)
             nn = last_node
