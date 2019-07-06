@@ -52,6 +52,13 @@ def main():
                     else:
                         op = ''
 
+                    if 'noise' in test_map:
+                        epsilon_op = '--epsilon=4'
+                    elif 'maze' in test_map:
+                        epsilon_op = '--epsilon=7'
+                    else:
+                        epsilon_op = '--epsilon=10'
+
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
                         map=test_map,
                         policy=policyname,
@@ -66,7 +73,7 @@ def main():
                             '--hide-sampled-points',
                             '--max-number-nodes=10000',
                             '--disable-pygame',
-                            '--epsilon=7',
+                            epsilon_op,
                             '--policy-name={}'.format(policyname),
                             op
                             ]
