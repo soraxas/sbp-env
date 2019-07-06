@@ -98,10 +98,15 @@ def main():
                 take_screenshot()
             env.planner.run_once()
 
+        from planners.prmPlanner import PRMPlanner
+        # special case for prm:
+        if isinstance(env.args.planner, PRMPlanner):
+            env.args.planner.build_graph()
+            env.args.planner.get_solution()
+
         # take another screenshot and log when terminates
         log_performance()
         take_screenshot(term=True)
-
 
 if __name__ == '__main__':
     main()
