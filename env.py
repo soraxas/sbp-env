@@ -177,7 +177,6 @@ class Env:
             self.planner.run_once()
             # import time
             # time.sleep(.1)
-           #     )
         self.planner.terminates_hook()
 
     @check_pygame_enabled

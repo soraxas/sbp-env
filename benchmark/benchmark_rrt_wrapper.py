@@ -28,6 +28,7 @@ def main():
         if sys.argv[i].startswith('--policy-name='):
             policyname = sys.argv.pop(i)
             policyname = policyname.replace('--policy-name=', '')
+            break
     if policyname is None:
         # default to policy's name
         policyname = sys.argv[1]

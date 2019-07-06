@@ -9,9 +9,12 @@ from env import Colour
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 MAPS = ['maps/room1.png', 'maps/maze1.png', 'maps/noise.png']
-POLICIES = ['rrdt']
+MAPS = ['maps/noise.png']
+MAPS = ['maps/room1.png']
+#MAPS = ['maps/maze1.png']
+POLICIES = ['original', 'dynamic-vonmises', 'rrt', 'birrt', 'informedrrt', 'prm']
 REPEAT_DIFFERENT_LOC = 1
-REPEAT_STATS = 20
+REPEAT_STATS = 5
 
 sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
 
@@ -40,6 +43,15 @@ def main():
                 # Repeat the same for two different policies
                 for policy in POLICIES:
                     policyname = '{}'.format(policy)
+                    op = ''
+                    prop = ['original', 'dynamic-vonmises']
+                    if policy in prop:
+                        op = '--proposal-dist={}'.format(policy)
+                        policyname = 'rrdt-{}'.format(policy)
+                        policy = 'rrdt'
+                    else:
+                        op = ''
+
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
                         map=test_map,
                         policy=policyname,
@@ -54,8 +66,12 @@ def main():
                             '--hide-sampled-points',
                             '--max-number-nodes=10000',
                             '--disable-pygame',
-                            '--policy-name={}'.format(policyname)
+                            '--epsilon=7',
+                            '--policy-name={}'.format(policyname),
+                            op
                             ]
+                    # remove empty args
+                    args = [a for a in args if a]
                     subprocess.check_call(args)
 
 
