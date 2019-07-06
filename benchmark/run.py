@@ -14,7 +14,7 @@ MAPS = ['maps/room1.png']
 #MAPS = ['maps/maze1.png']
 POLICIES = ['original', 'dynamic-vonmises', 'rrt', 'birrt', 'informedrrt', 'prm']
 REPEAT_DIFFERENT_LOC = 1
-REPEAT_STATS = 5
+REPEAT_STATS = 10
 
 sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
 
@@ -54,10 +54,13 @@ def main():
 
                     if 'noise' in test_map:
                         epsilon_op = '--epsilon=4'
+                        maxnode_op = '--max-number-nodes=50000'
                     elif 'maze' in test_map:
                         epsilon_op = '--epsilon=7'
+                        maxnode_op = '--max-number-nodes=10000'
                     else:
                         epsilon_op = '--epsilon=10'
+                        maxnode_op = '--max-number-nodes=10000'
 
                     print('Map:{map} policy:{policy} loc:{loc_repeat} @{start},{goal} for {repeating}'.format(
                         map=test_map,
@@ -71,7 +74,7 @@ def main():
                             "start", str(start[0]), str(start[1]),
                             "goal", str(goal[0]), str(goal[1]),
                             '--hide-sampled-points',
-                            '--max-number-nodes=10000',
+                            maxnode_op,
                             '--disable-pygame',
                             epsilon_op,
                             '--policy-name={}'.format(policyname),
