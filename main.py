@@ -28,8 +28,6 @@ Display Options:
 General Sampler Options:
   --epsilon=EPSILON      Set epsilon value.
                          [default: 10.0]
-  --radius=RADIUS        Set radius that will connect two nodes together.
-                         [default: 15]
   --max-number-nodes=MAX_NODES
                          Set maximum number of nodes
                          [default: 30000]
@@ -108,7 +106,7 @@ def main():
     ch.setFormatter(logging.Formatter('%(message)s'))
     # ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     LOGGER.addHandler(ch)
-
+    args['--radius'] = 1.1 * float(args['--epsilon'])
     LOGGER.debug("commandline args: {}".format(args))
 
     from planners.rrtPlanner import RRTPlanner

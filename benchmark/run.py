@@ -10,7 +10,7 @@ from env import Colour
 CUR_PATH = os.path.dirname(sys.argv[0])
 MAPS = ['maps/room1.png', 'maps/maze1.png', 'maps/noise.png']
 POLICIES = ['rrdt']
-REPEAT_DIFFERENT_LOC = 20
+REPEAT_DIFFERENT_LOC = 1
 REPEAT_STATS = 20
 
 sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
@@ -22,8 +22,19 @@ def main():
     for test_map in MAPS:
         # Try different locations
         for _loc in range(REPEAT_DIFFERENT_LOC):
-            start = get_random_free_space(test_map)
-            goal = get_random_free_space(test_map)
+            if test_map == 'maps/maze1.png':
+                start = (36, 26)
+                goal = (297, 311)
+            elif test_map == 'maps/room1.png':
+                start = (99, 205)
+                goal = (474, 359)
+            elif test_map == 'maps/noise.png':
+                start = (5, 27)
+                goal = (431, 194)
+            else:
+                raise Exception("NOT SET")
+            # start = get_random_free_space(test_map)
+            # goal = get_random_free_space(test_map)
             # Repeat for X amount of time for statistical significant
             for _i in range(REPEAT_STATS):
                 # Repeat the same for two different policies

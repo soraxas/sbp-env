@@ -177,13 +177,7 @@ class Env:
             self.planner.run_once()
             # import time
             # time.sleep(.1)
-            # print('invalid c, invalid o, valid s, \n sampler s, f',
-            #     self.stats.invalid_samples_connections,
-            #     self.stats.invalid_samples_obstacles,
-            #     self.stats.valid_sample,
-            #     self.stats.sampler_success,
-            #     self.stats.sampler_fail
-            #     )
+           #     )
         self.planner.terminates_hook()
 
     @check_pygame_enabled
