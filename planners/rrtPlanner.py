@@ -1,6 +1,5 @@
 """Represent a planner."""
 
-from checkCollision import *
 from helpers import *
 
 
@@ -52,7 +51,7 @@ class RRTPlanner:
             self.rewire(newnode, self.nodes)
             self.args.env.draw_path(nn, newnode)
 
-            if dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+            if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
                 if newnode.cost < self.c_max:
                     self.c_max = newnode.cost
                     self.goalPt.parent = newnode
@@ -67,10 +66,10 @@ class RRTPlanner:
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
         if nn is not None:
-            _newnode_to_nn_cost = dist(newnode.pos, nn.pos)
+            _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
         self._new_node_dist_to_all_others = {}
         for p in nodes:
-            _newnode_to_p_cost = dist(newnode.pos, p.pos)
+            _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
             self._new_node_dist_to_all_others[(newnode,
                                                p)] = _newnode_to_p_cost
             if _newnode_to_p_cost <= self.args[
@@ -84,7 +83,7 @@ class RRTPlanner:
             raise LookupError(
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?"
             )
-        newnode.cost = nn.cost + dist(nn.pos, newnode.pos)
+        newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
         newnode.parent = nn
         nn.children.append(newnode)
 
@@ -101,7 +100,7 @@ class RRTPlanner:
                 _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode,
                                                                        n]
             else:
-                _newnode_to_n_cost = dist(newnode.pos, n.pos)
+                _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
             if (n != newnode.parent
                     and _newnode_to_n_cost <= self.args.radius
                     and self.args.env.cc.path_is_free(n.pos, newnode.pos)

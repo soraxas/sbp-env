@@ -1,10 +1,9 @@
 """Represent a planner."""
 import random
-
+import math
 import pygame
 from overrides import overrides
 
-from checkCollision import *
 from helpers import *
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
@@ -24,7 +23,7 @@ class InformedRRTSampler(Sampler):
         path = None
 
         # Computing the sampling space
-        self.cMin = dist(self.start_pos, self.goal_pos) - self.args.goal_radius
+        self.cMin = self.args.env.dist(self.start_pos, self.goal_pos) - self.args.goal_radius
         self.xCenter = np.array(
             [[(self.start_pos[0] + self.goal_pos[0]) / 2.0],
              [(self.start_pos[1] + self.goal_pos[1]) / 2.0], [0]])

@@ -163,7 +163,7 @@ class ParticleManager:
         while True:
             new_p = random.random() * self.args.env.XDIM, random.random() * self.args.env.YDIM
             self.args.env.stats.add_sampled_node(new_p)
-            if self.args.env.collides(new_p):
+            if self.args.env.cc.collides(new_p):
                 self.args.env.stats.add_invalid(obs=True)
             else:
                 self.args.env.stats.add_free()

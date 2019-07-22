@@ -1,11 +1,11 @@
 import logging
 import random
 import matplotlib.pyplot as plt
+import math
 from scipy.special import i0
 
 from overrides import overrides
 
-from checkCollision import *
 from helpers import *
 from planners.particleFilterSampler import (ENERGY_START,
                                             RANDOM_RESTART_PARTICLES_ENERGY_UNDER,
@@ -137,7 +137,7 @@ class TreesManager:
             idx = self.args.planner.find_nearest_neighbour_idx(
                 node.pos, tree.poses[:len(tree.nodes)])
             nn = tree.nodes[idx]
-            if dist(nn.pos, node.pos) < radius:
+            if self.args.env.dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
         # construct list of the found solution. And root at last (or else the result won't be stable)
         root_nn = nearest_nodes.pop(self.root, None)
@@ -506,7 +506,7 @@ class RRdTSampler(ParticleFilterSampler):
                 return None
             rand_pos = _tmp[0]
             self.args.env.stats.add_sampled_node(rand_pos)
-            if not self.args.env.collides(rand_pos):
+            if not self.args.env.cc.collides(rand_pos):
                 return _tmp
             report_fail = _tmp[-1]
             report_fail(pos=rand_pos, obstacle=True)
@@ -558,8 +558,8 @@ class RRdTSampler(ParticleFilterSampler):
         p_idx = None
         for i in range(len(self.p_manager.particles)):
             p = self.p_manager.particles[i]
-            if _dist is None or _dist > dist(pos, p.pos):
-                _dist = dist(pos, p.pos)
+            if _dist is None or _dist > self.args.env.dist(pos, p.pos):
+                _dist = self.args.env.dist(pos, p.pos)
                 p_idx = i
         LOGGER.debug("num of tree: {}".format(
             len(self.tree_manager.disjointedTrees)))
@@ -616,7 +616,7 @@ class RRdTPlanner(RRTPlanner):
                 break
             rand_pos = _tmp[0]
             self.args.sampler.args.env.stats.add_sampled_node(rand_pos)
-            if not self.args.sampler.args.env.collides(rand_pos):
+            if not self.args.sampler.args.env.cc.collides(rand_pos):
                 pass
                 self.args.sampler.args.env.stats.sampler_success += 1
                 break
@@ -665,7 +665,7 @@ class RRdTPlanner(RRTPlanner):
             newnode, nn=nn, nodes=self.args.sampler.tree_manager.root.nodes)
         self.rewire(newnode, nodes=self.args.sampler.tree_manager.root.nodes)
         # check for goal condition
-        if dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+        if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
             if newnode.cost < self.c_max:
                 self.c_max = newnode.cost
                 self.goalPt.parent = newnode

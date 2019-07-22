@@ -4,10 +4,9 @@ import random
 import numpy as np
 import pygame
 import scipy as sp
-import scipy.ndimage
 from overrides import overrides
+from collisionChecker import CollisionChecker
 
-from checkCollision import get_line
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 
@@ -63,7 +62,7 @@ class LikelihoodPolicySampler(Sampler):
         y1 = int(y1 / self.PROB_BLOCK_SIZE)
         x2 = int(x2 / self.PROB_BLOCK_SIZE)
         y2 = int(y2 / self.PROB_BLOCK_SIZE)
-        points = get_line((x1,y1), (x2,y2))
+        points = CollisionChecker.get_line((x1,y1), (x2,y2))
         for p in points:
             self.report_fail(pos=p, free=True, alreadyDividedByProbBlockSize=True)
 

@@ -6,7 +6,7 @@ from math import atan2, cos, sin
 import pygame
 from pygame.locals import *
 
-from checkCollision import *
+from collisionChecker import *
 from helpers import *
 
 LOGGER = logging.getLogger(__name__)
@@ -45,12 +45,12 @@ class Env:
                         mousePos = (int(e.pos[0] / self.args.scaling),
                                     int(e.pos[1] / self.args.scaling))
                         if startPt is None:
-                            if not self.collides(mousePos):
+                            if not self.cc.collides(mousePos):
                                 LOGGER.info(
                                     ('starting point set: ' + str(mousePos)))
                                 startPt = mousePos
                         elif goalPt is None:
-                            if not self.collides(mousePos):
+                            if not self.cc.collides(mousePos):
                                 LOGGER.info(('goal point set: ' + str(mousePos)))
                                 goalPt = mousePos
                         elif e.type == QUIT or (e.type == KEYUP
@@ -67,7 +67,7 @@ class Env:
 
         ##################################################
         # calculate information regarding shortest path
-        self.c_min = dist(self.startPt.pos, self.goalPt.pos)
+        self.c_min = self.dist(self.startPt.pos, self.goalPt.pos)
         self.x_center = (self.startPt.pos[0] + self.goalPt.pos[0]) / 2, (
             self.startPt.pos[1] + self.goalPt.pos[1]) / 2
         dy = self.goalPt.pos[1] - self.startPt.pos[1]
@@ -137,6 +137,13 @@ class Env:
         self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
 
+    @staticmethod
+    def dist(p1, p2):
+        # THIS IS MUCH SLOWER for small array
+        # return np.linalg.norm(p1 - p2)
+        p = p1 - p2;
+        return math.sqrt(p[0] ** 2 + p[1] ** 2)
+
     def pygame_show(self):
         self.args.enable_pygame = True
 
@@ -145,23 +152,11 @@ class Env:
         pygame.display.iconify()
         # pygame.quit()
 
-    def collides(self, p):
-        """check if point is white (which means free space)"""
-        x = int(p[0])
-        y = int(p[1])
-        # make sure x and y is within image boundary
-        if (x < 0 or x >= self.img.get_width() or y < 0
-                or y >= self.img.get_height()):
-            return True
-        color = self.img.get_at((x, y))
-        pointIsObstacle = (color != pygame.Color(*Colour.white))
-        return pointIsObstacle
-
     def step_from_to(self, p1, p2):
         """Get a new point from p1 to p2, according to step size."""
         if self.args.ignore_step_size:
             return p2
-        if dist(p1, p2) < self.args.epsilon:
+        if self.dist(p1, p2) < self.args.epsilon:
             return p2
         else:
             theta = atan2(p2[1] - p1[1], p2[0] - p1[0])
