@@ -2,8 +2,8 @@ import logging
 import random
 
 import numpy as np
-import pygame
 import scipy as sp
+import scipy.ndimage
 from overrides import overrides
 from collisionChecker import CollisionChecker
 
@@ -24,8 +24,6 @@ class LikelihoodPolicySampler(Sampler):
         super().init(**kwargs)
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
-        # probability layer
-        self.prob_layer = pygame.Surface((self.PROB_BLOCK_SIZE * self.args.scaling,self.PROB_BLOCK_SIZE * self.args.scaling), pygame.SRCALPHA)
 
         self.shape = (int(self.args.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.args.YDIM/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(self.shape)
@@ -132,37 +130,3 @@ class LikelihoodPolicySampler(Sampler):
                 # self.prob_vector_normalized *= (1/self.tree_vector * 1.5)
                 self.prob_vector_normalized /= self.prob_vector_normalized.sum()
             self.sampleCount += 1
-
-
-
-#########################################################
-#### FOR PAINTING
-#########################################################
-
-    @staticmethod
-    def get_vector_alpha_parameters(vector):
-        max_prob = vector.max()
-        min_prob = vector.min()
-        denominator = max_prob-min_prob
-        if denominator == 0:
-            denominator = 1 # prevent division by zero
-        return max_prob, min_prob, denominator
-
-
-    @overrides
-    def paint(self, window):
-        if self.prob_vector_normalized is not None:
-            for i in range(self.prob_vector_normalized.shape[0]):
-                for j in range(self.prob_vector_normalized.shape[1]):
-                    max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.prob_vector_normalized)
-                    alpha = 240 * (1 -(self.prob_vector_normalized[i][j]-min_prob)/denominator)
-
-                    # if self.tree_vector[i][j] > 1:
-                    #     max_prob, min_prob, denominator = self.get_vector_alpha_parameters(self.tree_vector)
-                    #     alpha = 240 * (1 - (self.prob_vector_normalized[i][j]-min_prob)/denominator)
-                    #     print(alpha)
-                    #     self.prob_layer.fill((0,255,0,alpha))
-                    # else:
-                    self.prob_layer.fill((255,128,255,alpha))
-                    # print(self.prob_vector_normalized[i][j])
-                    window.blit(self.prob_layer, (i*self.PROB_BLOCK_SIZE*self.args.scaling,j*self.PROB_BLOCK_SIZE*self.args.scaling))

@@ -2,14 +2,12 @@ import logging
 import random
 import matplotlib.pyplot as plt
 import math
-import pygame
 
 import numpy as np
 from scipy.special import i0
 
 from overrides import overrides
 
-from helpers import *
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.baseSampler import Sampler
 from planners.rrtPlanner import RRTPlanner
@@ -101,7 +99,6 @@ class TreesManager:
                 nn.edges.append(newnode)
             if parent_tree is not None:
                 parent_tree.add_newnode(newnode)
-        self.args.env.draw_path(newnode, nn)
         return newnode, nn
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
@@ -172,10 +169,10 @@ class TreesManager:
             newnode = bfs.next()
             progress += 1
             update_progress(progress, total_num, num_of_blocks=20)
-            # draw white (remove edge for visual) on top of disjointed tree
-            for e in (x for x in newnode.edges
-                      if x not in bfs.visitedNodes and x in bfs.validNodes):
-                self.args.env.draw_path(e, newnode, Colour.white)
+            # # draw white (remove edge for visual) on top of disjointed tree
+            # for e in (x for x in newnode.edges
+            #           if x not in bfs.visitedNodes and x in bfs.validNodes):
+            #     self.args.env.draw_path(e, newnode, Colour.white)
             try:
                 self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
             except LookupError:
@@ -479,9 +476,6 @@ class RRdTSampler(Sampler):
         self.randomSampler.init(**kwargs)
         self.randomnessManager = NormalRandomnessManager()
         # probability layer
-        self.particles_layer = pygame.Surface(
-            (self.args.XDIM * self.args.scaling, self.args.YDIM * self.args.scaling),
-            pygame.SRCALPHA)
 
         self.p_manager = MABScheduler(num_dtrees=16,
                                       startPt=self.start_pos,
@@ -645,24 +639,6 @@ class RRdTSampler(Sampler):
         self.last_choice = choice
         return choice
 
-    def paint(self, window):
-        if self._last_prob is None:
-            return
-        max_num = self._last_prob.max()
-        min_num = self._last_prob.min()
-        for i, p in enumerate(self.p_manager.particles):
-            self.particles_layer.fill((255, 128, 255, 0))
-            # get a transition from green to red
-            c = self.get_color_transists(self._last_prob[i], max_num, min_num)
-            c = max(min(255, c), 50)
-            color = (c, c, 0)
-            self.args.env.draw_circle(pos=p.pos, colour=color, radius=4, layer=self.particles_layer)
-            window.blit(self.particles_layer, (0, 0))
-        ##### Texts
-        # text = 'L.S.Walk:{}Res:{}'.format(self.rrt.stats.lscampler_randomwalk_counter, self.rrt.stats.lscampler_restart_counter)
-        # window.blit(self.rrt.myfont.render(text, False, Colour.black, Colour.white), (self.rrt.XDIM * self.rrt.SCALING * 0.5, self.rrt.YDIM * self.rrt.SCALING * 0.95))
-
-
 ############################################################
 ##    PATCHING RRT with disjointed-tree specific stuff    ##
 ############################################################
@@ -755,30 +731,6 @@ class RRdTPlanner(RRTPlanner):
                 self.goalPt.parent = newnode
                 newnode.children.append(self.goalPt.parent)
         return newnode, nn
-
-
-    @overrides
-    def paint(self):
-        drawn_nodes_pairs = set()
-        # Draw disjointed trees
-        for tree in self.args.sampler.tree_manager.disjointedTrees:
-            bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
-            while bfs.has_next():
-                newnode = bfs.next()
-                for e in newnode.edges:
-                    new_set = frozenset({newnode, e})
-                    if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.add(new_set)
-                        self.args.env.draw_path(newnode, e)
-        # Draw root tree
-        for n in self.args.sampler.tree_manager.root.nodes:
-            if n.parent is not None:
-                new_set = frozenset({n, n.parent})
-                if new_set not in drawn_nodes_pairs:
-                    drawn_nodes_pairs.add(new_set)
-                    self.args.env.draw_path(n, n.parent, Colour.orange)
-
-        self.draw_solution_path()
 
 
 ############################################################

@@ -1,9 +1,9 @@
 """Represent a planner."""
+import numpy as np
+from helpers import MagicDict, Node
+from planners.baseSampler import Planner
 
-from helpers import *
-
-
-class RRTPlanner:
+class RRTPlanner(Planner):
     """This planner is largely a RRT planner, though with extra features."""
 
     def __init__(self, **kwargs):
@@ -49,7 +49,6 @@ class RRTPlanner:
             self.add_newnode(newnode)
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, self.nodes)
-            self.args.env.draw_path(nn, newnode)
 
             if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
                 if newnode.cost < self.c_max:
@@ -106,62 +105,16 @@ class RRTPlanner:
                     and self.args.env.cc.path_is_free(n.pos, newnode.pos)
                     and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
-                self.args.env.draw_path(n, n.parent, Colour.white)
                 reconsider = (n.parent, *n.children)
                 n.parent.children.remove(n)
                 n.parent = newnode
                 newnode.children.append(n)
                 n.cost = newnode.cost + _newnode_to_n_cost
                 already_rewired.add(n)
-                self.args.env.draw_path(n, newnode, Colour.path_blue)
                 self.rewire(n, reconsider, already_rewired=already_rewired)
-
-    def terminates_hook(self):
-        """For planner to process anything when planning terminates.
-        RRT does nothing."""
-        pass
 
     @staticmethod
     def find_nearest_neighbour_idx(pos, poses):
         # Make use of numpy fast parallel operation to find all distance with one operation.
         distances = np.linalg.norm(poses - pos, axis=1)
         return np.argmin(distances)
-
-
-############################################################
-##                    DRAWING RELATED                     ##
-############################################################
-
-    def paint(self):
-        # these had already been drawn
-        drawn_nodes_pairs = set()
-        self.args.env.path_layers.fill(Colour.ALPHA_CK)
-        # Draw path trees
-        for n in self.nodes:
-            if n.parent is not None:
-                new_set = frozenset({n, n.parent})
-                if new_set not in drawn_nodes_pairs:
-                    drawn_nodes_pairs.add(new_set)
-                    self.args.env.draw_path(n, n.parent)
-        self.draw_solution_path()
-
-    @check_pygame_enabled
-    def draw_solution_path(self):
-        if self.c_max == float('inf'):
-            # nothing to d
-            return
-
-        # redraw new path
-        self.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
-        nn = self.goalPt.parent
-        self.c_max = nn.cost
-        while nn != self.startPt:
-            self.args.env.draw_path(
-                nn,
-                nn.parent,
-                colour=Colour.blue,
-                line_modifier=5,
-                layer=self.args.env.solution_path_screen)
-            nn = nn.parent
-        self.args.env.window.blit(self.args.env.path_layers, (0, 0))
-        self.args.env.window.blit(self.args.env.solution_path_screen, (0, 0))

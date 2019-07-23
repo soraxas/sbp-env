@@ -1,6 +1,12 @@
 from helpers import MagicDict
+from visualiser import Visualiser
 
-class Sampler:
+
+class Planner(Visualiser):
+    pass
+
+
+class Sampler(Visualiser):
     """
     Base sampler that defines each unique methods that some
     sampler uses but not all. This sampler does nothing with its own.
@@ -10,6 +16,7 @@ class Sampler:
         self.args = MagicDict(kwargs)
         self.start_pos = kwargs['startPt'].pos
         self.goal_pos = kwargs['goalPt'].pos
+        super().init(*argv, **kwargs)
 
     def get_next_pos(self, *argv, **kwargs):
         pass
@@ -34,7 +41,4 @@ class Sampler:
         pass
 
     def add_sample_line(self, *argv, **kwargs):
-        pass
-
-    def paint(self, *argv, **kwargs):
         pass

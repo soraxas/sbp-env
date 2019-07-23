@@ -7,7 +7,7 @@ import pygame
 from pygame.locals import *
 
 from collisionChecker import *
-from helpers import *
+from helpers import Node, check_pygame_enabled, MagicDict, Stats
 
 LOGGER = logging.getLogger(__name__)
 
@@ -220,9 +220,7 @@ class Env:
             count = self.refresh_cnt
             self.refresh_cnt += 1
 
-
 ###################################################################################
-
         def draw_start_goal_pt():
             if self.startPt is not None:
                 self.draw_circle(
@@ -243,9 +241,9 @@ class Env:
 
         if count % 60 == 0:
             try:
-                self.planner.paint()
-            except AttributeError:
-                # raise
+                self.planner.paint(window=self.window)
+            except AttributeError as e:
+                # print(e)
                 pass
             draw_start_goal_pt()
 
@@ -258,8 +256,9 @@ class Env:
         ##### Sampler hook
         if count % 20 == 0:
             try:
-                self.args.sampler.paint(self.window)
-            except AttributeError:
+                self.args.sampler.paint(window=self.window)
+            except AttributeError as e:
+                # print(e)
                 pass
 
         ##### Sampled points

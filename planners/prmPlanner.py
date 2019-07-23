@@ -7,8 +7,6 @@ from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
 
-from helpers import Colour
-
 volume_of_unit_ball = {
     1: 2,
     2: 3.142,
@@ -28,8 +26,6 @@ class PRMSampler(RandomPolicySampler):
     def init(self, **kwargs):
         kwargs['goalBias'] = 0
         super().init(**kwargs)
-        # self.randomSampler = RandomPolicySampler()
-        # self.randomSampler.init(**kwargs)
 
 
 def nearest_neighbours(nodes, poses, pos, radius):
@@ -59,19 +55,6 @@ class PRMPlanner(RRTPlanner):
         self.tree = nx.DiGraph()
         self.tree.add_node(self.args.env.startPt)
         self.args.env.end_state = None
-
-    @overrides
-    def terminates_hook(self):
-        """Run until we reached the specified max nodes"""
-        self.build_graph()
-        # draw all edges
-        for n1, n2 in self.tree.edges():
-            self.args.env.draw_path(n1, n2, Colour.path_blue)
-        self.get_solution()
-        self.args.env.update_screen()
-
-        import time
-        time.sleep(30)
 
     @overrides
     def run_once(self):
@@ -153,18 +136,3 @@ class PRMPlanner(RRTPlanner):
         start.parent = self.args.env.startPt
         self.draw_solution_path()
         return self.c_max
-
-    @overrides
-    def paint(self):
-        drawn_nodes_pairs = set()
-        edges = list(self.tree.edges)
-        # print(edges)
-        for n in self.nodes:
-            self.args.env.draw_circle(
-                pos=n.pos,
-                colour=(0, 0, 255),
-                radius=1.4,
-                layer=self.args.env.path_layers)
-        for edge in edges:
-            edge = np.array(edge).transpose()
-            self.args.env.draw_path(edge[0], edge[1])
