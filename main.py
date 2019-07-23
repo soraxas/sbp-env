@@ -2,9 +2,9 @@
 """RRdT* Research
 
 Usage:
-  main.py (rrdt|rrt|birrt|informedrrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (rrdt|rrt|birrt|informedrrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
@@ -130,9 +130,6 @@ def main():
         from planners.prmPlanner import PRMSampler, PRMPlanner
         sampler = PRMSampler()
         planner_type = PRMPlanner
-    elif args['particle']:
-        from planners.particleFilterSampler import ParticleFilterSampler
-        sampler = ParticleFilterSampler()
     elif args['likelihood']:
         from planners.likelihoodPolicySampler import LikelihoodPolicySampler
         sampler = LikelihoodPolicySampler(
