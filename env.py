@@ -23,8 +23,7 @@ class Env:
         self.args = MagicDict(kwargs)
         self.img = pygame.image.load(self.args.image)
         self.cc = CollisionChecker(self.img)
-        self.XDIM = self.img.get_width()
-        self.YDIM = self.img.get_height()
+        self.dim = np.array([self.img.get_width(), self.img.get_height()])
         self.extra = 25
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
@@ -76,8 +75,6 @@ class Env:
 
         self.planner.init(
             env=self,
-            XDIM=self.XDIM,
-            YDIM=self.YDIM,
             startPt=self.startPt,
             goalPt=self.goalPt,
             **kwargs)
@@ -98,40 +95,40 @@ class Env:
         # text
         pygame.font.init()
         self.myfont = pygame.font.SysFont('Arial',
-                                          int(self.XDIM * 0.04 * self.args.scaling))
+                                          int(self.dim[0] * 0.04 * self.args.scaling))
         ################################################################################
         # main window
         self.window = pygame.display.set_mode([
-            int(self.XDIM * self.args.scaling),
-            int((self.YDIM + self.extra) * self.args.scaling)
+            int(self.dim[0] * self.args.scaling),
+            int((self.dim[1] + self.extra) * self.args.scaling)
         ])
         ################################################################################
         # background aka the room
-        self.background = pygame.Surface([self.XDIM, (self.YDIM + self.extra)])
+        self.background = pygame.Surface([self.dim[0], (self.dim[1] + self.extra)])
         self.background.blit(self.img, (0, 0))
         # resize background to match windows
         self.background = pygame.transform.scale(self.background, [
-            int(self.XDIM * self.args.scaling),
-            int((self.YDIM + self.extra) * self.args.scaling)
+            int(self.dim[0] * self.args.scaling),
+            int((self.dim[1] + self.extra) * self.args.scaling)
         ])
         ################################################################################
         # path of RRT*
         self.path_layers = pygame.Surface([
-            self.XDIM * self.args.scaling, (self.YDIM + self.extra) * self.args.scaling
+            self.dim[0] * self.args.scaling, (self.dim[1] + self.extra) * self.args.scaling
         ])
         self.path_layers.fill(Colour.ALPHA_CK)
         self.path_layers.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the solution path
         self.solution_path_screen = pygame.Surface([
-            self.XDIM * self.args.scaling, (self.YDIM + self.extra) * self.args.scaling
+            self.dim[0] * self.args.scaling, (self.dim[1] + self.extra) * self.args.scaling
         ])
         self.solution_path_screen.fill(Colour.ALPHA_CK)
         self.solution_path_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
         # layers to store the sampled points
         self.sampledPoint_screen = pygame.Surface([
-            self.XDIM * self.args.scaling, (self.YDIM + self.extra) * self.args.scaling
+            self.dim[0] * self.args.scaling, (self.dim[1] + self.extra) * self.args.scaling
         ])
         self.sampledPoint_screen.fill(Colour.ALPHA_CK)
         self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
@@ -287,12 +284,12 @@ class Env:
             else:
                 num_nodes = len(self.planner.nodes)
             # text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
-            # self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.YDIM * self.args.scaling * 0.88))
+            # self.window.blit(self.myfont.render(text, False, Colour.black, Colour.white), (20,self.dim[1] * self.args.scaling * 0.88))
             text = 'Cost: {} | Inv.Samples: {}(con) {}(obs)'.format(
                 _cost, self.stats.invalid_samples_connections,
                 self.stats.invalid_samples_obstacles)
             self.window.blit(
                 self.myfont.render(text, False, Colour.white, Colour.black),
-                (10, (self.YDIM + self.extra) * self.args.scaling * 0.95))
+                (10, (self.dim[1] + self.extra) * self.args.scaling * 0.95))
 
         pygame.display.update()

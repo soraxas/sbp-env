@@ -837,7 +837,7 @@ class MABScheduler:
         """Return a particle that is in free space (from map)"""
         self.args.env.stats.lscampler_restart_counter += 1
         while True:
-            new_p = random.random() * self.args.env.XDIM, random.random() * self.args.env.YDIM
+            new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
             self.args.env.stats.add_sampled_node(new_p)
             if self.args.env.cc.collides(new_p):
                 self.args.env.stats.add_invalid(obs=True)

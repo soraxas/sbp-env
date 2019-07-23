@@ -25,7 +25,7 @@ class LikelihoodPolicySampler(Sampler):
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
 
-        self.shape = (int(self.args.XDIM/self.PROB_BLOCK_SIZE) + 1, int(self.args.YDIM/self.PROB_BLOCK_SIZE) + 1 )
+        self.shape = (int(self.args.env.dim[0]/self.PROB_BLOCK_SIZE) + 1, int(self.args.env.dim[1]/self.PROB_BLOCK_SIZE) + 1 )
         self.prob_vector = np.ones(self.shape)
         self.prob_vector *= 1 # IMPORTANT because we are using log2
         self.obst_vector = np.ones(self.shape)

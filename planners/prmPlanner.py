@@ -64,8 +64,8 @@ class PRMPlanner(RRTPlanner):
 
     def get_free_area(self):
         area = 0
-        for i in range(self.args.env.XDIM):
-            for j in range(self.args.env.YDIM):
+        for i in range(self.args.env.dim[0]):
+            for j in range(self.args.env.dim[1]):
                 color = self.args.env.img.get_at((i, j))
                 if color != (255, 255, 255) and color != (255, 255, 255, 255):
                     area += 1

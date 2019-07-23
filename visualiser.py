@@ -9,8 +9,8 @@ class Visualiser:
     def init(self, *args, **kwargs):
         if self.__class__.__name__ == 'RRdTSampler':
             self.particles_layer = pygame.Surface(
-                (self.args.XDIM * self.args.scaling,
-                 self.args.YDIM * self.args.scaling), pygame.SRCALPHA)
+                (self.args.env.dim[0] * self.args.scaling,
+                 self.args.env.dim[1] * self.args.scaling), pygame.SRCALPHA)
         elif self.__class__.__name__ == 'LikelihoodPolicySampler':
             # probability layer
             self.prob_layer = pygame.Surface(
