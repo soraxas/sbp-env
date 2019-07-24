@@ -27,6 +27,9 @@ class ImgCollisionChecker:
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self.img = image.T
 
+    def get_dimension(self):
+        return self.img.shape
+
     def get_coor_before_collision(self, posA, posB):
         pixels = self.get_line(posA, posB)
         # check that all pixel are white (free space)

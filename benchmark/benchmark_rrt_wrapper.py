@@ -37,7 +37,7 @@ def main():
     env = main.main()
 
     if not SKIP_PYGAME_CAPTURE:
-        env.pygame_init(enable_pygame=True)
+        env.visualiser_init(enable_pygame=True)
         env.pygame_hide()
     if not os.path.exists(BENCHMARK_DIR_NAME):
         os.makedirs(BENCHMARK_DIR_NAME)

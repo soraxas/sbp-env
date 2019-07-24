@@ -198,6 +198,7 @@ if __name__ == '__main__':
         LOGGER.error("==============================")
         LOGGER.error("Waiting to be exit...")
         try:
-            rrt.wait_for_exit()
+            while True:
+                rrt.process_pygame_event()
         except KeyboardInterrupt:
             pass

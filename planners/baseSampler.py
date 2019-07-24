@@ -1,12 +1,12 @@
 from helpers import MagicDict
-from visualiser import Visualiser
+from pygamevisualiser import PygamePlannerVisualiser
 
 
-class Planner(Visualiser):
+class Planner(PygamePlannerVisualiser):
     pass
 
 
-class Sampler(Visualiser):
+class Sampler(PygamePlannerVisualiser):
     """
     Base sampler that defines each unique methods that some
     sampler uses but not all. This sampler does nothing with its own.
