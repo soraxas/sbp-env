@@ -22,7 +22,7 @@ class Env:
         # initialize and prepare screen
         self.args = MagicDict(kwargs)
         self.img = pygame.image.load(self.args.image)
-        self.cc = CollisionChecker(self.img)
+        self.cc = ImgCollisionChecker(self.args.image)
         self.dim = np.array([self.img.get_width(), self.img.get_height()])
         self.extra = 25
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)

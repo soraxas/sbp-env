@@ -1,15 +1,31 @@
 import math
-import pygame
 import numpy as np
 from helpers import Colour
 
 
-
-
-class CollisionChecker:
+class ImgCollisionChecker:
 
     def __init__(self, img):
-        self.img = img
+        """Short summary.
+
+        Parameters
+        ----------
+        img : str
+            Filename of the image where white pixel represents free space.
+        """
+        import matplotlib.image as mimg
+        image = mimg.imread(img)
+        image = mimg.imread("maps/room1.png")
+        image = image.sum(axis=2) / 3
+        # white pixxel should now have value of 1
+        image[image != 1.0] = 0
+
+        # import matplotlib.pyplot as plt
+        # plt.imshow(image)
+        # plt.colorbar()
+
+        # need to transpose because pygame has a difference coordinate system than matplotlib matrix
+        self.img = image.T
 
     def get_coor_before_collision(self, posA, posB):
         pixels = self.get_line(posA, posB)
@@ -17,35 +33,26 @@ class CollisionChecker:
         endPos = posB
         for p in pixels:
             endPos = (p[0], p[1])
-            color = self.img.get_at(endPos)
-            if color != (255, 255, 255) and color != (255, 255, 255, 255):
+            if self.collides(p):
                 break
         return endPos
 
     def path_is_free(self, posA, posB):
-        white = 255, 255, 255
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(posA, posB)
         pixels = self.get_line(posA, posB)
-
         # check that all pixel are white (free space)
         for p in pixels:
-            color = self.img.get_at((p[0], p[1]))
-            if color != (255, 255, 255) and color != (255, 255, 255, 255):
+            if self.collides(p):
                 return False
         return True
 
     def collides(self, p):
         """check if point is white (which means free space)"""
-        x = int(p[0])
-        y = int(p[1])
-        # make sure x and y is within image boundary
-        if (x < 0 or x >= self.img.get_width() or y < 0
-                or y >= self.img.get_height()):
+        try:
+            return self.img[tuple(map(int, p))] != 1
+        except IndexError:
             return True
-        color = self.img.get_at((x, y))
-        pointIsObstacle = (color != pygame.Color(*Colour.white))
-        return pointIsObstacle
 
     @staticmethod
     def get_line(start, end):

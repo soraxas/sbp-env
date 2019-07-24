@@ -60,15 +60,16 @@ class NormalRandomnessManager:
 
 
 class RandomnessManager:
-    def __init__(self):
+    def __init__(self, num_dim=2):
         # draws of random numbers
         self.random_draws = {}
+        self.num_dim = num_dim
 
     def redraw(self, random_method):
         problem = {
-            'num_vars': 2,
-            'names': ['x', 'y'],
-            'bounds': [[0, 1]] * 2
+            'num_vars': self.num_dim,
+            'names': list(range(self.num_dim)),
+            'bounds': [[0, 1]] * self.num_dim
         }
         if random_method == 'pseudo_random':
             seq = np.random.random((NUM_DATA_POINTS, 2))
