@@ -75,22 +75,32 @@ Likelihood/Nearby Sampler Options:
                         [default: 5]
 """
 
+import logging
 import os
 import sys
-import logging
 
 from docopt import docopt
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
-
-import env
 from helpers import MagicDict
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
 
 LOGGER = logging.getLogger()
 
 
 def main():
     args = docopt(__doc__, version='RRT* Research v1.0')
+    ########## Switch Visualiser to inherinet from ##########
+    from pygamevisualiser import (VisualiserSwitcher, PygamePlannerVisualiser,
+                                  PygameEnvVisualiser, BaseEnvVisualiser)
+    if args['--disable-pygame']:
+        # use passthrough visualiser
+        VisualiserSwitcher.choose_env_vis(BaseEnvVisualiser)
+    else:
+        # use pygame visualiser
+        VisualiserSwitcher.choose_env_vis(PygameEnvVisualiser)
+        VisualiserSwitcher.choose_planner_vis(PygamePlannerVisualiser)
+    ########################################
 
     if args['--verbose'] > 2:
         LOGGER.setLevel(logging.DEBUG)
@@ -143,34 +153,20 @@ def main():
         sampler = MouseSampler()
 
     rrt_options = MagicDict({
-        'keep_go_forth':
-            args['--keep-go'],
-        'showSampledPoint':
-            not args['--hide-sampled-points'],
-        'scaling':
-            float(args['--scaling']),
-        'goalBias':
-            float(args['--goal-bias']),
-        'image':
-            args['<MAP>'],
-        'epsilon':
-            float(args['--epsilon']),
-        'max_number_nodes':
-            int(args['--max-number-nodes']),
-        'radius':
-            float(args['--radius']),
-        'goal_radius':
-            2 / 3 * float(args['--radius']),
-        'ignore_step_size':
-            args['--ignore-step-size'],
-        'always_refresh':
-            args['--always-refresh'],
-        'enable_pygame':
-            not args['--disable-pygame'],
-        'sampler':
-            sampler,
-        'rrdt_proposal_distribution':
-            args['--proposal-dist'],
+        'keep_go_forth'             : args['--keep-go'],
+        'showSampledPoint'          : not args['--hide-sampled-points'],
+        'scaling'                   : float(args['--scaling']),
+        'goalBias'                  : float(args['--goal-bias']),
+        'image'                     : args['<MAP>'],
+        'epsilon'                   : float(args['--epsilon']),
+        'max_number_nodes'          : int(args['--max-number-nodes']),
+        'radius'                    : float(args['--radius']),
+        'goal_radius'               : 2 / 3 * float(args['--radius']),
+        'ignore_step_size'          : args['--ignore-step-size'],
+        'always_refresh'            : args['--always-refresh'],
+        'enable_pygame'             : not args['--disable-pygame'],
+        'sampler'                   : sampler,
+        'rrdt_proposal_distribution': args['--proposal-dist'],
     })
     rrtplanner = planner_type(**rrt_options)
     rrt_options.update({
@@ -183,6 +179,7 @@ def main():
             'goalPt': (float(args['<gx>']), float(args['<gy>']))
         })
 
+    import env
     rrt = env.Env(**rrt_options)
     return rrt
 

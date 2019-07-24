@@ -69,6 +69,7 @@ def check_pygame_enabled(func):
     if pygame is not enabled"""
 
     def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
         if not args[0].args.enable_pygame:
             return
         return func(*args, **kwargs)

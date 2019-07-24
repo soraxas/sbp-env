@@ -5,10 +5,45 @@ import sys
 
 import pygame
 from pygame.locals import *
-from helpers import Colour, check_pygame_enabled
+from helpers import Colour
 
 LOGGER = logging.getLogger(__name__)
 
+
+class VisualiserSwitcher():
+    def choose_planner_vis(clname):
+         VisualiserSwitcher.planner_clname = clname
+
+    def choose_env_vis(clname):
+         VisualiserSwitcher.env_clname = clname
+
+
+class BasePlannerVisualiser:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init(self, *args, **kwargs):
+        pass
+
+    def paint(self, *args, **kwargs):
+        pass
+
+    def terminates_hook(self):
+        pass
+
+class BaseEnvVisualiser:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def visualiser_init(self, *args, **kwargs):
+        pass
+
+    def update_screen(self, *args, **kwargs):
+        pass
+
+    def set_start_goal_points(self, *args, **kwargs):
+        if self.startPt is None or self.goalPt is None:
+            raise Exception("start/goal is not set yet")
 
 class PygamePlannerVisualiser:
 
@@ -281,12 +316,11 @@ class PygameEnvVisualiser:
         LOGGER.info('Select Starting Point and then Goal Point')
         if self.startPt is not None and self.goalPt is not None:
             return True
-        mousePos = None
         while self.startPt is None or self.goalPt is None:
+            mousePos = None
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
-                    mousePos = (int(e.pos[0] / self.args.scaling),
-                                int(e.pos[1] / self.args.scaling))
+                    mousePos = np.array(e.pos) / self.args.scaling
                     if self.cc.collides(mousePos):
                         # failed to pass collision check
                         mousePos = None
@@ -295,18 +329,15 @@ class PygameEnvVisualiser:
                         LOGGER.info("Leaving.")
                         return
             # convert mouse pos to Node
-            if mousePos is not None and self.startPt is None:
-                self.startPt = Node(mousePos)
-                LOGGER.info(('starting point set: ' + str(mousePos)))
-                mousePos = None
-            if mousePos is not None and self.goalPt is None:
-                self.goalPt = Node(mousePos)
-                LOGGER.info(('goal point set: ' + str(mousePos)))
-                mousePos = None
+            if mousePos is not None:
+                if self.startPt is None:
+                    self.startPt = Node(mousePos)
+                    LOGGER.info(f'starting point set: {mousePos}')
+                elif self.goalPt is None:
+                    self.goalPt = Node(mousePos)
+                    LOGGER.info(f'goal point set: {mousePos}')
             self.update_screen(update_all=True)
 
-
-    @check_pygame_enabled
     def process_pygame_event(self):
         for e in pygame.event.get():
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
@@ -321,7 +352,6 @@ class PygameEnvVisualiser:
         pygame.display.iconify()
         # pygame.quit()
 
-    @check_pygame_enabled
     def draw_path(self,
                   node1,
                   node2,
@@ -334,13 +364,12 @@ class PygameEnvVisualiser:
                          node2.pos * self.args.scaling,
                          int(line_modifier * self.args.scaling))
 
-    @check_pygame_enabled
     def draw_circle(self, pos, colour, radius, layer):
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
         pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
 
-    @check_pygame_enabled
     def update_screen(self, update_all=False):
+        self.process_pygame_event()
         if 'refresh_cnt' not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
