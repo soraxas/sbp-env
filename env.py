@@ -29,6 +29,7 @@ class Env(PygameEnvVisualiser):
         super().__init__(**kwargs)
 
         self.visualiser_init(kwargs['enable_pygame'])
+        self.startPt = self.goalPt = None
         if startPt:
             self.startPt = Node(startPt)
         if goalPt:
