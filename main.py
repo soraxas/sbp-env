@@ -2,9 +2,9 @@
 """RRdT* Research
 
 Usage:
-  main.py (rrdt|rrt|birrt|informedrrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (rrdt|rrt|birrt|informedrrt|prm|particle|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
@@ -50,6 +50,7 @@ Random Sampler Options:
                         - fast (Fourier Amplitude Sensitivity Test)
                         [default: pseudo_random]
 
+  --keep-go             asdoaskdsioa
 Disjoint Sampler Options:
   --proposal-dist=METHOD
                         Set the proposal distribution to use in the MCMC random
@@ -129,9 +130,6 @@ def main():
         from planners.prmPlanner import PRMSampler, PRMPlanner
         sampler = PRMSampler()
         planner_type = PRMPlanner
-    elif args['particle']:
-        from planners.particleFilterSampler import ParticleFilterSampler
-        sampler = ParticleFilterSampler()
     elif args['likelihood']:
         from planners.likelihoodPolicySampler import LikelihoodPolicySampler
         sampler = LikelihoodPolicySampler(
@@ -145,6 +143,8 @@ def main():
         sampler = MouseSampler()
 
     rrt_options = MagicDict({
+        'keep_go_forth':
+            args['--keep-go'],
         'showSampledPoint':
             not args['--hide-sampled-points'],
         'scaling':
@@ -198,6 +198,7 @@ if __name__ == '__main__':
         LOGGER.error("==============================")
         LOGGER.error("Waiting to be exit...")
         try:
-            rrt.wait_for_exit()
+            while True:
+                rrt.process_pygame_event()
         except KeyboardInterrupt:
             pass

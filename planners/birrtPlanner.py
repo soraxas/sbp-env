@@ -83,7 +83,6 @@ class BiRRTPlanner(RRTPlanner):
             nodes.append(newnode)
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, nodes)
-            self.args.env.draw_path(nn, newnode)
 
             ###################################################################
             # check if two tree joins
@@ -135,15 +134,3 @@ class BiRRTPlanner(RRTPlanner):
             if self.goalPt.parent is not None:
                 if self.goalPt.parent.cost < self.c_max:
                     self.c_max = self.goalPt.parent.cost
-                    self.draw_solution_path()
-
-    @overrides
-    def paint(self):
-        drawn_nodes_pairs = set()
-        for nodes in (self.nodes, self.goal_tree_nodes):
-            for n in nodes:
-                if n.parent is not None:
-                    new_set = frozenset({n, n.parent})
-                    if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.add(new_set)
-                        self.args.env.draw_path(n, n.parent)

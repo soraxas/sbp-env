@@ -1,6 +1,12 @@
 from helpers import MagicDict
+from pygamevisualiser import PygamePlannerVisualiser
 
-class Sampler:
+
+class Planner(PygamePlannerVisualiser):
+    pass
+
+
+class Sampler(PygamePlannerVisualiser):
     """
     Base sampler that defines each unique methods that some
     sampler uses but not all. This sampler does nothing with its own.
@@ -10,6 +16,7 @@ class Sampler:
         self.args = MagicDict(kwargs)
         self.start_pos = kwargs['startPt'].pos
         self.goal_pos = kwargs['goalPt'].pos
+        super().init(*argv, **kwargs)
 
     def get_next_pos(self, *argv, **kwargs):
         pass
@@ -19,7 +26,7 @@ class Sampler:
         while True:
             coordinate, report_success, report_fail = self.get_next_pos()
             self.args.env.stats.add_sampled_node(coordinate)
-            if not self.args.env.collides(coordinate):
+            if not self.args.env.cc.collides(coordinate):
                 return coordinate, report_success, report_fail
             report_fail(pos=coordinate, obstacle=True)
             self.args.env.stats.add_invalid(obs=True)
@@ -34,7 +41,4 @@ class Sampler:
         pass
 
     def add_sample_line(self, *argv, **kwargs):
-        pass
-
-    def paint(self, *argv, **kwargs):
         pass

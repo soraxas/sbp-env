@@ -28,6 +28,7 @@ def main():
         if sys.argv[i].startswith('--policy-name='):
             policyname = sys.argv.pop(i)
             policyname = policyname.replace('--policy-name=', '')
+            break
     if policyname is None:
         # default to policy's name
         policyname = sys.argv[1]
@@ -36,7 +37,7 @@ def main():
     env = main.main()
 
     if not SKIP_PYGAME_CAPTURE:
-        env.pygame_init(enable_pygame=True)
+        env.visualiser_init(enable_pygame=True)
         env.pygame_hide()
     if not os.path.exists(BENCHMARK_DIR_NAME):
         os.makedirs(BENCHMARK_DIR_NAME)
@@ -67,7 +68,7 @@ def main():
         writer.writerow((sys.argv[2], env.startPt.pos, env.goalPt.pos, env.args.epsilon, env.args.goalBias, env.args.max_number_nodes))
         writer.writerow([])
 
-        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost'))
+        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost', 'sam_succ', 'sam_fail', 'sam_succall'))
         start_time = default_timer()
 
         def take_screenshot(term=False):
@@ -83,7 +84,7 @@ def main():
             env.pygame_hide()
 
         def log_performance():
-            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max
+            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max, env.stats.sampler_success, env.stats.sampler_fail, env.stats.sampler_success_all
             writer.writerow(msg)
             f.flush()
 
@@ -98,10 +99,15 @@ def main():
                 take_screenshot()
             env.planner.run_once()
 
+        from planners.prmPlanner import PRMPlanner
+        # special case for prm:
+        if isinstance(env.args.planner, PRMPlanner):
+            env.args.planner.build_graph()
+            env.args.planner.get_solution()
+
         # take another screenshot and log when terminates
         log_performance()
         take_screenshot(term=True)
-
 
 if __name__ == '__main__':
     main()

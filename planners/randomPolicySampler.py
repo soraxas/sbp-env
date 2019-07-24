@@ -26,6 +26,5 @@ class RandomPolicySampler(Sampler):
             p = self.goal_pos
         else:
             p = self.random.get_random(self.random_method)
-            p[0] *= self.args.XDIM
-            p[1] *= self.args.YDIM
+            p *= self.args.env.dim
         return p, self.report_success, self.report_fail
