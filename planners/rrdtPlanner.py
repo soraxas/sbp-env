@@ -330,7 +330,7 @@ class DisjointTreeParticle:
 
 
 class DynamicDisjointTreeParticle(DisjointTreeParticle):
-    def __init__(self, proposal_type='dynamic-vonmises', *args, **kwargs):
+    def __init__(self, proposal_type, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.last_failed = False
@@ -604,18 +604,12 @@ class RRdTSampler(Sampler):
             # new_direction = self.randomnessManager.draw_normal(origin=self.p_manager.get_dir(idx), kappa=1.5)
             new_direction = self.p_manager.particles[idx].draw_sample()
 
-        # scale the half norm by a factor of epsilon
-        # Using this: https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.halfnorm.html
-        # factor = self.randomnessManager.draw_half_normal(self.args.epsilon, scale=self.args.epsilon * 0.5)
-        factor = self.args.epsilon
-        x, y = self.p_manager.get_pos(idx)
-        x += math.cos(new_direction) * factor
-        y += math.sin(new_direction) * factor
-
+        unit_vector = np.array([math.cos(new_direction), math.sin(new_direction)])
+        new_pos = self.p_manager.get_pos(idx) + unit_vector * self.args.epsilon
         self.p_manager.new_pos(idx=idx,
-                               pos=(x, y),
+                               pos=new_pos,
                                dir=new_direction)
-        return (x, y)
+        return new_pos
 
     def get_random_choice(self):
         if self.p_manager.num_dtrees == 1:
