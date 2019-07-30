@@ -12,6 +12,7 @@ from planners.randomPolicySampler import RandomPolicySampler
 from planners.baseSampler import Sampler
 from planners.rrtPlanner import RRTPlanner
 from randomness import NormalRandomnessManager
+from helpers import BFS, update_progress
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,57 +30,6 @@ ENERGY_START = 10
 RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.1#.75
 
 
-def update_progress(progress, total_num, num_of_blocks=10):
-    if not logging.getLogger().isEnabledFor(logging.INFO):
-        return
-    percentage = progress / total_num
-    print(
-        '\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
-            bar='#' * int(percentage * num_of_blocks),
-            cur=progress,
-            total=total_num,
-            percen=percentage * 100,
-            num_of_blocks=num_of_blocks),
-        end='')
-    if percentage == 1:
-        print()
-
-
-class BFS:
-    """Walk through the connected nodes with BFS"""
-
-    def __init__(self, node, validNodes):
-        self.visitedNodes = set()
-        self.validNodes = validNodes
-        self.next_node_to_visit = [node]
-        self.next_node = None
-
-    def visit_node(self, node):
-        self.visitedNodes.add(node)
-        self.next_node_to_visit.extend(node.edges)
-        self.next_node = node
-
-    def has_next(self):
-        if self.next_node is not None:
-            return True
-        if len(self.next_node_to_visit) < 1:
-            return False
-        # get next available node
-        while True:
-            _node = self.next_node_to_visit.pop(0)
-            if _node not in self.visitedNodes and _node in self.validNodes:
-                break
-            if len(self.next_node_to_visit) < 1:
-                return False
-        self.visit_node(_node)
-        return True
-
-    def next(self):
-        node = self.next_node
-        self.next_node = None
-        return node
-
-
 class TreesManager:
     def __init__(self, args, restart_when_merge):
         self.root = None
@@ -87,18 +37,16 @@ class TreesManager:
         self.args = args
         self.restart_when_merge = restart_when_merge
 
-    def connect_two_nodes(self, newnode, nn, parent_tree=None,
-                          draw_only=False):
-        """Add node to disjoint tree OR root tree. Draw line for it too."""
-        if not draw_only:
-            if parent_tree is self.root:
-                # using rrt* algorithm to add each nodes
-                newnode, nn = self.args.planner.rrt_star_add_node(newnode, nn)
-            else:
-                newnode.edges.append(nn)
-                nn.edges.append(newnode)
-            if parent_tree is not None:
-                parent_tree.add_newnode(newnode)
+    def connect_two_nodes(self, newnode, nn, parent_tree=None):
+        """Add node to disjoint tree OR root tree."""
+        if parent_tree is self.root:
+            # using rrt* algorithm to add each nodes
+            newnode, nn = self.args.planner.rrt_star_add_node(newnode, nn)
+        else:
+            newnode.edges.append(nn)
+            nn.edges.append(newnode)
+        if parent_tree is not None:
+            parent_tree.add_newnode(newnode)
         return newnode, nn
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
@@ -221,7 +169,7 @@ class TreesManager:
         if tree1 is self.root:
             # find which middle_node belongs to the disjointed tree
             self.join_tree_to_root(tree2, tree2_node)
-            self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
+            # self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
         else:
             self.connect_two_nodes(tree1_node, tree2_node)
             tree1.extend_tree(tree2)
@@ -474,8 +422,6 @@ class RRdTSampler(Sampler):
 
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
-        self.randomnessManager = NormalRandomnessManager()
-        # probability layer
 
         self.p_manager = MABScheduler(num_dtrees=16,
                                       startPt=self.start_pos,
@@ -485,9 +431,6 @@ class RRdTSampler(Sampler):
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
-        self.keep_go_forth = self.args.keep_go_forth
-
-        self.lsamplers_to_be_restart = []
         self.tree_manager = TreesManager(
             args=self.args, restart_when_merge=self.restart_when_merge)
 
@@ -614,7 +557,7 @@ class RRdTSampler(Sampler):
     def get_random_choice(self):
         if self.p_manager.num_dtrees == 1:
             return 0
-        if self.keep_go_forth:
+        if self.args.keep_go_forth:
             # check if we can skip the rest in ray-casting method by priortising straight line
             if self.p_manager.particles[0].proposal_type == 'ray-casting' and not self.last_failed:
                 return self.last_choice
@@ -669,17 +612,17 @@ class RRdTPlanner(RRTPlanner):
                 _tmp = None
                 break
             rand_pos = _tmp[0]
-            self.args.sampler.args.env.stats.add_sampled_node(rand_pos)
-            if not self.args.sampler.args.env.cc.collides(rand_pos):
+            self.args.env.stats.add_sampled_node(rand_pos)
+            if not self.args.env.cc.collides(rand_pos):
                 pass
-                self.args.sampler.args.env.stats.sampler_success += 1
+                self.args.env.stats.sampler_success += 1
                 break
             report_fail = _tmp[-1]
             report_fail(pos=rand_pos, obstacle=True)
-            self.args.sampler.args.env.stats.add_invalid(obs=True)
-            self.args.sampler.args.env.stats.sampler_fail += 1
+            self.args.env.stats.add_invalid(obs=True)
+            self.args.env.stats.sampler_fail += 1
 
-        self.args.sampler.args.env.stats.sampler_success_all += 1
+        self.args.env.stats.sampler_success_all += 1
 
         if _tmp is None:
             # we have added a new samples when respawning a local sampler
@@ -696,7 +639,7 @@ class RRdTPlanner(RRTPlanner):
             nn = parent_tree.nodes[idx]
             # get an intermediate node according to step-size
             newpos = self.args.env.step_from_to(nn.pos, rand_pos)
-        # check if it is free or not ofree
+        # check if it is free or not
         if not self.args.env.cc.path_is_free(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)

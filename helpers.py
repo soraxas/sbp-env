@@ -1,5 +1,5 @@
 import numpy as np
-
+import logging
 
 class MagicDict(dict):
     """Content is accessable like property."""
@@ -36,6 +36,12 @@ class Node:
         self.parent = None
         self.children = []
 
+    def __getitem__(self, x):
+        return self.pos[x]
+
+    def __len__(self):
+        return len(self.pos)
+
 
 class Stats:
     def __init__(self, showSampledPoint=True):
@@ -62,6 +68,57 @@ class Stats:
         if not self.showSampledPoint:
             return
         self.sampledNodes.append(pos)
+
+
+def update_progress(progress, total_num, num_of_blocks=10):
+    if not logging.getLogger().isEnabledFor(logging.INFO):
+        return
+    percentage = progress / total_num
+    print(
+        '\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
+            bar='#' * int(percentage * num_of_blocks),
+            cur=progress,
+            total=total_num,
+            percen=percentage * 100,
+            num_of_blocks=num_of_blocks),
+        end='')
+    if percentage == 1:
+        print()
+
+
+class BFS:
+    """Walk through the connected nodes with BFS"""
+
+    def __init__(self, node, validNodes):
+        self.visitedNodes = set()
+        self.validNodes = validNodes
+        self.next_node_to_visit = [node]
+        self.next_node = None
+
+    def visit_node(self, node):
+        self.visitedNodes.add(node)
+        self.next_node_to_visit.extend(node.edges)
+        self.next_node = node
+
+    def has_next(self):
+        if self.next_node is not None:
+            return True
+        if len(self.next_node_to_visit) < 1:
+            return False
+        # get next available node
+        while True:
+            _node = self.next_node_to_visit.pop(0)
+            if _node not in self.visitedNodes and _node in self.validNodes:
+                break
+            if len(self.next_node_to_visit) < 1:
+                return False
+        self.visit_node(_node)
+        return True
+
+    def next(self):
+        node = self.next_node
+        self.next_node = None
+        return node
 
 
 def check_pygame_enabled(func):
