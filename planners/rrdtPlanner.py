@@ -30,169 +30,11 @@ ENERGY_START = 10
 RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.1#.75
 
 
-class TreesManager:
-    def __init__(self, args, restart_when_merge):
-        self.root = None
-        self.disjointedTrees = []
-        self.args = args
-        self.restart_when_merge = restart_when_merge
-
-    def connect_two_nodes(self, newnode, nn, parent_tree=None):
-        """Add node to disjoint tree OR root tree."""
-        if parent_tree is self.root:
-            # using rrt* algorithm to add each nodes
-            newnode, nn = self.args.planner.rrt_star_add_node(newnode, nn)
-        else:
-            newnode.edges.append(nn)
-            nn.edges.append(newnode)
-        if parent_tree is not None:
-            parent_tree.add_newnode(newnode)
-        return newnode, nn
-
-    def add_pos_to_existing_tree(self, newnode, parent_tree):
-        """Try to add pos to existing tree. If success, return True."""
-        nearest_nodes = self.find_nearest_node_from_neighbour(
-            node=newnode, parent_tree=parent_tree, radius=self.args.radius)
-        for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
-            if self.args.env.cc.path_is_free(newnode.pos,
-                                        nearest_neighbour_node.pos):
-                if parent_tree is None:
-                    ### joining ORPHAN NODE to a tree
-                    self.connect_two_nodes(newnode, nearest_neighbour_node,
-                                           nearest_neighbour_tree)
-                    parent_tree = nearest_neighbour_tree
-                    LOGGER.debug(
-                        " ==> During respawning particle, joining to existing tree with size: {}"
-                        .format(len(nearest_neighbour_tree.nodes)))
-                else:
-                    ### joining a TREE to another tree
-                    try:
-                        parent_tree = self.join_trees(
-                            parent_tree,
-                            nearest_neighbour_tree,
-                            tree1_node=newnode,
-                            tree2_node=nearest_neighbour_node)
-                    except AssertionError as e:
-                        LOGGER.warning(
-                            "== Assertion error in joining sampled point to existing tree... Skipping this node..."
-                        )
-        return parent_tree
-
-    def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
-        """
-        Given a tree, a node within that tree, and radius
-        Return a list of cloest nodes (and its corresponding tree) within the radius (that's from other neighbourhood trees)
-        Return None if none exists
-        IF root exists in the list, add it at the last position (So the connection behaviour would remain stable)
-            This ensure all previous action would only add add edges to each nodes, and only the last action would it
-            modifies the entire tree structures wtih rrt* procedures.
-        """
-        nearest_nodes = {}
-        for tree in [*self.disjointedTrees, self.root]:
-            if tree is parent_tree:
-                # skip self
-                continue
-            idx = self.args.planner.find_nearest_neighbour_idx(
-                node.pos, tree.poses[:len(tree.nodes)])
-            nn = tree.nodes[idx]
-            if self.args.env.dist(nn.pos, node.pos) < radius:
-                nearest_nodes[tree] = nn
-        # construct list of the found solution. And root at last (or else the result won't be stable)
-        root_nn = nearest_nodes.pop(self.root, None)
-        nearest_nodes_list = [(nearest_nodes[key], key)
-                              for key in nearest_nodes]
-        if root_nn is not None:
-            nearest_nodes_list.append((root_nn, self.root))
-        return nearest_nodes_list
-
-    def join_tree_to_root(self, tree, middle_node):
-        """It will join the given tree to the root"""
-        from env import Colour
-        bfs = BFS(middle_node, validNodes=tree.nodes)
-        # add all nodes from disjoint tree via rrt star method
-        total_num = len(tree.nodes)
-        progress = 0
-        LOGGER.info("> Joining to root tree")
-        while bfs.has_next():
-            newnode = bfs.next()
-            progress += 1
-            update_progress(progress, total_num, num_of_blocks=20)
-            # # draw white (remove edge for visual) on top of disjointed tree
-            # for e in (x for x in newnode.edges
-            #           if x not in bfs.visitedNodes and x in bfs.validNodes):
-            #     self.args.env.draw_path(e, newnode, Colour.white)
-            try:
-                self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
-            except LookupError:
-                LOGGER.warning(
-                    "nn not found when attempting to joint to root. Ignoring..."
-                )
-            # remove this node's edges (as we don't have a use on them anymore) to free memory
-            del newnode.edges
-
-        assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
-            progress, total_num)
-
-
-    def join_trees(self, tree1, tree2, tree1_node, tree2_node):
-        """
-        Join the two given tree together (along with their nodes).
-        It will delete the particle reference from the second tree.
-        It will use RRT* method to add all nodes if one of the tree is the ROOT.
-
-        tree1_node & 2 represent the nodes that join the two tree together. It only matters currently to
-        joining root tree to disjointed treeself.
-
-        Return the tree that has not been killed
-        """
-        assert tree1 is not tree2, "Both given tree should not be the same"
-        if tree1 is self.root:
-            assert tree1 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
-                tree1)
-        elif tree2 is self.root:
-            assert tree2 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
-                tree2)
-
-        LOGGER.info(" => Joining trees with size {} to {}".format(
-            len(tree1.nodes), len(tree2.nodes)))
-        # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
-        # And tree1 node must always be belong to tree1, tree2 node belong to tree2
-        if tree1 is not self.root:
-            # set tree1 as root (if root exists among the two)
-            tree1, tree2 = tree2, tree1
-        if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
-            # swap to correct position
-            tree1_node, tree2_node = tree2_node, tree1_node
-        assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
-        assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
-
-        if tree1 is self.root:
-            # find which middle_node belongs to the disjointed tree
-            self.join_tree_to_root(tree2, tree2_node)
-            # self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
-        else:
-            self.connect_two_nodes(tree1_node, tree2_node)
-            tree1.extend_tree(tree2)
-        del tree2.nodes
-        del tree2.poses
-        self.disjointedTrees.remove(tree2)
-
-        if self.restart_when_merge:
-            # restart all particles
-            for p in tree2.particle_handler:
-                p.restart()
-            del tree2.particle_handler
-        else:
-            # pass the remaining particle to the remaining tree
-            for p in tree2.particle_handler:
-                p.tree = tree1
-                tree1.particle_handler.append(p)
-        return tree1
 
 class DisjointTreeParticle:
 
     def __init__(self,
-                 tree_manager,
+                 planner,
                  p_manager,
                  direction=None,
                  pos=None,
@@ -200,12 +42,8 @@ class DisjointTreeParticle:
                  startPtNode=None):
         self.isroot = isroot
         self.p_manager = p_manager
-        self.tree_manager = tree_manager
+        self.planner = planner
         self.last_node = None
-        if isroot:
-            self.tree_manager.root = TreeRoot(particle_handler=self)
-            self.tree = self.tree_manager.root
-            self.tree.add_newnode(startPtNode)
 
         self.restart(direction=direction, pos=pos)
 
@@ -238,7 +76,7 @@ class DisjointTreeParticle:
         if pos is None:
             # get random position
             pos = self.p_manager.new_pos_in_free_space()
-            merged_tree = self.tree_manager.add_pos_to_existing_tree(
+            merged_tree = self.planner.add_pos_to_existing_tree(
                 Node(pos), None)
             if merged_tree is not None and restart_when_merge:
                 # Successfully found a new valid node that's close to existing tree
@@ -259,7 +97,7 @@ class DisjointTreeParticle:
             # spawn a new tree
             self.tree = TreeDisjoint(particle_handler=self)
             self.tree.add_newnode(Node(pos))
-            self.tree_manager.disjointedTrees.append(self.tree)
+            self.planner.disjointedTrees.append(self.tree)
         self.p_manager.modify_energy(particle_ref=self, set_val=ENERGY_START)
         self._restart(direction, pos)
         return True
@@ -431,32 +269,33 @@ class RRdTSampler(Sampler):
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
-        self.tree_manager = TreesManager(
-            args=self.args, restart_when_merge=self.restart_when_merge)
-
         for _ in range(self.p_manager.num_dtrees - 1):
             pos = self.p_manager.new_pos_in_free_space()
 
             dt_p = DynamicDisjointTreeParticle(
                 proposal_type=self.args.rrdt_proposal_distribution,
                 direction=random.uniform(0, math.pi * 2),
+                planner=self.args.planner,
                 pos=pos,
-                tree_manager=self.tree_manager,
                 p_manager=self.p_manager,
             )
 
             self.p_manager.particles.append(dt_p)
         # spawn one that comes from the root
-        self.p_manager.particles.append(
-            DynamicDisjointTreeParticle(
-                proposal_type=self.args.rrdt_proposal_distribution,
-                direction=random.uniform(0, math.pi * 2),
-                pos=self.start_pos,
-                isroot=True,
-                startPtNode=self.args.env.startPt,
-                tree_manager=self.tree_manager,
-                p_manager=self.p_manager,
-            ))
+        root_particle = DynamicDisjointTreeParticle(
+            proposal_type=self.args.rrdt_proposal_distribution,
+            direction=random.uniform(0, math.pi * 2),
+            planner=self.args.planner,
+            pos=self.start_pos,
+            isroot=True,
+            p_manager=self.p_manager,
+            )
+        #
+        self.args.planner.root = TreeRoot(particle_handler=root_particle)
+        root_particle.tree = self.args.planner.root
+        root_particle.tree.add_newnode(self.args.env.startPt)
+        #
+        self.p_manager.particles.append(root_particle)
 
     def particles_random_free_space_restart(self):
         for i in range(self.p_manager.num_dtrees):
@@ -530,7 +369,7 @@ class RRdTSampler(Sampler):
                 _dist = self.args.env.dist(pos, p.pos)
                 p_idx = i
         LOGGER.debug("num of tree: {}".format(
-            len(self.tree_manager.disjointedTrees)))
+            len(self.disjointedTrees)))
         self.p_manager.new_pos(idx=p_idx, pos=pos, dir=0)
         return pos, p_idx
 
@@ -576,6 +415,8 @@ class RRdTSampler(Sampler):
         self.last_choice = choice
         return choice
 
+
+
 ############################################################
 ##    PATCHING RRT with disjointed-tree specific stuff    ##
 ############################################################
@@ -598,6 +439,11 @@ class Node:
 
 
 class RRdTPlanner(RRTPlanner):
+
+    def __init__(self, *argv, **kwargs):
+        super().__init__(*argv, **kwargs)
+        self.root = None
+        self.disjointedTrees = []
 
     @overrides
     def run_once(self):
@@ -649,18 +495,18 @@ class RRdTPlanner(RRTPlanner):
             self.args.sampler.add_tree_node(newnode.pos)
             report_success(newnode=newnode, pos=newnode.pos)
             ######################
-            newnode, nn = self.args.sampler.tree_manager.connect_two_nodes(
+            newnode, nn = self.connect_two_nodes(
                 newnode, nn, parent_tree)
             # try to add this newnode to existing trees
-            self.args.sampler.tree_manager.add_pos_to_existing_tree(
+            self.add_pos_to_existing_tree(
                 newnode, parent_tree)
 
     def rrt_star_add_node(self, newnode, nn=None):
         """This function perform finding optimal parent, and rewiring."""
 
         newnode, nn = self.choose_least_cost_parent(
-            newnode, nn=nn, nodes=self.args.sampler.tree_manager.root.nodes)
-        self.rewire(newnode, nodes=self.args.sampler.tree_manager.root.nodes)
+            newnode, nn=nn, nodes=self.root.nodes)
+        self.rewire(newnode, nodes=self.root.nodes)
         # check for goal condition
         if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
             if newnode.cost < self.c_max:
@@ -668,6 +514,161 @@ class RRdTPlanner(RRTPlanner):
                 self.goalPt.parent = newnode
                 newnode.children.append(self.goalPt.parent)
         return newnode, nn
+
+##################################################
+## Tree management:
+##################################################
+    def connect_two_nodes(self, newnode, nn, parent_tree=None):
+        """Add node to disjoint tree OR root tree."""
+        if parent_tree is self.root:
+            # using rrt* algorithm to add each nodes
+            newnode, nn = self.rrt_star_add_node(newnode, nn)
+        else:
+            newnode.edges.append(nn)
+            nn.edges.append(newnode)
+        if parent_tree is not None:
+            parent_tree.add_newnode(newnode)
+        return newnode, nn
+
+    def add_pos_to_existing_tree(self, newnode, parent_tree):
+        """Try to add pos to existing tree. If success, return True."""
+        nearest_nodes = self.find_nearest_node_from_neighbour(
+            node=newnode, parent_tree=parent_tree, radius=self.args.radius)
+        for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
+            if self.args.env.cc.path_is_free(newnode.pos,
+                                        nearest_neighbour_node.pos):
+                if parent_tree is None:
+                    ### joining ORPHAN NODE to a tree
+                    self.connect_two_nodes(newnode, nearest_neighbour_node,
+                                           nearest_neighbour_tree)
+                    parent_tree = nearest_neighbour_tree
+                    LOGGER.debug(
+                        " ==> During respawning particle, joining to existing tree with size: {}"
+                        .format(len(nearest_neighbour_tree.nodes)))
+                else:
+                    ### joining a TREE to another tree
+                    try:
+                        parent_tree = self.join_trees(
+                            parent_tree,
+                            nearest_neighbour_tree,
+                            tree1_node=newnode,
+                            tree2_node=nearest_neighbour_node)
+                    except AssertionError as e:
+                        LOGGER.warning(
+                            "== Assertion error in joining sampled point to existing tree... Skipping this node..."
+                        )
+        return parent_tree
+
+    def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
+        """
+        Given a tree, a node within that tree, and radius
+        Return a list of cloest nodes (and its corresponding tree) within the radius (that's from other neighbourhood trees)
+        Return None if none exists
+        IF root exists in the list, add it at the last position (So the connection behaviour would remain stable)
+            This ensure all previous action would only add add edges to each nodes, and only the last action would it
+            modifies the entire tree structures wtih rrt* procedures.
+        """
+        nearest_nodes = {}
+        for tree in [*self.disjointedTrees, self.root]:
+            if tree is parent_tree:
+                # skip self
+                continue
+            idx = self.find_nearest_neighbour_idx(
+                node.pos, tree.poses[:len(tree.nodes)])
+            nn = tree.nodes[idx]
+            if self.args.env.dist(nn.pos, node.pos) < radius:
+                nearest_nodes[tree] = nn
+        # construct list of the found solution. And root at last (or else the result won't be stable)
+        root_nn = nearest_nodes.pop(self.root, None)
+        nearest_nodes_list = [(nearest_nodes[key], key)
+                              for key in nearest_nodes]
+        if root_nn is not None:
+            nearest_nodes_list.append((root_nn, self.root))
+        return nearest_nodes_list
+
+    def join_tree_to_root(self, tree, middle_node):
+        """It will join the given tree to the root"""
+        from env import Colour
+        bfs = BFS(middle_node, validNodes=tree.nodes)
+        # add all nodes from disjoint tree via rrt star method
+        total_num = len(tree.nodes)
+        progress = 0
+        LOGGER.info("> Joining to root tree")
+        while bfs.has_next():
+            newnode = bfs.next()
+            progress += 1
+            update_progress(progress, total_num, num_of_blocks=20)
+            # # draw white (remove edge for visual) on top of disjointed tree
+            # for e in (x for x in newnode.edges
+            #           if x not in bfs.visitedNodes and x in bfs.validNodes):
+            #     self.args.env.draw_path(e, newnode, Colour.white)
+            try:
+                self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+            except LookupError:
+                LOGGER.warning(
+                    "nn not found when attempting to joint to root. Ignoring..."
+                )
+            # remove this node's edges (as we don't have a use on them anymore) to free memory
+            del newnode.edges
+
+        assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
+            progress, total_num)
+
+
+    def join_trees(self, tree1, tree2, tree1_node, tree2_node):
+        """
+        Join the two given tree together (along with their nodes).
+        It will delete the particle reference from the second tree.
+        It will use RRT* method to add all nodes if one of the tree is the ROOT.
+
+        tree1_node & 2 represent the nodes that join the two tree together. It only matters currently to
+        joining root tree to disjointed treeself.
+
+        Return the tree that has not been killed
+        """
+        assert tree1 is not tree2, "Both given tree should not be the same"
+        if tree1 is self.root:
+            assert tree1 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+                tree1)
+        elif tree2 is self.root:
+            assert tree2 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+                tree2)
+
+        LOGGER.info(" => Joining trees with size {} to {}".format(
+            len(tree1.nodes), len(tree2.nodes)))
+        # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
+        # And tree1 node must always be belong to tree1, tree2 node belong to tree2
+        if tree1 is not self.root:
+            # set tree1 as root (if root exists among the two)
+            tree1, tree2 = tree2, tree1
+        if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
+            # swap to correct position
+            tree1_node, tree2_node = tree2_node, tree1_node
+        assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
+        assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
+
+        if tree1 is self.root:
+            # find which middle_node belongs to the disjointed tree
+            self.join_tree_to_root(tree2, tree2_node)
+            # self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
+        else:
+            self.connect_two_nodes(tree1_node, tree2_node)
+            tree1.extend_tree(tree2)
+        del tree2.nodes
+        del tree2.poses
+        self.disjointedTrees.remove(tree2)
+
+        if self.args.sampler.restart_when_merge:
+            # restart all particles
+            for p in tree2.particle_handler:
+                p.restart()
+            del tree2.particle_handler
+        else:
+            # pass the remaining particle to the remaining tree
+            for p in tree2.particle_handler:
+                p.tree = tree1
+                tree1.particle_handler.append(p)
+        return tree1
 
 
 ############################################################

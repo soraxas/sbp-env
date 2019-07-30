@@ -180,7 +180,7 @@ class PygamePlannerVisualiser:
             from planners.rrdtPlanner import BFS
             drawn_nodes_pairs = set()
             # Draw disjointed trees
-            for tree in self.args.sampler.tree_manager.disjointedTrees:
+            for tree in self.disjointedTrees:
                 bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
                 while bfs.has_next():
                     newnode = bfs.next()
@@ -190,7 +190,7 @@ class PygamePlannerVisualiser:
                             drawn_nodes_pairs.add(new_set)
                             self.args.env.draw_path(newnode, e)
             # Draw root tree
-            for n in self.args.sampler.tree_manager.root.nodes:
+            for n in self.root.nodes:
                 if n.parent is not None:
                     new_set = frozenset({n, n.parent})
                     if new_set not in drawn_nodes_pairs:
@@ -442,8 +442,8 @@ class PygameEnvVisualiser:
             if 'RRdTSampler' in self.args.sampler.__str__() and count > 0:
                 num_nodes = sum(
                     len(tree.nodes) for tree in (
-                        *self.args.sampler.tree_manager.disjointedTrees,
-                        self.args.sampler.tree_manager.root))
+                        *self.planner.disjointedTrees,
+                        self.planner.root))
             else:
                 num_nodes = len(self.planner.nodes)
             # text = 'Cost_min: {}  | Nodes: {}'.format(_cost, num_nodes)
