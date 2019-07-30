@@ -14,9 +14,10 @@ class ImgCollisionChecker:
             Filename of the image where white pixel represents free space.
         """
         import matplotlib.image as mimg
-        image = mimg.imread(img)
-        image = mimg.imread("maps/room1.png")
-        image = image.sum(axis=2) / 3
+        from PIL import Image
+        image = Image.open(img).convert('L')
+        image = np.array(image)
+        image = image / 255
         # white pixxel should now have value of 1
         image[image != 1.0] = 0
 

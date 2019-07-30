@@ -6,3 +6,4 @@ matplotlib
 scipy
 SALib
 networkx
+pillow
