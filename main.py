@@ -152,7 +152,7 @@ def main():
         from planners.mouseSampler import MouseSampler
         sampler = MouseSampler()
 
-    rrt_options = MagicDict({
+    planner_options = MagicDict({
         'keep_go_forth'             : args['--keep-go'],
         'showSampledPoint'          : not args['--hide-sampled-points'],
         'scaling'                   : float(args['--scaling']),
@@ -168,27 +168,25 @@ def main():
         'sampler'                   : sampler,
         'rrdt_proposal_distribution': args['--proposal-dist'],
     })
-    rrtplanner = planner_type(**rrt_options)
-    rrt_options.update({
+    rrtplanner = planner_type(**planner_options)
+    planner_options.update({
         'planner': rrtplanner,
     })
 
     if args['start'] and args['goal']:
-        rrt_options.update({
+        planner_options.update({
             'startPt': (float(args['<sx>']), float(args['<sy>'])),
             'goalPt': (float(args['<gx>']), float(args['<gy>']))
         })
-
     import env
-    rrt = env.Env(**rrt_options)
-    return rrt
+    return env.Env(**planner_options)
 
 
 if __name__ == '__main__':
     # run if run from commandline
-    rrt = main()
+    environment = main()
     try:
-        rrt.run()
+        environment.run()
     except Exception as e:
         LOGGER.error("==============================")
         LOGGER.exception("Exception occured: {}".format(e))
@@ -196,6 +194,6 @@ if __name__ == '__main__':
         LOGGER.error("Waiting to be exit...")
         try:
             while True:
-                rrt.process_pygame_event()
+                environment.process_pygame_event()
         except KeyboardInterrupt:
             pass
