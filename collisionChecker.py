@@ -1,9 +1,24 @@
 import math
+from abc import ABC, abstractmethod
+
 import numpy as np
 from helpers import Colour
 
 
-class ImgCollisionChecker:
+class CollisionChecker(ABC):
+
+    @abstractmethod
+    def get_dimension(self):
+        pass
+
+    def visible(self, posA, posB):
+        pass
+
+    def feasible(self, p):
+        pass
+
+
+class ImgCollisionChecker(CollisionChecker):
 
     def __init__(self, img):
         """Short summary.
@@ -37,26 +52,26 @@ class ImgCollisionChecker:
         endPos = posB
         for p in pixels:
             endPos = (p[0], p[1])
-            if self.collides(p):
+            if not self.feasible(p):
                 break
         return endPos
 
-    def path_is_free(self, posA, posB):
+    def visible(self, posA, posB):
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(posA, posB)
         pixels = self.get_line(posA, posB)
         # check that all pixel are white (free space)
         for p in pixels:
-            if self.collides(p):
+            if not self.feasible(p):
                 return False
         return True
 
-    def collides(self, p):
+    def feasible(self, p):
         """check if point is white (which means free space)"""
         try:
-            return self.img[tuple(map(int, p))] != 1
+            return self.img[tuple(map(int, p))] == 1
         except IndexError:
-            return True
+            return False
 
     @staticmethod
     def get_line(start, end):

@@ -88,7 +88,7 @@ class PRMPlanner(RRTPlanner):
                 if m_g is v:
                     continue
                 # check if path between(m_g,m_new) defined by motion-model is collision free
-                if not self.args.env.cc.path_is_free(m_g.pos, v.pos):
+                if not self.args.env.cc.visible(m_g.pos, v.pos):
                     continue
                 self.tree.add_weighted_edges_from([(m_g, v, self.args.env.dist(
                     m_g.pos, v.pos))])
@@ -100,7 +100,7 @@ class PRMPlanner(RRTPlanner):
             if (n is self.args.env.startPt or n is self.args.env.goalPt
                     or n is node):
                 continue
-            if not self.args.env.cc.path_is_free(node.pos, n.pos):
+            if not self.args.env.cc.visible(node.pos, n.pos):
                 continue
             if nn is None:
                 nn = n

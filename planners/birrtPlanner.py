@@ -69,7 +69,7 @@ class BiRRTPlanner(RRTPlanner):
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
-        if not self.args.env.cc.path_is_free(nn.pos, newpos):
+        if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
         else:
             newnode = Node(newpos)
@@ -97,7 +97,7 @@ class BiRRTPlanner(RRTPlanner):
                     other_poses[:len(self.nodes)] - newpos, axis=1)
                 if min(distances) < self.args.epsilon:
                     idx = np.argmin(distances)
-                    if self.args.env.cc.path_is_free(other_poses[idx], newpos):
+                    if self.args.env.cc.visible(other_poses[idx], newpos):
 
                         self.found_solution = True
                         # get the two closest nodes

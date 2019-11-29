@@ -26,7 +26,7 @@ class Sampler(PygamePlannerVisualiser):
         while True:
             coordinate, report_success, report_fail = self.get_next_pos()
             self.args.env.stats.add_sampled_node(coordinate)
-            if not self.args.env.cc.collides(coordinate):
+            if self.args.env.cc.feasible(coordinate):
                 return coordinate, report_success, report_fail
             report_fail(pos=coordinate, obstacle=True)
             self.args.env.stats.add_invalid(obs=True)

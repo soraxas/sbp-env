@@ -459,7 +459,7 @@ class RRdTPlanner(RRTPlanner):
                 break
             rand_pos = _tmp[0]
             self.args.env.stats.add_sampled_node(rand_pos)
-            if not self.args.env.cc.collides(rand_pos):
+            if self.args.env.cc.feasible(rand_pos):
                 pass
                 self.args.env.stats.sampler_success += 1
                 break
@@ -486,7 +486,7 @@ class RRdTPlanner(RRTPlanner):
             # get an intermediate node according to step-size
             newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it is free or not
-        if not self.args.env.cc.path_is_free(nn.pos, newpos):
+        if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
@@ -535,7 +535,7 @@ class RRdTPlanner(RRTPlanner):
         nearest_nodes = self.find_nearest_node_from_neighbour(
             node=newnode, parent_tree=parent_tree, radius=self.args.radius)
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
-            if self.args.env.cc.path_is_free(newnode.pos,
+            if self.args.env.cc.visible(newnode.pos,
                                         nearest_neighbour_node.pos):
                 if parent_tree is None:
                     ### joining ORPHAN NODE to a tree
@@ -777,7 +777,7 @@ class MABScheduler:
         while True:
             new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
             self.args.env.stats.add_sampled_node(new_p)
-            if self.args.env.cc.collides(new_p):
+            if not self.args.env.cc.feasible(new_p):
                 self.args.env.stats.add_invalid(obs=True)
             else:
                 self.args.env.stats.add_free()

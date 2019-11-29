@@ -321,7 +321,7 @@ class PygameEnvVisualiser:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = np.array(e.pos) / self.args.scaling
-                    if self.cc.collides(mousePos):
+                    if not self.cc.feasible(mousePos):
                         # failed to pass collision check
                         mousePos = None
                     elif e.type == QUIT or (e.type == KEYUP

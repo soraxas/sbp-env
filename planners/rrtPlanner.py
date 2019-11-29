@@ -35,7 +35,7 @@ class RRTPlanner(Planner):
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
-        if not self.args.env.cc.path_is_free(nn.pos, newpos):
+        if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
@@ -72,7 +72,7 @@ class RRTPlanner(Planner):
             self._new_node_dist_to_all_others[(newnode,
                                                p)] = _newnode_to_p_cost
             if _newnode_to_p_cost <= self.args[
-                    'radius'] and self.args.env.cc.path_is_free(newnode.pos, p.pos):
+                    'radius'] and self.args.env.cc.visible(newnode.pos, p.pos):
                 # This is another valid parent. Check if it's better than our current one.
                 if nn is None or (p.cost + _newnode_to_p_cost <
                                   nn.cost + _newnode_to_nn_cost):
@@ -102,7 +102,7 @@ class RRTPlanner(Planner):
                 _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
             if (n != newnode.parent
                     and _newnode_to_n_cost <= self.args.radius
-                    and self.args.env.cc.path_is_free(n.pos, newnode.pos)
+                    and self.args.env.cc.visible(n.pos, newnode.pos)
                     and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
                 reconsider = (n.parent, *n.children)
