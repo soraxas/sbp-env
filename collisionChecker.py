@@ -47,7 +47,7 @@ class ImgCollisionChecker(CollisionChecker):
         return self.img.shape
 
     def get_coor_before_collision(self, posA, posB):
-        pixels = self.get_line(posA, posB)
+        pixels = self._get_line(posA, posB)
         # check that all pixel are white (free space)
         endPos = posB
         for p in pixels:
@@ -59,7 +59,7 @@ class ImgCollisionChecker(CollisionChecker):
     def visible(self, posA, posB):
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(posA, posB)
-        pixels = self.get_line(posA, posB)
+        pixels = self._get_line(posA, posB)
         # check that all pixel are white (free space)
         for p in pixels:
             if not self.feasible(p):
@@ -74,7 +74,7 @@ class ImgCollisionChecker(CollisionChecker):
             return False
 
     @staticmethod
-    def get_line(start, end):
+    def _get_line(start, end):
         """Bresenham's Line Algorithm
         Produces a list of tuples from start and end
 

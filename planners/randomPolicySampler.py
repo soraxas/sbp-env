@@ -16,7 +16,11 @@ class RandomPolicySampler(Sampler):
             import sys
             sys.exit(1)
         self.random_method = random_method
-        self.random = RandomnessManager()
+        self.random = None
+
+    @overrides
+    def init(self, *args, **kwargs):
+        self.random = RandomnessManager(num_dim=kwargs['num_dim'])
 
     @overrides
     def get_next_pos(self):

@@ -21,6 +21,7 @@ class Env(VisualiserSwitcher.env_clname):
         self.args = MagicDict(kwargs)
         self.cc = ImgCollisionChecker(self.args.image)
         self.dim = self.cc.get_dimension()
+        kwargs['num_dim'] = len(self.dim)
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
         self.planner = self.args.planner

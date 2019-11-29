@@ -60,7 +60,7 @@ class NormalRandomnessManager:
 
 
 class RandomnessManager:
-    def __init__(self, num_dim=2):
+    def __init__(self, num_dim):
         # draws of random numbers
         self.random_draws = {}
         self.num_dim = num_dim

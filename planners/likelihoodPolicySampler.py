@@ -60,7 +60,7 @@ class LikelihoodPolicySampler(Sampler):
         y1 = int(y1 / self.PROB_BLOCK_SIZE)
         x2 = int(x2 / self.PROB_BLOCK_SIZE)
         y2 = int(y2 / self.PROB_BLOCK_SIZE)
-        points = ImgCollisionChecker.get_line((x1, y1), (x2, y2))
+        points = ImgCollisionChecker._get_line((x1, y1), (x2, y2))
         for p in points:
             self.report_fail(pos=p, free=True, alreadyDividedByProbBlockSize=True)
 
