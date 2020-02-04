@@ -2,6 +2,63 @@
 import numpy as np
 from helpers import MagicDict, Node
 from planners.baseSampler import Planner
+from rtree import index
+
+class Tree():
+
+    def __init__(self, dimension):
+        p = index.Property()
+        p.dimension = dimension
+        self.V = index.Index(interleaved=True, properties=p)
+        self.V_count = 0
+        self.E = {}  # edges in form E[child] = parent
+
+    def add_vertex(self, v, pos):
+        if len(pos) == 2:
+            # print(v)
+            # print(pos)
+            # print(np.tile(pos, 2))
+            self.V.insert(0, tuple(pos), v)
+        else:
+            self.V.insert(0, np.tile(pos, 2), v)
+        self.V_count += 1  # increment number of vertices in tree
+
+    def add_edge(self, child, parent):
+        self.E[child] = parent
+
+    def nearby(self, x, n):
+        return self.V.nearest(np.tile(x, 2), num_results=n, objects="raw")
+
+    def get_nearest(self, x):
+        return next(self.nearby(x, 1))
+
+    # def connect_to_point(self, tree, x_a, x_b):
+    #     """
+    #     Connect vertex x_a in tree to vertex x_b
+    #     :param tree: int, tree to which to add edge
+    #     :param x_a: tuple, vertex
+    #     :param x_b: tuple, vertex
+    #     :return: bool, True if able to add edge, False if prohibited by an obstacle
+    #     """
+    #     if self.V.count(x_b) == 0 and self.X.collision_free(x_a, x_b, self.r):
+    #         self.add_vertex(tree, x_b)
+    #         self.add_edge(tree, x_b, x_a)
+    #         return True
+    #     return False
+
+    # def can_connect_to_goal(self, tree):
+    #     """
+    #     Check if the goal can be connected to the graph
+    #     :param tree: rtree of all Vertices
+    #     :return: True if can be added, False otherwise
+    #     """
+    #     x_nearest = self.get_nearest(tree, self.x_goal)
+    #     if self.x_goal in self.E and x_nearest in self.E[self.x_goal]:
+    #         # tree is already connected to goal using nearest vertex
+    #         return True
+    #     if self.X.collision_free(x_nearest, self.x_goal, self.r):  # check if obstacle-free
+    #         return True
+    #     return False
 
 class RRTPlanner(Planner):
     """This planner is largely a RRT planner, though with extra features."""
@@ -9,7 +66,7 @@ class RRTPlanner(Planner):
     def __init__(self, **kwargs):
         self.args = MagicDict(kwargs)
         self.poses = np.empty((self.args.max_number_nodes + 50,
-                               2))  # +50 to prevent over flow
+                               kwargs['num_dim']))  # +50 to prevent over flow
         self.c_max = float('inf')
         # this dict is to temparily store distance of a new node to all others
         # so that in the next run other functions (eg choose_least_cost_parent and rwire)
@@ -17,6 +74,8 @@ class RRTPlanner(Planner):
         self._new_node_dist_to_all_others = {}
         self.nodes = []
         self.args.env = None  # will be set by env itself
+        self.tree = Tree(kwargs['num_dim'])
+
 
     def init(self, *argv, **kwargs):
         # self.args.env = kwargs['RRT']
@@ -46,38 +105,94 @@ class RRTPlanner(Planner):
             ######################
             newnode, nn = self.choose_least_cost_parent(
                 newnode, nn, nodes=self.nodes)
+                # newnode, nn, nodes=self.nodes, skip_optimality=True)
             self.add_newnode(newnode)
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, self.nodes)
+            # self.rewire(newnode, self.nodes, skip_optimality=True)
 
-            if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
-                if newnode.cost < self.c_max:
-                    self.c_max = newnode.cost
-                    self.goalPt.parent = newnode
-                    newnode.children.append(self.goalPt.parent)
-                    self.draw_solution_path()
+            # newnode.parent = nn
+            # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+
+            if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+                if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+                    if newnode.cost < self.c_max:
+                        print('finished at ', self.args.env.stats.valid_sample)
+                        self.c_max = newnode.cost
+                        self.goalPt.parent = newnode
+                        newnode.children.append(self.goalPt.parent)
+                        self.draw_solution_path()
 
     def add_newnode(self, node):
+        self.tree.add_vertex(node, pos=node.pos)
+
         self.poses[len(self.nodes)] = node.pos
         self.nodes.append(node)
 
-    def choose_least_cost_parent(self, newnode, nn=None, nodes=None):
+    def choose_least_cost_parent(self, newnode, nn=None, nodes=None,
+                                 skip_optimality=False):
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
-        if nn is not None:
-            _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
-        self._new_node_dist_to_all_others = {}
-        for p in nodes:
-            _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
-            self._new_node_dist_to_all_others[(newnode,
-                                               p)] = _newnode_to_p_cost
-            if _newnode_to_p_cost <= self.args[
-                    'radius'] and self.args.env.cc.visible(newnode.pos, p.pos):
-                # This is another valid parent. Check if it's better than our current one.
-                if nn is None or (p.cost + _newnode_to_p_cost <
-                                  nn.cost + _newnode_to_nn_cost):
-                    nn = p
-                    _newnode_to_nn_cost = _newnode_to_p_cost
+        if skip_optimality:
+            if nn is None:
+                raise RuntimeError("Not enough information")
+            newnode.parent = nn
+            newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+            return newnode, nn
+
+        use_rtree = True
+
+        if use_rtree:
+            nn2 = None
+
+            canidates = sorted([(self.args.env.dist(newnode.pos, n.pos), n)
+                                for n in self.tree.nearby(newnode.pos, n=20)])
+
+            for dist, n in canidates:
+                if dist <= self.args['radius'] and self.args.env.cc.visible(newnode.pos, n.pos):
+                    nn2 = n
+                    break
+            if nn2 is None:
+                if nn is None:
+                    raise RuntimeError()
+                nn2 = nn
+            newnode.cost = nn2.cost + self.args.env.dist(nn2.pos, newnode.pos)
+            newnode.parent = nn2
+            nn2.children.append(newnode)
+            return newnode, nn2
+
+
+        # if nn is not None:
+        #     _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
+        # self._new_node_dist_to_all_others = {}
+        # for p in nodes:
+        #     _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
+        #     self._new_node_dist_to_all_others[(newnode,
+        #                                        p)] = _newnode_to_p_cost
+        #     if _newnode_to_p_cost <= self.args[
+        #             'radius'] and self.args.env.cc.visible(newnode.pos, p.pos):
+        #         # This is another valid parent. Check if it's better than our current one.
+        #         if nn is None or (p.cost + _newnode_to_p_cost <
+        #                           nn.cost + _newnode_to_nn_cost):
+        #             nn = p
+        #             _newnode_to_nn_cost = _newnode_to_p_cost
+        #
+        # print(list(self.tree.nearby(newnode.pos, n=100)))
+
+
+
+        # prev = None
+        # for n in self.tree.nearby(newnode.pos, n=100):
+        #     if prev is not None:
+        #         assert self.args.env.dist(prev.pos, newnode.pos) <= self.args.env.dist(n.pos, newnode.pos), (self.args.env.dist(prev.pos, newnode.pos), self.args.env.dist(n.pos, newnode.pos))
+        #     prev = n
+
+        # exit()
+
+
+
+        # print(nn, nn2)
+
         if nn is None:
             raise LookupError(
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?"
@@ -88,10 +203,52 @@ class RRTPlanner(Planner):
 
         return newnode, nn
 
-    def rewire(self, newnode, nodes, already_rewired=None):
+    def rewire(self, newnode, nodes, already_rewired=None, skip_optimality=False):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+        if skip_optimality:
+            return
         if len(nodes) < 1:
             return
+
+        use_rtree = True
+
+        if use_rtree:
+            if already_rewired is None:
+                already_rewired = {newnode}
+
+            canidates = [(self.args.env.dist(newnode.pos, n.pos), n) for n in
+                         self.tree.nearby(newnode.pos, n=20)]
+            canidates = sorted(canidates)
+
+            for dist, n in canidates:
+                if n in already_rewired:
+                    continue
+
+                _newnode_to_n_cost = dist
+                if (n != newnode.parent
+                        and _newnode_to_n_cost <= self.args.radius
+                        and self.args.env.cc.visible(n.pos, newnode.pos)
+                        and newnode.cost + _newnode_to_n_cost < n.cost):
+                    # draw over the old wire
+                    # reconsider = (n.parent, *n.children)
+                    reconsider = n.children
+                    n.parent.children.remove(n)
+                    n.parent = newnode
+                    newnode.children.append(n)
+                    n.cost = newnode.cost + _newnode_to_n_cost
+                    already_rewired.add(n)
+                    self.rewire(n, reconsider, already_rewired=already_rewired)
+            return
+
+            #     if n != newnode.parent and self.args.env.dist(newnode.pos, n.pos) <= self.args[
+            #         'radius'] and self.args.env.cc.visible(newnode.pos, n.pos):
+            #         nn2 = n
+            #         break
+            # if nn2 is None:
+            #     nn2 = nn
+            # return nn2
+
+
         if already_rewired is None:
             already_rewired = {newnode}
         for n in (x for x in nodes if x not in already_rewired):

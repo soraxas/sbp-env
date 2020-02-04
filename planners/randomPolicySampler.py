@@ -20,6 +20,7 @@ class RandomPolicySampler(Sampler):
 
     @overrides
     def init(self, *args, **kwargs):
+        super().init(*args, **kwargs)
         self.random = RandomnessManager(num_dim=kwargs['num_dim'])
 
     @overrides
@@ -29,6 +30,17 @@ class RandomPolicySampler(Sampler):
             # goal bias
             p = self.goal_pos
         else:
-            p = self.random.get_random(self.random_method)
-            p *= self.args.env.dim
+            if self.use_radian:
+                import numpy as np
+
+                low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
+                              -3.12413936106985, -2.443460952792061, -3.12413936106985],
+                             [3.12413936106985, 2.2689280275926285, 2.530727415391778,
+                              3.12413936106985, 2.007128639793479, 3.12413936106985])
+                p = np.random.uniform(low, high)
+
+            else:
+                p = self.random.get_random(self.random_method)
+                p *= self.args.env.dim
+
         return p, self.report_success, self.report_fail

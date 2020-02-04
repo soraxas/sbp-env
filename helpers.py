@@ -42,6 +42,8 @@ class Node:
     def __len__(self):
         return len(self.pos)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}<{self.pos}>"
 
 class Stats:
     def __init__(self, showSampledPoint=True):
@@ -53,6 +55,8 @@ class Stats:
         self.sampler_success = 0
         self.sampler_success_all = 0
         self.sampler_fail = 0
+        self.visible_cnt = 0
+        self.feasible_cnt = 0
 
     def add_invalid(self, obs):
         if obs:
@@ -127,7 +131,7 @@ def check_pygame_enabled(func):
 
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
-        if not args[0].args.enable_pygame:
+        if args[0].args.no_display:
             return
         return func(*args, **kwargs)
 

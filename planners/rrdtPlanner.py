@@ -7,6 +7,7 @@ import numpy as np
 from scipy.special import i0
 
 from overrides import overrides
+from tqdm import tqdm
 
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.baseSampler import Sampler
@@ -45,7 +46,7 @@ class DisjointTreeParticle:
         self.planner = planner
         self.last_node = None
 
-        self.restart(direction=direction, pos=pos)
+        self.restart(direction=direction, pos=pos, restart_when_merge=False)
 
     def _restart(self, direction=None, pos=None):
         if direction is None:
@@ -138,14 +139,22 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.failed = 0
         self.failed_reset = 0
 
-        if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
-            x = np.linspace(-np.pi, np.pi, num=61)
-            y = np.exp(self.kappa*np.cos(x-mu))/(2*np.pi*i0(self.kappa))
-            self.x = x
-            self.y = y / np.linalg.norm(y, ord=1)
+        if self.proposal_type in ('dynamic-vonmises', 'ray-casting', 'original'):
+            self.last_origin = None
+            # x = np.linspace(-np.pi, np.pi, num=61)
+            # y = np.exp(self.kappa*np.cos(x-mu))/(2*np.pi*i0(self.kappa))
+            # self.x = x
+            # self.y = y / np.linalg.norm(y, ord=1)
 
-            self.A = self.y.copy()
-            self.last_origin = 0
+            pass
+            self.A = None
+            # random mu
+            # mu = np.random.rand(3)
+            # mu = mu / np.linalg.norm(mu, ord=1)
+            # self.x, self.y = self.generate_pmf(dim=6, mu=mu, kappa=2)
+            #
+            # self.A = self.y.copy()
+            # self.last_origin = mu
 
         ############################################## https://stackoverflow.com/questions/4098131/how-to-update-a-plot-in-matplotlib
             if self.show_fig:
@@ -157,12 +166,49 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
                 plt.draw()
                 plt.pause(1e-4)
 
+    @staticmethod
+    def rand_unit_vecs(num_dims, number):
+        """Get random unit vectors"""
+        vec = np.random.standard_normal((number, num_dims))
+        vec = vec / np.linalg.norm(vec, axis=1)[:, None]
+        return vec
+
+    @staticmethod
+    def generate_pmf(num_dims, mu, kappa, unit_vector_support=None, num=None, plot=False):
+        assert num_dims >= 1
+        if num is None:
+            num = 361 * (num_dims - 1) ** 2
+        # assert np.all(np.isclose(np.linalg.norm(mu, axis=0), 1)), mu
+        ####
+        if unit_vector_support is None:
+            unit_vector_support = DynamicDisjointTreeParticle.rand_unit_vecs(num_dims,
+                                                                             num).T
+
+        pmf = np.exp(kappa * mu.dot(unit_vector_support))
+        pmf = pmf / pmf.sum()
+
+        return unit_vector_support, pmf
+
     def draw_sample(self, origin=None):
+        if self.proposal_type in ('dynamic-vonmises', 'original'):
+
+            if self.last_origin is None:
+                # first time
+                mu = np.random.standard_normal((1, 6))
+                mu = mu / np.linalg.norm(mu, axis=1)[:, None]
+                self.provision_dir = mu[0]
+                return self.provision_dir
+            elif self.A is None:
+                self.x, self.y = self.generate_pmf(num_dims=6, mu=self.last_origin, kappa=2)
+
+                self.A = self.y.copy()
+                # self.last_origin = mu
+
         if origin is None:
             # use self direction if none is given.
             origin = self.dir
 
-        self.last_origin = origin
+        # self.last_origin = origin
 
         # use argmax or draw probabilistically
         if self.proposal_type == 'ray-casting':
@@ -174,25 +220,32 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
             xi = self.x[x_idx]
 
         elif self.proposal_type == 'dynamic-vonmises':
-            bin_width = self.x[1] - self.x[0]
-            xi = np.random.choice(self.x, p=self.A)
-            xi = np.random.uniform(xi, xi + bin_width)
+            # bin_width = self.x[1] - self.x[0]
+            xi_idx = np.random.choice(range(self.x.shape[1]), p=self.A)
+            xi = self.x[:, xi_idx]
+            # xi = np.random.uniform(xi, xi + bin_width)
 
         elif self.proposal_type == 'original':
-            global randomnessManager
-            xi = randomnessManager.draw_normal(origin=0, kappa=self.kappa)
+            # bin_width = self.x[1] - self.x[0]
+            xi_idx = np.random.choice(range(self.x.shape[1]), p=self.A)
+            xi = self.x[:, xi_idx]
+            # xi = np.random.uniform(xi, xi + bin_width)
+            # global randomnessManager
+            # xi = randomnessManager.draw_normal(origin=origin, kappa=self.kappa)
 
         else:
             raise Exception("BUGS?")
-        return xi + origin
+        return xi #+ origin
 
     def success(self):
         self.successed += 1
         self.failed_reset = 0
-        if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
+        self.last_origin = self.provision_dir
+        if self.proposal_type in ('dynamic-vonmises', 'ray-casting', 'original'):
             # reset to the original von mises
             # TODO make a sharper von mises distribution (higher kappa) when succes
-            self.A = self.y.copy()
+            # self.A = self.y.copy()
+            self.A = None
 
             self.last_failed = False
 
@@ -210,10 +263,17 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         self.failed_reset += 1
         self.failed += 1
         if self.proposal_type in ('dynamic-vonmises', 'ray-casting'):
-
+            if self.last_origin is None:
+                # still in phrase 1
+                return
             self.last_failed = True
             def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
                 return sigma**2 * np.exp(-(2 *np.sin((x - xprime)/2)**2)/ (length_scale**2))
+
+            def k(x, xprime, sigma=.1, length_scale=np.pi / 4):
+                return sigma ** 2 * np.exp(-(2 * np.sin(
+                    (np.linalg.norm(x - xprime[:, None], axis=0)) / 2) ** 2) / (
+                                                       length_scale ** 2))
 
             # get previous trying direction
             xi = self.provision_dir
@@ -261,7 +321,7 @@ class RRdTSampler(Sampler):
         self.randomSampler = RandomPolicySampler()
         self.randomSampler.init(**kwargs)
 
-        self.p_manager = MABScheduler(num_dtrees=16,
+        self.p_manager = MABScheduler(num_dtrees=4,
                                       startPt=self.start_pos,
                                       goalPt=self.goal_pos,
                                       args=self.args)
@@ -269,7 +329,7 @@ class RRdTSampler(Sampler):
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
-        for _ in range(self.p_manager.num_dtrees - 1):
+        for _ in range(self.p_manager.num_dtrees - 2):  # minus two for start and goal point
             pos = self.p_manager.new_pos_in_free_space()
 
             dt_p = DynamicDisjointTreeParticle(
@@ -290,6 +350,22 @@ class RRdTSampler(Sampler):
             isroot=True,
             p_manager=self.p_manager,
             )
+        # spawn one that comes from the goal
+        goal_dt_p = DynamicDisjointTreeParticle(
+            proposal_type=self.args.rrdt_proposal_distribution,
+            direction=random.uniform(0, math.pi * 2),
+            planner=self.args.planner,
+            pos=self.goal_pos,
+            isroot=False,
+            p_manager=self.p_manager,
+            )
+        # goal_dt_p.restart(
+        #             restart_when_merge=self.restart_when_merge)
+        # goal_dt_p.restart(
+        #             restart_when_merge=False)
+
+        goal_dt_p.tree.add_newnode(self.args.env.goalPt)
+        self.p_manager.particles.append(goal_dt_p)
         #
         self.args.planner.root = TreeRoot(particle_handler=root_particle)
         root_particle.tree = self.args.planner.root
@@ -350,7 +426,6 @@ class RRdTSampler(Sampler):
         # NOTE This controls if testing (via mouse) or actual runs
         pos = self.randomWalk(choice)
         # pos, choice = self.random_walk_by_mouse()
-
         return (pos, self.p_manager.particles[choice].tree,
                 self.p_manager.particles[choice].last_node,
                 lambda c=choice, **kwargs: self.report_success(c, **kwargs),
@@ -376,7 +451,7 @@ class RRdTSampler(Sampler):
     def randomWalk(self, idx):
         self.args.env.stats.lscampler_randomwalk_counter +=1
         # Randomly bias toward goal direction
-        if random.random() < self.args.goalBias:
+        if False and random.random() < self.args.goalBias:
             dx = self.goal_pos[0] - self.p_manager.get_pos(idx)[0]
             dy = self.goal_pos[1] - self.p_manager.get_pos(idx)[1]
             goal_direction = math.atan2(dy, dx)
@@ -386,8 +461,9 @@ class RRdTSampler(Sampler):
             # new_direction = self.randomnessManager.draw_normal(origin=self.p_manager.get_dir(idx), kappa=1.5)
             new_direction = self.p_manager.particles[idx].draw_sample()
 
-        unit_vector = np.array([math.cos(new_direction), math.sin(new_direction)])
-        new_pos = self.p_manager.get_pos(idx) + unit_vector * self.args.epsilon
+        # print(new_direction)
+        # unit_vector = np.array([math.cos(new_direction), math.sin(new_direction)])
+        new_pos = self.p_manager.get_pos(idx) + new_direction * self.args.epsilon * 3
         self.p_manager.new_pos(idx=idx,
                                pos=new_pos,
                                dir=new_direction)
@@ -491,6 +567,24 @@ class RRdTPlanner(RRTPlanner):
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
+
+            # if True:
+            #     from klampt import vis
+            #     from klampt.model.coordinates import Point, Direction
+            #     import numpy as np
+            #
+            #     self.args.env.cc.robot.setConfig(self.args.env.cc._translate_to_klampt(newpos))
+            #     link = self.args.env.cc.robot.link(11)
+            #
+            #     unique_label = f"pt{self.args.env.stats.valid_sample}"
+            #     pos = link.getWorldPosition([0, 0, 0])
+            #     vis.add(unique_label, Point(pos), keepAppearance=True)
+            #     # print(unique_label)
+            #     vis.setAttribute(unique_label, "size", 20)
+            #     vis.setAttribute(unique_label, "color", (1, 0, 0, 1))
+            #     vis.hideLabel(unique_label)
+
+
             self.args.env.stats.add_free()
             self.args.sampler.add_tree_node(newnode.pos)
             report_success(newnode=newnode, pos=newnode.pos)
@@ -509,10 +603,11 @@ class RRdTPlanner(RRTPlanner):
         self.rewire(newnode, nodes=self.root.nodes)
         # check for goal condition
         if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
-            if newnode.cost < self.c_max:
-                self.c_max = newnode.cost
-                self.goalPt.parent = newnode
-                newnode.children.append(self.goalPt.parent)
+            if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+                if newnode.cost < self.c_max:
+                    self.c_max = newnode.cost
+                    self.goalPt.parent = newnode
+                    newnode.children.append(self.goalPt.parent)
         return newnode, nn
 
 ##################################################
@@ -520,6 +615,18 @@ class RRdTPlanner(RRTPlanner):
 ##################################################
     def connect_two_nodes(self, newnode, nn, parent_tree=None):
         """Add node to disjoint tree OR root tree."""
+
+        # hot fix. if nn has no edges, it should be from root tree
+        if parent_tree is not self.root:
+            try:
+                nn.edges
+                newnode.edges
+            except AttributeError:
+                parent_tree = self.root
+                LOGGER.warning(
+                    f"HOT FIX with parent_tree-is-None={parent_tree is None}"
+                )
+
         if parent_tree is self.root:
             # using rrt* algorithm to add each nodes
             newnode, nn = self.rrt_star_add_node(newnode, nn)
@@ -527,6 +634,12 @@ class RRdTPlanner(RRTPlanner):
             newnode.edges.append(nn)
             nn.edges.append(newnode)
         if parent_tree is not None:
+            # try:
+            #     parent_tree.nodes
+            # except:
+            #     pass
+            # else:
+            #     parent_tree.add_newnode(newnode)
             parent_tree.add_newnode(newnode)
         return newnode, nn
 
@@ -542,9 +655,9 @@ class RRdTPlanner(RRTPlanner):
                     self.connect_two_nodes(newnode, nearest_neighbour_node,
                                            nearest_neighbour_tree)
                     parent_tree = nearest_neighbour_tree
-                    LOGGER.debug(
-                        " ==> During respawning particle, joining to existing tree with size: {}"
-                        .format(len(nearest_neighbour_tree.nodes)))
+                    # LOGGER.debug(
+                    #     " ==> During respawning particle, joining to existing tree with size: {}"
+                    #     .format(len(nearest_neighbour_tree.nodes)))
                 else:
                     ### joining a TREE to another tree
                     try:
@@ -553,6 +666,7 @@ class RRdTPlanner(RRTPlanner):
                             nearest_neighbour_tree,
                             tree1_node=newnode,
                             tree2_node=nearest_neighbour_node)
+                        return parent_tree
                     except AssertionError as e:
                         LOGGER.warning(
                             "== Assertion error in joining sampled point to existing tree... Skipping this node..."
@@ -586,33 +700,38 @@ class RRdTPlanner(RRTPlanner):
             nearest_nodes_list.append((root_nn, self.root))
         return nearest_nodes_list
 
-    def join_tree_to_root(self, tree, middle_node):
+    def join_tree_to_root(self, tree, middle_node, root_tree_node):
         """It will join the given tree to the root"""
-        from env import Colour
+        # from env import Colour
         bfs = BFS(middle_node, validNodes=tree.nodes)
         # add all nodes from disjoint tree via rrt star method
         total_num = len(tree.nodes)
         progress = 0
         LOGGER.info("> Joining to root tree")
+        pbar = tqdm(desc="join to root", total=total_num)
+        nn = root_tree_node
         while bfs.has_next():
             newnode = bfs.next()
-            progress += 1
-            update_progress(progress, total_num, num_of_blocks=20)
+            # progress += 1
+            pbar.update()
+            # update_progress(progress, total_num, num_of_blocks=20)
             # # draw white (remove edge for visual) on top of disjointed tree
             # for e in (x for x in newnode.edges
             #           if x not in bfs.visitedNodes and x in bfs.validNodes):
             #     self.args.env.draw_path(e, newnode, Colour.white)
             try:
-                self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+                self.connect_two_nodes(newnode, nn=nn, parent_tree=self.root)
+                nn = newnode
             except LookupError:
                 LOGGER.warning(
                     "nn not found when attempting to joint to root. Ignoring..."
                 )
             # remove this node's edges (as we don't have a use on them anymore) to free memory
             del newnode.edges
+        pbar.close()
 
-        assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
-            progress, total_num)
+        # assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
+        #     progress, total_num)
 
 
     def join_trees(self, tree1, tree2, tree1_node, tree2_node):
@@ -627,6 +746,11 @@ class RRdTPlanner(RRTPlanner):
         Return the tree that has not been killed
         """
         assert tree1 is not tree2, "Both given tree should not be the same"
+        # try:
+        #     tree1.nodes
+        #     tree2.nodes
+        # except:
+        #     return
         if tree1 is self.root:
             assert tree1 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
                 tree1)
@@ -649,7 +773,7 @@ class RRdTPlanner(RRTPlanner):
 
         if tree1 is self.root:
             # find which middle_node belongs to the disjointed tree
-            self.join_tree_to_root(tree2, tree2_node)
+            self.join_tree_to_root(tree2, tree2_node, root_tree_node=tree1_node)
             # self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
         else:
             self.connect_two_nodes(tree1_node, tree2_node)
@@ -681,7 +805,7 @@ class TreeRoot:
         self.particle_handler = [particle_handler]
         self.nodes = []
         self.poses = np.empty((MAX_NUMBER_NODES + 50,
-                               2))  # +50 to prevent over flow
+                               6))  # +50 to prevent over flow
         # This stores the last node added to this tree (by local sampler)
 
     def add_newnode(self, node):
@@ -775,7 +899,18 @@ class MABScheduler:
         """Return a particle that is in free space (from map)"""
         self.args.env.stats.lscampler_restart_counter += 1
         while True:
-            new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
+
+            low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
+                          -3.12413936106985, -2.443460952792061, -3.12413936106985],
+                         [3.12413936106985, 2.2689280275926285, 2.530727415391778,
+                          3.12413936106985, 2.007128639793479, 3.12413936106985])
+            import numpy as np
+
+            new_p = np.random.uniform(low, high)
+
+
+            # new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
+
             self.args.env.stats.add_sampled_node(new_p)
             if not self.args.env.cc.feasible(new_p):
                 self.args.env.stats.add_invalid(obs=True)

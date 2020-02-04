@@ -43,17 +43,16 @@ class PRMPlanner(RRTPlanner):
         super().init(*argv, **kwargs)
         self.args.env.stats.invalid_samples_connections = '-- '
 
-        self.space_dim = 2
         self.d_threshold = self.args.epsilon
         ###############################################################
-        # self.gamma = 1 + np.power(2, self.space_dim) * (1 + 1.0 / self.space_dim) * 10000
-        self.gamma = 2 * np.power(
-            (1 + 1 / self.space_dim), 1 / self.space_dim) * np.power(
-                (self.get_free_area() / volume_of_unit_ball[self.space_dim]),
-                1 / self.space_dim)
+        self.gamma = 1 + np.power(2, kwargs['num_dim']) * (1 + 1.0 / kwargs['num_dim']) * 10000
+        # self.gamma = 2 * np.power(
+        #     (1 + 1 / self.space_dim), 1 / self.space_dim) * np.power(
+        #         (self.get_free_area() / volume_of_unit_ball[self.space_dim]),
+        #         1 / self.space_dim)
 
-        self.tree = nx.DiGraph()
-        self.tree.add_node(self.args.env.startPt)
+        self.graph = nx.DiGraph()
+        self.graph.add_node(self.args.env.startPt)
         self.args.env.end_state = None
 
     @overrides
@@ -72,8 +71,8 @@ class PRMPlanner(RRTPlanner):
         return area
 
     def clear_graph(self):
-        self.tree = nx.DiGraph()
-        self.tree.add_node(self.args.env.startPt)
+        self.graph = nx.DiGraph()
+        self.graph.add_node(self.args.env.startPt)
         self.args.env.end_state = None
 
     def build_graph(self):
@@ -90,7 +89,7 @@ class PRMPlanner(RRTPlanner):
                 # check if path between(m_g,m_new) defined by motion-model is collision free
                 if not self.args.env.cc.visible(m_g.pos, v.pos):
                     continue
-                self.tree.add_weighted_edges_from([(m_g, v, self.args.env.dist(
+                self.graph.add_weighted_edges_from([(m_g, v, self.args.env.dist(
                     m_g.pos, v.pos))])
 
     def get_nearest_free(self, node, neighbours):
@@ -122,10 +121,10 @@ class PRMPlanner(RRTPlanner):
         goal = self.get_nearest_free(self.args.env.goalPt, m_near)
 
         if start is None or goal is None or not nx.has_path(
-                self.tree, start, goal):
+                self.graph, start, goal):
             return False
 
-        solution_path = nx.shortest_path(self.tree, start, goal)
+        solution_path = nx.shortest_path(self.graph, start, goal)
         solution_path[0].cost = self.args.env.dist(solution_path[0].pos, start.pos)
         for i in range(1, len(solution_path)):
             solution_path[i].parent = solution_path[i - 1]

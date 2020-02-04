@@ -14,7 +14,11 @@ class BiRRTSampler(Sampler):
     def init(self, **kwargs):
         super().init(**kwargs)
         self.randomSampler = RandomPolicySampler()
-        self.randomSampler.init(**kwargs)
+        self.randomSampler.init(use_radian=self.use_radian, **kwargs)
+
+    def set_use_radian(self, value=True):
+        self.use_radian = value
+        self.randomSampler.use_radian = value
 
     @overrides
     def get_next_pos(self):
@@ -36,8 +40,8 @@ class BiRRTPlanner(RRTPlanner):
     def init(self, *argv, **kwargs):
         super().init(*argv, **kwargs)
         self.goal_tree_nodes = []
-        self.goal_tree_poses = np.empty((self.args.max_number_nodes + 50,
-                                         2))  # +50 to prevent over flow
+        self.goal_tree_poses = np.empty((self.args.max_number_nodes + 50, # +50 to prevent over flow
+                                         kwargs['num_dim']))
         self.goal_tree_nodes.append(self.args.env.goalPt)
         self.goal_tree_poses[0] = self.args.env.goalPt.pos
 

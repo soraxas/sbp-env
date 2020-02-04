@@ -1,8 +1,6 @@
-import math
 from abc import ABC, abstractmethod
 
 import numpy as np
-from helpers import Colour
 
 
 class CollisionChecker(ABC):
@@ -17,6 +15,8 @@ class CollisionChecker(ABC):
     def feasible(self, p):
         pass
 
+    def get_image_shape(self):
+        return None
 
 class ImgCollisionChecker(CollisionChecker):
 
@@ -28,7 +28,6 @@ class ImgCollisionChecker(CollisionChecker):
         img : str
             Filename of the image where white pixel represents free space.
         """
-        import matplotlib.image as mimg
         from PIL import Image
         image = Image.open(img).convert('L')
         image = np.array(image)
@@ -43,8 +42,11 @@ class ImgCollisionChecker(CollisionChecker):
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self.img = image.T
 
-    def get_dimension(self):
+    def get_image_shape(self):
         return self.img.shape
+
+    def get_dimension(self):
+        return 2
 
     def get_coor_before_collision(self, posA, posB):
         pixels = self._get_line(posA, posB)
@@ -131,3 +133,64 @@ class ImgCollisionChecker(CollisionChecker):
         if swapped:
             points.reverse()
         return points
+
+
+class KlamptCollisionChecker(CollisionChecker):
+
+    def __init__(self, xml, stats):
+        self.stats = stats
+        import klampt
+        from klampt.plan import robotplanning
+        from klampt.io import resource
+
+        world = klampt.WorldModel()
+        world.readFile(xml)  # very cluttered
+        robot = world.robot(0)
+
+        # this is the CSpace that will be used.  Standard collision and joint limit constraints
+        # will be checked
+        space = robotplanning.makeSpace(world, robot, edgeCheckResolution=0.1)
+
+        # fire up a visual editor to get some start and goal configurations
+        qstart = robot.getConfig()
+        qgoal = robot.getConfig()
+
+        self.space = space
+        self.robot = robot
+        self.world = world
+
+        import copy
+        self.template_pos = copy.copy(qstart)
+        self.template_pos[1:7] = [0] * 6
+
+        self.qstart = self._translate_from_klampt(qstart)
+        self.qgoal = self._translate_from_klampt(qgoal)
+
+    def get_dimension(self):
+        return 6
+
+    def get_dimension_limits(self):
+        return self.robot.getJointLimits()
+
+    def _translate_to_klampt(self, p):
+        assert len(p) == 6
+        import copy
+        new_pos = list(self.template_pos)
+        new_pos[1:7] = p
+        return new_pos
+
+    def _translate_from_klampt(self, p):
+        assert len(p) == 12, len(p)
+        return p[1:7]
+
+    def visible(self, a, b):
+        a = self._translate_to_klampt(a)
+        b = self._translate_to_klampt(b)
+        # print(self.space.visible(a, b))
+        self.stats.visible_cnt += 1
+        return self.space.isVisible(a, b)
+
+    def feasible(self, p):
+        p = self._translate_to_klampt(p)
+        self.stats.feasible_cnt += 1
+        return self.space.feasible(p)
