@@ -5,7 +5,8 @@ Usage:
   main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
   main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
-          start <sx> <sy> goal <gx> <gy> [options] [-v|-vv|-vvv]
+          start [--] <start_x1,x2,..,xn> goal <goal_x1,x2,..,xn>
+          [options] [-v|-vv|-vvv]
   main.py (-h | --help)
   main.py --version
 
@@ -88,11 +89,12 @@ import sys
 
 from docopt import docopt
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
+
 from helpers import MagicDict
 from pygamevisualiser import VisualiserSwitcher, BaseEnvVisualiser, \
     BasePlannerVisualiser, KlamptPlannerVisualiser, KlamptEnvVisualiser
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
 
 LOGGER = logging.getLogger()
 
@@ -141,6 +143,8 @@ def main():
             VisualiserSwitcher.choose_env_vis(KlamptEnvVisualiser)
 
     ########################################
+
+    print(args)
 
     if args['--verbose'] > 2:
         LOGGER.setLevel(logging.DEBUG)
@@ -210,20 +214,20 @@ def main():
         'rrdt_proposal_distribution': args['--proposal-dist'],
         'no_display'                : args['--no-display'],
         'engine'                    : args['--engine'],
-    })
-    planner_options.update({
-        'planner_type': planner_type,
+        'planner_type'              : planner_type,
+        'startPt'                   : args['<start_x1,x2,..,xn>'],
+        'goalPt'                    : args['<goal_x1,x2,..,xn>']
     })
 
     # for klampt as it's in radian
     if args['--engine'] == 'klampt':
         args['--goal_radius'] = 0.001
 
-    if args['start'] and args['goal']:
-        planner_options.update({
-            'startPt': (float(args['<sx>']), float(args['<sy>'])),
-            'goalPt': (float(args['<gx>']), float(args['<gy>']))
-        })
+    # quick and dirty fix for docopt not able to handle negative argument
+    if planner_options['startPt'].startswith("(") and planner_options['startPt'].endswith(")"):
+        planner_options['startPt'] = planner_options['startPt'][1:-1]
+    if planner_options['goalPt'].startswith("(") and planner_options['goalPt'].endswith(")"):
+        planner_options['goalPt'] = planner_options['goalPt'][1:-1]
 
     # import csv
     #

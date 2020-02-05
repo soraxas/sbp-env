@@ -15,8 +15,6 @@ LOGGER = logging.getLogger(__name__)
 
 class Env(VisualiserSwitcher.env_clname):
     def __init__(self,
-                 startPt=None,
-                 goalPt=None,
                  writer=None,
                  fname=None,
                  **kwargs):
@@ -37,6 +35,19 @@ class Env(VisualiserSwitcher.env_clname):
         kwargs['image_shape'] = self.cc.get_image_shape()
         kwargs['cc'] = self.cc
 
+        def parse_input_pt(pt_as_str):
+            if pt_as_str is None:
+                return None
+            pt = pt_as_str.split(',')
+            if len(pt) != kwargs['num_dim']:
+                raise RuntimeError(
+                    f"Expected to have number of dimension = {kwargs['num_dim']}, but "
+                    f"was n={len(pt)} from input '{pt_as_str}'")
+            return tuple(map(float, pt))
+
+        kwargs['startPt'] = parse_input_pt(kwargs['startPt'])
+        kwargs['goalPt'] = parse_input_pt(kwargs['goalPt'])
+
         self.args.planner = kwargs['planner_type'](**kwargs)
         kwargs['planner'] = self.args.planner
 
@@ -46,8 +57,8 @@ class Env(VisualiserSwitcher.env_clname):
         super().__init__(**kwargs)
 
         self.visualiser_init(no_display=kwargs['no_display'])
-        startPt, goalPt = self.set_start_goal_points(start=startPt,
-                                                     goal=goalPt)
+        startPt, goalPt = self.set_start_goal_points(start=kwargs['startPt'],
+                                                     goal=kwargs['goalPt'])
 
         self.startPt = self.goalPt = None
         if startPt:
@@ -56,11 +67,12 @@ class Env(VisualiserSwitcher.env_clname):
             self.goalPt = Node(goalPt)
         self.planner.add_newnode(self.startPt)
         self.update_screen(update_all=True)
+        # update the string pt to object
+        kwargs['startPt'] = self.startPt
+        kwargs['goalPt'] = self.goalPt
 
         self.planner.init(
             env=self,
-            startPt=self.startPt,
-            goalPt=self.goalPt,
             **kwargs)
         if kwargs['engine'] == 'klampt':
             self.args.sampler.set_use_radian(True)

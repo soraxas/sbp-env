@@ -729,16 +729,15 @@ class KlamptEnvVisualiser:
         def user_set_config(q, type_str="<..>"):
             save = None
             # it's worthwhile to make sure that it's feasible
-            while save is None or (save and not self.cc.space.feasible(q)):
+            while q is None or not self.cc.space.feasible(q):
                 print(type_str + " configuration isn't feasible")
                 save, q = resource.edit(type_str + " config", q, "Config", world=self.cc.world)
             return save, q
         # start = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]
-        goal = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]
+        # goal = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]
         _, start = user_set_config(start, "Start")
         _, goal = user_set_config(goal, "Goal")
 
-        print(start, goal)
 
         return tuple(map(self.cc._translate_from_klampt, (start, goal)))
 
