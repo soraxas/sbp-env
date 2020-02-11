@@ -33,7 +33,7 @@ Display Options:
   --hide-sampled-points  Do not display sampled point as red dot on screen.
   --no-display           Disable visualisation.
 
-General Sampler Options:
+General Planner Options:
   --epsilon=EPSILON      Set epsilon value.
                          [default: 10.0]
   --max-number-nodes=MAX_NODES
@@ -42,6 +42,7 @@ General Sampler Options:
   --ignore-step-size     Ignore step size (i.e. epsilon) when sampling.
   --goal-bias=BIAS       Probability of biasing goal position.
                          [default: 0.02]
+  --skip-optimality      Skip optimality guarantee (i.e. skip performing rewiring)
 
 Random Sampler Options:
   --random-method=METHOD
@@ -198,6 +199,7 @@ def main():
 
     planner_options = MagicDict({
         'keep_go_forth'             : args['--keep-go'],
+        'skip_optimality'           : args['--skip-optimality'],
         'showSampledPoint'          : not args['--hide-sampled-points'],
         'scaling'                   : float(args['--scaling']),
         'goalBias'                  : float(args['--goal-bias']),
