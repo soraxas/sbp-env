@@ -35,6 +35,8 @@ class Node:
         self.cost = 0  # index 0 is x, index 1 is y
         self.parent = None
         self.children = []
+        self.is_start = False
+        self.is_goal = False
 
     def __getitem__(self, x):
         return self.pos[x]
@@ -44,6 +46,12 @@ class Node:
 
     def __repr__(self):
         return f"{self.__class__.__name__}<{self.pos}>"
+
+    def __eq__(self, other):
+        return np.all(self.pos == other.pos)
+
+    def __hash__(self):
+        return hash(tuple(self.pos))
 
 class Stats:
     def __init__(self, showSampledPoint=True):

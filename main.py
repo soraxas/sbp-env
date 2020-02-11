@@ -144,8 +144,6 @@ def main():
 
     ########################################
 
-    print(args)
-
     if args['--verbose'] > 2:
         LOGGER.setLevel(logging.DEBUG)
     elif args['--verbose'] > 1:
@@ -224,10 +222,12 @@ def main():
         args['--goal_radius'] = 0.001
 
     # quick and dirty fix for docopt not able to handle negative argument
-    if planner_options['startPt'].startswith("(") and planner_options['startPt'].endswith(")"):
-        planner_options['startPt'] = planner_options['startPt'][1:-1]
-    if planner_options['goalPt'].startswith("(") and planner_options['goalPt'].endswith(")"):
-        planner_options['goalPt'] = planner_options['goalPt'][1:-1]
+    if planner_options['startPt']:
+        if planner_options['startPt'].startswith("(") and planner_options['startPt'].endswith(")"):
+            planner_options['startPt'] = planner_options['startPt'][1:-1]
+    if planner_options['goalPt']:
+       if planner_options['goalPt'].startswith("(") and planner_options['goalPt'].endswith(")"):
+            planner_options['goalPt'] = planner_options['goalPt'][1:-1]
 
     # import csv
     #

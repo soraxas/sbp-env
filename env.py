@@ -65,6 +65,8 @@ class Env(VisualiserSwitcher.env_clname):
             self.startPt = Node(startPt)
         if goalPt:
             self.goalPt = Node(goalPt)
+        self.startPt.is_start = True
+        self.goalPt.is_goal = True
         self.planner.add_newnode(self.startPt)
         self.update_screen(update_all=True)
         # update the string pt to object

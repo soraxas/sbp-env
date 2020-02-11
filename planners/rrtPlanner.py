@@ -10,7 +10,7 @@ class Tree():
         p = index.Property()
         p.dimension = dimension
         self.V = index.Index(interleaved=True, properties=p)
-        self.V_count = 0
+        # self.V_raw = []
         self.E = {}  # edges in form E[child] = parent
 
     def add_vertex(self, v, pos):
@@ -21,7 +21,7 @@ class Tree():
             self.V.insert(0, tuple(pos), v)
         else:
             self.V.insert(0, np.tile(pos, 2), v)
-        self.V_count += 1  # increment number of vertices in tree
+        # self.V_raw.append(v)
 
     def add_edge(self, child, parent):
         self.E[child] = parent

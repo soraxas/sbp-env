@@ -231,7 +231,7 @@ class PygamePlannerVisualiser:
         self.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
         nn = self.goalPt.parent
         self.c_max = nn.cost
-        while nn != self.startPt:
+        while not nn.is_start:
             self.args.env.draw_path(nn,
                                     nn.parent,
                                     colour=Colour.blue,
@@ -684,7 +684,7 @@ class KlamptPlannerVisualiser:
         self.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
         nn = self.goalPt.parent
         self.c_max = nn.cost
-        while nn != self.startPt:
+        while not nn.is_start:
             self.args.env.draw_path(nn,
                                     nn.parent,
                                     colour=Colour.blue,
@@ -826,4 +826,3 @@ class KlamptEnvVisualiser:
         #     self.window.blit(self.sampledPoint_screen, (0, 0))
         #     # remove them from list
         #     del self.stats.sampledNodes[:]
-
