@@ -301,7 +301,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
 
 
-class RRdTSampler(Sampler):
+class RRFSampler(Sampler):
 
     def __init__(self, restart_when_merge=True):
         self.restart_when_merge = restart_when_merge
@@ -519,7 +519,7 @@ class Node:
             self.pos, self.cost, num_edges)
 
 
-class RRdTPlanner(RRTPlanner):
+class RRFPlanner(RRTPlanner):
 
     def __init__(self, *argv, **kwargs):
         super().__init__(*argv, **kwargs)

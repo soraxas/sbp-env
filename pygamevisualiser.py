@@ -201,6 +201,7 @@ class PygamePlannerVisualiser:
                         drawn_nodes_pairs.add(new_set)
                         self.args.env.draw_path(n, n.parent, Colour.orange)
             self.draw_solution_path()
+            
 
         def default_paint():
             raise NotImplementedError(f"{self.__class__.__name__} visualising "
@@ -212,6 +213,8 @@ class PygamePlannerVisualiser:
             'InformedRRTSampler': InformedRRTSampler_paint,
             'RRdTSampler': RRdTSampler_paint,
             'RRdTPlanner': RRdTPlanner_paint,
+            'RRFSampler': RRdTSampler_paint,
+            'RRFPlanner': RRdTPlanner_paint,
             'PRMSampler': nothing_paint,
             'PRMPlanner': PRMPlanner_paint,
             'RRdTPlanner': RRdTPlanner_paint,

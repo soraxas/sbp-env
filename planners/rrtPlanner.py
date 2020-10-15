@@ -135,7 +135,7 @@ class RRTPlanner(Planner):
             if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
                 if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
                     if newnode.cost < self.c_max:
-                        print('finished at ', self.args.env.stats.valid_sample)
+                        # print('finished at ', self.args.env.stats.valid_sample)
                         self.c_max = newnode.cost
                         self.goalPt.parent = newnode
                         newnode.children.append(self.goalPt.parent)
@@ -148,26 +148,32 @@ class RRTPlanner(Planner):
         self.nodes.append(node)
 
     def choose_least_cost_parent(self, newnode, nn=None, nodes=None,
-                                 skip_optimality=False):
+                                 skip_optimality=False, use_rtree=True, poses=None):
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
+        skip_optimality = False
+        use_rtree = False
+        
         if skip_optimality:
             if nn is None:
                 raise RuntimeError("Not enough information")
             newnode.parent = nn
             newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
             return newnode, nn
+        ########################################################
 
-        use_rtree = True
-
-        if use_rtree:
+        if use_rtree or poses is not None:
             nn2 = None
+            if use_rtree:
+                canidates = list(self.tree.nearby(newnode.pos, n=20))
+            else:
+                distances = np.linalg.norm(poses - newnode.pos, axis=1)
+                canidates = [nodes[idx] for idx in np.argsort(distances)[:20]]
 
-            canidates = list(self.tree.nearby(newnode.pos, n=20))
             canidates.sort(key=operator.attrgetter('cost'))
 
             for n in canidates:
-                if (self.args.env.dist(newnode.pos, n.pos) <= self.args['radius'] and
+                if (self.args.env.dist(newnode.pos, n.pos) <= self.args.radius and
                         self.args.env.cc.visible(newnode.pos, n.pos)):
                     nn2 = n
                     break
@@ -182,37 +188,20 @@ class RRTPlanner(Planner):
             return newnode, nn2
 
 
-        # if nn is not None:
-        #     _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
-        # self._new_node_dist_to_all_others = {}
-        # for p in nodes:
-        #     _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
-        #     self._new_node_dist_to_all_others[(newnode,
-        #                                        p)] = _newnode_to_p_cost
-        #     if _newnode_to_p_cost <= self.args[
-        #             'radius'] and self.args.env.cc.visible(newnode.pos, p.pos):
-        #         # This is another valid parent. Check if it's better than our current one.
-        #         if nn is None or (p.cost + _newnode_to_p_cost <
-        #                           nn.cost + _newnode_to_nn_cost):
-        #             nn = p
-        #             _newnode_to_nn_cost = _newnode_to_p_cost
-        #
-        # print(list(self.tree.nearby(newnode.pos, n=100)))
 
-
-
-        # prev = None
-        # for n in self.tree.nearby(newnode.pos, n=100):
-        #     if prev is not None:
-        #         assert self.args.env.dist(prev.pos, newnode.pos) <= self.args.env.dist(n.pos, newnode.pos), (self.args.env.dist(prev.pos, newnode.pos), self.args.env.dist(n.pos, newnode.pos))
-        #     prev = n
-
-        # exit()
-
-
-
-        # print(nn, nn2)
-
+        if nn is not None:
+            _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
+        self._new_node_dist_to_all_others = {}
+        for p in nodes:
+            _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
+            self._new_node_dist_to_all_others[(newnode,
+                                               p)] = _newnode_to_p_cost
+            if _newnode_to_p_cost <= self.args.radius and self.args.env.cc.visible(newnode.pos, p.pos):
+                # This is another valid parent. Check if it's better than our current one.
+                if nn is None or (p.cost + _newnode_to_p_cost <
+                                  nn.cost + _newnode_to_nn_cost):
+                    nn = p
+                    _newnode_to_nn_cost = _newnode_to_p_cost
         if nn is None:
             raise LookupError(
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?"
@@ -223,20 +212,27 @@ class RRTPlanner(Planner):
 
         return newnode, nn
 
-    def rewire(self, newnode, nodes, already_rewired=None, skip_optimality=False):
+
+    def rewire(self, newnode, nodes, already_rewired=None, skip_optimality=False,
+               use_rtree=True, poses=None):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+        skip_optimality = False
+        # use_rtree = False
         if skip_optimality:
             return
         if len(nodes) < 1:
             return
 
-        use_rtree = True
 
-        if use_rtree:
+        if use_rtree or poses is not None:
             if already_rewired is None:
                 already_rewired = {newnode}
+            if use_rtree:
+                canidates = list(self.tree.nearby(newnode.pos, n=20))
+            else:
+                distances = np.linalg.norm(poses - newnode.pos, axis=1)
+                canidates = [nodes[idx] for idx in np.argsort(distances)[:20]]
 
-            canidates = list(self.tree.nearby(newnode.pos, n=20))
             canidates.sort(key=operator.attrgetter('cost'))
 
 

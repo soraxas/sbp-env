@@ -2,9 +2,9 @@
 """RRdT* Research
 
 Usage:
-  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrf|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           [options] [-v|-vv|-vvv]
-  main.py (rrdt|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
+  main.py (rrdt|rrf|rrt|birrt|informedrrt|prm|likelihood|nearby|mouse) <MAP>
           start [--] <start_x1,x2,..,xn> goal <goal_x1,x2,..,xn>
           [options] [-v|-vv|-vvv]
   main.py (-h | --help)
@@ -178,6 +178,11 @@ def main():
         sampler = RRdTSampler(
             restart_when_merge=not args['--no-restart-when-merge'])
         planner_type = RRdTPlanner
+    elif args['rrf']:
+        from planners.rrfPlanner import RRFSampler, RRFPlanner
+        sampler = RRFSampler(
+            restart_when_merge=not args['--no-restart-when-merge'])
+        planner_type = RRFPlanner
     elif args['informedrrt']:
         from planners.informedrrtSampler import InformedRRTSampler
         sampler = InformedRRTSampler()
