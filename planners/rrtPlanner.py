@@ -157,6 +157,7 @@ class RRTPlanner(Planner):
         if skip_optimality:
             if nn is None:
                 raise RuntimeError("Not enough information")
+
             newnode.parent = nn
             newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
             return newnode, nn
@@ -207,6 +208,7 @@ class RRTPlanner(Planner):
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?"
             )
         newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+        assert newnode is not nn
         newnode.parent = nn
         nn.children.append(newnode)
 
@@ -217,12 +219,11 @@ class RRTPlanner(Planner):
                use_rtree=True, poses=None):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         skip_optimality = False
-        # use_rtree = False
+        use_rtree = False
         if skip_optimality:
             return
         if len(nodes) < 1:
             return
-
 
         if use_rtree or poses is not None:
             if already_rewired is None:

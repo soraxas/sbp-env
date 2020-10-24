@@ -49,6 +49,63 @@ class BiRRTPlanner(RRTPlanner):
         self.goal_tree_turn = False
 
 
+    def draw_potential(self, fac=.5):
+        from sklearn.neighbors import KernelDensity
+
+        def kde2D(x, y, bandwidth, xbins=100j, ybins=100j,
+                  xmin=None, xmax=None, ymin=None, ymax=None,
+                  **kwargs):
+            from sklearn.neighbors import KernelDensity
+            """Build 2D kernel density estimate (KDE)."""
+            if xmin is None:
+                xmin = x.min()
+                xmax = x.max()
+                ymin = y.min()
+                ymax = y.max()
+            # create grid of sample locations (default: 100x100)
+            xx, yy = np.mgrid[xmin:xmax:xbins,
+                     ymin:ymax:ybins]
+
+            xy_sample = np.vstack([yy.ravel(), xx.ravel()]).T
+            xy_train = np.vstack([y, x]).T
+
+            kde_skl = KernelDensity(bandwidth=bandwidth, **kwargs)
+            kde_skl.fit(xy_train)
+
+            # score_samples() returns the log-likelihood of the samples
+            z = np.exp(kde_skl.score_samples(xy_sample))
+            return xx, yy, np.reshape(z, xx.shape)
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # plt.scatter(*np.array(self.bins).T)
+        # plt.show()
+
+        # m1 = np.random.normal(size=1000)
+        # m2 = np.random.normal(scale=0.5, size=1000)
+        #
+        # x, y = m1 + m2, m1 - m2
+
+        nodes_poses = np.vstack([self.poses[:len(self.nodes)],
+                                 self.goal_tree_poses[:len(self.goal_tree_nodes)]])
+        xx, yy, node_zz = kde2D(nodes_poses[:, 0], nodes_poses[:, 1], 20,
+                                xmin=0, xmax=600, ymin=0, ymax=400)
+        data = np.array(self.bins)
+        xx, yy, samp_zz = kde2D(data[:, 0], data[:, 1], 30,
+                                xmin=0, xmax=600, ymin=0, ymax=400)
+
+        x = data[:, 0]
+        y = data[:, 1]
+
+        plt.pcolormesh(xx, yy, (samp_zz - fac * node_zz).clip(min=0))
+        plt.colorbar()
+        plt.gca().invert_yaxis()
+        plt.scatter(x, y, s=2, facecolor='white', alpha=.2)
+
+        plt.show()
+
+
     @overrides
     def run_once(self):
         if self.goal_tree_turn and not self.found_solution:
@@ -75,6 +132,11 @@ class BiRRTPlanner(RRTPlanner):
         # check if it has a free path to nn or not
         if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
+            # try:
+            #     self.bins
+            # except AttributeError:
+            #     self.bins = []
+            # self.bins.append(rand_pos)
         else:
             newnode = Node(newpos)
             self.args.env.stats.add_free()

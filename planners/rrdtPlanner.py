@@ -710,8 +710,8 @@ class RRdTPlanner(RRTPlanner):
         LOGGER.info("> Joining to root tree")
         with tqdm(desc="join to root", total=len(tree.nodes)) as pbar:
 
-            if not self.args.env.cc.visible(middle_node.pos, root_tree_node.pos):
-                xxxxxxxxxxxxxxxxxX
+            # if not self.args.env.cc.visible(middle_node.pos, root_tree_node.pos):
+            #     xxxxxxxxxxxxxxxxxX
             nn = middle_node
             # while bfs.has_next():
             #     n = bfs.next()
@@ -777,8 +777,8 @@ class RRdTPlanner(RRTPlanner):
         if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
             # swap to correct position
             tree1_node, tree2_node = tree2_node, tree1_node
-        assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
-        assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
+        # assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
+        # assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
 
         if tree1 is self.root:
             # find which middle_node belongs to the disjointed tree

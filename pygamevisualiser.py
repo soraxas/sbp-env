@@ -201,7 +201,32 @@ class PygamePlannerVisualiser:
                         drawn_nodes_pairs.add(new_set)
                         self.args.env.draw_path(n, n.parent, Colour.orange)
             self.draw_solution_path()
-            
+
+        def RRFPlanner_paint():
+            self.args.env.path_layers.fill(Colour.ALPHA_CK)
+            from planners.rrdtPlanner import BFS
+            drawn_nodes_pairs = set()
+            # Draw disjointed trees
+            for tree in self.disjointedTrees:
+                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
+                while bfs.has_next():
+                    newnode = bfs.next()
+                    for e in newnode.edges:
+                        new_set = frozenset({newnode, e})
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.add(new_set)
+                            self.args.env.draw_path(newnode, e)
+            # Draw root tree
+            for nodes, colour in zip((self.root.nodes, self.goal_root.nodes), (Colour.orange, Colour.red)):
+                # for n in self.nodes:
+                for n in nodes:
+                    if n.parent is not None:
+                        new_set = frozenset({n, n.parent})
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.add(new_set)
+                            self.args.env.draw_path(n, n.parent, colour)
+            self.draw_solution_path()
+
 
         def default_paint():
             raise NotImplementedError(f"{self.__class__.__name__} visualising "
@@ -214,7 +239,7 @@ class PygamePlannerVisualiser:
             'RRdTSampler': RRdTSampler_paint,
             'RRdTPlanner': RRdTPlanner_paint,
             'RRFSampler': RRdTSampler_paint,
-            'RRFPlanner': RRdTPlanner_paint,
+            'RRFPlanner': RRFPlanner_paint,
             'PRMSampler': nothing_paint,
             'PRMPlanner': PRMPlanner_paint,
             'RRdTPlanner': RRdTPlanner_paint,
@@ -227,7 +252,7 @@ class PygamePlannerVisualiser:
         implemented_classes.get(self.__class__.__name__, default_paint)()
 
     def draw_solution_path(self):
-        if self.c_max == float('inf'):
+        if not self.found_solution or self.c_max == float('inf'):
             # nothing to d
             return
         # redraw new path

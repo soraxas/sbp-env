@@ -368,8 +368,8 @@ class RRFSampler(Sampler):
         self.p_manager.particles.append(goal_dt_p)
         #
         self.args.planner.root = TreeRoot(
+            dim=self.args.num_dim,
             particle_handler=root_particle,
-            dim=self.args.num_dim
         )
         root_particle.tree = self.args.planner.root
         root_particle.tree.add_newnode(self.args.env.startPt)
@@ -401,13 +401,13 @@ class RRFSampler(Sampler):
             self.p_manager.modify_energy(idx=idx, factor=0.7)
             self.p_manager.particles[idx].fail()
 
-    def restart_all_pending_local_samplers(self):
+    def restart_all_pending_local_samplers(self, pos=None):
         # restart all pending local samplers
         while len(self.p_manager.local_samplers_to_be_rstart) > 0:
             # during the proces of restart, if the new restart position
             # is close to an existing tree, it will simply add to that new tree.
             if not self.p_manager.local_samplers_to_be_rstart[0].restart(
-                    restart_when_merge=self.restart_when_merge):
+                    restart_when_merge=self.restart_when_merge, pos=pos):
                 # This flag denotes that a new position was found among the trees,
                 # And it NEEDS to get back to restarting particles in the next ierations
                 return False
@@ -519,6 +519,32 @@ class Node:
             self.pos, self.cost, num_edges)
 
 
+class NodeWithEdge:
+    def __init__(self, pos):
+        self.pos = np.array(pos)
+        self.cost = 0  # index 0 is x, index 1 is y
+        self.parent = None
+        self.children = []
+        self.edges = []
+        self.is_start = False
+        self.is_goal = False
+
+    def __getitem__(self, x):
+        return self.pos[x]
+
+    def __len__(self):
+        return len(self.pos)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}<{self.pos}>"
+
+    def __eq__(self, other):
+        return np.all(self.pos == other.pos)
+
+    def __hash__(self):
+        return hash(tuple(self.pos))
+
+
 class RRFPlanner(RRTPlanner):
 
     def __init__(self, *argv, **kwargs):
@@ -526,8 +552,405 @@ class RRFPlanner(RRTPlanner):
         self.root = None
         self.disjointedTrees = []
 
+        self.use_radian = False
+
+    @overrides
+    def init(self, *args, **kwargs):
+        super().init(*args, **kwargs)
+        # self.randomSampler = RandomPolicySampler()
+        from planners.birrtPlanner import BiRRTSampler
+        self.rrtconnect_sampler = BiRRTSampler()
+        kwargs['startPt'] = self.args.env.startPt
+        kwargs['goalPt'] = self.args.env.goalPt
+        # self.rrtconnect_sampler.init(use_radian=self.use_radian, **kwargs)
+
+
+        self.args.env.startPt = NodeWithEdge(self.args.env.startPt.pos)
+        self.args.env.startPt.is_start = True
+        self.args.env.goalPt = NodeWithEdge(self.args.env.goalPt.pos)
+        self.args.env.goalPt.is_goal = True
+        self.root.nodes.clear()
+        self.root.nodes.append(self.args.env.startPt)
+        self.root.poses[0] = self.args.env.startPt.pos
+
+
+        # self.goal_tree_turn = True
+        self.rrtconnect_sampler.init(
+            # use_radian=self.use_radian,
+            **kwargs
+        )
+
+
+        self.goal_root = TreeRoot(
+            dim=self.args.num_dim,
+        )
+
+        # self.goal_tree_nodes = []
+        # self.goal_tree_poses = np.empty((self.args.max_number_nodes + 50, # +50 to prevent over flow
+        #                                  kwargs['num_dim']))
+        self.goal_root.nodes.append(self.args.env.goalPt)
+        self.goal_root.poses[0] = self.args.env.goalPt.pos
+
+        self.found_solution = False
+        self.goal_tree_turn = False
+
+        self.nodes = self.root.nodes
+        self.poses = self.root.poses
+
     @overrides
     def run_once(self):
+        if np.random.rand() < 0.8:
+        # if np.random.rand() < 0.1:
+            self.root_tree_run_once()
+        else:
+            self.particles_run_once()
+
+    def root_tree_run_once(self):
+
+        ###################################################################
+        ###################################################################
+        # Get an sample that is free (not in blocked space)
+        # rand_pos, _, _ = self.rrtconnect_sampler.get_valid_next_pos()
+        # Found a node that is not in X_obs
+
+        # check two tree join together
+        # if self.goal_tree_turn and not self.found_solution:
+        #     # extend from goal tree
+        #     poses = self.goal_tree_poses
+        #     nodes = self.goal_tree_nodes
+        # else:
+        #     # extend from init tree
+        #     poses = self.poses
+        #     nodes = self.nodes
+        # self.goal_tree_turn = not self.goal_tree_turn
+        # if self.found_solution:
+        #     data = (
+        #         [False],
+        #         [self.root.poses],
+        #         [self.root.nodes],
+        #     )
+        # else:
+        #     data = (
+        #         [False, True],
+        #         [self.root.poses, self.goal_root.poses],
+        #         [self.root.nodes, self.goal_root.nodes],
+        #     )
+
+        if self.found_solution:
+            roots = (self.root, )
+        else:
+            roots = (self.root, self.goal_root)
+
+        # for self.goal_tree_turn, poses, nodes in zip(
+        #     *data
+        # ):
+        for root in roots:
+            self.goal_tree_turn = root is not self.goal_root
+            rand_pos, _, _ = self.rrtconnect_sampler.get_valid_next_pos()
+
+            poses = root.poses
+            nodes = root.nodes
+
+            idx = self.find_nearest_neighbour_idx(rand_pos, poses[:len(nodes)])
+            nn = nodes[idx]
+            # get an intermediate node according to step-size
+            newpos = self.args.env.step_from_to(nn.pos, rand_pos)
+            # check if it has a free path to nn or not
+            if not self.args.env.cc.visible(nn.pos, newpos):
+                self.args.env.stats.add_invalid(obs=False)
+
+                # do a rrdt routine if we have less than ideal local planner
+
+                # self.particles_run_once(newpos)
+                self.args.sampler.restart_all_pending_local_samplers(newpos)
+                return
+
+            else:
+
+                newnode = NodeWithEdge(newpos)
+                self.args.env.stats.add_free()
+
+                ######################
+                newnode, nn = self.choose_least_cost_parent(
+                    newnode, nn, nodes=nodes, use_rtree=False, poses=poses[:len(nodes)])
+
+                try:
+                    newnode.edges.append(nn)
+                    nn.edges.append(newnode)
+                except:
+                    print(self.nodes)
+                    print(nn)
+                    # print(self.goal_tree_nodes)
+                    raise
+
+                poses[len(nodes)] = newnode.pos
+                nodes.append(newnode)
+                # rewire to see what the newly added node can do for us
+                self.rewire(newnode, nodes, use_rtree=False, poses=poses[:len(nodes)])
+
+                merged_tree = self.add_pos_to_existing_tree(
+                    newnode, root)
+                ###################################################################
+                # check if two tree joins
+                if self.found_solution:
+                    if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+                        if self.args.env.dist(newnode.pos,
+                                              self.goalPt.pos) < self.args.goal_radius:
+
+                            if newnode.cost < self.c_max:
+                                self.c_max = newnode.cost
+                                self.goalPt.parent = newnode
+                                newnode.children.append(self.goalPt.parent)
+                                self.draw_solution_path()
+
+                    if self.goalPt.parent is not None:
+                        if self.goalPt.parent.cost < self.c_max:
+                            self.c_max = self.goalPt.parent.cost
+                else:
+                    if root is self.root:
+                        other_root = self.goal_root
+                    else:
+                        other_root = self.root
+                    other_poses = other_root.poses
+                    other_nodes = other_root.nodes
+                    distances = np.linalg.norm(
+                        other_poses[:len(other_nodes)] - newpos, axis=1)
+                    if not self.found_solution and min(distances) < self.args.epsilon:
+                        idx = np.argmin(distances)
+                        if self.args.env.cc.visible(other_poses[idx], newpos):
+                            self.found_solution = True
+                            # get the two closest nodes
+                            if nodes is self.nodes:
+                                init_tree_node = newnode
+                                goal_tree_node = other_nodes[idx]
+                            else:
+                                init_tree_node = other_nodes[idx]
+                                goal_tree_node = newnode
+                            _nextnode = goal_tree_node  # keep track of original parent
+                            _old_parent = _nextnode.parent
+
+                            # trees joined! Flip all the parent as child
+                            nn = init_tree_node
+
+                            # assert init_tree_node in self.nodes
+                            # assert goal_tree_node in self.goal_tree_nodes
+
+
+                            # g_node = goal_tree_node
+                            # x = init_tree_node
+                            # while not g_node.is_goal:
+                            #     g_node_parent = g_node.parent
+                            #     g_node.parent = x
+                            #     if g_node_parent is not None:
+                            #         g_node_parent.children.remove(g_node)
+                            #         g_node.children.append(g_node_parent)
+                            #         # g_node_parent.parent = g_node
+                            #
+                            #     x = g_node
+                            #     g_node = g_node_parent
+                            #     print(g_node)
+                            #     if g_node is self.goalPt:
+                            #         asdasd
+                            #         break
+                            # g_node.children.remove(x)
+                            #
+                            #
+                            # self.nodes.extend(self.goal_root.nodes)
+                            # # print(len(self.poses), len(self.goal_root.nodes))
+                            # # print(len(self.poses) + len(self.goal_root.nodes))
+                            # self.poses[len(self.nodes):len(self.nodes) + len(self.goal_root.nodes)] = self.goal_root.poses[:len(self.goal_root.nodes)]
+
+
+                            #
+                            # while len(self.goal_root.nodes) > 0:
+                            #     g_node_parent = g_node.parent
+                            #     g_node_children = g_node.children
+                            #
+                            #     if g_node not in nn.children:
+                            #         nn.children.append(g_node)
+                            #     if g_node not in nn.edge:
+                            #         nn.edge.append(g_node)
+                            #     g_node.parent = nn
+                            #
+                            #     g_node_children.remove(g)
+                            #
+                            #     g_node.children.clear()
+                            #
+                            #
+                            #
+                            # g_node = goal_tree_node
+                            # while len(self.goal_root.nodes) > 0:
+                            #     g_node_parent = g_node.parent
+                            #     g_node_children = g_node.children
+                            #
+                            #     if g_node not in nn.children:
+                            #         nn.children.append(g_node)
+                            #     if g_node not in nn.edge:
+                            #         nn.edge.append(g_node)
+                            #     g_node.parent = nn
+                            #
+                            #     g_node_children.remove(g)
+                            #
+                            #     g_node.children.clear()
+                            #
+                            # from helpers import BFS
+                            # bfs = BFS(goal_tree_node, validNodes=self.goal_root.nodes)
+                            # while bfs.has_next():
+                            #     newnode = bfs.next()
+                            #
+                            #     newnode, nn = self.choose_least_cost_parent(
+                            #         newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                            #         # newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                            #         poses=self.poses[:len(self.nodes)])
+                            #     # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+                            #     newnode.parent = nn
+                            #     self.rewire(newnode, nodes=self.nodes, use_rtree=False,
+                            #                 poses=self.poses[:len(self.nodes)])
+                            #
+                            #     self.poses[len(self.nodes)] = newnode.pos
+                            #     self.nodes.append(newnode)
+                            #
+                            #     nn = newnode
+
+                            # trees joined! Flip all the parent as child
+                            nn = init_tree_node
+
+
+                            to_be_removed = []
+                            while _old_parent is not None:
+                                _old_parent = _nextnode.parent
+
+                                _nextnode, nn = self.choose_least_cost_parent(
+                                    _nextnode, nn=nn, nodes=self.nodes)
+                                self.rewire(_nextnode, nodes=self.nodes)
+
+                                self.poses[len(self.nodes)] = _nextnode.pos
+                                self.nodes.append(_nextnode)
+                                to_be_removed.append(_nextnode)
+
+                                nn = _nextnode
+                                _nextnode = _old_parent
+
+
+                            # from helpers import BFS
+                            # bfs = BFS(goal_tree_node, validNodes=self.goal_root.nodes)
+                            # while bfs.has_next():
+                            #     newnode = bfs.next()
+                            #
+                            #     newnode, nn = self.choose_least_cost_parent(
+                            #         newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                            #         # newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                            #         poses=self.poses[:len(self.nodes)])
+                            #     # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+                            #     newnode.parent = nn
+                            #     self.rewire(newnode, nodes=self.nodes, use_rtree=False,
+                            #                 poses=self.poses[:len(self.nodes)])
+                            #
+                            #     self.poses[len(self.nodes)] = newnode.pos
+                            #     self.nodes.append(newnode)
+                            #
+                            #     nn = newnode
+                            self.goal_root.nodes.clear()
+                            break
+
+
+
+
+
+
+
+
+
+                # return
+                #
+                #
+                # # if not self.found_solution:
+                # #     print(self.goal_tree_turn)
+                # newnode = Node(newpos)
+                # self.args.env.stats.add_free()
+                #
+                # ######################
+                # newnode, nn = self.choose_least_cost_parent(
+                #     newnode, nn, nodes=nodes)
+                # poses[len(nodes)] = newnode.pos
+                #
+                # nodes.append(newnode)
+                #
+                # # rewire to see what the newly added node can do for us
+                # self.rewire(newnode, nodes)
+                #
+                # merged_tree = self.add_pos_to_existing_tree(
+                #     newnode, root)
+                #
+                # ###################################################################
+                # # check if two root tree joins
+                # if not self.found_solution:
+                #     if root is self.root:
+                #         other_root = self.goal_root
+                #     else:
+                #         other_root = self.root
+                #     other_poses = other_root.poses
+                #     other_nodes = other_root.nodes
+                #
+                #     distances = np.linalg.norm(
+                #         other_poses[:len(other_nodes)] - newpos, axis=1)
+                #     if min(distances) < self.args.epsilon:
+                #         idx = np.argmin(distances)
+                #         if self.args.env.cc.visible(other_poses[idx], newpos):
+                #
+                #             self.found_solution = True
+                #             # get the two closest nodes
+                #             if root is self.root:
+                #                 init_tree_node = newnode
+                #                 goal_tree_node = other_nodes[idx]
+                #             else:
+                #                 init_tree_node = other_nodes[idx]
+                #                 goal_tree_node = newnode
+                #             _nextnode = goal_tree_node  # keep track of original parent
+                #             _old_parent = _nextnode.parent
+                #
+                #             # trees joined! Flip all the parent as child
+                #             nn = init_tree_node
+                #
+                #             # assert init_tree_node in self.nodes
+                #             # assert goal_tree_node in self.goal_tree_nodes
+                #
+                #             to_be_removed = []
+                #             while _old_parent is not None:
+                #                 _old_parent = _nextnode.parent
+                #
+                #                 assert nn in self.root.nodes
+                #                 assert _nextnode in self.goal_root.nodes
+                #                 if _old_parent is not None:
+                #                     print(_old_parent)
+                #                     print(_old_parent in self.root.nodes)
+                #                     print(_old_parent in self.goal_root.nodes)
+                #                     # assert _old_parent in self.root.nodes
+                #
+                #                     if _old_parent not in self.goal_root.nodes:
+                #                         print('hi')
+                #
+                #                     assert _old_parent in self.goal_root.nodes
+                #
+                #                 _nextnode, nn = self.choose_least_cost_parent(
+                #                     _nextnode, nn=nn, nodes=self.nodes)
+                #                 self.rewire(_nextnode, nodes=self.nodes)
+                #
+                #                 self.poses[len(self.nodes)] = _nextnode.pos
+                #                 self.nodes.append(_nextnode)
+                #                 to_be_removed.append(_nextnode)
+                #
+                #                 nn = _nextnode
+                #                 _nextnode = _old_parent
+                #             self.goal_root.nodes.clear()
+                #             break
+
+            # if self.goalPt.parent is not None:
+            #     if self.goalPt.parent.cost < self.c_max:
+            #         self.c_max = self.goalPt.parent.cost
+
+
+    def particles_run_once(self):
         # Get an sample that is free (not in blocked space)
         # _tmp = self.args.sampler.get_valid_next_pos()
 
@@ -548,6 +971,11 @@ class RRFPlanner(RRTPlanner):
             report_fail(pos=rand_pos, obstacle=True)
             self.args.env.stats.add_invalid(obs=True)
             self.args.env.stats.sampler_fail += 1
+
+        # _tmp = self.args.sampler.get_next_pos(pos)
+
+
+        # _tmp = self.args.sampler.get_next_pos()
 
         self.args.env.stats.sampler_success_all += 1
 
@@ -600,12 +1028,12 @@ class RRFPlanner(RRTPlanner):
             self.add_pos_to_existing_tree(
                 newnode, parent_tree)
 
-    def rrt_star_add_node(self, newnode, nn=None):
+    def rrt_star_add_node(self, newnode, root_tree, nn=None):
         """This function perform finding optimal parent, and rewiring."""
 
         newnode, nn = self.choose_least_cost_parent(
-            newnode, nn=nn, nodes=self.root.nodes)
-        self.rewire(newnode, nodes=self.root.nodes)
+            newnode, nn=nn, nodes=root_tree.nodes)
+        self.rewire(newnode, nodes=root_tree.nodes)
 
         # newnode.parent = nn
 
@@ -635,9 +1063,9 @@ class RRFPlanner(RRTPlanner):
         #             f"HOT FIX with parent_tree-is-None={parent_tree is None}"
         #         )
 
-        if parent_tree is self.root:
+        if parent_tree in (self.root, self.goal_root):
             # using rrt* algorithm to add each nodes
-            newnode, nn = self.rrt_star_add_node(newnode, nn)
+            newnode, nn = self.rrt_star_add_node(newnode, parent_tree, nn)
         else:
             newnode.edges.append(nn)
             nn.edges.append(newnode)
@@ -685,7 +1113,12 @@ class RRFPlanner(RRTPlanner):
             modifies the entire tree structures wtih rrt* procedures.
         """
         nearest_nodes = {}
-        for tree in [*self.disjointedTrees, self.root]:
+        if self.found_solution:
+            trees = [*self.disjointedTrees, self.root]
+        else:
+            trees = [*self.disjointedTrees, self.goal_root, self.root]
+        for tree in trees:
+
             if tree is parent_tree:
                 # skip self
                 continue
@@ -702,7 +1135,7 @@ class RRFPlanner(RRTPlanner):
             nearest_nodes_list.append((root_nn, self.root))
         return nearest_nodes_list
 
-    def join_tree_to_root(self, tree, middle_node, root_tree_node):
+    def join_tree_to_root(self, tree, middle_node, root_tree_node, root_tree_type):
         """It will join the given tree to the root"""
         # from env import Colour
         bfs = BFS(middle_node, validNodes=tree.nodes)
@@ -710,15 +1143,12 @@ class RRFPlanner(RRTPlanner):
         LOGGER.info("> Joining to root tree")
         with tqdm(desc="join to root", total=len(tree.nodes)) as pbar:
 
-            if not self.args.env.cc.visible(middle_node.pos, root_tree_node.pos):
-                xxxxxxxxxxxxxxxxxX
             nn = middle_node
             # while bfs.has_next():
             #     n = bfs.next()
             #     if not self.args.env.cc.visible(nn.pos, n.pos):
             #         xxxxxxxxxxxxxxxxxX
             #     nn = n
-
 
             bfs = BFS(middle_node, validNodes=tree.nodes)
             nn = root_tree_node
@@ -730,14 +1160,14 @@ class RRFPlanner(RRTPlanner):
                     # if not self.args.env.cc.visible(newnode.pos, nn.pos):
                     #     asdasd
                     # newnode, nn = self.connect_two_nodes(newnode, nn=nn, parent_tree=self.root)
-                    newnode, nn = self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+                    newnode, nn = self.connect_two_nodes(newnode, nn=None, parent_tree=root_tree_type)
                     nn = newnode
                 except LookupError:
                     LOGGER.warning(
                         "nn not found when attempting to joint to root. Ignoring..."
                     )
                 # remove this node's edges (as we don't have a use on them anymore) to free memory
-                del newnode.edges
+                # del newnode.edges
 
         # assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
         #     progress, total_num)
@@ -754,35 +1184,38 @@ class RRFPlanner(RRTPlanner):
 
         Return the tree that has not been killed
         """
-        assert tree1 is not tree2, "Both given tree should not be the same"
-        # try:
-        #     tree1.nodes
-        #     tree2.nodes
-        # except:
-        #     return
-        if tree1 is self.root:
-            assert tree1 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
-                tree1)
-        elif tree2 is self.root:
-            assert tree2 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
-                tree2)
+        # assert tree1 is not tree2, "Both given tree should not be the same"
+        # # try:
+        # #     tree1.nodes
+        # #     tree2.nodes
+        # # except:
+        # #     return
+        # if tree1 is self.root:
+        #     assert tree1 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+        #         tree1)
+        # elif tree2 is self.root:
+        #     assert tree2 not in self.disjointedTrees, "Given tree is neither in disjointed tree, nor is it the root: {}".format(
+        #         tree2)
 
         LOGGER.info(" => Joining trees with size {} to {}".format(
             len(tree1.nodes), len(tree2.nodes)))
         # Re-arrange only. Make it so that tree1 will always be root (if root exists among the two)
         # And tree1 node must always be belong to tree1, tree2 node belong to tree2
-        if tree1 is not self.root:
+        if tree2 is self.root:
             # set tree1 as root (if root exists among the two)
             tree1, tree2 = tree2, tree1
+        if tree2 is self.goal_root:
+            # do nothing
+            return
         if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
             # swap to correct position
             tree1_node, tree2_node = tree2_node, tree1_node
-        assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
-        assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
+        # assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
+        # assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
 
-        if tree1 is self.root:
+        if tree1 in (self.root, self.goal_root):
             # find which middle_node belongs to the disjointed tree
-            self.join_tree_to_root(tree2, tree2_node, root_tree_node=tree1_node)
+            self.join_tree_to_root(tree2, tree2_node, root_tree_node=tree1_node, root_tree_type=tree1)
             # self.connect_two_nodes(tree1_node, tree2_node, draw_only=True)
         else:
             self.connect_two_nodes(tree1_node, tree2_node)
@@ -810,8 +1243,10 @@ class RRFPlanner(RRTPlanner):
 
 
 class TreeRoot:
-    def __init__(self, particle_handler, dim):
-        self.particle_handler = [particle_handler]
+    def __init__(self, dim, particle_handler=None):
+        self.particle_handler = []
+        if particle_handler is not None:
+            self.particle_handler.append(particle_handler)
         self.nodes = []
         self.poses = np.empty((MAX_NUMBER_NODES + 50,
                                dim))  # +50 to prevent over flow
