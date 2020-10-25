@@ -40,7 +40,7 @@ class BiRRTPlanner(RRTPlanner):
     def init(self, *argv, **kwargs):
         super().init(*argv, **kwargs)
         self.goal_tree_nodes = []
-        self.goal_tree_poses = np.empty((self.args.max_number_nodes + 50, # +50 to prevent over flow
+        self.goal_tree_poses = np.empty((self.args.max_number_nodes*2 + 50, # +50 to prevent over flow
                                          kwargs['num_dim']))
         self.goal_tree_nodes.append(self.args.env.goalPt)
         self.goal_tree_poses[0] = self.args.env.goalPt.pos

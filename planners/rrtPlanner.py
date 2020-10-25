@@ -67,7 +67,7 @@ class RRTPlanner(Planner):
 
     def __init__(self, **kwargs):
         self.args = MagicDict(kwargs)
-        self.poses = np.empty((self.args.max_number_nodes + 50,
+        self.poses = np.empty((self.args.max_number_nodes*2 + 50,
                                kwargs['num_dim']))  # +50 to prevent over flow
         self.c_max = float('inf')
         # this dict is to temparily store distance of a new node to all others
@@ -77,6 +77,7 @@ class RRTPlanner(Planner):
         self.nodes = []
         self.args.env = None  # will be set by env itself
         self.tree = Tree(kwargs['num_dim'])
+        self.found_solution = True
 
         if self.args['skip_optimality']:
             # respect option of skip planning for optimality
