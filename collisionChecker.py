@@ -59,13 +59,16 @@ class ImgCollisionChecker(CollisionChecker):
         return endPos
 
     def visible(self, posA, posB):
-        # get list of pixel between node A and B
-        # pixels = lineGenerationAlgorithm(posA, posB)
-        pixels = self._get_line(posA, posB)
-        # check that all pixel are white (free space)
-        for p in pixels:
-            if not self.feasible(p):
-                return False
+        try:
+            # get list of pixel between node A and B
+            # pixels = lineGenerationAlgorithm(posA, posB)
+            pixels = self._get_line(posA, posB)
+            # check that all pixel are white (free space)
+            for p in pixels:
+                if not self.feasible(p):
+                    return False
+        except ValueError:
+            return False
         return True
 
     def feasible(self, p):
