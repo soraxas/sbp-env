@@ -5,6 +5,7 @@ from overrides import overrides
 from planners.baseSampler import Sampler
 from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
 
+import numpy as np
 
 class RandomPolicySampler(Sampler):
 
@@ -23,6 +24,21 @@ class RandomPolicySampler(Sampler):
         super().init(*args, **kwargs)
         self.random = RandomnessManager(num_dim=kwargs['num_dim'])
 
+        self.use_original_method = False
+
+        if self.args.engine == 'klampt':
+            self.low, self.high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
+                          -3.12413936106985, -2.443460952792061, -3.12413936106985],
+                         [3.12413936106985, 2.2689280275926285, 2.530727415391778,
+                          3.12413936106985, 2.007128639793479, 3.12413936106985])
+        elif self.args.image == 'maps/4d.png':
+            self.low, self.high = ([
+                [0, 0, -np.pi, -np.pi],
+                [self.args.env.dim[0], self.args.env.dim[1], np.pi, np.pi]
+            ])
+        else:
+            self.use_original_method = True
+
     @overrides
     def get_next_pos(self):
         # Random path
@@ -30,17 +46,10 @@ class RandomPolicySampler(Sampler):
             # goal bias
             p = self.goal_pos
         else:
-            if self.use_radian:
-                import numpy as np
-
-                low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
-                              -3.12413936106985, -2.443460952792061, -3.12413936106985],
-                             [3.12413936106985, 2.2689280275926285, 2.530727415391778,
-                              3.12413936106985, 2.007128639793479, 3.12413936106985])
-                p = np.random.uniform(low, high)
-
-            else:
+            if self.use_original_method:
                 p = self.random.get_random(self.random_method)
                 p *= self.args.env.dim
+            else:
+                p = np.random.uniform(self.low, self.high)
 
         return p, self.report_success, self.report_fail

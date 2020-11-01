@@ -74,11 +74,22 @@ class DisjointTreeParticle:
             return
         self.last_node = None
         merged_tree = None
+        try:
+            if len(self.tree.nodes) < 5:
+                # don't bother!
+                try:
+                    self.p_manager.args.planner.disjointedTrees.remove(self.tree)
+                except ValueError:
+                    pass
+            # print(len(self.tree.nodes))
+        except AttributeError:
+            # probably this is its first init
+            pass
         if pos is None:
             # get random position
             pos = self.p_manager.new_pos_in_free_space()
             merged_tree = self.planner.add_pos_to_existing_tree(
-                Node(pos), None)
+                NodeWithEdge(pos), None)
             if merged_tree is not None and restart_when_merge:
                 # Successfully found a new valid node that's close to existing tree
                 # Return False to indicate it (and abort restart if we want more exploration)
@@ -97,7 +108,7 @@ class DisjointTreeParticle:
         else:
             # spawn a new tree
             self.tree = TreeDisjoint(particle_handler=self, dim=self.p_manager.args.num_dim)
-            self.tree.add_newnode(Node(pos))
+            self.tree.add_newnode(NodeWithEdge(pos))
             self.planner.disjointedTrees.append(self.tree)
         self.p_manager.modify_energy(particle_ref=self, set_val=ENERGY_START)
         self._restart(direction, pos)
@@ -326,6 +337,8 @@ class RRFSampler(Sampler):
                                       goalPt=self.goal_pos,
                                       args=self.args)
 
+        self.p_manager.randomSampler = self.randomSampler
+
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
@@ -412,10 +425,12 @@ class RRFSampler(Sampler):
                 # And it NEEDS to get back to restarting particles in the next ierations
                 return False
             self.p_manager.local_samplers_to_be_rstart.pop(0)
+            return True
         return True
 
     def get_next_pos(self):
         self._c_random += 1
+        # print('-', end='')
 
         if self._c_random > RANDOM_RESTART_EVERY > 0:
             self._c_random = 0
@@ -501,33 +516,60 @@ class RRFSampler(Sampler):
 ############################################################
 
 
-class Node:
-    def __init__(self, pos):
-        self.pos = np.array(pos)
-        self.cost = 0  # index 0 is x, index 1 is y
-        self.edges = []
-        self.children = []
-        self.is_start = False
-        self.is_goal = False
-
-    def __repr__(self):
-        try:
-            num_edges = len(self.edges)
-        except AttributeError:
-            num_edges = "DELETED"
-        return "Node(pos={}, cost={}, num_edges={})".format(
-            self.pos, self.cost, num_edges)
+# class Node:
+#     def __init__(self, pos):
+#         self.pos = np.array(pos)
+#         self.cost = 0  # index 0 is x, index 1 is y
+#         self.edges = []
+#         self.children = []
+#         self.is_start = False
+#         self.is_goal = False
+#
+#     def __repr__(self):
+#         try:
+#             num_edges = len(self.edges)
+#         except AttributeError:
+#             num_edges = "DELETED"
+#         return "Node(pos={}, cost={}, num_edges={})".format(
+#             self.pos, self.cost, num_edges)
 
 
 class NodeWithEdge:
     def __init__(self, pos):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
-        self.parent = None
+        self._parent = None
+        # self.parent = None
+
         self.children = []
-        self.edges = []
+
+        # self.edges = []
         self.is_start = False
         self.is_goal = False
+
+    def _set_parent_house_keeping(self, new_parent):
+        # if new_parent is not None:
+        if self._parent is not None:
+            self._parent.children.remove(self)
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, val):
+        self._set_parent_house_keeping(val)
+        self._parent = val
+        if val is not None:
+            val.children.append(self)
+
+
+
+    @property
+    def edges(self):
+        if self.parent is not None:
+            yield self.parent
+        yield from self.children
 
     def __getitem__(self, x):
         return self.pos[x]
@@ -539,6 +581,8 @@ class NodeWithEdge:
         return f"{self.__class__.__name__}<{self.pos}>"
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return np.all(self.pos == other.pos)
 
     def __hash__(self):
@@ -599,7 +643,18 @@ class RRFPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
+        # if self.c_max < float('inf'):
+        #     print(self.get_solution_path())
+        #     exit()
+
+        # self.particles_run_once()
+        # self.root_tree_run_once()
+        # return
+        # print('>>>>', len(self.disjointedTrees))
+        # print('>>>>', len(self.disjointedTrees))
+        # if np.random.rand() < 0.999:
         if np.random.rand() < 0.8:
+        # if np.random.rand() < 1:
         # if np.random.rand() < 0.1:
             self.root_tree_run_once()
         else:
@@ -644,6 +699,14 @@ class RRFPlanner(RRTPlanner):
         # for self.goal_tree_turn, poses, nodes in zip(
         #     *data
         # ):
+
+        # print('------------------------')
+        # print("root is_start", [n for n in self.root.nodes if n.is_start])
+        # print("root is_goal", [n for n in self.root.nodes if n.is_goal])
+        # print("goal is_start", [n for n in self.goal_root.nodes if n.is_start])
+        # print("goal is_goal", [n for n in self.goal_root.nodes if n.is_goal])
+
+
         for root in roots:
             self.goal_tree_turn = root is not self.goal_root
             rand_pos, _, _ = self.rrtconnect_sampler.get_valid_next_pos()
@@ -666,6 +729,7 @@ class RRFPlanner(RRTPlanner):
                 return
 
             else:
+                # print(np.linalg.norm(nn.pos - rand_pos))
 
                 newnode = NodeWithEdge(newpos)
                 self.args.env.stats.add_free()
@@ -674,28 +738,30 @@ class RRFPlanner(RRTPlanner):
                 newnode, nn = self.choose_least_cost_parent(
                     newnode, nn, nodes=nodes, use_rtree=False, poses=poses[:len(nodes)])
 
-                try:
-                    newnode.edges.append(nn)
-                    nn.edges.append(newnode)
-                except:
-                    print(self.nodes)
-                    print(nn)
-                    # print(self.goal_tree_nodes)
-                    raise
+                # try:
+                #     newnode.edges.append(nn)
+                #     nn.edges.append(newnode)
+                # except:
+                #     print(self.nodes)
+                #     print(nn)
+                #     # print(self.goal_tree_nodes)
+                #     raise
 
                 poses[len(nodes)] = newnode.pos
                 nodes.append(newnode)
                 # rewire to see what the newly added node can do for us
                 self.rewire(newnode, nodes, use_rtree=False, poses=poses[:len(nodes)])
 
+                # merged_tree = self.join_dtree_to_root(
+                #     newnode, root)
                 merged_tree = self.add_pos_to_existing_tree(
                     newnode, root)
                 ###################################################################
                 # check if two tree joins
                 if self.found_solution:
-                    if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
-                        if self.args.env.dist(newnode.pos,
-                                              self.goalPt.pos) < self.args.goal_radius:
+                    if self.args.env.dist(newnode.pos,
+                                          self.goalPt.pos) < self.args.goal_radius:
+                        if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
 
                             if newnode.cost < self.c_max:
                                 self.c_max = newnode.cost
@@ -816,40 +882,58 @@ class RRFPlanner(RRTPlanner):
                             nn = init_tree_node
 
 
-                            to_be_removed = []
-                            while _old_parent is not None:
-                                _old_parent = _nextnode.parent
+                            # to_be_removed = []
+                            # while _old_parent is not None:
+                            #     _old_parent = _nextnode.parent
 
-                                _nextnode, nn = self.choose_least_cost_parent(
-                                    _nextnode, nn=nn, nodes=self.nodes)
-                                self.rewire(_nextnode, nodes=self.nodes)
+                            #     _nextnode, nn = self.choose_least_cost_parent(
+                            #         _nextnode, nn=nn, nodes=self.nodes)
+                            #     self.rewire(_nextnode, nodes=self.nodes)
 
-                                self.poses[len(self.nodes)] = _nextnode.pos
-                                self.nodes.append(_nextnode)
-                                to_be_removed.append(_nextnode)
+                            #     self.poses[len(self.nodes)] = _nextnode.pos
+                            #     self.nodes.append(_nextnode)
+                            #     to_be_removed.append(_nextnode)
 
-                                nn = _nextnode
-                                _nextnode = _old_parent
+                            #     nn = _nextnode
+                            #     _nextnode = _old_parent
 
 
-                            # from helpers import BFS
-                            # bfs = BFS(goal_tree_node, validNodes=self.goal_root.nodes)
-                            # while bfs.has_next():
-                            #     newnode = bfs.next()
-                            #
-                            #     newnode, nn = self.choose_least_cost_parent(
-                            #         newnode, nn=nn, nodes=self.nodes, use_rtree=False,
-                            #         # newnode, nn=nn, nodes=self.nodes, use_rtree=False,
-                            #         poses=self.poses[:len(self.nodes)])
-                            #     # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
-                            #     newnode.parent = nn
-                            #     self.rewire(newnode, nodes=self.nodes, use_rtree=False,
-                            #                 poses=self.poses[:len(self.nodes)])
-                            #
-                            #     self.poses[len(self.nodes)] = newnode.pos
-                            #     self.nodes.append(newnode)
-                            #
-                            #     nn = newnode
+                            from helpers import BFS
+                            # print(self.goal_root.nodes)
+                            bfs = BFS(goal_tree_node, validNodes=self.goal_root.nodes)
+                            # print('====================', len(self.goal_root.nodes))
+                            # print(len(self.root.nodes))
+                            # print(len(self.goal_root.nodes))
+                            # i = 0
+                            while bfs.has_next():
+                                # i += 1
+                                newnode = bfs.next()
+                                # print(len(self.nodes), newnode)
+
+                                newnode, nn = self.choose_least_cost_parent(
+                                    newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                                    # newnode, nn=nn, nodes=self.nodes, use_rtree=False,
+                                    poses=self.poses[:len(self.nodes)])
+
+
+                                # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+                                newnode.parent = nn
+                                self.rewire(newnode, nodes=self.nodes, use_rtree=False,
+                                            poses=self.poses[:len(self.nodes)])
+
+                                self.poses[len(self.nodes)] = newnode.pos
+                                self.nodes.append(newnode)
+
+                                nn = newnode
+                            # print(i)
+                            # print(len(self.root.nodes))
+                            # print(len(self.goal_root.nodes))
+                            # print('yss')
+
+                            # self.goalPt.parent = self.goal_root.nodes[0]
+                            # if self.goalPt not in self.goal_root.nodes[0].children:
+                            #     self.goal_root.nodes.children.append(self.goalPt)
+
                             self.goal_root.nodes.clear()
                             break
 
@@ -999,7 +1083,7 @@ class RRFPlanner(RRTPlanner):
             self.args.env.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
-            newnode = Node(newpos)
+            newnode = NodeWithEdge(newpos)
 
             # if True:
             #     from klampt import vis
@@ -1038,12 +1122,12 @@ class RRFPlanner(RRTPlanner):
         # newnode.parent = nn
 
         # check for goal condition
-        if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
-            if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
-                if newnode.cost < self.c_max:
-                    self.c_max = newnode.cost
-                    self.goalPt.parent = newnode
-                    newnode.children.append(self.goalPt.parent)
+        # if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+        #     if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+        #         if newnode.cost < self.c_max:
+        #             self.c_max = newnode.cost
+        #             self.goalPt.parent = newnode
+        #             newnode.children.append(self.goalPt.parent)
         return newnode, nn
 
 ##################################################
@@ -1067,17 +1151,121 @@ class RRFPlanner(RRTPlanner):
             # using rrt* algorithm to add each nodes
             newnode, nn = self.rrt_star_add_node(newnode, parent_tree, nn)
         else:
-            newnode.edges.append(nn)
-            nn.edges.append(newnode)
+            # newnode.edges.append(nn)
+            newnode.children.append(nn)
+            # nn.edges.append(newnode)
+            nn.children.append(newnode)
         if parent_tree is not None:
             parent_tree.add_newnode(newnode)
         return newnode, nn
 
-    def add_pos_to_existing_tree(self, newnode, parent_tree):
+    def join_dtree_to_root(self, newnode, root_tree):
+        return
+        pass
+        # self.add_pos_to_existing_tree(newnode, parent_tree)
         """Try to add pos to existing tree. If success, return True."""
         nearest_nodes = self.find_nearest_node_from_neighbour(
-            node=newnode, parent_tree=parent_tree, radius=self.args.radius)
+            node=newnode, parent_tree=root_tree, radius=self.args.radius)
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
+            
+            if nearest_neighbour_tree in (self.root, self.goal_root):
+                continue
+            
+            if self.args.env.cc.visible(newnode.pos,
+                                        nearest_neighbour_node.pos):
+
+
+
+
+                bfs = BFS(nearest_neighbour_node, validNodes=nearest_neighbour_tree.nodes)
+                with tqdm(desc='join to root', total=len) as pbar:
+                    while bfs.has_next():
+                        newnode = bfs.next()
+                    
+                        newnode = NodeWithEdge(newnode.pos)
+                        newnode, nn = self.choose_least_cost_parent(
+                            newnode, nn=None, nodes=root_tree.nodes, use_rtree=False,
+                            # newnode, nn=nn, nodes=root_tree.nodes, use_rtree=False,
+                            poses=root_tree.poses[:len(root_tree.nodes)])
+                        # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+                        
+                        # newnode.parent = nn
+                        # nn.children.append(newnode)
+
+                        self.rewire(newnode, nodes=root_tree.nodes, use_rtree=False,
+                                    poses=root_tree.poses[:len(root_tree.nodes)])
+                    
+                        root_tree.poses[len(root_tree.nodes)] = newnode.pos
+                        root_tree.nodes.append(newnode)
+                    
+                        nn = newnode
+
+                        pbar.update()
+
+
+
+
+                # nn = nearest_neighbour_node
+
+                # bfs = BFS(nearest_neighbour_node, validNodes=tree.nodes)
+                # nn = root_tree_node
+                # while bfs.has_next():
+                #     newnode = bfs.next()
+                #     pbar.update()
+                #     try:
+                #         # self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+                #         # if not self.args.env.cc.visible(newnode.pos, nn.pos):
+                #         #     asdasd
+                #         # newnode, nn = self.connect_two_nodes(newnode, nn=nn, parent_tree=self.root)
+                #         newnode, nn = self.connect_two_nodes(newnode, nn=None, parent_tree=root_tree_type)
+                #         nn = newnode
+                #     except LookupError:
+                #         LOGGER.warning(
+                #             "nn not found when attempting to joint to root. Ignoring..."
+                #         )
+
+
+
+
+
+
+                # # find which middle_node belongs to the disjointed tree
+                # self.join_tree_to_root(nearest_neighbour_tree, nearest_neighbour_node, root_tree_node=newnode, root_tree_type=root_tree)
+                
+                del nearest_neighbour_tree.nodes
+                del nearest_neighbour_tree.poses
+                self.disjointedTrees.remove(nearest_neighbour_tree)
+
+                if self.args.sampler.restart_when_merge:
+                    # restart all particles
+                    for p in nearest_neighbour_tree.particle_handler:
+                        p.restart()
+                    del nearest_neighbour_tree.particle_handler
+                else:
+                    # pass the remaining particle to the remaining tree
+                    for p in nearest_neighbour_tree.particle_handler:
+                        p.tree = root_tree
+                        root_tree.particle_handler.append(p)
+                # return root_tree
+
+
+        return root_tree
+
+
+
+    def add_pos_to_existing_tree(self, newnode, parent_tree):
+
+        """Try to add pos to existing tree. If success, return True."""
+        r = self.args.epsilon
+        if self.args.engine == 'klampt':
+            r = 1
+        nearest_nodes = self.find_nearest_node_from_neighbour(
+            node=newnode, parent_tree=parent_tree, radius=r)
+        cnt = 0
+        for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
+            cnt += 1
+            if cnt > 5:
+                break
             if self.args.env.cc.visible(newnode.pos,
                                         nearest_neighbour_node.pos):
                 if parent_tree is None:
@@ -1103,6 +1291,7 @@ class RRFPlanner(RRTPlanner):
                         )
         return parent_tree
 
+    # @profile
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
         """
         Given a tree, a node within that tree, and radius
@@ -1125,7 +1314,7 @@ class RRFPlanner(RRTPlanner):
             idx = self.find_nearest_neighbour_idx(
                 node.pos, tree.poses[:len(tree.nodes)])
             nn = tree.nodes[idx]
-            if self.args.env.dist(nn.pos, node.pos) < radius:
+            if True or self.args.env.dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
         # construct list of the found solution. And root at last (or else the result won't be stable)
         root_nn = nearest_nodes.pop(self.root, None)
@@ -1136,41 +1325,99 @@ class RRFPlanner(RRTPlanner):
         return nearest_nodes_list
 
     def join_tree_to_root(self, tree, middle_node, root_tree_node, root_tree_type):
-        """It will join the given tree to the root"""
-        # from env import Colour
+        # self.add_pos_to_existing_tree(newnode, parent_tree)
+        """Try to add pos to existing tree. If success, return True."""
+        # return
+        pass
+        
+        root_tree = root_tree_type
+
+
         bfs = BFS(middle_node, validNodes=tree.nodes)
-        # add all nodes from disjoint tree via rrt star method
-        LOGGER.info("> Joining to root tree")
-        with tqdm(desc="join to root", total=len(tree.nodes)) as pbar:
+        while bfs.has_next():
+            newnode = bfs.next()
+        
+            newnode = NodeWithEdge(newnode.pos)
+            try:
+                newnode, nn = self.choose_least_cost_parent(
+                    newnode, nn=None, nodes=root_tree.nodes, use_rtree=False,
+                    # newnode, nn=nn, nodes=root_tree.nodes, use_rtree=False,
+                    poses=root_tree.poses[:len(root_tree.nodes)])
+            except RuntimeError:
+                pass
 
-            nn = middle_node
-            # while bfs.has_next():
-            #     n = bfs.next()
-            #     if not self.args.env.cc.visible(nn.pos, n.pos):
-            #         xxxxxxxxxxxxxxxxxX
-            #     nn = n
+            # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+            
+            # newnode.parent = nn
+            # nn.children.append(newnode)
 
-            bfs = BFS(middle_node, validNodes=tree.nodes)
-            nn = root_tree_node
-            while bfs.has_next():
-                newnode = bfs.next()
-                pbar.update()
-                try:
-                    # self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
-                    # if not self.args.env.cc.visible(newnode.pos, nn.pos):
-                    #     asdasd
-                    # newnode, nn = self.connect_two_nodes(newnode, nn=nn, parent_tree=self.root)
-                    newnode, nn = self.connect_two_nodes(newnode, nn=None, parent_tree=root_tree_type)
-                    nn = newnode
-                except LookupError:
-                    LOGGER.warning(
-                        "nn not found when attempting to joint to root. Ignoring..."
-                    )
-                # remove this node's edges (as we don't have a use on them anymore) to free memory
-                # del newnode.edges
+            self.rewire(newnode, nodes=root_tree.nodes, use_rtree=False,
+                        poses=root_tree.poses[:len(root_tree.nodes)])
+        
+            root_tree.poses[len(root_tree.nodes)] = newnode.pos
+            root_tree.nodes.append(newnode)
+        
+            nn = newnode
 
-        # assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
-        #     progress, total_num)
+        # del tree.nodes
+        # del tree.poses
+        # self.disjointedTrees.remove(tree)
+
+        # if self.args.sampler.restart_when_merge:
+        #     # restart all particles
+        #     for p in tree.particle_handler:
+        #         p.restart()
+        #     del tree.particle_handler
+        # else:
+        #     # pass the remaining particle to the remaining tree
+        #     for p in tree.particle_handler:
+        #         p.tree = root_tree
+        #         root_tree.particle_handler.append(p)
+        # # return root_tree
+
+
+
+
+
+
+
+
+    # def join_tree_to_root(self, tree, middle_node, root_tree_node, root_tree_type):
+    #     """It will join the given tree to the root"""
+    #     # from env import Colour
+    #     bfs = BFS(middle_node, validNodes=tree.nodes)
+    #     # add all nodes from disjoint tree via rrt star method
+    #     LOGGER.info("> Joining to root tree")
+    #     with tqdm(desc="join to root", total=len(tree.nodes)) as pbar:
+
+    #         nn = middle_node
+    #         # while bfs.has_next():
+    #         #     n = bfs.next()
+    #         #     if not self.args.env.cc.visible(nn.pos, n.pos):
+    #         #         xxxxxxxxxxxxxxxxxX
+    #         #     nn = n
+
+    #         bfs = BFS(middle_node, validNodes=tree.nodes)
+    #         nn = root_tree_node
+    #         while bfs.has_next():
+    #             newnode = bfs.next()
+    #             pbar.update()
+    #             try:
+    #                 # self.connect_two_nodes(newnode, nn=None, parent_tree=self.root)
+    #                 # if not self.args.env.cc.visible(newnode.pos, nn.pos):
+    #                 #     asdasd
+    #                 # newnode, nn = self.connect_two_nodes(newnode, nn=nn, parent_tree=self.root)
+    #                 newnode, nn = self.connect_two_nodes(newnode, nn=None, parent_tree=root_tree_type)
+    #                 nn = newnode
+    #             except LookupError:
+    #                 LOGGER.warning(
+    #                     "nn not found when attempting to joint to root. Ignoring..."
+    #                 )
+    #             # remove this node's edges (as we don't have a use on them anymore) to free memory
+    #             # del newnode.edges
+
+    #     # assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
+    #     #     progress, total_num)
 
 
     def join_trees(self, tree1, tree2, tree1_node, tree2_node):
@@ -1248,7 +1495,7 @@ class TreeRoot:
         if particle_handler is not None:
             self.particle_handler.append(particle_handler)
         self.nodes = []
-        self.poses = np.empty((MAX_NUMBER_NODES + 50,
+        self.poses = np.empty((MAX_NUMBER_NODES*2 + 50,
                                dim))  # +50 to prevent over flow
         # This stores the last node added to this tree (by local sampler)
 
@@ -1344,16 +1591,19 @@ class MABScheduler:
         self.args.env.stats.lscampler_restart_counter += 1
         while True:
 
-            # low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
-            #               -3.12413936106985, -2.443460952792061, -3.12413936106985],
-            #              [3.12413936106985, 2.2689280275926285, 2.530727415391778,
-            #               3.12413936106985, 2.007128639793479, 3.12413936106985])
-            # import numpy as np
+            # if self.args.engine == 'klampt':
+            #     low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
+            #                   -3.12413936106985, -2.443460952792061, -3.12413936106985],
+            #                  [3.12413936106985, 2.2689280275926285, 2.530727415391778,
+            #                   3.12413936106985, 2.007128639793479, 3.12413936106985])
+            #     import numpy as np
+            #
+            #     new_p = np.random.uniform(low, high)
+            #
+            # else:
+            #     new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
 
-            # new_p = np.random.uniform(low, high)
-
-
-            new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
+            new_p = self.randomSampler.get_next_pos()[0]
 
             self.args.env.stats.add_sampled_node(new_p)
             if not self.args.env.cc.feasible(new_p):

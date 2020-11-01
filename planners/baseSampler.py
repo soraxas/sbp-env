@@ -10,6 +10,11 @@ class Planner(VisualiserSwitcher.planner_clname):
         path = [self.goalPt]
         nn = self.goalPt.parent
         # while nn != self.startPt:
+        # while not nn.is_start:
+        #     if nn == nn.parent:
+        #         raise RuntimeError(f"nn = nn.parent?\n{nn}\n{nn.parent}")
+        #     path.append(nn)
+        #     nn = nn.parent
         while not np.all(np.isclose(nn.pos, self.startPt.pos)):
             if nn == nn.parent:
                 raise RuntimeError(f"nn = nn.parent?\n{nn}\n{nn.parent}")

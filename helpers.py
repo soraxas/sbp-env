@@ -28,6 +28,12 @@ class Colour:
     cyan = 20, 200, 200
     orange = 255, 160, 16
 
+    @staticmethod
+    def cAlpha(colour, alpha):
+        colour = list(colour)
+        colour.append(alpha)
+        return colour
+
 
 class Node:
     def __init__(self, pos):
@@ -103,13 +109,20 @@ class BFS:
 
     def __init__(self, node, validNodes):
         self.visitedNodes = set()
-        self.validNodes = validNodes
+        self.validNodes = set(validNodes)
         self.next_node_to_visit = [node]
         self.next_node = None
 
     def visit_node(self, node):
         self.visitedNodes.add(node)
         self.next_node_to_visit.extend(node.edges)
+        # self.next_node_to_visit.extend(node.children)
+        # try:
+        #     if node.parent is not None:
+        #         self.next_node_to_visit.append(node.parent)
+        # except AttributeError:
+        #     pass
+
         self.next_node = node
 
     def has_next(self):
@@ -121,6 +134,7 @@ class BFS:
         while True:
             _node = self.next_node_to_visit.pop(0)
             if _node not in self.visitedNodes and _node in self.validNodes:
+            # if _node not in self.visitedNodes:
                 break
             if len(self.next_node_to_visit) < 1:
                 return False

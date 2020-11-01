@@ -74,6 +74,17 @@ class DisjointTreeParticle:
             return
         self.last_node = None
         merged_tree = None
+        try:
+            if len(self.tree.nodes) < 5:
+                # don't bother!
+                try:
+                    self.p_manager.args.planner.disjointedTrees.remove(self.tree)
+                except ValueError:
+                    pass
+            # print(len(self.tree.nodes))
+        except AttributeError:
+            # probably this is its first init
+            pass
         if pos is None:
             # get random position
             pos = self.p_manager.new_pos_in_free_space()
@@ -326,6 +337,8 @@ class RRdTSampler(Sampler):
                                       goalPt=self.goal_pos,
                                       args=self.args)
 
+        self.p_manager.randomSampler = self.randomSampler
+
         global MAX_NUMBER_NODES
         MAX_NUMBER_NODES = self.args.max_number_nodes
 
@@ -412,6 +425,7 @@ class RRdTSampler(Sampler):
                 # And it NEEDS to get back to restarting particles in the next ierations
                 return False
             self.p_manager.local_samplers_to_be_rstart.pop(0)
+            return True
         return True
 
     def get_next_pos(self):
@@ -530,6 +544,7 @@ class RRdTPlanner(RRTPlanner):
     def run_once(self):
         # Get an sample that is free (not in blocked space)
         # _tmp = self.args.sampler.get_valid_next_pos()
+        # print(self.args.goal_radius)
 
         while True:
             _tmp = self.args.sampler.get_next_pos()
@@ -647,9 +662,17 @@ class RRdTPlanner(RRTPlanner):
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
         """Try to add pos to existing tree. If success, return True."""
+        r = self.args.epsilon
+        if self.args.engine == 'klampt':
+            r = 1
         nearest_nodes = self.find_nearest_node_from_neighbour(
-            node=newnode, parent_tree=parent_tree, radius=self.args.radius)
+            node=newnode, parent_tree=parent_tree, radius=r)
+        cnt = 0
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
+            cnt += 1
+            if cnt > 5:
+                break
+        # for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
             if self.args.env.cc.visible(newnode.pos,
                                         nearest_neighbour_node.pos):
                 if parent_tree is None:
@@ -673,6 +696,7 @@ class RRdTPlanner(RRTPlanner):
                         LOGGER.warning(
                             "== Assertion error in joining sampled point to existing tree... Skipping this node..."
                         )
+                break
         return parent_tree
 
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
@@ -909,16 +933,7 @@ class MABScheduler:
         self.args.env.stats.lscampler_restart_counter += 1
         while True:
 
-            # low, high = ([-3.12413936106985, -2.5743606466916362, -2.530727415391778,
-            #               -3.12413936106985, -2.443460952792061, -3.12413936106985],
-            #              [3.12413936106985, 2.2689280275926285, 2.530727415391778,
-            #               3.12413936106985, 2.007128639793479, 3.12413936106985])
-            # import numpy as np
-
-            # new_p = np.random.uniform(low, high)
-
-
-            new_p = random.random() * self.args.env.dim[0], random.random() * self.args.env.dim[1]
+            new_p = self.randomSampler.get_next_pos()[0]
 
             self.args.env.stats.add_sampled_node(new_p)
             if not self.args.env.cc.feasible(new_p):

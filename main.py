@@ -38,7 +38,7 @@ General Planner Options:
                          [default: 10.0]
   --max-number-nodes=MAX_NODES
                          Set maximum number of nodes
-                         [default: 20000]
+                         [default: 10000]
   --ignore-step-size     Ignore step size (i.e. epsilon) when sampling.
   --goal-bias=BIAS       Probability of biasing goal position.
                          [default: 0.02]
@@ -90,6 +90,7 @@ import sys
 
 from docopt import docopt
 
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
 
 from helpers import MagicDict
@@ -99,14 +100,32 @@ from pygamevisualiser import VisualiserSwitcher, BaseEnvVisualiser, \
 
 LOGGER = logging.getLogger()
 
+import numpy
+import random
+n = random.randint(0, 100000)
 
-def main():
+n = 57171
+print(n)
+
+numpy.random.seed(n)
+random.seed(n)
+
+    
+def main(map_fn=None, start=None, goal=None, sampler=None):
     args = docopt(__doc__, version='RRT* Research v2.0')
     ########## Switch Visualiser to inherinet from ##########
     from pygamevisualiser import (VisualiserSwitcher, PygamePlannerVisualiser,
                                   PygameEnvVisualiser, BaseEnvVisualiser,
                                   KlamptEnvVisualiser, KlamptPlannerVisualiser,
                                   BasePlannerVisualiser)
+    if map_fn is not None:
+        args['<MAP>'] = map_fn
+    if start is not None:
+        args['<start_x1,x2,..,xn>'] = start
+    if goal is not None:
+        args['<goal_x1,x2,..,xn>'] = goal
+
+    # map_fn, start = start, goal = goal, sampler = sampler
 
     # deal with environment engine
     args['--engine'] = '' if args['--engine'] is None else args['--engine'].lower()
@@ -165,42 +184,56 @@ def main():
     LOGGER.debug("commandline args: {}".format(args))
 
     from planners.rrtPlanner import RRTPlanner
-    planner_type = RRTPlanner  # default planner type
-    if args['rrt']:
-        from planners.randomPolicySampler import RandomPolicySampler
-        sampler = RandomPolicySampler(random_method=args['--random-method'])
-    elif args['birrt']:
-        from planners.birrtPlanner import BiRRTSampler, BiRRTPlanner
-        sampler = BiRRTSampler()
-        planner_type = BiRRTPlanner
-    elif args['rrdt']:
-        from planners.rrdtPlanner import RRdTSampler, RRdTPlanner
-        sampler = RRdTSampler(
-            restart_when_merge=not args['--no-restart-when-merge'])
-        planner_type = RRdTPlanner
-    elif args['rrf']:
-        from planners.rrfPlanner import RRFSampler, RRFPlanner
-        sampler = RRFSampler(
-            restart_when_merge=not args['--no-restart-when-merge'])
-        planner_type = RRFPlanner
-    elif args['informedrrt']:
-        from planners.informedrrtSampler import InformedRRTSampler
-        sampler = InformedRRTSampler()
-    elif args['prm']:
-        from planners.prmPlanner import PRMSampler, PRMPlanner
-        sampler = PRMSampler()
-        planner_type = PRMPlanner
-    elif args['likelihood']:
-        from planners.likelihoodPolicySampler import LikelihoodPolicySampler
-        sampler = LikelihoodPolicySampler(
-            prob_block_size=int(args['--prob-block-size']))
-    elif args['nearby']:
-        from planners.nearbyPolicySampler import NearbyPolicySampler
-        sampler = NearbyPolicySampler(
-            prob_block_size=int(args['--prob-block-size']))
-    elif args['mouse']:
-        from planners.mouseSampler import MouseSampler
-        sampler = MouseSampler()
+    if sampler is not None:
+        from planners.rrfPlanner import RRFSampler
+        from planners.rrfPlanner import RRFPlanner
+
+        planner_type = RRTPlanner  # default planner type
+
+        if type(sampler) is BiRRTSampler:
+            planner_type = BiRRTPlanner
+        if type(sampler) is RRdTSampler:
+            planner_type = RRdTPlanner
+        if type(sampler) is RRFSampler:
+            planner_type = RRFPlanner
+    else:
+        if args['rrt']:
+            from planners.randomPolicySampler import RandomPolicySampler
+            sampler = RandomPolicySampler(random_method=args['--random-method'])
+        elif args['birrt']:
+            from planners.birrtPlanner import BiRRTSampler, BiRRTPlanner
+            sampler = BiRRTSampler()
+            planner_type = BiRRTPlanner
+        elif args['rrdt']:
+            from planners.rrdtPlanner import RRdTSampler, RRdTPlanner
+            sampler = RRdTSampler(
+                restart_when_merge=not args['--no-restart-when-merge'])
+            planner_type = RRdTPlanner
+        elif args['rrf']:
+            from planners.rrfPlanner import RRFSampler, RRFPlanner
+            sampler = RRFSampler(
+                restart_when_merge=not args['--no-restart-when-merge'])
+            planner_type = RRFPlanner
+        elif args['informedrrt']:
+            from planners.informedrrtSampler import InformedRRTSampler
+            sampler = InformedRRTSampler()
+        elif args['prm']:
+            from planners.prmPlanner import PRMSampler, PRMPlanner
+            sampler = PRMSampler()
+            planner_type = PRMPlanner
+        elif args['likelihood']:
+            from planners.likelihoodPolicySampler import LikelihoodPolicySampler
+            sampler = LikelihoodPolicySampler(
+                prob_block_size=int(args['--prob-block-size']))
+        elif args['nearby']:
+            from planners.nearbyPolicySampler import NearbyPolicySampler
+            sampler = NearbyPolicySampler(
+                prob_block_size=int(args['--prob-block-size']))
+        elif args['mouse']:
+            from planners.mouseSampler import MouseSampler
+            sampler = MouseSampler()
+
+
 
     planner_options = MagicDict({
         'keep_go_forth'             : args['--keep-go'],
@@ -258,61 +291,106 @@ def main():
 if __name__ == '__main__':
     main()
 
-    # # run if run from commandline
-    # environment = main()
-    # try:
-    #     environment.run()
-    # except Exception as e:
-    #     LOGGER.error("==============================")
-    #     LOGGER.exception("Exception occured: {}".format(e))
-    #     LOGGER.error("==============================")
-    #     LOGGER.error("Waiting to be exit...")
-    #     try:
-    #         while True:
-    #             pass
-    #             # environment.process_pygame_event()
-    #     except KeyboardInterrupt:
-    #         pass
+    exit()
 
-    #
-    #
-    # import experimentrepeater as er
-    # from experimentrepeater import repeat
-    #
-    #
-    # # def good_function_to_run(args, **kwargs):
-    # #     time_to_sleep, out = args
-    # #     for i in range(3):
-    # #         time.sleep(time_to_sleep)
-    # #         kwargs["update_progress"](f"{i + 1}/3")
-    # #         kwargs["log"](f"something bad happened at {i}")
-    # #     kwargs["save_stats"](["YAY", out])
-    #
-    # VisualiserSwitcher.choose_env_vis(BaseEnvVisualiser)
-    # VisualiserSwitcher.choose_planner_vis(BasePlannerVisualiser)
-    #
-    #
-    # # VisualiserSwitcher.choose_planner_vis(KlamptPlannerVisualiser)
-    # # VisualiserSwitcher.choose_env_vis(KlamptEnvVisualiser)
-    #
-    #
-    #
-    # er.run(
-    #     job_name="job_name",
-    #     num_processes=8,
-    #     func=expr,
-    #     args=(
-    #         ['rrt']
-    #         # 'rrt'
-    #         # 'rrt'
-    #         # 'rrt'
-    #         # 'rrt'
-    #     ),
-    #     # args=(
-    #     #     repeat([1, "out1"]) * 4,
-    #     #     repeat([2, "out2"]) * 5,
-    #     #     repeat([1, "out3"]) * 1,
-    #     #     [1, "out4"],
-    #     #     repeat([0.5, "out5"]) * 10,
-    #     # ),
-    # )
+    _sg_pairs = {
+        # 'maps/4d.png' : [[44, 48, 3, 2.25], [974, 958, -1.97, -2.66]],
+        'klampt_data/tx90custom_clutter.xml' : [[0.0,1.2,-0.37,-1.57,-1.57,-1.57], [-1.58,1.2,-0.37,-1.57,-1.57,-1.57]],
+        # 'maps/intel_lab.png' : [[488, 561], [140, 101]],
+
+        # 'maps/maze1.png' : [[25, 234], [292, 25]],
+
+        # 'maps/intel_lab.png' : [[488, 561], [14, 71]],
+
+    }
+
+    for map_fn, (start, goal) in _sg_pairs.items():
+        print(map_fn)
+        print(start, goal)
+
+        # exit()
+
+        if os.path.exists("out_stats.csv"):
+            os.makedirs('stats-pre', exist_ok=True)
+            target = None
+            _i = 0
+            while target is None or os.path.exists(target):
+                target = f"stats-pre/-{_i}.csv"
+                _i += 1
+            print(target)
+            os.rename("out_stats.csv", target)
+
+        VisualiserSwitcher.choose_env_vis(BaseEnvVisualiser)
+        VisualiserSwitcher.choose_planner_vis(BasePlannerVisualiser)
+        #
+        from pygamevisualiser import PygameEnvVisualiser, PygamePlannerVisualiser, KlamptPlannerVisualiser, KlamptEnvVisualiser
+
+        # VisualiserSwitcher.choose_env_vis(PygameEnvVisualiser)
+        # VisualiserSwitcher.choose_planner_vis(PygamePlannerVisualiser)
+
+        # VisualiserSwitcher.choose_planner_vis(KlamptPlannerVisualiser)
+        # VisualiserSwitcher.choose_env_vis(KlamptEnvVisualiser)
+
+        # from planners.learnedSampDist import LearnedSampDist, TorchInitModel
+
+
+
+        start = str(tuple(start))
+        goal = str(tuple(goal))
+
+        # print(world)
+
+        # main(world, fname=fname, start=start, goal=goal,
+        #      stick_robot_length_config=stick_robot_length_config)
+
+        from planners.randomPolicySampler import RandomPolicySampler
+        # from planners.learnedSampDist import LearnedSampDist, TorchInitModel, \
+        #     LearnedBiRRTSampler, LearnedInformedRRTSampler
+        from planners.informedrrtSampler import InformedRRTSampler
+        from planners.birrtPlanner import BiRRTSampler, BiRRTPlanner
+        from planners.rrdtPlanner import RRdTSampler, RRdTPlanner
+        from planners.rrfPlanner import RRFSampler
+
+        # from planners.mpnet import MPNet
+        # from planners.leanASL import LearnedSampDistASL
+
+        def get_samplpers():
+            samplers = [
+                # RRFSampler(restart_when_merge=True),
+                # InformedRRTSampler(),
+
+                # BiRRTSampler(),
+                # RandomPolicySampler(random_method='pseudo_random'),
+                RRdTSampler(restart_when_merge=True),
+            ]
+            return samplers
+        samplers = get_samplpers()
+        for i in range(10):
+            print(f'========>>> {i}')
+            i_planner = 0
+            while i_planner < len(samplers):
+                samplers = get_samplpers()
+                sampler = samplers[i_planner]
+                try:
+                    # main(world, fname=fname, start=start, goal=goal, override_fn=fn,
+                    #      sampler=sampler)
+                    # main(world, fname=fname, start=start, goal=goal,
+                    #      stick_robot_length_config=stick_robot_length_config, sampler=sampler)
+
+                    main(map_fn, start=start, goal=goal, sampler=sampler)
+                except Exception as e:
+                    print(e)
+                    raise e
+                else:
+                    i_planner += 1
+        if os.path.exists("out_stats.csv"):
+            os.makedirs('stats-pre', exist_ok=True)
+            target = None
+            _i = 0
+            while target is None or os.path.exists(target):
+                target = f"stats-pre/{map_fn.split('/')[-1]}-{_i}.csv"
+                _i += 1
+            print(target)
+            os.rename("out_stats.csv", target)
+
+

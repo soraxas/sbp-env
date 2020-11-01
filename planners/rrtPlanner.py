@@ -139,11 +139,11 @@ class RRTPlanner(Planner):
                         # print('finished at ', self.args.env.stats.valid_sample)
                         self.c_max = newnode.cost
                         self.goalPt.parent = newnode
-                        newnode.children.append(self.goalPt.parent)
+                        # newnode.children.append(self.goalPt.parent)
                         self.draw_solution_path()
 
     def add_newnode(self, node):
-        self.tree.add_vertex(node, pos=node.pos)
+        # self.tree.add_vertex(node, pos=node.pos)
 
         self.poses[len(self.nodes)] = node.pos
         self.nodes.append(node)
@@ -154,7 +154,9 @@ class RRTPlanner(Planner):
         has the least cost (toward the newly added node)"""
         skip_optimality = False
         use_rtree = False
-        
+        # if nn is not None:
+        #     skip_optimality = True
+
         if skip_optimality:
             if nn is None:
                 raise RuntimeError("Not enough information")
@@ -185,7 +187,7 @@ class RRTPlanner(Planner):
                 nn2 = nn
             newnode.cost = nn2.cost + self.args.env.dist(nn2.pos, newnode.pos)
             newnode.parent = nn2
-            nn2.children.append(newnode)
+            # nn2.children.append(newnode)
 
             return newnode, nn2
 
@@ -211,7 +213,7 @@ class RRTPlanner(Planner):
         newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
         assert newnode is not nn
         newnode.parent = nn
-        nn.children.append(newnode)
+        # nn.children.append(newnode)
 
         return newnode, nn
 
@@ -221,6 +223,7 @@ class RRTPlanner(Planner):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         skip_optimality = False
         use_rtree = False
+        # skip_optimality = True
         if skip_optimality:
             return
         if len(nodes) < 1:
@@ -250,9 +253,9 @@ class RRTPlanner(Planner):
                     # draw over the old wire
                     # reconsider = (n.parent, *n.children)
                     reconsider = n.children
-                    n.parent.children.remove(n)
+                    # n.parent.children.remove(n)
                     n.parent = newnode
-                    newnode.children.append(n)
+                    # newnode.children.append(n)
                     n.cost = newnode.cost + _newnode_to_n_cost
                     already_rewired.add(n)
                     self.rewire(n, reconsider, already_rewired=already_rewired)
@@ -281,12 +284,12 @@ class RRTPlanner(Planner):
                     and newnode.cost + _newnode_to_n_cost < n.cost):
                 # draw over the old wire
                 reconsider = (n.parent, *n.children)
-                n.parent.children.remove(n)
+                # n.parent.children.remove(n)
                 n.parent = newnode
-                newnode.children.append(n)
+                # newnode.children.append(n)
                 n.cost = newnode.cost + _newnode_to_n_cost
-                already_rewired.add(n)
-                self.rewire(n, reconsider, already_rewired=already_rewired)
+                # already_rewired.add(n)
+                # self.rewire(n, reconsider, already_rewired=already_rewired)
 
     @staticmethod
     def find_nearest_neighbour_idx(pos, poses):

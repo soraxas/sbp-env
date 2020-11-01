@@ -356,6 +356,9 @@ class PygameEnvVisualiser:
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
                     mousePos = np.array(e.pos) / self.args.scaling
+                    from collisionChecker import RobotArm4dCollisionChecker
+                    if type(self.cc) == RobotArm4dCollisionChecker:
+                        mousePos = np.array([*mousePos, *np.random.uniform(-np.pi, np.pi, 2)])
                     if not self.cc.feasible(mousePos):
                         # failed to pass collision check
                         mousePos = None
@@ -390,6 +393,33 @@ class PygameEnvVisualiser:
         pygame.display.iconify()
         # pygame.quit()
 
+    def draw_stick_robot(self,
+                  node,
+                  colour1=Colour.cAlpha(Colour.orange, 128),
+                  colour2=Colour.cAlpha(Colour.cyan, 128),
+                  line_modifier=2.5,
+                  layer=None):
+
+        # draw config for node 1
+        pt1 = node.pos[:2]
+        pt2 = self.cc._get_pt_from_angle_and_length(pt1, node.pos[2], self.cc.stick_robot_length_config[0])
+        pt3 = self.cc._get_pt_from_angle_and_length(pt2, node.pos[3], self.cc.stick_robot_length_config[1])
+
+        pt2 = np.array(pt2)
+        pt3 = np.array(pt3)
+
+        pygame.draw.line(layer, colour1,
+                         pt1 * self.args.scaling,
+                         pt2 * self.args.scaling,
+                         int(line_modifier * self.args.scaling))
+        pygame.draw.line(layer, colour2,
+                         pt2 * self.args.scaling,
+                         pt3 * self.args.scaling,
+                         int(line_modifier * self.args.scaling))
+
+        # pygame.draw.circle(layer, Colour.green, (pt1 * self.args.scaling).astype(int) , int(2 * self.args.scaling))
+
+
     def draw_path(self,
                   node1,
                   node2,
@@ -398,9 +428,27 @@ class PygameEnvVisualiser:
                   layer=None):
         if layer is None:
             layer = self.path_layers
-        pygame.draw.line(layer, colour, node1.pos * self.args.scaling,
-                         node2.pos * self.args.scaling,
-                         int(line_modifier * self.args.scaling))
+        if node1 is not None and node2 is not None:
+            pygame.draw.line(layer, colour, node1.pos[:2] * self.args.scaling,
+                             node2.pos[:2] * self.args.scaling,
+                             int(line_modifier * self.args.scaling))
+
+        # nodes_to_draw = self.nodes
+        # # cap the number of robot to draw
+        # max_draw = 30
+        # if len(nodes_to_draw) > max_draw:
+        #     nodes_to_draw = random.sample(nodes_to_draw, max_draw)
+        #
+        # for n in nodes_to_draw:
+        #     self.args.env.draw_stick_robot(n, layer=self.args.env.path_layers)
+
+        import collisionChecker
+        if type(self.cc) == collisionChecker.RobotArm4dCollisionChecker:
+            self.draw_stick_robot(node1, layer=self.path_layers)
+        else:
+            pygame.draw.line(layer, colour, node1.pos * self.args.scaling,
+                            node2.pos * self.args.scaling,
+                            int(line_modifier * self.args.scaling))
 
     def draw_circle(self, pos, colour, radius, layer):
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
@@ -680,6 +728,63 @@ class KlamptPlannerVisualiser:
                                                     get_world_pos(n.parent.pos)
                                                 , colour=c)
 
+        def RRFPlanner_paint():
+            from planners.rrdtPlanner import BFS
+            drawn_nodes_pairs = set()
+
+            def generate_random_colors():
+                """Return a generator that generate distinct colour."""
+                import colorsys
+                import ghalton
+                perms = ghalton.EA_PERMS[:1]
+                sequencer = ghalton.GeneralizedHalton(perms)
+                while True:
+                    x = sequencer.get(1)[0][0]
+                    HSV_tuple = (x, 0.5, 0.5)
+                    HSV_tuple = (x, 1, 0.6)
+                    rgb_colour = colorsys.hsv_to_rgb(*HSV_tuple)
+                    yield (*rgb_colour, 1.0)  # add alpha channel
+
+            color_gen = generate_random_colors()
+
+
+            # Draw disjointed trees
+            for tree in self.disjointedTrees:
+                c = next(color_gen)
+                # draw nodes
+                for node in tree.nodes:
+                    self.args.env.draw_node(get_world_pos(node.pos), colour=c)
+                # draw edges
+                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
+                while bfs.has_next():
+                    newnode = bfs.next()
+                    for e in newnode.edges:
+                        new_set = frozenset({newnode, e})
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.add(new_set)
+
+
+                            self.args.env.draw_path(get_world_pos(newnode.pos),
+                                                    get_world_pos(e.pos),
+                                                    colour=c)
+            # Draw root tree
+            c = next(color_gen)
+            # override to red
+            c = (1, 0, 0, 1)
+            # draw nodes
+            for root, c in zip((self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))):
+                for node in root.nodes:
+                    self.args.env.draw_node(get_world_pos(node.pos), colour=c)
+                # draw edges
+                for n in root.nodes:
+                    if n.parent is not None:
+                        new_set = frozenset({n, n.parent})
+                        if new_set not in drawn_nodes_pairs:
+                            drawn_nodes_pairs.add(new_set)
+                            self.args.env.draw_path(get_world_pos(n.pos),
+                                                        get_world_pos(n.parent.pos)
+                                                    , colour=c)
+
             # self.draw_solution_path()
 
         def default_paint():
@@ -692,9 +797,10 @@ class KlamptPlannerVisualiser:
             'InformedRRTSampler': InformedRRTSampler_paint,
             'RRdTSampler': RRdTSampler_paint,
             'RRdTPlanner': RRdTPlanner_paint,
+            'RRFSampler': RRdTSampler_paint,
+            'RRFPlanner': RRFPlanner_paint,
             'PRMSampler': nothing_paint,
             'PRMPlanner': PRMPlanner_paint,
-            'RRdTPlanner': RRdTPlanner_paint,
             'RRTSampler': nothing_paint,
             'RRTPlanner': RRTPlanner_paint,
             'BiRRTSampler': nothing_paint,

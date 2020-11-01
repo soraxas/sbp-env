@@ -26,6 +26,8 @@ class Env(VisualiserSwitcher.env_clname):
 
         if kwargs['engine'] == 'image':
             self.cc = ImgCollisionChecker(self.args.image)
+            if self.args.image == 'maps/4d.png':
+                self.cc = RobotArm4dCollisionChecker(self.args.image)
             self.dist = self.euclidean_dist
         elif kwargs['engine'] == 'klampt':
             self.cc = KlamptCollisionChecker(self.args.image, self.stats)
@@ -33,6 +35,7 @@ class Env(VisualiserSwitcher.env_clname):
 
         kwargs['num_dim'] = self.cc.get_dimension()
         kwargs['image_shape'] = self.cc.get_image_shape()
+        self.dim = kwargs['image_shape']
         kwargs['cc'] = self.cc
 
         def parse_input_pt(pt_as_str):
@@ -88,6 +91,7 @@ class Env(VisualiserSwitcher.env_clname):
 
         cosine_similarity = 1 - spatial.distance.cosine(p1, p2)
         return np.arccos(cosine_similarity) / np.pi
+        # return spatial.distance.cosine(p1, p2)
 
     @staticmethod
     def euclidean_dist(p1, p2):
@@ -113,60 +117,79 @@ class Env(VisualiserSwitcher.env_clname):
     def run(self):
         """Run until we reached the specified max nodes"""
         from tqdm import tqdm
-        pbar = tqdm(total=self.args.max_number_nodes)
-
+        import csv
         from timeit import default_timer
         starttime = default_timer()
 
+
         cur = -1
-        while self.stats.valid_sample < self.args.max_number_nodes:
-            self.update_screen()
-            self.planner.run_once()
+        # with open(f'out_stats-{self.args.sampler}.csv', 'a') as f:
+        with open(f'out_stats.csv', 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow([self.args.sampler.__class__.__name__, self.startPt, self.goalPt])
+            writer.writerow(['n_node', 'time', 'n_samp_cnt', 'i.con', 'i.obs', 'n_fe', 'n_vi', 'c_max',])
+            mark_at = 0
+            TERMINATED = False
+            with tqdm(total=self.args.max_number_nodes, desc=type(self.args.sampler).__name__) as pbar:
+                while self.stats.valid_sample < self.args.max_number_nodes:
+                    self.update_screen()
+                    self.planner.run_once()
 
-            pbar.n = self.stats.valid_sample
+                    pbar.n = self.stats.valid_sample
 
-            pbar.set_postfix({
-                # 'i.con' : self.stats.invalid_samples_connections,
-                # 'i.obs' : self.stats.invalid_samples_obstacles,
-                # 'su' : self.stats.sampler_success,
-                # 'sua' : self.stats.sampler_success_all,
-                # 'sf' : self.stats.sampler_fail,
-                'feasible' : self.stats.feasible_cnt,
-                'visible' : self.stats.visible_cnt,
-                'c_max' : self.planner.c_max,
-            })
+                    pbar.set_postfix({
+                        # 'i.con' : self.stats.invalid_samples_connections,
+                        # 'i.obs' : self.stats.invalid_samples_obstacles,
+                        # 'su' : self.stats.sampler_success,
+                        # 'sua' : self.stats.sampler_success_all,
+                        # 'sf' : self.stats.sampler_fail,
+                        'cc_fe' : self.stats.feasible_cnt,
+                        'cc_vi' : self.stats.visible_cnt,
+                        'fe' : self.stats.invalid_samples_obstacles,
+                        'vi' : self.stats.invalid_samples_connections,
+                        'c_max' : self.planner.c_max,
+                    })
+                    if self.stats.valid_sample >= mark_at:
+                        mark_at += 25
+                        writer.writerow([
+                            self.stats.valid_sample, default_timer() - starttime,
+                            self.stats.invalid_samples_connections + self.stats.invalid_samples_obstacles + self.stats.valid_sample,
+                            self.stats.invalid_samples_connections,
+                            self.stats.invalid_samples_obstacles,
+                            self.stats.feasible_cnt,
+                            self.stats.visible_cnt,
+                            self.planner.c_max,])
+                    pbar.refresh()
 
-            pbar.refresh()
 
-
-            # write basic information
-            # if self.stats.valid_sample > cur:
-            #     curtime = default_timer()
-            #     self.writer.writerow([
-            #         curtime - starttime,
-            #         self.stats.valid_sample,
-            #         self.stats.invalid_samples_connections,
-            #         self.stats.invalid_samples_obstacles,
-            #         self.stats.sampler_success,
-            #         self.stats.sampler_success_all,
-            #         self.stats.sampler_fail,
-            #         self.stats.feasible_cnt,
-            #         self.stats.visible_cnt,
-            #         self.planner.c_max,
-            #     ])
-            #     cur = self.stats.valid_sample
+                    # write basic information
+                    # if self.stats.valid_sample > cur:
+                    #     curtime = default_timer()
+                    #     self.writer.writerow([
+                    #         curtime - starttime,
+                    #         self.stats.valid_sample,
+                    #         self.stats.invalid_samples_connections,
+                    #         self.stats.invalid_samples_obstacles,
+                    #         self.stats.sampler_success,
+                    #         self.stats.sampler_success_all,
+                    #         self.stats.sampler_fail,
+                    #         self.stats.feasible_cnt,
+                    #         self.stats.visible_cnt,
+                    #         self.planner.c_max,
+                    #     ])
+                    #     cur = self.stats.valid_sample
 
         self.planner.terminates_hook()
-        self.write_solution_to_file(self.fname)
+        # self.write_solution_to_file(self.fname)
 
 
-    def write_solution_to_file(self, file_name):
-
-        with open(f"{file_name}.xml", 'w') as f:
-            if self.planner.c_max == float('inf'):
-                f.write('nope')
-                return
-            for n in self.planner.get_solution_path():
-                f.write('12 ')
-                f.write(" ".join(map(str, self.cc._translate_to_klampt(n.pos))))
-                f.write("\n")
+    # def write_solution_to_file(self, file_name):
+    #
+    #     with open(f"{file_name}.xml", 'w') as f:
+    #         if self.planner.c_max == float('inf'):
+    #             f.write('nope')
+    #             return
+    #         for n in self.planner.get_solution_path():
+    #             f.write('12 ')
+    #             f.write(" ".join(map(str, self.cc._translate_to_klampt(n.pos))))
+    #             f.write("\n")

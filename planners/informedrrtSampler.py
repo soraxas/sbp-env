@@ -41,6 +41,11 @@ class InformedRRTSampler(Sampler):
 
     @overrides
     def get_next_pos(self):
+        if self.args.engine == 'klampt':
+            # not possible with radian space
+            p = self.randomSampler.get_next_pos()[0]
+            return p, self.report_success, self.report_fail
+
         self.cBest = self.args.planner.c_max
         if self.cBest < float('inf'):
             r = [
@@ -52,6 +57,8 @@ class InformedRRTSampler(Sampler):
             xBall = self.sampleUnitBall()
             rnd = np.dot(np.dot(self.C, L), xBall) + self.xCenter
             p = [rnd[(0, 0)], rnd[(1, 0)]]
+            if self.args.image == 'maps/4d.png':
+                p.extend(np.random.uniform([-np.pi, -np.pi], [np.pi, np.pi]))
         else:
             p = self.randomSampler.get_next_pos()[0]
         return p, self.report_success, self.report_fail
