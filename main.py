@@ -218,8 +218,8 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
         no_display=args["--no-display"],
         engine=args["--engine"],
         planner_type=planner_type,
-        startPt=args["<start_x1,x2,..,xn>"],
-        goalPt=args["<goal_x1,x2,..,xn>"],
+        start_pt=args["<start_x1,x2,..,xn>"],
+        goal_pt=args["<goal_x1,x2,..,xn>"],
     )
 
     # reduce goal radius for klampt as it plans in radian
@@ -227,16 +227,16 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
         args["--goal_radius"] = 0.001
 
     # quick and dirty fix for docopt not able to handle negative argument
-    if planner_options["startPt"]:
-        if planner_options["startPt"].startswith("(") and planner_options[
-            "startPt"
+    if planner_options["start_pt"]:
+        if planner_options["start_pt"].startswith("(") and planner_options[
+            "start_pt"
         ].endswith(")"):
-            planner_options["startPt"] = planner_options["startPt"][1:-1]
-    if planner_options["goalPt"]:
-        if planner_options["goalPt"].startswith("(") and planner_options[
-            "goalPt"
+            planner_options["start_pt"] = planner_options["start_pt"][1:-1]
+    if planner_options["goal_pt"]:
+        if planner_options["goal_pt"].startswith("(") and planner_options[
+            "goal_pt"
         ].endswith(")"):
-            planner_options["goalPt"] = planner_options["goalPt"][1:-1]
+            planner_options["goal_pt"] = planner_options["goal_pt"][1:-1]
 
     import env
 

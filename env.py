@@ -53,8 +53,8 @@ class Env(VisualiserSwitcher.env_clname):
                 )
             return tuple(map(float, pt))
 
-        kwargs["startPt"] = parse_input_pt(kwargs["startPt"])
-        kwargs["goalPt"] = parse_input_pt(kwargs["goalPt"])
+        kwargs["start_pt"] = parse_input_pt(kwargs["start_pt"])
+        kwargs["goal_pt"] = parse_input_pt(kwargs["goal_pt"])
 
         self.args.planner = kwargs["planner_type"](**kwargs)
         kwargs["planner"] = self.args.planner
@@ -66,21 +66,21 @@ class Env(VisualiserSwitcher.env_clname):
 
         self.visualiser_init(no_display=kwargs["no_display"])
         start_pt, goal_pt = self.set_start_goal_points(
-            start=kwargs["startPt"], goal=kwargs["goalPt"]
+            start=kwargs["start_pt"], goal=kwargs["goal_pt"]
         )
 
-        self.startPt = self.goalPt = None
+        self.start_pt = self.goal_pt = None
         if start_pt:
-            self.startPt = Node(start_pt)
+            self.start_pt = Node(start_pt)
         if goal_pt:
-            self.goalPt = Node(goal_pt)
-        self.startPt.is_start = True
-        self.goalPt.is_goal = True
-        self.planner.add_newnode(self.startPt)
+            self.goal_pt = Node(goal_pt)
+        self.start_pt.is_start = True
+        self.goal_pt.is_goal = True
+        self.planner.add_newnode(self.start_pt)
         self.update_screen(update_all=True)
         # update the string pt to object
-        kwargs["startPt"] = self.startPt
-        kwargs["goalPt"] = self.goalPt
+        kwargs["start_pt"] = self.start_pt
+        kwargs["goal_pt"] = self.goal_pt
 
         self.planner.init(env=self, **kwargs)
         if kwargs["engine"] == "klampt":
@@ -131,7 +131,7 @@ class Env(VisualiserSwitcher.env_clname):
         with open(f"out_stats.csv", "a") as f:
             writer = csv.writer(f)
             writer.writerow(
-                [self.args.sampler.__class__.__name__, self.startPt, self.goalPt]
+                [self.args.sampler.__class__.__name__, self.start_pt, self.goal_pt]
             )
             writer.writerow(
                 [
@@ -172,7 +172,6 @@ class Env(VisualiserSwitcher.env_clname):
                     )
                     if self.stats.valid_sample >= mark_at:
                         mark_at += 25
-                        print(self.stats)
                         # writer.writerow(
                         #     [
                         #         self.stats.valid_sample,

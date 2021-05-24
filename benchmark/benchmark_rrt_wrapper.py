@@ -47,8 +47,8 @@ def main():
     timestamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     directoryname = "map={map}_start={start}_goal={goal}".format(
         map=sys.argv[2].replace("/", "_"),
-        start="-".join((str(x) for x in env.startPt.pos)),
-        goal="-".join((str(x) for x in env.goalPt.pos)),
+        start="-".join((str(x) for x in env.start_pt.pos)),
+        goal="-".join((str(x) for x in env.goal_pt.pos)),
     )
     directoryname = os.path.join(BENCHMARK_DIR_NAME, directoryname)
     filename = "policy={policy}_timestamp={timestamp}".format(
@@ -78,8 +78,8 @@ def main():
         writer.writerow(
             (
                 sys.argv[2],
-                env.startPt.pos,
-                env.goalPt.pos,
+                env.start_pt.pos,
+                env.goal_pt.pos,
                 env.args.epsilon,
                 env.args.goalBias,
                 env.args.max_number_nodes,

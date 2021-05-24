@@ -103,8 +103,8 @@ class RRTPlanner(Planner):
     def init(self, *argv, **kwargs):
         # self.args.env = kwargs['RRT']
         self.args.sampler.init(*argv, **kwargs)
-        self.startPt = kwargs["startPt"]
-        self.goalPt = kwargs["goalPt"]
+        self.start_pt = kwargs["start_pt"]
+        self.goal_pt = kwargs["goal_pt"]
 
     def run_once(self):
         # Get an sample that is free (not in blocked space)
@@ -136,16 +136,16 @@ class RRTPlanner(Planner):
             # newnode.parent = nn
             # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
 
-            if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+            if self.args.env.cc.visible(newnode.pos, self.goal_pt.pos):
                 if (
-                    self.args.env.dist(newnode.pos, self.goalPt.pos)
+                    self.args.env.dist(newnode.pos, self.goal_pt.pos)
                     < self.args.goal_radius
                 ):
                     if newnode.cost < self.c_max:
                         # print('finished at ', self.args.env.stats.valid_sample)
                         self.c_max = newnode.cost
-                        self.goalPt.parent = newnode
-                        # newnode.children.append(self.goalPt.parent)
+                        self.goal_pt.parent = newnode
+                        # newnode.children.append(self.goal_pt.parent)
                         self.draw_solution_path()
 
     def add_newnode(self, node):
@@ -335,7 +335,7 @@ def pygame_rrt_paint(planner):
             if new_set not in drawn_nodes_pairs:
                 drawn_nodes_pairs.add(new_set)
                 planner.args.env.draw_path(n, n.parent)
-    if planner.goalPt.parent is not None:
+    if planner.goal_pt.parent is not None:
         planner.draw_solution_path()
 
 

@@ -45,7 +45,6 @@ class LikelihoodPolicySampler(Sampler):
     @overrides
     def get_next_pos(self):
         if self.prob_vector_normalized is None or random.random() < 0.05:
-            LOGGER.debug("rand")
             p = self.random_sampler.get_next_pos()[0]
         else:
             choice = np.random.choice(

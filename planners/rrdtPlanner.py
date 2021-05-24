@@ -38,7 +38,7 @@ class DisjointTreeParticle:
         direction=None,
         pos=None,
         isroot=False,
-        startPtNode=None,
+        start_ptNode=None,
     ):
         self.isroot = isroot
         self.p_manager = p_manager
@@ -348,7 +348,7 @@ class RRdTSampler(Sampler):
         self.randomSampler.init(**kwargs)
 
         self.p_manager = MABScheduler(
-            num_dtrees=4, startPt=self.start_pos, goalPt=self.goal_pos, args=self.args
+            num_dtrees=4, start_pt=self.start_pos, goal_pt=self.goal_pos, args=self.args
         )
 
         self.p_manager.randomSampler = self.randomSampler
@@ -393,14 +393,14 @@ class RRdTSampler(Sampler):
         # goal_dt_p.restart(
         #             restart_when_merge=False)
 
-        goal_dt_p.tree.add_newnode(self.args.env.goalPt)
+        goal_dt_p.tree.add_newnode(self.args.env.goal_pt)
         self.p_manager.particles.append(goal_dt_p)
         #
         self.args.planner.root = TreeRoot(
             particle_handler=root_particle, dim=self.args.num_dim
         )
         root_particle.tree = self.args.planner.root
-        root_particle.tree.add_newnode(self.args.env.startPt)
+        root_particle.tree.add_newnode(self.args.env.start_pt)
         #
         self.p_manager.particles.append(root_particle)
 
@@ -640,12 +640,12 @@ class RRdTPlanner(RRTPlanner):
         # newnode.parent = nn
 
         # check for goal condition
-        if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
-            if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
+        if self.args.env.dist(newnode.pos, self.goal_pt.pos) < self.args.goal_radius:
+            if self.args.env.cc.visible(newnode.pos, self.goal_pt.pos):
                 if newnode.cost < self.c_max:
                     self.c_max = newnode.cost
-                    self.goalPt.parent = newnode
-                    newnode.children.append(self.goalPt.parent)
+                    self.goal_pt.parent = newnode
+                    newnode.children.append(self.goal_pt.parent)
         return newnode, nn
 
     ##################################################
@@ -895,12 +895,12 @@ class TreeDisjoint(TreeRoot):
 
 
 class MABScheduler:
-    def __init__(self, num_dtrees, startPt, goalPt, args):
+    def __init__(self, num_dtrees, start_pt, goal_pt, args):
         self.num_dtrees = num_dtrees
         self.init_energy()
         self.particles = []
         self.local_samplers_to_be_rstart = []
-        self.goalPt = goalPt
+        self.goal_pt = goal_pt
         self.args = args
 
     def add_to_restart(self, lsampler):

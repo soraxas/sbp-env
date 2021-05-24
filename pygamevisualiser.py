@@ -124,7 +124,7 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
             return
         # redraw new path
         self.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
-        nn = self.goalPt.parent
+        nn = self.goal_pt.parent
         self.c_max = nn.cost
         while not nn.is_start:
             self.args.env.draw_path(
@@ -264,7 +264,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         LOGGER.info("Select Starting Point and then Goal Point")
         if start is not None and goal is not None:
             return start, goal
-        self.startPt = self.goalPt = None
+        self.start_pt = self.goal_pt = None
         self.update_screen(update_all=True)
         while start is None or goal is None:
             mouse_pos = None
@@ -287,11 +287,11 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             if mouse_pos is not None:
                 if start is None:
                     start = Node(mouse_pos)
-                    self.startPt = start
+                    self.start_pt = start
                     LOGGER.info(f"starting point set: {mouse_pos}")
                 elif goal is None:
                     goal = Node(mouse_pos)
-                    self.goalPt = goal
+                    self.goal_pt = goal
                     LOGGER.info(f"goal point set: {mouse_pos}")
             self.update_screen(update_all=True)
         return start, goal
@@ -408,16 +408,16 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
         ##################################################
         def draw_start_goal_pt():
-            if self.startPt is not None:
+            if self.start_pt is not None:
                 self.draw_circle(
-                    pos=self.startPt.pos,
+                    pos=self.start_pt.pos,
                     colour=Colour.red,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
                 )
-            if self.goalPt is not None:
+            if self.goal_pt is not None:
                 self.draw_circle(
-                    pos=self.goalPt.pos,
+                    pos=self.goal_pt.pos,
                     colour=Colour.green,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
@@ -539,7 +539,7 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                             get_world_pos(n.parent.pos),
                             colour=colour,
                         )
-            if self.goalPt.parent is not None:
+            if self.goal_pt.parent is not None:
                 self.draw_solution_path()
 
         def RRTPlanner_paint():
@@ -806,16 +806,16 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
         ###################################################################################
         def draw_start_goal_pt():
-            if self.startPt is not None:
+            if self.start_pt is not None:
                 self.draw_circle(
-                    pos=self.startPt.pos,
+                    pos=self.start_pt.pos,
                     colour=Colour.red,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
                 )
-            if self.goalPt is not None:
+            if self.goal_pt is not None:
                 self.draw_circle(
-                    pos=self.goalPt.pos,
+                    pos=self.goal_pt.pos,
                     colour=Colour.green,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,

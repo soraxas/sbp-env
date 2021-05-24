@@ -52,8 +52,8 @@ class BiRRTPlanner(RRTPlanner):
                 kwargs["num_dim"],
             )
         )
-        self.goal_tree_nodes.append(self.args.env.goalPt)
-        self.goal_tree_poses[0] = self.args.env.goalPt.pos
+        self.goal_tree_nodes.append(self.args.env.goal_pt)
+        self.goal_tree_poses[0] = self.args.env.goal_pt.pos
 
         self.found_solution = False
         self.goal_tree_turn = False
@@ -145,9 +145,9 @@ class BiRRTPlanner(RRTPlanner):
                             nn = _nextnode
                             _nextnode = _old_parent
 
-            if self.goalPt.parent is not None:
-                if self.goalPt.parent.cost < self.c_max:
-                    self.c_max = self.goalPt.parent.cost
+            if self.goal_pt.parent is not None:
+                if self.goal_pt.parent.cost < self.c_max:
+                    self.c_max = self.goal_pt.parent.cost
 
 
 def pygame_birrt_planner_paint(planner):
@@ -162,7 +162,7 @@ def pygame_birrt_planner_paint(planner):
                 if new_set not in drawn_nodes_pairs:
                     drawn_nodes_pairs.add(new_set)
                     planner.args.env.draw_path(n, n.parent)
-    if planner.goalPt.parent is not None:
+    if planner.goal_pt.parent is not None:
         planner.draw_solution_path()
 
 

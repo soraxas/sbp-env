@@ -57,7 +57,7 @@ class PRMPlanner(RRTPlanner):
         #         1 / self.args.num_dim)
 
         self.graph = nx.DiGraph()
-        self.graph.add_node(self.args.env.startPt)
+        self.graph.add_node(self.args.env.start_pt)
         self.args.env.end_state = None
 
     @overrides
@@ -77,7 +77,7 @@ class PRMPlanner(RRTPlanner):
 
     def clear_graph(self):
         self.graph = nx.DiGraph()
-        self.graph.add_node(self.args.env.startPt)
+        self.graph.add_node(self.args.env.start_pt)
         self.args.env.end_state = None
 
     def build_graph(self):
@@ -103,7 +103,7 @@ class PRMPlanner(RRTPlanner):
         nn = None
         min_cost = 999999
         for n in neighbours:
-            if n is self.args.env.startPt or n is self.args.env.goalPt or n is node:
+            if n is self.args.env.start_pt or n is self.args.env.goal_pt or n is node:
                 continue
             if not self.args.env.cc.visible(node.pos, n.pos):
                 continue
@@ -122,11 +122,11 @@ class PRMPlanner(RRTPlanner):
         m_near = nearest_neighbours(
             self.nodes, self.poses, self.args.sampler.start_pos, self.args.epsilon
         )
-        start = self.get_nearest_free(self.args.env.startPt, m_near)
+        start = self.get_nearest_free(self.args.env.start_pt, m_near)
         m_near = nearest_neighbours(
             self.nodes, self.poses, self.args.sampler.goal_pos, self.args.epsilon
         )
-        goal = self.get_nearest_free(self.args.env.goalPt, m_near)
+        goal = self.get_nearest_free(self.args.env.goal_pt, m_near)
 
         if start is None or goal is None or not nx.has_path(self.graph, start, goal):
             return False
@@ -139,8 +139,8 @@ class PRMPlanner(RRTPlanner):
                 solution_path[i].pos, solution_path[i - 1].pos
             )
         self.c_max = goal.cost
-        self.args.env.goalPt.parent = goal
-        start.parent = self.args.env.startPt
+        self.args.env.goal_pt.parent = goal
+        start.parent = self.args.env.start_pt
         self.draw_solution_path()
         return self.c_max
 

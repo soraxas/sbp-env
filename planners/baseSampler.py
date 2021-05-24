@@ -13,9 +13,9 @@ class Planner(VisualiserSwitcher.planner_clname):
     def get_solution_path(self):
         if self.c_max == float("inf"):
             return []
-        path = [self.goalPt]
-        nn = self.goalPt.parent
-        while not np.all(np.isclose(nn.pos, self.startPt.pos)):
+        path = [self.goal_pt]
+        nn = self.goal_pt.parent
+        while not np.all(np.isclose(nn.pos, self.start_pt.pos)):
             if nn == nn.parent:
                 raise RuntimeError(f"nn = nn.parent?\n{nn}\n{nn.parent}")
             path.append(nn)
@@ -36,8 +36,8 @@ class Sampler(VisualiserSwitcher.sampler_clname):
 
     def init(self, use_radian=False, *argv, **kwargs):
         self.args = MagicDict(kwargs)
-        self.start_pos = kwargs["startPt"].pos
-        self.goal_pos = kwargs["goalPt"].pos
+        self.start_pos = kwargs["start_pt"].pos
+        self.goal_pos = kwargs["goal_pt"].pos
         self.use_radian = use_radian
 
         super().init(*argv, **kwargs)
