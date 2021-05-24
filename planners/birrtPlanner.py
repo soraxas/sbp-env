@@ -7,9 +7,14 @@ from env import Node
 from planners.baseSampler import Sampler
 from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
+from utils import planner_registry
 
 
+# noinspection PyAttributeOutsideInit
 class BiRRTSampler(Sampler):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @overrides
     def init(self, **kwargs):
         super().init(**kwargs)
@@ -35,76 +40,23 @@ class BiRRTSampler(Sampler):
             return p, self.report_success, self.report_fail
 
 
+# noinspection PyAttributeOutsideInit
 class BiRRTPlanner(RRTPlanner):
     @overrides
-    def init(self, *argv, **kwargs):
-        super().init(*argv, **kwargs)
+    def init(self, **kwargs):
+        super().init(**kwargs)
         self.goal_tree_nodes = []
-        self.goal_tree_poses = np.empty((self.args.max_number_nodes*2 + 50, # +50 to prevent over flow
-                                         kwargs['num_dim']))
+        self.goal_tree_poses = np.empty(
+            (
+                self.args.max_number_nodes * 2 + 50,  # +50 to prevent over flow
+                kwargs["num_dim"],
+            )
+        )
         self.goal_tree_nodes.append(self.args.env.goalPt)
         self.goal_tree_poses[0] = self.args.env.goalPt.pos
 
         self.found_solution = False
         self.goal_tree_turn = False
-
-
-    def draw_potential(self, fac=.5):
-        from sklearn.neighbors import KernelDensity
-
-        def kde2D(x, y, bandwidth, xbins=100j, ybins=100j,
-                  xmin=None, xmax=None, ymin=None, ymax=None,
-                  **kwargs):
-            from sklearn.neighbors import KernelDensity
-            """Build 2D kernel density estimate (KDE)."""
-            if xmin is None:
-                xmin = x.min()
-                xmax = x.max()
-                ymin = y.min()
-                ymax = y.max()
-            # create grid of sample locations (default: 100x100)
-            xx, yy = np.mgrid[xmin:xmax:xbins,
-                     ymin:ymax:ybins]
-
-            xy_sample = np.vstack([yy.ravel(), xx.ravel()]).T
-            xy_train = np.vstack([y, x]).T
-
-            kde_skl = KernelDensity(bandwidth=bandwidth, **kwargs)
-            kde_skl.fit(xy_train)
-
-            # score_samples() returns the log-likelihood of the samples
-            z = np.exp(kde_skl.score_samples(xy_sample))
-            return xx, yy, np.reshape(z, xx.shape)
-
-        import numpy as np
-        import matplotlib.pyplot as plt
-
-        # plt.scatter(*np.array(self.bins).T)
-        # plt.show()
-
-        # m1 = np.random.normal(size=1000)
-        # m2 = np.random.normal(scale=0.5, size=1000)
-        #
-        # x, y = m1 + m2, m1 - m2
-
-        nodes_poses = np.vstack([self.poses[:len(self.nodes)],
-                                 self.goal_tree_poses[:len(self.goal_tree_nodes)]])
-        xx, yy, node_zz = kde2D(nodes_poses[:, 0], nodes_poses[:, 1], 20,
-                                xmin=0, xmax=600, ymin=0, ymax=400)
-        data = np.array(self.bins)
-        xx, yy, samp_zz = kde2D(data[:, 0], data[:, 1], 30,
-                                xmin=0, xmax=600, ymin=0, ymax=400)
-
-        x = data[:, 0]
-        y = data[:, 1]
-
-        plt.pcolormesh(xx, yy, (samp_zz - fac * node_zz).clip(min=0))
-        plt.colorbar()
-        plt.gca().invert_yaxis()
-        plt.scatter(x, y, s=2, facecolor='white', alpha=.2)
-
-        plt.show()
-
 
     @overrides
     def run_once(self):
@@ -125,25 +77,19 @@ class BiRRTPlanner(RRTPlanner):
         rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
         # Found a node that is not in X_obs
 
-        idx = self.find_nearest_neighbour_idx(rand_pos, poses[:len(nodes)])
+        idx = self.find_nearest_neighbour_idx(rand_pos, poses[: len(nodes)])
         nn = nodes[idx]
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
         if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
-            # try:
-            #     self.bins
-            # except AttributeError:
-            #     self.bins = []
-            # self.bins.append(rand_pos)
         else:
             newnode = Node(newpos)
             self.args.env.stats.add_free()
 
             ######################
-            newnode, nn = self.choose_least_cost_parent(
-                newnode, nn, nodes=nodes)
+            newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=nodes)
             poses[len(nodes)] = newnode.pos
 
             nodes.append(newnode)
@@ -160,7 +106,8 @@ class BiRRTPlanner(RRTPlanner):
                     other_poses = self.poses
                     other_nodes = self.nodes
                 distances = np.linalg.norm(
-                    other_poses[:len(self.nodes)] - newpos, axis=1)
+                    other_poses[: len(self.nodes)] - newpos, axis=1
+                )
                 if min(distances) < self.args.epsilon:
                     idx = np.argmin(distances)
                     if self.args.env.cc.visible(other_poses[idx], newpos):
@@ -187,7 +134,8 @@ class BiRRTPlanner(RRTPlanner):
                             _old_parent = _nextnode.parent
 
                             _nextnode, nn = self.choose_least_cost_parent(
-                                _nextnode, nn=nn, nodes=self.nodes)
+                                _nextnode, nn=nn, nodes=self.nodes
+                            )
                             self.rewire(_nextnode, nodes=self.nodes)
 
                             self.poses[len(self.nodes)] = _nextnode.pos
@@ -200,3 +148,31 @@ class BiRRTPlanner(RRTPlanner):
             if self.goalPt.parent is not None:
                 if self.goalPt.parent.cost < self.c_max:
                     self.c_max = self.goalPt.parent.cost
+
+
+def pygame_birrt_planner_paint(planner):
+    from utils.helpers import Colour
+
+    planner.args.env.path_layers.fill(Colour.ALPHA_CK)
+    drawn_nodes_pairs = set()
+    for nodes in (planner.nodes, planner.goal_tree_nodes):
+        for n in nodes:
+            if n.parent is not None:
+                new_set = frozenset({n, n.parent})
+                if new_set not in drawn_nodes_pairs:
+                    drawn_nodes_pairs.add(new_set)
+                    planner.args.env.draw_path(n, n.parent)
+    if planner.goalPt.parent is not None:
+        planner.draw_solution_path()
+
+
+planner_registry.register_sampler(
+    "birrt_sampler", sampler_class=BiRRTSampler,
+)
+
+planner_registry.register_planner(
+    "birrt",
+    planner_class=BiRRTPlanner,
+    visualise_pygame_paint=pygame_birrt_planner_paint,
+    sampler_id="birrt_sampler",
+)

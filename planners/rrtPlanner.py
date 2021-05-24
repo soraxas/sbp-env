@@ -2,12 +2,14 @@
 import operator
 
 import numpy as np
-from helpers import MagicDict, Node
-from planners.baseSampler import Planner
 from rtree import index
 
-class Tree():
+from planners.baseSampler import Planner
+from utils import planner_registry
+from utils.helpers import MagicDict, Node
 
+
+class Tree:
     def __init__(self, dimension):
         p = index.Property()
         p.dimension = dimension
@@ -62,24 +64,27 @@ class Tree():
     #         return True
     #     return False
 
+
 class RRTPlanner(Planner):
     """This planner is largely a RRT planner, though with extra features."""
 
     def __init__(self, **kwargs):
-        self.args = MagicDict(kwargs)
-        self.poses = np.empty((self.args.max_number_nodes*2 + 50,
-                               kwargs['num_dim']))  # +50 to prevent over flow
-        self.c_max = float('inf')
-        # this dict is to temparily store distance of a new node to all others
-        # so that in the next run other functions (eg choose_least_cost_parent and rwire)
+        super().__init__(**kwargs)
+        self.poses = np.empty(
+            (self.args.max_number_nodes * 2 + 50, kwargs["num_dim"])
+        )  # +50 to prevent over flow
+        self.c_max = float("inf")
+        # this dict is to temporarily store distance of a new node to all others
+        # so that in the next run other functions
+        # (eg choose_least_cost_parent and rwire)
         # and take advantage to the already computed values
         self._new_node_dist_to_all_others = {}
         self.nodes = []
         self.args.env = None  # will be set by env itself
-        self.tree = Tree(kwargs['num_dim'])
+        self.tree = Tree(kwargs["num_dim"])
         self.found_solution = True
 
-        if self.args['skip_optimality']:
+        if self.args["skip_optimality"]:
             # respect option of skip planning for optimality
             # (i.e. reduce RRT* to RRT with the benefit of increased performance)
             def no_opt_choose_least_cost_parent(newnode, nn=None, **_):
@@ -95,20 +100,19 @@ class RRTPlanner(Planner):
             self.choose_least_cost_parent = no_opt_choose_least_cost_parent
             self.rewire = no_opt_rewire
 
-
     def init(self, *argv, **kwargs):
         # self.args.env = kwargs['RRT']
         self.args.sampler.init(*argv, **kwargs)
-        self.startPt = kwargs['startPt']
-        self.goalPt = kwargs['goalPt']
+        self.startPt = kwargs["startPt"]
+        self.goalPt = kwargs["goalPt"]
 
     def run_once(self):
         # Get an sample that is free (not in blocked space)
         rand_pos, report_success, report_fail = self.args[
-            'sampler'].get_valid_next_pos()
+            "sampler"
+        ].get_valid_next_pos()
         # Found a node that is not in X_obs
-        idx = self.find_nearest_neighbour_idx(rand_pos,
-                                              self.poses[:len(self.nodes)])
+        idx = self.find_nearest_neighbour_idx(rand_pos, self.poses[: len(self.nodes)])
         nn = self.nodes[idx]
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
@@ -122,9 +126,8 @@ class RRTPlanner(Planner):
             self.args.sampler.add_tree_node(newnode.pos)
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################
-            newnode, nn = self.choose_least_cost_parent(
-                newnode, nn, nodes=self.nodes)
-                # newnode, nn, nodes=self.nodes, skip_optimality=True)
+            newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
+            # newnode, nn, nodes=self.nodes, skip_optimality=True)
             self.add_newnode(newnode)
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, self.nodes)
@@ -134,7 +137,10 @@ class RRTPlanner(Planner):
             # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
 
             if self.args.env.cc.visible(newnode.pos, self.goalPt.pos):
-                if self.args.env.dist(newnode.pos, self.goalPt.pos) < self.args.goal_radius:
+                if (
+                    self.args.env.dist(newnode.pos, self.goalPt.pos)
+                    < self.args.goal_radius
+                ):
                     if newnode.cost < self.c_max:
                         # print('finished at ', self.args.env.stats.valid_sample)
                         self.c_max = newnode.cost
@@ -148,8 +154,15 @@ class RRTPlanner(Planner):
         self.poses[len(self.nodes)] = node.pos
         self.nodes.append(node)
 
-    def choose_least_cost_parent(self, newnode, nn=None, nodes=None,
-                                 skip_optimality=False, use_rtree=True, poses=None):
+    def choose_least_cost_parent(
+        self,
+        newnode,
+        nn=None,
+        nodes=None,
+        skip_optimality=False,
+        use_rtree=True,
+        poses=None,
+    ):
         """Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)"""
         skip_optimality = False
@@ -174,11 +187,12 @@ class RRTPlanner(Planner):
                 distances = np.linalg.norm(poses - newnode.pos, axis=1)
                 canidates = [nodes[idx] for idx in np.argsort(distances)[:20]]
 
-            canidates.sort(key=operator.attrgetter('cost'))
+            canidates.sort(key=operator.attrgetter("cost"))
 
             for n in canidates:
-                if (self.args.env.dist(newnode.pos, n.pos) <= self.args.radius and
-                        self.args.env.cc.visible(newnode.pos, n.pos)):
+                if self.args.env.dist(
+                    newnode.pos, n.pos
+                ) <= self.args.radius and self.args.env.cc.visible(newnode.pos, n.pos):
                     nn2 = n
                     break
             if nn2 is None:
@@ -191,19 +205,19 @@ class RRTPlanner(Planner):
 
             return newnode, nn2
 
-
-
         if nn is not None:
             _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
         self._new_node_dist_to_all_others = {}
         for p in nodes:
             _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
-            self._new_node_dist_to_all_others[(newnode,
-                                               p)] = _newnode_to_p_cost
-            if _newnode_to_p_cost <= self.args.radius and self.args.env.cc.visible(newnode.pos, p.pos):
+            self._new_node_dist_to_all_others[(newnode, p)] = _newnode_to_p_cost
+            if _newnode_to_p_cost <= self.args.radius and self.args.env.cc.visible(
+                newnode.pos, p.pos
+            ):
                 # This is another valid parent. Check if it's better than our current one.
-                if nn is None or (p.cost + _newnode_to_p_cost <
-                                  nn.cost + _newnode_to_nn_cost):
+                if nn is None or (
+                    p.cost + _newnode_to_p_cost < nn.cost + _newnode_to_nn_cost
+                ):
                     nn = p
                     _newnode_to_nn_cost = _newnode_to_p_cost
         if nn is None:
@@ -217,9 +231,15 @@ class RRTPlanner(Planner):
 
         return newnode, nn
 
-
-    def rewire(self, newnode, nodes, already_rewired=None, skip_optimality=False,
-               use_rtree=True, poses=None):
+    def rewire(
+        self,
+        newnode,
+        nodes,
+        already_rewired=None,
+        skip_optimality=False,
+        use_rtree=True,
+        poses=None,
+    ):
         """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
         skip_optimality = False
         use_rtree = False
@@ -238,18 +258,19 @@ class RRTPlanner(Planner):
                 distances = np.linalg.norm(poses - newnode.pos, axis=1)
                 canidates = [nodes[idx] for idx in np.argsort(distances)[:20]]
 
-            canidates.sort(key=operator.attrgetter('cost'))
-
+            canidates.sort(key=operator.attrgetter("cost"))
 
             for n in canidates:
                 if n in already_rewired:
                     continue
 
                 _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
-                if (n != newnode.parent
-                        and _newnode_to_n_cost <= self.args.radius
-                        and self.args.env.cc.visible(n.pos, newnode.pos)
-                        and newnode.cost + _newnode_to_n_cost < n.cost):
+                if (
+                    n != newnode.parent
+                    and _newnode_to_n_cost <= self.args.radius
+                    and self.args.env.cc.visible(n.pos, newnode.pos)
+                    and newnode.cost + _newnode_to_n_cost < n.cost
+                ):
                     # draw over the old wire
                     # reconsider = (n.parent, *n.children)
                     reconsider = n.children
@@ -269,19 +290,19 @@ class RRTPlanner(Planner):
             #     nn2 = nn
             # return nn2
 
-
         if already_rewired is None:
             already_rewired = {newnode}
         for n in (x for x in nodes if x not in already_rewired):
             if len(already_rewired) <= 1:
-                _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode,
-                                                                       n]
+                _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode, n]
             else:
                 _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
-            if (n != newnode.parent
-                    and _newnode_to_n_cost <= self.args.radius
-                    and self.args.env.cc.visible(n.pos, newnode.pos)
-                    and newnode.cost + _newnode_to_n_cost < n.cost):
+            if (
+                n != newnode.parent
+                and _newnode_to_n_cost <= self.args.radius
+                and self.args.env.cc.visible(n.pos, newnode.pos)
+                and newnode.cost + _newnode_to_n_cost < n.cost
+            ):
                 # draw over the old wire
                 reconsider = (n.parent, *n.children)
                 # n.parent.children.remove(n)
@@ -293,6 +314,34 @@ class RRTPlanner(Planner):
 
     @staticmethod
     def find_nearest_neighbour_idx(pos, poses):
-        # Make use of numpy fast parallel operation to find all distance with one operation.
+        # Make use of numpy fast parallel operation to find
+        # all distance with one operation.
         distances = np.linalg.norm(poses - pos, axis=1)
         return np.argmin(distances)
+
+
+########################################
+# Methods for visualisation
+
+
+def pygame_rrt_paint(planner):
+    from utils.helpers import Colour
+
+    planner.args.env.path_layers.fill(Colour.ALPHA_CK)
+    drawn_nodes_pairs = set()
+    for n in planner.nodes:
+        if n.parent is not None:
+            new_set = frozenset({n, n.parent})
+            if new_set not in drawn_nodes_pairs:
+                drawn_nodes_pairs.add(new_set)
+                planner.args.env.draw_path(n, n.parent)
+    if planner.goalPt.parent is not None:
+        planner.draw_solution_path()
+
+
+planner_registry.register_planner(
+    "rrt",
+    planner_class=RRTPlanner,
+    visualise_pygame_paint=pygame_rrt_paint,
+    sampler_id="random",
+)

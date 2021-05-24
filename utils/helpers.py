@@ -1,15 +1,19 @@
-import numpy as np
 import logging
+
+import numpy as np
+
 
 class MagicDict(dict):
     """Content is accessable like property."""
 
     def __deepcopy__(self, memo):
+        import copy
+
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
         for k, v in self.__dict__.items():
-            setattr(result, k, deepcopy(v, memo))
+            setattr(result, k, copy.deepcopy(v, memo))
         return result
 
     def __getattr__(self, attr):
@@ -59,6 +63,7 @@ class Node:
     def __hash__(self):
         return hash(tuple(self.pos))
 
+
 class Stats:
     def __init__(self, showSampledPoint=True):
         self.invalid_samples_connections = 0
@@ -87,19 +92,30 @@ class Stats:
             return
         self.sampledNodes.append(pos)
 
+    def __repr__(self):
+        return "Stats<{}>".format(
+            "|".join(
+                f"{attr}={getattr(self, attr)}"
+                for attr in dir(self)
+                if not attr.startswith("__") and not callable(getattr(self, attr))
+            )
+        )
+
 
 def update_progress(progress, total_num, num_of_blocks=10):
     if not logging.getLogger().isEnabledFor(logging.INFO):
         return
     percentage = progress / total_num
     print(
-        '\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%'.format(
-            bar='#' * int(percentage * num_of_blocks),
+        "\r[{bar:<{num_of_blocks}}] {cur}/{total} {percen:0.1f}%".format(
+            bar="#" * int(percentage * num_of_blocks),
             cur=progress,
             total=total_num,
             percen=percentage * 100,
-            num_of_blocks=num_of_blocks),
-        end='')
+            num_of_blocks=num_of_blocks,
+        ),
+        end="",
+    )
     if percentage == 1:
         print()
 
@@ -134,7 +150,7 @@ class BFS:
         while True:
             _node = self.next_node_to_visit.pop(0)
             if _node not in self.visitedNodes and _node in self.validNodes:
-            # if _node not in self.visitedNodes:
+                # if _node not in self.visitedNodes:
                 break
             if len(self.next_node_to_visit) < 1:
                 return False

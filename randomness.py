@@ -12,14 +12,15 @@ from SALib.sample import (
 
 NUM_DATA_POINTS = 10000
 SUPPORTED_RANDOM_METHODS_TITLES = {
-    'pseudo_random' : "Pseudo Random",
-    'sobol_sequence' : "Sobol sequence",
-    'saltelli' : "Saltelli's extension of Sobol sequence",
-    'latin_hypercube' : "Latin hypercube",
-    'finite_differences' : "Finite differences",
-    'fast' : "Fourier Amplitude Sensitivity Test (FAST)",
+    "pseudo_random": "Pseudo Random",
+    "sobol_sequence": "Sobol sequence",
+    "saltelli": "Saltelli's extension of Sobol sequence",
+    "latin_hypercube": "Latin hypercube",
+    "finite_differences": "Finite differences",
+    "fast": "Fourier Amplitude Sensitivity Test (FAST)",
 }
 SUPPORTED_RANDOM_METHODS = tuple(t for t in SUPPORTED_RANDOM_METHODS_TITLES)
+
 
 class NormalRandomnessManager:
     def __init__(self):
@@ -36,9 +37,10 @@ class NormalRandomnessManager:
         self.normal_draws_reserve = dist
 
     def draw_normal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi / 4):
-        if (self.normal_draws_reserve is None or
-            self.normal_draws_reserve.size < 1):
-            self.redraw_normal(use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4)
+        if self.normal_draws_reserve is None or self.normal_draws_reserve.size < 1:
+            self.redraw_normal(
+                use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4
+            )
         # draw from samples
         draw = self.normal_draws_reserve[-1]
         self.normal_draws_reserve = self.normal_draws_reserve[:-1]
@@ -50,8 +52,10 @@ class NormalRandomnessManager:
         self.half_normal_draws_reserve = dist
 
     def draw_half_normal(self, start_at, scale=1):
-        if (self.half_normal_draws_reserve is None or
-            self.half_normal_draws_reserve.size < 1):
+        if (
+            self.half_normal_draws_reserve is None
+            or self.half_normal_draws_reserve.size < 1
+        ):
             self.redraw_half_normal(start_at, scale)
         # draw from samples
         draw = self.half_normal_draws_reserve[-1]
@@ -67,33 +71,36 @@ class RandomnessManager:
 
     def redraw(self, random_method):
         problem = {
-            'num_vars': self.num_dim,
-            'names': list(range(self.num_dim)),
-            'bounds': [[0, 1]] * self.num_dim
+            "num_vars": self.num_dim,
+            "names": list(range(self.num_dim)),
+            "bounds": [[0, 1]] * self.num_dim,
         }
-        if random_method == 'pseudo_random':
+        if random_method == "pseudo_random":
             seq = np.random.random((NUM_DATA_POINTS, 2))
-        elif random_method == 'sobol_sequence':
+        elif random_method == "sobol_sequence":
             seq = sobol_sequence.sample(NUM_DATA_POINTS, 2)
-        elif random_method == 'saltelli':
+        elif random_method == "saltelli":
             seq = saltelli.sample(problem, NUM_DATA_POINTS, calc_second_order=False)
-        elif random_method == 'latin_hypercube':
+        elif random_method == "latin_hypercube":
             seq = latin.sample(problem, NUM_DATA_POINTS)
-        elif random_method == 'finite_differences':
+        elif random_method == "finite_differences":
             seq = finite_diff.sample(problem, NUM_DATA_POINTS)
-        elif random_method == 'fast':
+        elif random_method == "fast":
             seq = fast_sampler.sample(problem, NUM_DATA_POINTS, M=45)
         self.random_draws[random_method] = seq
 
     def get_random(self, random_method):
-        if (random_method not in self.random_draws or
-            self.random_draws[random_method].size < 1):
+        if (
+            random_method not in self.random_draws
+            or self.random_draws[random_method].size < 1
+        ):
             self.redraw(random_method)
         last = self.random_draws[random_method][-1]
         self.random_draws[random_method] = self.random_draws[random_method][:-1]
         return last
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # show presentation of plotting different qrsai-random numbers
     import matplotlib.pyplot as plt
     from matplotlib.pyplot import figure
@@ -101,7 +108,7 @@ if __name__ == '__main__':
     def show_fig(x, y, title=None):
         figure(num=1, figsize=(8, 6), dpi=200)
         plt.title(title)
-        plt.plot(x, y, 'r.')
+        plt.plot(x, y, "r.")
         plt.show()
 
     random_numbers = RandomnessManager()

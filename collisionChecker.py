@@ -4,7 +4,6 @@ import numpy as np
 
 
 class CollisionChecker(ABC):
-
     @abstractmethod
     def get_dimension(self):
         pass
@@ -18,8 +17,8 @@ class CollisionChecker(ABC):
     def get_image_shape(self):
         return None
 
-class ImgCollisionChecker(CollisionChecker):
 
+class ImgCollisionChecker(CollisionChecker):
     def __init__(self, img):
         """Short summary.
 
@@ -29,7 +28,8 @@ class ImgCollisionChecker(CollisionChecker):
             Filename of the image where white pixel represents free space.
         """
         from PIL import Image
-        image = Image.open(img).convert('L')
+
+        image = Image.open(img).convert("L")
         image = np.array(image)
         image = image / 255
         # white pixxel should now have value of 1
@@ -49,7 +49,7 @@ class ImgCollisionChecker(CollisionChecker):
         return 2
 
     def get_coor_before_collision(self, posA, posB):
-        pixels = self._get_line(posA, posB)
+        pixels = self.get_line(posA, posB)
         # check that all pixel are white (free space)
         endPos = posB
         for p in pixels:
@@ -62,7 +62,7 @@ class ImgCollisionChecker(CollisionChecker):
         try:
             # get list of pixel between node A and B
             # pixels = lineGenerationAlgorithm(posA, posB)
-            pixels = self._get_line(posA, posB)
+            pixels = self.get_line(posA, posB)
             # check that all pixel are white (free space)
             for p in pixels:
                 if not self.feasible(p):
@@ -79,7 +79,7 @@ class ImgCollisionChecker(CollisionChecker):
             return False
 
     @staticmethod
-    def _get_line(start, end):
+    def get_line(start, end):
         """Bresenham's Line Algorithm
         Produces a list of tuples from start and end
 
@@ -139,7 +139,6 @@ class ImgCollisionChecker(CollisionChecker):
 
 
 class KlamptCollisionChecker(CollisionChecker):
-
     def __init__(self, xml, stats):
         self.stats = stats
         import klampt
@@ -166,11 +165,12 @@ class KlamptCollisionChecker(CollisionChecker):
         self.world = world
 
         import copy
+
         self.template_pos = copy.copy(qstart)
         self.template_pos[1:7] = [0] * 6
 
-        self.qstart = self._translate_from_klampt(qstart)
-        self.qgoal = self._translate_from_klampt(qgoal)
+        self.qstart = self.translate_from_klampt(qstart)
+        self.qgoal = self.translate_from_klampt(qgoal)
 
     def get_dimension(self):
         return 6
@@ -178,33 +178,35 @@ class KlamptCollisionChecker(CollisionChecker):
     def get_dimension_limits(self):
         return self.robot.getJointLimits()
 
-    def _translate_to_klampt(self, p):
+    def translate_to_klampt(self, p):
         assert len(p) == 6, p
         import copy
+
         new_pos = list(self.template_pos)
         new_pos[1:7] = p
         return new_pos
 
-    def _translate_from_klampt(self, p):
+    def translate_from_klampt(self, p):
         assert len(p) == 12, len(p)
         return p[1:7]
 
     def visible(self, a, b):
-        a = self._translate_to_klampt(a)
-        b = self._translate_to_klampt(b)
+        a = self.translate_to_klampt(a)
+        b = self.translate_to_klampt(b)
         # print(self.space.visible(a, b))
         self.stats.visible_cnt += 1
         return self.space.isVisible(a, b)
 
     def feasible(self, p, stats=False):
-        p = self._translate_to_klampt(p)
+        p = self.translate_to_klampt(p)
         self.stats.feasible_cnt += 1
         return self.space.feasible(p)
 
+
 import math
 
-class RobotArm4dCollisionChecker(CollisionChecker):
 
+class RobotArm4dCollisionChecker(CollisionChecker):
     def __init__(self, img, map_mat=None):
         """Short summary.
 
@@ -215,7 +217,8 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         """
         if map_mat is None:
             from PIL import Image
-            image = Image.open(img).convert('L')
+
+            image = Image.open(img).convert("L")
             image = np.array(image)
             image = image / 255
             # white pixxel should now have value of 1
@@ -293,14 +296,18 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def feasible(self, p):
         """check if configuration is fesible"""
         pt1 = p[:2]
-        pt2 = self._get_pt_from_angle_and_length(pt1, p[2], self.stick_robot_length_config[0])
+        pt2 = self.get_pt_from_angle_and_length(
+            pt1, p[2], self.stick_robot_length_config[0]
+        )
 
         # this stick should be free
         for __p in self._get_line(pt1, pt2):
             if not self._pt_feasible(__p):
                 return False
 
-        pt3 = self._get_pt_from_angle_and_length(pt2, p[3], self.stick_robot_length_config[1])
+        pt3 = self.get_pt_from_angle_and_length(
+            pt2, p[3], self.stick_robot_length_config[1]
+        )
 
         # this stick should be free
         for __p in self._get_line(pt2, pt3):
@@ -310,9 +317,11 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         return True
 
     @staticmethod
-    def _get_pt_from_angle_and_length(pt1, angle, line_length):
-        pt2 = (pt1[0] + line_length * math.cos(angle),
-               pt1[1] + line_length * math.sin(angle))
+    def get_pt_from_angle_and_length(pt1, angle, line_length):
+        pt2 = (
+            pt1[0] + line_length * math.cos(angle),
+            pt1[1] + line_length * math.sin(angle),
+        )
         return pt2
 
     @staticmethod

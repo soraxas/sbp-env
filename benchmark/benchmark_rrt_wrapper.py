@@ -8,26 +8,28 @@ import sys
 import time
 from timeit import default_timer
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'  # hide pygame prompt
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"  # hide pygame prompt
 
 import pygame
 from memory_profiler import memory_usage
 
 CUR_PATH = os.path.dirname(sys.argv[0])
 LOG_EVERY_X_SAMPLES = 25
-BENCHMARK_DIR_NAME = os.path.join(CUR_PATH, '..', 'benchmark_output')
-sys.path.append(os.path.join(CUR_PATH, '..'))  # add top package to path
+BENCHMARK_DIR_NAME = os.path.join(CUR_PATH, "..", "benchmark_output")
+sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
 
 # controls whether we want to entirely skip pygame (not even initialise window, for use in server)
 SKIP_PYGAME_CAPTURE = True
 
+
 def main():
     import main
+
     policyname = None
     for i in range(len(sys.argv)):
-        if sys.argv[i].startswith('--policy-name='):
+        if sys.argv[i].startswith("--policy-name="):
             policyname = sys.argv.pop(i)
-            policyname = policyname.replace('--policy-name=', '')
+            policyname = policyname.replace("--policy-name=", "")
             break
     if policyname is None:
         # default to policy's name
@@ -44,15 +46,14 @@ def main():
 
     timestamp = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
     directoryname = "map={map}_start={start}_goal={goal}".format(
-                    map=sys.argv[2].replace('/', '_'),
-                    start='-'.join((str(x) for x in env.startPt.pos)),
-                    goal='-'.join((str(x) for x in env.goalPt.pos)),
-                )
+        map=sys.argv[2].replace("/", "_"),
+        start="-".join((str(x) for x in env.startPt.pos)),
+        goal="-".join((str(x) for x in env.goalPt.pos)),
+    )
     directoryname = os.path.join(BENCHMARK_DIR_NAME, directoryname)
     filename = "policy={policy}_timestamp={timestamp}".format(
-                    policy=policyname,
-                    timestamp=timestamp
-                )
+        policy=policyname, timestamp=timestamp
+    )
     # save inside a directory
     if not os.path.exists(directoryname):
         os.makedirs(directoryname)
@@ -61,14 +62,44 @@ def main():
     found_solution = False
     count = 0
 
-    with open('{}.csv'.format(filename), 'wt') as f:
+    with open("{}.csv".format(filename), "wt") as f:
         writer = csv.writer(f)
         # write basic information
-        writer.writerow(('Map', 'Start pt (x,y)', 'End pt (x,y)', 'epsilon', 'goal bias', 'max nodes'))
-        writer.writerow((sys.argv[2], env.startPt.pos, env.goalPt.pos, env.args.epsilon, env.args.goalBias, env.args.max_number_nodes))
+        writer.writerow(
+            (
+                "Map",
+                "Start pt (x,y)",
+                "End pt (x,y)",
+                "epsilon",
+                "goal bias",
+                "max nodes",
+            )
+        )
+        writer.writerow(
+            (
+                sys.argv[2],
+                env.startPt.pos,
+                env.goalPt.pos,
+                env.args.epsilon,
+                env.args.goalBias,
+                env.args.max_number_nodes,
+            )
+        )
         writer.writerow([])
 
-        writer.writerow(('Num nodes', 'time(sec)', 'mem(mb)', 'inv.samples(con)', 'inv.samples(obs)', 'cost', 'sam_succ', 'sam_fail', 'sam_succall'))
+        writer.writerow(
+            (
+                "Num nodes",
+                "time(sec)",
+                "mem(mb)",
+                "inv.samples(con)",
+                "inv.samples(obs)",
+                "cost",
+                "sam_succ",
+                "sam_fail",
+                "sam_succall",
+            )
+        )
         start_time = default_timer()
 
         def take_screenshot(term=False):
@@ -78,13 +109,23 @@ def main():
             env.update_screen(update_all=True)
             if term:
                 # terminating
-                pygame.image.save(env.window,'{}_term.jpg'.format(filename))
+                pygame.image.save(env.window, "{}_term.jpg".format(filename))
             else:
-                pygame.image.save(env.window,'{}.jpg'.format(filename))
+                pygame.image.save(env.window, "{}.jpg".format(filename))
             env.pygame_hide()
 
         def log_performance():
-            msg = env.stats.valid_sample, default_timer() - start_time, memory_usage()[0], env.stats.invalid_samples_connections, env.stats.invalid_samples_obstacles, env.args.planner.c_max, env.stats.sampler_success, env.stats.sampler_fail, env.stats.sampler_success_all
+            msg = (
+                env.stats.valid_sample,
+                default_timer() - start_time,
+                memory_usage()[0],
+                env.stats.invalid_samples_connections,
+                env.stats.invalid_samples_obstacles,
+                env.args.planner.c_max,
+                env.stats.sampler_success,
+                env.stats.sampler_fail,
+                env.stats.sampler_success_all,
+            )
             writer.writerow(msg)
             f.flush()
 
@@ -93,13 +134,14 @@ def main():
                 count += LOG_EVERY_X_SAMPLES
                 log_performance()
 
-            if not found_solution and env.args.planner.c_max != float('inf'):
+            if not found_solution and env.args.planner.c_max != float("inf"):
                 log_performance()
                 found_solution = True
                 take_screenshot()
             env.planner.run_once()
 
         from planners.prmPlanner import PRMPlanner
+
         # special case for prm:
         if isinstance(env.args.planner, PRMPlanner):
             env.args.planner.build_graph()
@@ -109,5 +151,6 @@ def main():
         log_performance()
         take_screenshot(term=True)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

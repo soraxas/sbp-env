@@ -1,85 +1,89 @@
 #!/usr/bin/env python
 import logging
-import math
+import random
 
 from scipy import spatial
 
 from collisionChecker import *
-from helpers import Node, MagicDict, Stats
+from utils.helpers import Node, MagicDict, Stats
 from pygamevisualiser import VisualiserSwitcher
 
 LOGGER = logging.getLogger(__name__)
+
 
 ############################################################
 
 
 class Env(VisualiserSwitcher.env_clname):
-    def __init__(self,
-                 writer=None,
-                 fname=None,
-                 **kwargs):
+    def __init__(self, writer=None, fname=None, fixed_seed=None, **kwargs):
         self.writer = writer
         self.fname = fname
+
+        if fixed_seed is not None:
+            np.random.seed(fixed_seed)
+            random.seed(fixed_seed)
+            print(f"Fixed random seed: {fixed_seed}")
+
         # initialize and prepare screen
         self.args = MagicDict(kwargs)
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
-        if kwargs['engine'] == 'image':
+        if kwargs["engine"] == "image":
             self.cc = ImgCollisionChecker(self.args.image)
-            if self.args.image == 'maps/4d.png':
+            if self.args.image == "maps/4d.png":
                 self.cc = RobotArm4dCollisionChecker(self.args.image)
             self.dist = self.euclidean_dist
-        elif kwargs['engine'] == 'klampt':
+        elif kwargs["engine"] == "klampt":
             self.cc = KlamptCollisionChecker(self.args.image, self.stats)
             self.dist = self.radian_dist
 
-        kwargs['num_dim'] = self.cc.get_dimension()
-        kwargs['image_shape'] = self.cc.get_image_shape()
-        self.dim = kwargs['image_shape']
-        kwargs['cc'] = self.cc
+        kwargs["num_dim"] = self.cc.get_dimension()
+        kwargs["image_shape"] = self.cc.get_image_shape()
+        self.dim = kwargs["image_shape"]
+        kwargs["cc"] = self.cc
 
         def parse_input_pt(pt_as_str):
             if pt_as_str is None:
                 return None
-            pt = pt_as_str.split(',')
-            if len(pt) != kwargs['num_dim']:
+            pt = pt_as_str.split(",")
+            if len(pt) != kwargs["num_dim"]:
                 raise RuntimeError(
                     f"Expected to have number of dimension = {kwargs['num_dim']}, but "
-                    f"was n={len(pt)} from input '{pt_as_str}'")
+                    f"was n={len(pt)} from input '{pt_as_str}'"
+                )
             return tuple(map(float, pt))
 
-        kwargs['startPt'] = parse_input_pt(kwargs['startPt'])
-        kwargs['goalPt'] = parse_input_pt(kwargs['goalPt'])
+        kwargs["startPt"] = parse_input_pt(kwargs["startPt"])
+        kwargs["goalPt"] = parse_input_pt(kwargs["goalPt"])
 
-        self.args.planner = kwargs['planner_type'](**kwargs)
-        kwargs['planner'] = self.args.planner
+        self.args.planner = kwargs["planner_type"](**kwargs)
+        kwargs["planner"] = self.args.planner
 
         self.planner = self.args.planner
         self.planner.args.env = self
 
         super().__init__(**kwargs)
 
-        self.visualiser_init(no_display=kwargs['no_display'])
-        startPt, goalPt = self.set_start_goal_points(start=kwargs['startPt'],
-                                                     goal=kwargs['goalPt'])
+        self.visualiser_init(no_display=kwargs["no_display"])
+        start_pt, goal_pt = self.set_start_goal_points(
+            start=kwargs["startPt"], goal=kwargs["goalPt"]
+        )
 
         self.startPt = self.goalPt = None
-        if startPt:
-            self.startPt = Node(startPt)
-        if goalPt:
-            self.goalPt = Node(goalPt)
+        if start_pt:
+            self.startPt = Node(start_pt)
+        if goal_pt:
+            self.goalPt = Node(goal_pt)
         self.startPt.is_start = True
         self.goalPt.is_goal = True
         self.planner.add_newnode(self.startPt)
         self.update_screen(update_all=True)
         # update the string pt to object
-        kwargs['startPt'] = self.startPt
-        kwargs['goalPt'] = self.goalPt
+        kwargs["startPt"] = self.startPt
+        kwargs["goalPt"] = self.goalPt
 
-        self.planner.init(
-            env=self,
-            **kwargs)
-        if kwargs['engine'] == 'klampt':
+        self.planner.init(env=self, **kwargs)
+        if kwargs["engine"] == "klampt":
             self.args.sampler.set_use_radian(True)
 
     ############################################################
@@ -119,48 +123,71 @@ class Env(VisualiserSwitcher.env_clname):
         from tqdm import tqdm
         import csv
         from timeit import default_timer
-        starttime = default_timer()
 
+        starttime = default_timer()
 
         cur = -1
         # with open(f'out_stats-{self.args.sampler}.csv', 'a') as f:
-        with open(f'out_stats.csv', 'a') as f:
+        with open(f"out_stats.csv", "a") as f:
             writer = csv.writer(f)
-            writer.writerow([self.args.sampler.__class__.__name__, self.startPt, self.goalPt])
-            writer.writerow(['n_node', 'time', 'n_samp_cnt', 'i.con', 'i.obs', 'n_fe', 'n_vi', 'c_max',])
+            writer.writerow(
+                [self.args.sampler.__class__.__name__, self.startPt, self.goalPt]
+            )
+            writer.writerow(
+                [
+                    "n_node",
+                    "time",
+                    "n_samp_cnt",
+                    "i.con",
+                    "i.obs",
+                    "n_fe",
+                    "n_vi",
+                    "c_max",
+                ]
+            )
             mark_at = 0
             TERMINATED = False
-            with tqdm(total=self.args.max_number_nodes, desc=type(self.args.sampler).__name__) as pbar:
+            with tqdm(
+                total=self.args.max_number_nodes, desc=type(self.args.sampler).__name__
+            ) as pbar:
                 while self.stats.valid_sample < self.args.max_number_nodes:
                     self.update_screen()
                     self.planner.run_once()
 
                     pbar.n = self.stats.valid_sample
 
-                    pbar.set_postfix({
-                        # 'i.con' : self.stats.invalid_samples_connections,
-                        # 'i.obs' : self.stats.invalid_samples_obstacles,
-                        # 'su' : self.stats.sampler_success,
-                        # 'sua' : self.stats.sampler_success_all,
-                        # 'sf' : self.stats.sampler_fail,
-                        'cc_fe' : self.stats.feasible_cnt,
-                        'cc_vi' : self.stats.visible_cnt,
-                        'fe' : self.stats.invalid_samples_obstacles,
-                        'vi' : self.stats.invalid_samples_connections,
-                        'c_max' : self.planner.c_max,
-                    })
+                    pbar.set_postfix(
+                        {
+                            # 'i.con' : self.stats.invalid_samples_connections,
+                            # 'i.obs' : self.stats.invalid_samples_obstacles,
+                            # 'su' : self.stats.sampler_success,
+                            # 'sua' : self.stats.sampler_success_all,
+                            # 'sf' : self.stats.sampler_fail,
+                            "cc_fe": self.stats.feasible_cnt,
+                            "cc_vi": self.stats.visible_cnt,
+                            "fe": self.stats.invalid_samples_obstacles,
+                            "vi": self.stats.invalid_samples_connections,
+                            "c_max": self.planner.c_max,
+                        }
+                    )
                     if self.stats.valid_sample >= mark_at:
                         mark_at += 25
-                        writer.writerow([
-                            self.stats.valid_sample, default_timer() - starttime,
-                            self.stats.invalid_samples_connections + self.stats.invalid_samples_obstacles + self.stats.valid_sample,
-                            self.stats.invalid_samples_connections,
-                            self.stats.invalid_samples_obstacles,
-                            self.stats.feasible_cnt,
-                            self.stats.visible_cnt,
-                            self.planner.c_max,])
+                        print(self.stats)
+                        # writer.writerow(
+                        #     [
+                        #         self.stats.valid_sample,
+                        #         default_timer() - starttime,
+                        #         self.stats.invalid_samples_connections
+                        #         + self.stats.invalid_samples_obstacles
+                        #         + self.stats.valid_sample,
+                        #         self.stats.invalid_samples_connections,
+                        #         self.stats.invalid_samples_obstacles,
+                        #         self.stats.feasible_cnt,
+                        #         self.stats.visible_cnt,
+                        #         self.planner.c_max,
+                        #     ]
+                        # )
                     pbar.refresh()
-
 
                     # write basic information
                     # if self.stats.valid_sample > cur:
@@ -181,7 +208,6 @@ class Env(VisualiserSwitcher.env_clname):
 
         self.planner.terminates_hook()
         # self.write_solution_to_file(self.fname)
-
 
     # def write_solution_to_file(self, file_name):
     #
