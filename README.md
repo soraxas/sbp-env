@@ -58,7 +58,7 @@ python main.py rrdt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="doc/images/rrdt.gif" alt="RRdT* Planner" />
+    <img width="600" height="auto" src="docs/images/rrdt.gif" alt="RRdT* Planner" />
 </p>
 
 ### RRT*
@@ -68,7 +68,7 @@ python main.py rrt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="doc/images/rrt.gif" alt="RRT* Planner" />
+    <img width="600" height="auto" src="docs/images/rrt.gif" alt="RRT* Planner" />
 </p>
 
 ### Bi-RRT*
@@ -78,7 +78,7 @@ python main.py birrt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="doc/images/birrt.gif" alt="Bi-RRT* Planner" />
+    <img width="600" height="auto" src="docs/images/birrt.gif" alt="Bi-RRT* Planner" />
 </p>
 
 ### Informed RRT*
@@ -88,7 +88,7 @@ python main.py informedrrt maps/room1.png -vv
 ```
 
 <p align="center">
-<img width="600" height="auto" src="doc/images/informedrrt.gif" alt="Informed RRT* Planner" />
+<img width="600" height="auto" src="docs/images/informedrrt.gif" alt="Informed RRT* Planner" />
 </p>
 
 The red ellipse shown is the dynamic sampling area for Informed RRT*
@@ -101,7 +101,7 @@ There are also some other planners included in this repository. Some are prelimi
 
 You can have a look of the paper *[Balancing Global Exploration and Local-connectivity Exploitation with RRdT](https://arxiv.org/abs/1810.03749)*, or this video that briefly explain the concepts:
 <p align="center">
-<a href="https://youtu.be/Cy-kYrzkPvA"><img width="600" height="auto" src="doc/images/rrdt-video-thumbnail.png" alt="RRdT youtube video" /></a>
+<a href="https://youtu.be/Cy-kYrzkPvA"><img width="600" height="auto" src="docs/images/rrdt-video-thumbnail.png" alt="RRdT youtube video" /></a>
 </p>
 
 ## BibTeX
