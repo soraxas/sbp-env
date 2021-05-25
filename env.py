@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import logging
+import math
 import random
 
+import numpy as np
 from scipy import spatial
 
-from collisionChecker import *
+import collisionChecker
 from utils.helpers import Node, MagicDict, Stats
-from pygamevisualiser import VisualiserSwitcher
+from visualiser import VisualiserSwitcher
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,12 +31,14 @@ class Env(VisualiserSwitcher.env_clname):
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
         if kwargs["engine"] == "image":
-            self.cc = ImgCollisionChecker(self.args.image)
+            self.cc = collisionChecker.ImgCollisionChecker(self.args.image)
             if self.args.image == "maps/4d.png":
-                self.cc = RobotArm4dCollisionChecker(self.args.image)
+                self.cc = collisionChecker.RobotArm4dCollisionChecker(self.args.image)
             self.dist = self.euclidean_dist
         elif kwargs["engine"] == "klampt":
-            self.cc = KlamptCollisionChecker(self.args.image, self.stats)
+            self.cc = collisionChecker.KlamptCollisionChecker(
+                self.args.image, self.stats
+            )
             self.dist = self.radian_dist
 
         kwargs["num_dim"] = self.cc.get_dimension()

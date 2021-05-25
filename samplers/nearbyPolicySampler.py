@@ -3,8 +3,7 @@ import scipy as sp
 import scipy.ndimage
 from overrides import overrides
 
-from planners import likelihoodPolicySampler
-from planners import rrtPlanner
+from samplers import likelihoodPolicySampler
 from utils import planner_registry
 
 
@@ -76,16 +75,11 @@ class NearbyPolicySampler(likelihoodPolicySampler.LikelihoodPolicySampler):
             self.sampleCount += 1
 
 
+sampler_id = "nearby_sampler"
+
 planner_registry.register_sampler(
-    "nearby",
+    sampler_id,
     sampler_class=likelihoodPolicySampler.LikelihoodPolicySampler,
     visualise_pygame_paint=likelihoodPolicySampler.pygame_likelihood_sampler_paint,
     visualise_pygame_paint_init=likelihoodPolicySampler.pygame_likelihood_sampler_paint_init,
-)
-
-planner_registry.register_planner(
-    "nearby",
-    planner_class=rrtPlanner.RRTPlanner,
-    visualise_pygame_paint=rrtPlanner.pygame_rrt_paint,
-    sampler_id="nearby",
 )

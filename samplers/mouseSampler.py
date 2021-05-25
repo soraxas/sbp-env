@@ -2,8 +2,7 @@ import time
 
 from overrides import overrides
 
-from planners import rrtPlanner
-from planners.baseSampler import Sampler
+from samplers.baseSampler import Sampler
 from utils import planner_registry
 
 """
@@ -36,13 +35,8 @@ class MouseSampler(Sampler):
                 return pos
 
 
-planner_registry.register_sampler(
-    "mouse", sampler_class=MouseSampler,
-)
+sampler_id = "mouse"
 
-planner_registry.register_planner(
-    "mouse",
-    planner_class=rrtPlanner.RRTPlanner,
-    visualise_pygame_paint=rrtPlanner.pygame_rrt_paint,
-    sampler_id="mouse",
+planner_registry.register_sampler(
+    sampler_id, sampler_class=MouseSampler,
 )

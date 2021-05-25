@@ -1,10 +1,9 @@
 """Represent a planner."""
-import operator
-
 import numpy as np
+import operator
 from rtree import index
 
-from planners.baseSampler import Planner
+from planners.basePlanner import Planner
 from utils import planner_registry
 from utils.helpers import MagicDict, Node
 

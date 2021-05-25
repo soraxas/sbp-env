@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from utils.helpers import Colour, MagicDict
+from utils.helpers import Colour
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"  # disable pygame prompt
 
@@ -19,7 +19,7 @@ from pygame.locals import *
 if TYPE_CHECKING:
     from utils import planner_registry
     from env import Env
-    from planners.baseSampler import Planner
+    from planners.basePlanner import Planner
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,13 +30,6 @@ def nothing_to_paint(*args):
 
 def missing_paint_function(cls_name):
     raise NotImplementedError(f"Visualiser for '{cls_name}' is not not implemented.")
-
-
-from typing_extensions import Protocol
-
-
-class EnvType(Protocol):
-    args: MagicDict
 
 
 ############################################################
@@ -146,9 +139,9 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
 
 class PygameSamplerVisualiser(BaseSamplerVisualiser):
     def __init__(
-        self,
-        sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
-        **kwargs,
+            self,
+            sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
+            **kwargs,
     ):
         super().__init__(**kwargs)
         self.sampler_data_pack = sampler_data_pack
@@ -312,12 +305,12 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # pygame.quit()
 
     def draw_stick_robot(
-        self: Env,
-        node,
-        colour1=Colour.cAlpha(Colour.orange, 128),
-        colour2=Colour.cAlpha(Colour.cyan, 128),
-        line_modifier=2.5,
-        layer=None,
+            self: Env,
+            node,
+            colour1=Colour.cAlpha(Colour.orange, 128),
+            colour2=Colour.cAlpha(Colour.cyan, 128),
+            line_modifier=2.5,
+            layer=None,
     ):
 
         # draw config for node 1
@@ -355,7 +348,8 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # )
 
     def draw_path(
-        self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None
+            self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1,
+            layer=None
     ):
         if layer is None:
             layer = self.path_layers
@@ -549,8 +543,8 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
         def BiRRTPlanner_paint():
             drawn_nodes_pairs = set()
             for c, nodes in (
-                ((1, 0, 0, 1), self.nodes),
-                ((0, 0, 1, 1), self.goal_tree_nodes),
+                    ((1, 0, 0, 1), self.nodes),
+                    ((0, 0, 1, 1), self.goal_tree_nodes),
             ):
                 _helper_draw_nodes_edges(nodes=nodes, colour=c)
 
@@ -670,7 +664,7 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
             c = (1, 0, 0, 1)
             # draw nodes
             for root, c in zip(
-                (self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))
+                    (self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))
             ):
                 for node in root.nodes:
                     self.args.env.draw_node(get_world_pos(node.pos), colour=c)
@@ -849,6 +843,38 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         #     self.window.blit(self.sampledPoint_screen, (0, 0))
         #     # remove them from list
         #     del self.stats.sampledNodes[:]
+
+
+class KlamptSamplerVisualiser(BaseSamplerVisualiser):
+    def __init__(
+            self,
+            sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
+            **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self.sampler_data_pack = sampler_data_pack
+        self.paint_func = None
+
+        # # sampler can be nested, so sampler_data_pack is optional
+        # if sampler_data_pack is not None:
+        #     # retrieve function for painting
+        #     self.paint_func = sampler_data_pack.visualise_pygame_paint
+        #
+        # if self.paint_func is None:
+        #     # paint function has not been provided. Do nothing in paint function
+        #     self.paint_func = nothing_to_paint
+
+    def init(self, **kwargs):
+        super().init(**kwargs)
+
+    def paint(self):
+        self.paint_func(self)
+
+    def terminates_hook(self):
+        pass
+        # if self.sampler_data_pack is not None:
+        #     if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
+        #         self.sampler_data_pack.visualise_pygame_paint_terminate(self)
 
 
 class VisualiserSwitcher:

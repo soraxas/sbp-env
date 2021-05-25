@@ -1,13 +1,11 @@
 """Represent a planner."""
 import math
-import random
-
 import numpy as np
+import random
 from overrides import overrides
-
 from planners import rrtPlanner
-from planners.baseSampler import Sampler
-from planners.randomPolicySampler import RandomPolicySampler
+from samplers.baseSampler import Sampler
+from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
 
 
@@ -127,15 +125,10 @@ def pygame_informed_sampler_paint(sampler):
         sampler.args.env.window.blit(ellipse_surface, (ellipse_x, ellipse_y))
 
 
+sampler_id = "informed_sampler"
+
 planner_registry.register_sampler(
-    "informed_sampler",
+    sampler_id,
     sampler_class=InformedRRTSampler,
     visualise_pygame_paint=pygame_informed_sampler_paint,
-)
-
-planner_registry.register_planner(
-    "informedrrt",
-    planner_class=rrtPlanner.RRTPlanner,
-    visualise_pygame_paint=rrtPlanner.pygame_rrt_paint,
-    sampler_id="informed_sampler",
 )

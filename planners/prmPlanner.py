@@ -3,8 +3,8 @@ import numpy as np
 from overrides import overrides
 
 from env import Node
-from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
+from samplers.prmSampler import PRMSampler
 from utils import planner_registry
 
 volume_of_unit_ball = {
@@ -19,16 +19,6 @@ volume_of_unit_ball = {
     9: 3.299,
     10: 2.550,
 }
-
-
-class PRMSampler(RandomPolicySampler):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @overrides
-    def init(self, **kwargs):
-        kwargs["goalBias"] = 0
-        super().init(**kwargs)
 
 
 def nearest_neighbours(nodes, poses, pos, radius):
@@ -146,8 +136,6 @@ class PRMPlanner(RRTPlanner):
 
 
 def pygame_prm_planner_paint(planner):
-    from utils.helpers import Colour
-
     for n in planner.nodes:
         planner.args.env.draw_circle(
             pos=n.pos,
@@ -169,10 +157,6 @@ def pygame_prm_planner_paint_when_terminate(planner):
 
     input("\nPress Enter to quit...")
 
-
-planner_registry.register_sampler(
-    "prm_sampler", sampler_class=PRMSampler,
-)
 
 planner_registry.register_planner(
     "prm",

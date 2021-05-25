@@ -1,15 +1,13 @@
 import logging
-import random
-
 import numpy as np
+import random
 import scipy as sp
 import scipy.ndimage
-from overrides import overrides
-
 from collisionChecker import ImgCollisionChecker
+from overrides import overrides
 from planners import rrtPlanner
-from planners.baseSampler import Sampler
-from planners.randomPolicySampler import RandomPolicySampler
+from samplers.baseSampler import Sampler
+from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
 
 LOGGER = logging.getLogger(__name__)
@@ -196,16 +194,11 @@ def pygame_likelihood_sampler_paint(sampler):
                 )
 
 
+sampler_id = "likelihood_sampler"
+
 planner_registry.register_sampler(
-    "likelihood",
+    sampler_id,
     sampler_class=LikelihoodPolicySampler,
     visualise_pygame_paint=pygame_likelihood_sampler_paint,
     visualise_pygame_paint_init=pygame_likelihood_sampler_paint_init,
-)
-
-planner_registry.register_planner(
-    "likelihood",
-    planner_class=rrtPlanner.RRTPlanner,
-    visualise_pygame_paint=rrtPlanner.pygame_rrt_paint,
-    sampler_id="likelihood",
 )

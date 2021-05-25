@@ -112,7 +112,7 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
     args = docopt(__doc__, version="SBP-Bench Research v2.0")
 
     ########## Switch Visualiser to inherinet from ##########
-    from pygamevisualiser import VisualiserSwitcher
+    from visualiser import VisualiserSwitcher
 
     # allow the map filename, start and goal point to be override.
     if map_fname is not None:

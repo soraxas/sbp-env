@@ -3,8 +3,8 @@ import random
 import numpy as np
 from overrides import overrides
 
-from planners.baseSampler import Sampler
 from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
+from samplers.baseSampler import Sampler
 from utils import planner_registry
 
 
@@ -75,6 +75,8 @@ class RandomPolicySampler(Sampler):
         return p, self.report_success, self.report_fail
 
 
+sampler_id = "random"
+
 planner_registry.register_sampler(
-    "random", sampler_class=RandomPolicySampler, visualise_pygame_paint=None,
+    sampler_id, sampler_class=RandomPolicySampler, visualise_pygame_paint=None,
 )

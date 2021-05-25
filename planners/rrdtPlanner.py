@@ -1,16 +1,15 @@
 import logging
 import math
-import random
-
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 from overrides import overrides
 from tqdm import tqdm
 
-from planners.baseSampler import Sampler
-from planners.randomPolicySampler import RandomPolicySampler
 from planners.rrtPlanner import RRTPlanner
 from randomness import NormalRandomnessManager
+from samplers.baseSampler import Sampler
+from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
 from utils.helpers import BFS
 
@@ -467,7 +466,7 @@ class RRdTSampler(Sampler):
 
     def random_walk_by_mouse(self):
         """FOR testing purpose. Mimic random walk, but do so via mouse click."""
-        from planners.mouseSampler import MouseSampler as mouse
+        from samplers.mouseSampler import MouseSampler as mouse
 
         pos = mouse.get_mouse_click_position(scaling=self.scaling)
         # find the cloest particle from this position
