@@ -28,7 +28,14 @@ DATA_NUMNODE_COL = 1  # column number of number of nodes
 
 
 def combine_result(folder):
+    """
+
+    :param folder: 
+
+    """
+
     def create_main_stats():
+        """ """
         ############################################################
         ##              Create Scatter Chart at main              ##
         ############################################################
@@ -181,7 +188,14 @@ def combine_result(folder):
 
 
 def create_rescaled_sampled_pt(wb, sheets, num_rows, stat_ws):
-    """Create three extra columns with sampled point as the independent variables (x-axis)"""
+    """Create three extra columns with sampled point as the independent variables (x-axis)
+
+    :param wb: 
+    :param sheets: 
+    :param num_rows: 
+    :param stat_ws: 
+
+    """
     stats = []
     for s in sheets:
         valid_sampled_pts = [
@@ -242,6 +256,11 @@ def create_rescaled_sampled_pt(wb, sheets, num_rows, stat_ws):
 
 
 def combine_all_results(maindir):
+    """
+
+    :param maindir: 
+
+    """
     all_dirs = (os.path.join(maindir, x) for x in os.listdir(maindir))
     all_dirs = [x for x in all_dirs if os.path.isdir(x)]
     print("===== Combining csv to as xlxs sheet =====")
@@ -256,9 +275,20 @@ def combine_all_results(maindir):
 
 
 def create_stats_time_taken(wb, raw_sheets, stat_ws):
-    """Create stats of the number of node (and time) when the goal node is first found"""
+    """Create stats of the number of node (and time) when the goal node is first found
+
+    :param wb: 
+    :param raw_sheets: 
+    :param stat_ws: 
+
+    """
 
     def find_time_taken(ws):
+        """
+
+        :param ws: 
+
+        """
         solution_found = None
         terminate = None
         for r in range(DATA_BEGIN_ROW + 1, ws.max_row + 1):
@@ -338,6 +368,13 @@ def create_stats_time_taken(wb, raw_sheets, stat_ws):
 
 
 def create_stats_view(main_ws, sheets, num_rows):
+    """
+
+    :param main_ws: 
+    :param sheets: 
+    :param num_rows: 
+
+    """
     ############################################################
     ##             first 4 rows just mimic others             ##
     ############################################################

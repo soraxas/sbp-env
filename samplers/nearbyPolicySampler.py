@@ -9,17 +9,31 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class NearbyPolicySampler(likelihoodPolicySampler.LikelihoodPolicySampler):
+    """ """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         super().init(**kwargs)
         self.prob_vector = np.zeros(self.shape)
         # self.prob_vector *= 2 # IMPORTANT because we are using log2
 
     @overrides
     def _report_fail_impl(self, x, y, **kwargs):
+        """
+
+        :param x: 
+        :param y: 
+        :param **kwargs: 
+
+        """
         if "obstacle" in kwargs:
             self.obst_vector[x][y] += 2
         elif not kwargs["free"]:

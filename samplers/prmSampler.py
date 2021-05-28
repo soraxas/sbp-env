@@ -5,11 +5,18 @@ from utils import planner_registry
 
 
 class PRMSampler(RandomPolicySampler):
+    """ """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         kwargs["goalBias"] = 0
         super().init(**kwargs)
 

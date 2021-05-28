@@ -30,6 +30,8 @@ RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.1  # .75
 
 
 class DisjointTreeParticle:
+    """ """
+
     def __init__(
         self,
         planner,
@@ -47,6 +49,12 @@ class DisjointTreeParticle:
         self.restart(direction=direction, pos=pos, restart_when_merge=False)
 
     def _restart(self, direction=None, pos=None):
+        """
+
+        :param direction:  (Default value = None)
+        :param pos:  (Default value = None)
+
+        """
         if direction is None:
             # I will generate one if you dont give me!
             direction = random.uniform(0, math.pi * 2)
@@ -64,6 +72,13 @@ class DisjointTreeParticle:
         self.failed_reset = 0
 
     def restart(self, direction=None, pos=None, restart_when_merge=True):
+        """
+
+        :param direction:  (Default value = None)
+        :param pos:  (Default value = None)
+        :param restart_when_merge:  (Default value = True)
+
+        """
         if self.isroot:
             # root particles has a different initialisation method
             # (for the first time)
@@ -114,6 +129,12 @@ class DisjointTreeParticle:
         return True
 
     def try_new_pos(self, new_pos, new_dir):
+        """
+
+        :param new_pos: 
+        :param new_dir: 
+
+        """
         # pos is a 2 index list-type object
         # Do nothing with new_pos for now as we confirm our final location via callback
         #################################################################################
@@ -121,12 +142,19 @@ class DisjointTreeParticle:
         self.provision_dir = new_dir
 
     def confirm(self, pos):
+        """
+
+        :param pos: 
+
+        """
         # to confirm the final location of newly added tree node
         self.pos = pos
         self.dir = self.provision_dir
 
 
 class DynamicDisjointTreeParticle(DisjointTreeParticle):
+    """ """
+
     def __init__(self, proposal_type, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -180,7 +208,12 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
     @staticmethod
     def rand_unit_vecs(num_dims, number):
-        """Get random unit vectors"""
+        """Get random unit vectors
+
+        :param num_dims: 
+        :param number: 
+
+        """
         vec = np.random.standard_normal((number, num_dims))
         vec = vec / np.linalg.norm(vec, axis=1)[:, None]
         return vec
@@ -189,6 +222,16 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
     def generate_pmf(
         num_dims, mu, kappa, unit_vector_support=None, num=None, plot=False
     ):
+        """
+
+        :param num_dims: 
+        :param mu: 
+        :param kappa: 
+        :param unit_vector_support:  (Default value = None)
+        :param num:  (Default value = None)
+        :param plot:  (Default value = False)
+
+        """
         assert num_dims >= 1
         if num is None:
             num = 361 * (num_dims - 1) ** 2
@@ -205,6 +248,11 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         return unit_vector_support, pmf
 
     def draw_sample(self, origin=None):
+        """
+
+        :param origin:  (Default value = None)
+
+        """
         if self.proposal_type in ("dynamic-vonmises", "original"):
 
             if self.last_origin is None:
@@ -255,6 +303,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
         return xi  # + origin
 
     def success(self):
+        """ """
         self.successed += 1
         self.failed_reset = 0
         self.last_origin = self.provision_dir
@@ -278,6 +327,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
                 plt.pause(1e-4)
 
     def fail(self):
+        """ """
         self.failed_reset += 1
         self.failed += 1
         if self.proposal_type in ("dynamic-vonmises", "ray-casting"):
@@ -287,11 +337,27 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
             self.last_failed = True
 
             def k(x, xprime, sigma=0.1, length_scale=np.pi / 4):
+                """
+
+                :param x: 
+                :param xprime: 
+                :param sigma:  (Default value = 0.1)
+                :param length_scale:  (Default value = np.pi / 4)
+
+                """
                 return sigma ** 2 * np.exp(
                     -(2 * np.sin((x - xprime) / 2) ** 2) / (length_scale ** 2)
                 )
 
             def k(x, xprime, sigma=0.1, length_scale=np.pi / 4):
+                """
+
+                :param x: 
+                :param xprime: 
+                :param sigma:  (Default value = 0.1)
+                :param length_scale:  (Default value = np.pi / 4)
+
+                """
                 return sigma ** 2 * np.exp(
                     -(
                         2
@@ -328,6 +394,8 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
 
 class RRdTSampler(Sampler):
+    """ """
+
     def __init__(self, restart_when_merge=True, **kwargs):
         super().__init__(**kwargs)
         self.restart_when_merge = restart_when_merge
@@ -338,6 +406,11 @@ class RRdTSampler(Sampler):
         self.last_failed = True
 
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         super().init(**kwargs)
         # For benchmark stats tracking
         self.args.env.stats.lscampler_restart_counter = 0
@@ -404,6 +477,7 @@ class RRdTSampler(Sampler):
         self.p_manager.particles.append(root_particle)
 
     def particles_random_free_space_restart(self):
+        """ """
         for i in range(self.p_manager.num_dtrees):
             if self.p_manager.dtrees_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 self.p_manager.add_to_restart(self.p_manager.particles[i])
@@ -411,6 +485,12 @@ class RRdTSampler(Sampler):
                 # print(_z.successed, _z.failed, _z.failed_reset)
 
     def report_success(self, idx, **kwargs):
+        """
+
+        :param idx: 
+        :param **kwargs: 
+
+        """
         self.p_manager.particles[idx].last_node = kwargs["newnode"]
         self.p_manager.confirm(idx, kwargs["pos"])
         self.last_failed = False
@@ -421,12 +501,19 @@ class RRdTSampler(Sampler):
         # self.p_manager.modify_energy(idx=idx, factor=.99)
 
     def report_fail(self, idx, **kwargs):
+        """
+
+        :param idx: 
+        :param **kwargs: 
+
+        """
         self.last_failed = True
         if idx >= 0:
             self.p_manager.modify_energy(idx=idx, factor=0.7)
             self.p_manager.particles[idx].fail()
 
     def restart_all_pending_local_samplers(self):
+        """ """
         # restart all pending local samplers
         while len(self.p_manager.local_samplers_to_be_rstart) > 0:
             # during the proces of restart, if the new restart position
@@ -442,6 +529,7 @@ class RRdTSampler(Sampler):
         return True
 
     def get_next_pos(self):
+        """ """
         self._c_random += 1
 
         if self._c_random > RANDOM_RESTART_EVERY > 0:
@@ -482,6 +570,11 @@ class RRdTSampler(Sampler):
         return pos, p_idx
 
     def randomWalk(self, idx):
+        """
+
+        :param idx: 
+
+        """
         self.args.env.stats.lscampler_randomwalk_counter += 1
         # Randomly bias toward goal direction
         if False and random.random() < self.args.goalBias:
@@ -503,6 +596,7 @@ class RRdTSampler(Sampler):
         return new_pos
 
     def get_random_choice(self):
+        """ """
         if self.p_manager.num_dtrees == 1:
             return 0
 
@@ -531,6 +625,8 @@ class RRdTSampler(Sampler):
 
 
 class Node:
+    """ """
+
     def __init__(self, pos):
         self.pos = np.array(pos)
         self.cost = 0  # index 0 is x, index 1 is y
@@ -550,6 +646,8 @@ class Node:
 
 
 class RRdTPlanner(RRTPlanner):
+    """ """
+
     def __init__(self, *argv, **kwargs):
         super().__init__(*argv, **kwargs)
         self.root = None
@@ -557,6 +655,7 @@ class RRdTPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
+        """ """
         # Get an sample that is free (not in blocked space)
         # _tmp = self.args.sampler.get_valid_next_pos()
         # print(self.args.goal_radius)
@@ -629,7 +728,12 @@ class RRdTPlanner(RRTPlanner):
             self.add_pos_to_existing_tree(newnode, parent_tree)
 
     def rrt_star_add_node(self, newnode, nn=None):
-        """This function perform finding optimal parent, and rewiring."""
+        """This function perform finding optimal parent, and rewiring.
+
+        :param newnode: 
+        :param nn:  (Default value = None)
+
+        """
 
         newnode, nn = self.choose_least_cost_parent(
             newnode, nn=nn, nodes=self.root.nodes
@@ -651,7 +755,13 @@ class RRdTPlanner(RRTPlanner):
     ## Tree management:
     ##################################################
     def connect_two_nodes(self, newnode, nn, parent_tree=None):
-        """Add node to disjoint tree OR root tree."""
+        """Add node to disjoint tree OR root tree.
+
+        :param newnode: 
+        :param nn: 
+        :param parent_tree:  (Default value = None)
+
+        """
 
         # # hot fix. if nn has no edges, it should be from root tree
         # if parent_tree is not self.root:
@@ -675,7 +785,12 @@ class RRdTPlanner(RRTPlanner):
         return newnode, nn
 
     def add_pos_to_existing_tree(self, newnode, parent_tree):
-        """Try to add pos to existing tree. If success, return True."""
+        """Try to add pos to existing tree. If success, return True.
+
+        :param newnode: 
+        :param parent_tree: 
+
+        """
         r = self.args.epsilon
         if self.args.engine == "klampt":
             r = 1
@@ -716,13 +831,16 @@ class RRdTPlanner(RRTPlanner):
         return parent_tree
 
     def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
-        """
-        Given a tree, a node within that tree, and radius
+        """Given a tree, a node within that tree, and radius
         Return a list of cloest nodes (and its corresponding tree) within the radius (that's from other neighbourhood trees)
-        Return None if none exists
-        IF root exists in the list, add it at the last position (So the connection behaviour would remain stable)
+
+        :param node: 
+        :param parent_tree: 
+        :param radius: 
+        :returns: IF root exists in the list, add it at the last position (So the connection behaviour would remain stable)
             This ensure all previous action would only add add edges to each nodes, and only the last action would it
             modifies the entire tree structures wtih rrt* procedures.
+
         """
         nearest_nodes = {}
         for tree in [*self.disjointedTrees, self.root]:
@@ -743,7 +861,13 @@ class RRdTPlanner(RRTPlanner):
         return nearest_nodes_list
 
     def join_tree_to_root(self, tree, middle_node, root_tree_node):
-        """It will join the given tree to the root"""
+        """It will join the given tree to the root
+
+        :param tree: 
+        :param middle_node: 
+        :param root_tree_node: 
+
+        """
         # from env import Colour
         bfs = BFS(middle_node, validNodes=tree.nodes)
         # add all nodes from disjoint tree via rrt star method
@@ -784,15 +908,18 @@ class RRdTPlanner(RRTPlanner):
         #     progress, total_num)
 
     def join_trees(self, tree1, tree2, tree1_node, tree2_node):
-        """
-        Join the two given tree together (along with their nodes).
+        """Join the two given tree together (along with their nodes).
         It will delete the particle reference from the second tree.
         It will use RRT* method to add all nodes if one of the tree is the ROOT.
-
+        
         tree1_node & 2 represent the nodes that join the two tree together. It only matters currently to
         joining root tree to disjointed treeself.
 
-        Return the tree that has not been killed
+        :param tree1: 
+        :param tree2: 
+        :param tree1_node: 
+        :param tree2_node: 
+
         """
         assert tree1 is not tree2, "Both given tree should not be the same"
         # try:
@@ -859,6 +986,8 @@ class RRdTPlanner(RRTPlanner):
 
 
 class TreeRoot:
+    """ """
+
     def __init__(self, particle_handler, dim):
         self.particle_handler = [particle_handler]
         self.nodes = []
@@ -868,10 +997,20 @@ class TreeRoot:
         # This stores the last node added to this tree (by local sampler)
 
     def add_newnode(self, node):
+        """
+
+        :param node: 
+
+        """
         self.poses[len(self.nodes)] = node.pos
         self.nodes.append(node)
 
     def extend_tree(self, tree):
+        """
+
+        :param tree: 
+
+        """
         self.poses[len(self.nodes) : len(self.nodes) + len(tree.nodes)] = tree.poses[
             : len(tree.nodes)
         ]
@@ -888,12 +1027,16 @@ class TreeRoot:
 
 
 class TreeDisjoint(TreeRoot):
+    """ """
+
     @overrides
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class MABScheduler:
+    """ """
+
     def __init__(self, num_dtrees, start_pt, goal_pt, args):
         self.num_dtrees = num_dtrees
         self.init_energy()
@@ -903,15 +1046,29 @@ class MABScheduler:
         self.args = args
 
     def add_to_restart(self, lsampler):
+        """
+
+        :param lsampler: 
+
+        """
         if lsampler not in self.local_samplers_to_be_rstart:
             self.local_samplers_to_be_rstart.append(lsampler)
 
     def init_energy(self):
+        """ """
         self.dtrees_energy = np.ones(self.num_dtrees)
         self.dtrees_energy *= ENERGY_START
         self.resync_prob()
 
     def modify_energy(self, idx=None, particle_ref=None, factor=None, set_val=None):
+        """
+
+        :param idx:  (Default value = None)
+        :param particle_ref:  (Default value = None)
+        :param factor:  (Default value = None)
+        :param set_val:  (Default value = None)
+
+        """
         # TODO: sometimes the keep tracking might go out of sync (and cause error in np.random.choice. Investigate this)
         # keep track how much energy this operation would modify,
         # so we can change the energy_sum accordingly
@@ -933,21 +1090,46 @@ class MABScheduler:
         self.cur_energy_sum += delta
 
     def confirm(self, idx, pos):
+        """
+
+        :param idx: 
+        :param pos: 
+
+        """
         self.particles[idx].confirm(pos)
 
     def new_pos(self, idx, pos, dir):
+        """
+
+        :param idx: 
+        :param pos: 
+        :param dir: 
+
+        """
         return self.particles[idx].try_new_pos((pos[0], pos[1]), dir)
 
     def get_pos(self, idx):
+        """
+
+        :param idx: 
+
+        """
         return self.particles[idx].pos
 
     def get_dir(self, idx):
+        """
+
+        :param idx: 
+
+        """
         return self.particles[idx].direction
 
     def get_prob(self):
+        """ """
         return self.dtrees_energy / self.cur_energy_sum
 
     def resync_prob(self):
+        """ """
         self.dtrees_energy = np.nan_to_num(self.dtrees_energy)
         if self.dtrees_energy.sum() < 1e-10:
             # particle_energy demonlished to 0...
@@ -956,7 +1138,7 @@ class MABScheduler:
         self.cur_energy_sum = self.dtrees_energy.sum()
 
     def new_pos_in_free_space(self):
-        """Return a particle that is in free space (from map)"""
+        """ """
         self.args.env.stats.lscampler_restart_counter += 1
         while True:
 
@@ -972,6 +1154,11 @@ class MABScheduler:
 
 
 def pygame_rrdt_sampler_paint_init(sampler):
+    """
+
+    :param sampler: 
+
+    """
     import pygame
 
     sampler.particles_layer = pygame.Surface(
@@ -984,7 +1171,20 @@ def pygame_rrdt_sampler_paint_init(sampler):
 
 
 def pygame_rrdt_sampler_paint(sampler):
+    """
+
+    :param sampler: 
+
+    """
+
     def get_color_transists(value, max_prob, min_prob):
+        """
+
+        :param value: 
+        :param max_prob: 
+        :param min_prob: 
+
+        """
         denominator = max_prob - min_prob
         if denominator == 0:
             denominator = 1  # prevent division by zero
@@ -1007,6 +1207,11 @@ def pygame_rrdt_sampler_paint(sampler):
 
 
 def pygame_rrdt_planner_paint(planner):
+    """
+
+    :param planner: 
+
+    """
     from utils.helpers import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)

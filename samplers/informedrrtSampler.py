@@ -11,11 +11,18 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class InformedRRTSampler(Sampler):
+    """ """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         super().init(**kwargs)
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -58,6 +65,7 @@ class InformedRRTSampler(Sampler):
 
     @overrides
     def get_next_pos(self):
+        """ """
         if self.args.engine == "klampt":
             # not possible with radian space
             p = self.random_sampler.get_next_pos()[0]
@@ -82,6 +90,7 @@ class InformedRRTSampler(Sampler):
 
     @staticmethod
     def sampleUnitBall():
+        """ """
         a = random.random()
         b = random.random()
         if b < a:
@@ -92,6 +101,11 @@ class InformedRRTSampler(Sampler):
 
 
 def pygame_informed_sampler_paint(sampler):
+    """
+
+    :param sampler: 
+
+    """
     import pygame
     from utils.helpers import Colour
 

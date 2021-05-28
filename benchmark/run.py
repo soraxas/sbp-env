@@ -20,6 +20,7 @@ sys.path.append(os.path.join(CUR_PATH, ".."))  # add top package to path
 
 
 def main():
+    """ """
     # repeat for x number of times
 
     # Repeat the same in different map
@@ -97,9 +98,19 @@ def main():
 
 
 def get_random_free_space(image):
+    """
+
+    :param image: 
+
+    """
     image = pygame.image.load(image)
 
     def collide(p):
+        """
+
+        :param p: 
+
+        """
         x = int(p[0])
         y = int(p[1])
         # make sure x and y is within image boundary

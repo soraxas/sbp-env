@@ -23,6 +23,7 @@ SKIP_PYGAME_CAPTURE = True
 
 
 def main():
+    """ """
     import main
 
     policyname = None
@@ -103,6 +104,11 @@ def main():
         start_time = default_timer()
 
         def take_screenshot(term=False):
+            """
+
+            :param term:  (Default value = False)
+
+            """
             if SKIP_PYGAME_CAPTURE:
                 return
             env.pygame_show()
@@ -115,6 +121,7 @@ def main():
             env.pygame_hide()
 
         def log_performance():
+            """ """
             msg = (
                 env.stats.valid_sample,
                 default_timer() - start_time,

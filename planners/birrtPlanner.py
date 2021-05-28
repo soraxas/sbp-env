@@ -8,8 +8,15 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class BiRRTPlanner(RRTPlanner):
+    """ """
+
     @overrides
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         super().init(**kwargs)
         self.goal_tree_nodes = []
         self.goal_tree_poses = np.empty(
@@ -26,6 +33,7 @@ class BiRRTPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
+        """ """
         if self.goal_tree_turn and not self.found_solution:
             # extend from goal tree
             poses = self.goal_tree_poses
@@ -117,6 +125,11 @@ class BiRRTPlanner(RRTPlanner):
 
 
 def pygame_birrt_planner_paint(planner):
+    """
+
+    :param planner: 
+
+    """
     from utils.helpers import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)

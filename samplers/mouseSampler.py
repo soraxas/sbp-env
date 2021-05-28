@@ -11,11 +11,14 @@ For demo / testing only. This policy wait for user mouse input for next sampling
 
 
 class MouseSampler(Sampler):
+    """ """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def get_next_pos(self):
+        """ """
         return (
             self.get_mouse_click_position(scaling=self.args.scaling),
             self.report_success,
@@ -24,6 +27,11 @@ class MouseSampler(Sampler):
 
     @staticmethod
     def get_mouse_click_position(scaling):
+        """
+
+        :param scaling: 
+
+        """
         import pygame
 
         while True:

@@ -23,6 +23,8 @@ SUPPORTED_RANDOM_METHODS = tuple(t for t in SUPPORTED_RANDOM_METHODS_TITLES)
 
 
 class NormalRandomnessManager:
+    """ """
+
     def __init__(self):
         # draws of normal distribution
         self.normal_draws_reserve = None
@@ -30,6 +32,13 @@ class NormalRandomnessManager:
         self.half_normal_draws_reserve = None
 
     def redraw_normal(self, kappa, sigma, use_vonmises=True):
+        """
+
+        :param kappa: 
+        :param sigma: 
+        :param use_vonmises:  (Default value = True)
+
+        """
         if use_vonmises:
             dist = np.random.vonmises(0, kappa, NUM_DATA_POINTS)
         else:
@@ -37,6 +46,14 @@ class NormalRandomnessManager:
         self.normal_draws_reserve = dist
 
     def draw_normal(self, origin, use_vonmises=True, kappa=1, sigma=math.pi / 4):
+        """
+
+        :param origin: 
+        :param use_vonmises:  (Default value = True)
+        :param kappa:  (Default value = 1)
+        :param sigma:  (Default value = math.pi / 4)
+
+        """
         if self.normal_draws_reserve is None or self.normal_draws_reserve.size < 1:
             self.redraw_normal(
                 use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4
@@ -48,10 +65,22 @@ class NormalRandomnessManager:
         return draw + origin
 
     def redraw_half_normal(self, start_at, scale):
+        """
+
+        :param start_at: 
+        :param scale: 
+
+        """
         dist = scipy.stats.halfnorm.rvs(loc=start_at, scale=scale, size=NUM_DATA_POINTS)
         self.half_normal_draws_reserve = dist
 
     def draw_half_normal(self, start_at, scale=1):
+        """
+
+        :param start_at: 
+        :param scale:  (Default value = 1)
+
+        """
         if (
             self.half_normal_draws_reserve is None
             or self.half_normal_draws_reserve.size < 1
@@ -64,12 +93,19 @@ class NormalRandomnessManager:
 
 
 class RandomnessManager:
+    """ """
+
     def __init__(self, num_dim):
         # draws of random numbers
         self.random_draws = {}
         self.num_dim = num_dim
 
     def redraw(self, random_method):
+        """
+
+        :param random_method: 
+
+        """
         problem = {
             "num_vars": self.num_dim,
             "names": list(range(self.num_dim)),
@@ -90,6 +126,11 @@ class RandomnessManager:
         self.random_draws[random_method] = seq
 
     def get_random(self, random_method):
+        """
+
+        :param random_method: 
+
+        """
         if (
             random_method not in self.random_draws
             or self.random_draws[random_method].size < 1
@@ -106,6 +147,13 @@ if __name__ == "__main__":
     from matplotlib.pyplot import figure
 
     def show_fig(x, y, title=None):
+        """
+
+        :param x: 
+        :param y: 
+        :param title:  (Default value = None)
+
+        """
         figure(num=1, figsize=(8, 6), dpi=200)
         plt.title(title)
         plt.plot(x, y, "r.")

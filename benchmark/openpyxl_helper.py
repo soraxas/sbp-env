@@ -17,11 +17,18 @@ from openpyxl.chart.error_bar import ErrorBars
 
 
 def duplicate_col(start, end, ws, row, name_generator, multiples):
-    """
-    Given start and end of column number (end is not inclusive)
+    """Given start and end of column number (end is not inclusive)
     worksheet as the target worksheet, it will duplicate columns into
     the desire multiples. e.g. if multiple is 3, 5 columns will becomes 15.
     It will obtain value of cells from generator.
+
+    :param start: 
+    :param end: 
+    :param ws: 
+    :param row: 
+    :param name_generator: 
+    :param multiples: 
+
     """
     # convert to 0-based system
     get_name = name_generator()
@@ -34,9 +41,14 @@ def duplicate_col(start, end, ws, row, name_generator, multiples):
 
 
 def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=None):
-    """
-    Search through all files in directory with the filename_glob,
+    """Search through all files in directory with the filename_glob,
     if it matches, add it into workbook (wb) with a defined sheet name
+
+    :param wb: 
+    :param filename_glob: 
+    :param get_sheetname_func:  (Default value = None)
+    :param row_filter:  (Default value = None)
+
     """
     if get_sheetname_func is None:
         # get it to be just the same as the sheet name
@@ -73,10 +85,20 @@ def save_csv_as_sheet(wb, filename_glob, get_sheetname_func=None, row_filter=Non
 
 
 def RefFormula(**kwargs):
+    """
+
+    :param **kwargs: 
+
+    """
     return "={}".format(cReference(**kwargs))
 
 
 def cReference(**kwargs):
+    """
+
+    :param **kwargs: 
+
+    """
     from openpyxl.chart.reference import DummyWorksheet
 
     if "worksheet" in kwargs and isinstance(kwargs["worksheet"], str):
@@ -105,7 +127,15 @@ def build_scatter_with_mean_stdev(
     xvalues_refs, yvalues_refs, stdev_refs, titles, errDir="y"
 ):
     """Given x values, a list of y values, and the y values' corresponding
-    stdev, it will return a scatter chart with stdev as error bars"""
+    stdev, it will return a scatter chart with stdev as error bars
+
+    :param xvalues_refs: 
+    :param yvalues_refs: 
+    :param stdev_refs: 
+    :param titles: 
+    :param errDir:  (Default value = "y")
+
+    """
     if len(yvalues_refs) != len(stdev_refs) != len(titles):
         raise ValueError("y-values and stdev list length must be the same")
     chart = ScatterChart()
@@ -135,6 +165,12 @@ def build_scatter_with_mean_stdev(
 
 
 def split_to_append_text(sheet, data):
+    """
+
+    :param sheet: 
+    :param data: 
+
+    """
     (c, r) = yield
     for i in itertools.count():
         val = RefFormula(worksheet=sheet, min_col=c, min_row=r)
@@ -143,6 +179,13 @@ def split_to_append_text(sheet, data):
 
 
 def split_to_funcs(sheet_begin, sheet_end, data):
+    """
+
+    :param sheet_begin: 
+    :param sheet_end: 
+    :param data: 
+
+    """
     (c, r) = yield
     for i in itertools.count():
         val = cReference(

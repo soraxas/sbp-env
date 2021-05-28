@@ -15,6 +15,8 @@ LOGGER = logging.getLogger(__name__)
 
 # noinspection PyAttributeOutsideInit
 class LikelihoodPolicySampler(Sampler):
+    """ """
+
     @overrides
     def __init__(self, prob_block_size, suppress_visited_area=True, **kwargs):
         super().__init__(**kwargs)
@@ -23,6 +25,11 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         super().init(**kwargs)
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -42,6 +49,7 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def get_next_pos(self):
+        """ """
         if self.prob_vector_normalized is None or random.random() < 0.05:
             p = self.random_sampler.get_next_pos()[0]
         else:
@@ -59,6 +67,11 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def add_tree_node(self, pos):
+        """
+
+        :param pos: 
+
+        """
         x, y = pos
         x = int(x / self.PROB_BLOCK_SIZE)
         y = int(y / self.PROB_BLOCK_SIZE)
@@ -66,6 +79,14 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def add_sample_line(self, x1, y1, x2, y2):
+        """
+
+        :param x1: 
+        :param y1: 
+        :param x2: 
+        :param y2: 
+
+        """
         x1 = int(x1 / self.PROB_BLOCK_SIZE)
         y1 = int(y1 / self.PROB_BLOCK_SIZE)
         x2 = int(x2 / self.PROB_BLOCK_SIZE)
@@ -76,6 +97,11 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def report_success(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         x, y = kwargs["pos"]
         # add all in between point of nearest node of the random pt as valid
         x1, y1 = self.args.env.cc.get_coor_before_collision(
@@ -85,6 +111,11 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def report_fail(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         p = kwargs["pos"]
         if p is None:
             return
@@ -112,6 +143,13 @@ class LikelihoodPolicySampler(Sampler):
         return self._report_fail_impl(x, y, **kwargs)
 
     def _report_fail_impl(self, x, y, **kwargs):
+        """
+
+        :param x: 
+        :param y: 
+        :param **kwargs: 
+
+        """
         if "obstacle" in kwargs:
             self.obst_vector[x][y] += 2
         elif not kwargs["free"]:
@@ -153,6 +191,11 @@ class LikelihoodPolicySampler(Sampler):
 
 
 def pygame_likelihood_sampler_paint_init(sampler):
+    """
+
+    :param sampler: 
+
+    """
     import pygame
 
     # probability layer
@@ -166,7 +209,18 @@ def pygame_likelihood_sampler_paint_init(sampler):
 
 
 def pygame_likelihood_sampler_paint(sampler):
+    """
+
+    :param sampler: 
+
+    """
+
     def get_vector_alpha_parameters(vector):
+        """
+
+        :param vector: 
+
+        """
         _max_prob = vector.max()
         _min_prob = vector.min()
         _denominator = _max_prob - _min_prob

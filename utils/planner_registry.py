@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class BaseDataPack:
+    """ """
+
     name: str
     visualise_pygame_paint_init: Optional[Callable]
     visualise_pygame_paint: Optional[Callable]
@@ -16,13 +18,17 @@ class BaseDataPack:
 
 @dataclass
 class PlannerDataPack(BaseDataPack):
-    planner_class: Type['Planner']
+    """ """
+
+    planner_class: Type["Planner"]
     sampler_id: str
 
 
 @dataclass
 class SamplerDataPack(BaseDataPack):
-    sampler_class: Type['Sampler']
+    """ """
+
+    sampler_class: Type["Sampler"]
 
 
 # the registry to store all registered planners and samplers
@@ -31,13 +37,23 @@ SAMPLERS: Dict[str, SamplerDataPack] = {}
 
 
 def register_planner(
-        planner_id: str,
-        planner_class: Type['Planner'],
-        sampler_id: str,
-        visualise_pygame_paint_init: Optional[Callable] = None,
-        visualise_pygame_paint: Optional[Callable] = None,
-        visualise_pygame_paint_terminate: Optional[Callable] = None,
+    planner_id: str,
+    planner_class: Type["Planner"],
+    sampler_id: str,
+    visualise_pygame_paint_init: Optional[Callable] = None,
+    visualise_pygame_paint: Optional[Callable] = None,
+    visualise_pygame_paint_terminate: Optional[Callable] = None,
 ) -> None:
+    """
+
+    :param planner_id: str: 
+    :param planner_class: Type['Planner']: 
+    :param sampler_id: str: 
+    :param visualise_pygame_paint_init: Optional[Callable]:  (Default value = None)
+    :param visualise_pygame_paint: Optional[Callable]:  (Default value = None)
+    :param visualise_pygame_paint_terminate: Optional[Callable]:  (Default value = None)
+
+    """
     if planner_id in PLANNERS:
         raise ValueError(f"A planner with name '{planner_id}' already exists!")
 
@@ -52,12 +68,21 @@ def register_planner(
 
 
 def register_sampler(
-        sampler_id: str,
-        sampler_class: Type['Sampler'],
-        visualise_pygame_paint_init: Optional[Callable] = None,
-        visualise_pygame_paint: Optional[Callable] = None,
-        visualise_pygame_paint_terminate: Optional[Callable] = None,
+    sampler_id: str,
+    sampler_class: Type["Sampler"],
+    visualise_pygame_paint_init: Optional[Callable] = None,
+    visualise_pygame_paint: Optional[Callable] = None,
+    visualise_pygame_paint_terminate: Optional[Callable] = None,
 ) -> None:
+    """
+
+    :param sampler_id: str: 
+    :param sampler_class: Type['Sampler']: 
+    :param visualise_pygame_paint_init: Optional[Callable]:  (Default value = None)
+    :param visualise_pygame_paint: Optional[Callable]:  (Default value = None)
+    :param visualise_pygame_paint_terminate: Optional[Callable]:  (Default value = None)
+
+    """
     if sampler_id in SAMPLERS:
         raise ValueError(f"A sampler with name '{sampler_id}' already exists!")
 

@@ -17,6 +17,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Env(VisualiserSwitcher.env_clname):
+    """ """
+
     def __init__(self, writer=None, fname=None, fixed_seed=None, **kwargs):
         self.writer = writer
         self.fname = fname
@@ -47,6 +49,11 @@ class Env(VisualiserSwitcher.env_clname):
         kwargs["cc"] = self.cc
 
         def parse_input_pt(pt_as_str):
+            """
+
+            :param pt_as_str: 
+
+            """
             if pt_as_str is None:
                 return None
             pt = pt_as_str.split(",")
@@ -94,6 +101,12 @@ class Env(VisualiserSwitcher.env_clname):
 
     @staticmethod
     def radian_dist(p1, p2):
+        """
+
+        :param p1: 
+        :param p2: 
+
+        """
         # distance metric for angles
         # https://en.wikipedia.org/wiki/Cosine_similarity#Angular_distance_and_similarity
 
@@ -103,6 +116,12 @@ class Env(VisualiserSwitcher.env_clname):
 
     @staticmethod
     def euclidean_dist(p1, p2):
+        """
+
+        :param p1: 
+        :param p2: 
+
+        """
         # THIS IS MUCH SLOWER for small array
         # return np.linalg.norm(p1 - p2)
 
@@ -110,7 +129,12 @@ class Env(VisualiserSwitcher.env_clname):
         return math.sqrt(p[0] ** 2 + p[1] ** 2)
 
     def step_from_to(self, p1, p2):
-        """Get a new point from p1 to p2, according to step size."""
+        """Get a new point from p1 to p2, according to step size.
+
+        :param p1: 
+        :param p2: 
+
+        """
         if self.args.ignore_step_size:
             return p2
         if np.all(p1 == p2):

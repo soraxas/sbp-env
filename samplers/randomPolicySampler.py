@@ -9,8 +9,18 @@ from utils import planner_registry
 
 
 class RandomPolicySampler(Sampler):
+    """Uniformly and randomly samples configurations across :math:`d` where :math:`d` is
+    the dimensionality of the C-space.
+    """
+
     @overrides
     def __init__(self, random_method="pseudo_random", **kwargs):
+        """
+        :param random_method: the kind of random method to use. Must be a choice from
+            [pseudo_random, sobol_sequence, saltelli, latin_hypercube,
+            finite_differences, fast].
+        :param kwargs: pass through to super class
+        """
         super().__init__(**kwargs)
         if random_method not in SUPPORTED_RANDOM_METHODS:
             print(
@@ -27,6 +37,12 @@ class RandomPolicySampler(Sampler):
 
     @overrides
     def init(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         super().init(*args, **kwargs)
         self.random = RandomnessManager(num_dim=kwargs["num_dim"])
 
@@ -61,6 +77,7 @@ class RandomPolicySampler(Sampler):
 
     @overrides
     def get_next_pos(self):
+        """ """
         # Random path
         if random.random() < self.args.goalBias:
             # goal bias

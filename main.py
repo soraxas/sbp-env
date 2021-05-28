@@ -109,6 +109,14 @@ __doc__ = __doc__.format(
 
 
 def main(map_fname=None, start=None, goal=None, sampler=None):
+    """
+
+    :param map_fname:  (Default value = None)
+    :param start:  (Default value = None)
+    :param goal:  (Default value = None)
+    :param sampler:  (Default value = None)
+
+    """
     args = docopt(__doc__, version="SBP-Bench Research v2.0")
 
     ########## Switch Visualiser to inherinet from ##########

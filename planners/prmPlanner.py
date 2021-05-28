@@ -22,6 +22,14 @@ volume_of_unit_ball = {
 
 
 def nearest_neighbours(nodes, poses, pos, radius):
+    """
+
+    :param nodes: 
+    :param poses: 
+    :param pos: 
+    :param radius: 
+
+    """
     distances = np.linalg.norm(poses[: len(nodes)] - pos, axis=1)
     neighbours = []
     for i, d in enumerate(distances):
@@ -31,8 +39,16 @@ def nearest_neighbours(nodes, poses, pos, radius):
 
 
 class PRMPlanner(RRTPlanner):
+    """ """
+
     @overrides
     def init(self, *argv, **kwargs):
+        """
+
+        :param *argv: 
+        :param **kwargs: 
+
+        """
         super().init(*argv, **kwargs)
         self.args.env.stats.invalid_samples_connections = "-- "
 
@@ -52,11 +68,13 @@ class PRMPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
+        """ """
         rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
         self.args.env.stats.add_free()
         self.add_newnode(Node(rand_pos))
 
     def get_free_area(self):
+        """ """
         area = 0
         for i in range(self.args.env.dim[0]):
             for j in range(self.args.env.dim[1]):
@@ -66,11 +84,13 @@ class PRMPlanner(RRTPlanner):
         return area
 
     def clear_graph(self):
+        """ """
         self.graph = nx.DiGraph()
         self.graph.add_node(self.args.env.start_pt)
         self.args.env.end_state = None
 
     def build_graph(self):
+        """ """
         for v in self.nodes:
 
             n = len(self.nodes)
@@ -90,6 +110,12 @@ class PRMPlanner(RRTPlanner):
                 )
 
     def get_nearest_free(self, node, neighbours):
+        """
+
+        :param node: 
+        :param neighbours: 
+
+        """
         nn = None
         min_cost = 999999
         for n in neighbours:
@@ -108,6 +134,7 @@ class PRMPlanner(RRTPlanner):
         return nn
 
     def get_solution(self):
+        """ """
         # get two nodes that is cloest to start/goal and are free routes
         m_near = nearest_neighbours(
             self.nodes, self.poses, self.args.sampler.start_pos, self.args.epsilon
@@ -136,6 +163,11 @@ class PRMPlanner(RRTPlanner):
 
 
 def pygame_prm_planner_paint(planner):
+    """
+
+    :param planner: 
+
+    """
     for n in planner.nodes:
         planner.args.env.draw_circle(
             pos=n.pos,
@@ -146,6 +178,11 @@ def pygame_prm_planner_paint(planner):
 
 
 def pygame_prm_planner_paint_when_terminate(planner):
+    """
+
+    :param planner: 
+
+    """
     from utils.helpers import Colour
 
     planner.build_graph()

@@ -25,11 +25,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 def nothing_to_paint(*args):
+    """Paint function that does nothing.
+
+    :param *args: unused
+    """
     pass
-
-
-def missing_paint_function(cls_name):
-    raise NotImplementedError(f"Visualiser for '{cls_name}' is not not implemented.")
 
 
 ############################################################
@@ -38,50 +38,99 @@ def missing_paint_function(cls_name):
 
 
 class BasePlannerVisualiser(ABC):
+    """
+    Abstract base Planner Visualiser
+    """
+
     def __init__(self, **kwargs):
         pass
 
     def init(self, **kwargs):
+        """
+        Abstract method, delayed *initialisation* method for planner visualiser.
+        """
         pass
 
     def paint(self, **kwargs):
+        """
+        Abstract method, paint method for planner visualiser.
+        """
         pass
 
     def terminates_hook(self):
+        """
+        Abstract method, terminates hook for planner visualiser that is executed at
+        the end of loop.
+        """
         pass
 
     def draw_solution_path(self):
+        """
+        Abstract method, method to draw solution path for planner visualiser.
+        """
         pass
 
 
 class BaseSamplerVisualiser(ABC):
+    """
+    Abstract base Sampler Visualiser
+    """
+
     def __init__(self, **kwargs):
         pass
 
     def init(self, **kwargs):
+        """
+        Abstract method, delayed *initialisation* method for sampler visualiser.
+        """
         pass
 
     def paint(self, **kwargs):
+        """
+        Abstract method, paint method for sampler visualiser.
+        """
         pass
 
     def terminates_hook(self):
+        """
+        Abstract method, terminates hook for sampler visualiser that is executed at
+        the end of loop.
+        """
         pass
 
 
 class BaseEnvVisualiser(ABC):
+    """
+    Abstract base environment visualiser
+    """
+
     def __init__(self, **kwargs):
         pass
 
     def visualiser_init(self, **kwargs):
+        """
+        Abstract method, delayed *initialisation* method for environment visualiser.
+        """
         pass
 
     def update_screen(self, **kwargs):
+        """
+        Abstract method, when call this method will update the screen.
+        """
         pass
 
-    def set_start_goal_points(self, **kwargs):
-        if kwargs["start"] is None or kwargs["goal"] is None:
+    def set_start_goal_points(
+        self,
+        start: Optional[np.ndarray] = None,
+        goal: Optional[np.ndarray] = None,
+        **kwargs,
+    ):
+        """
+        Ask the visualiser to query both start and goal configuration from the user.
+        """
+        if start is None or goal is None:
             raise Exception("start/goal is not set yet")
-        return kwargs["start"], kwargs["goal"]
+        return start, goal
 
 
 ############################################################
@@ -90,7 +139,15 @@ class BaseEnvVisualiser(ABC):
 
 
 class PygamePlannerVisualiser(BasePlannerVisualiser):
+    """
+    Planner Visualiser with the Pygame engine
+    """
+
     def __init__(self, planner_data_pack: planner_registry.PlannerDataPack, **kwargs):
+        """
+        :param planner_data_pack: a planner data pack that stores the implemented
+            paint function or init function.
+        """
         super().__init__(**kwargs)
         self.found_solution = None
         self.planner_data_pack = planner_data_pack
@@ -103,6 +160,9 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
             self.paint_func = nothing_to_paint
 
     def init(self, **kwargs):
+        """
+        The delayed *initialisation* method for planner visualiser.
+        """
         super().init(**kwargs)
 
         if self.planner_data_pack is not None:
@@ -110,9 +170,15 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
                 self.planner_data_pack.visualise_pygame_paint_init(self)
 
     def paint(self):
+        """
+        Paint method for planner visualiser.
+        """
         self.paint_func(self)
 
     def draw_solution_path(self):
+        """
+        Method to draw solution path for planner visualiser.
+        """
         if not self.found_solution or self.c_max == float("inf"):
             return
         # redraw new path
@@ -132,17 +198,28 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
         self.args.env.window.blit(self.args.env.solution_path_screen, (0, 0))
 
     def terminates_hook(self):
+        """
+        Terminates hook for planner visualiser that is executed at the end of loop.
+        """
         if self.planner_data_pack is not None:
             if self.planner_data_pack.visualise_pygame_paint_terminate is not None:
                 self.planner_data_pack.visualise_pygame_paint_terminate(self)
 
 
 class PygameSamplerVisualiser(BaseSamplerVisualiser):
+    """
+    Visualisation of the sampler with Pygame engine
+    """
+
     def __init__(
-            self,
-            sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
-            **kwargs,
+        self,
+        sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
+        **kwargs,
     ):
+        """
+        :param sampler_data_pack: a sampler data pack that stores the implemented
+            paint function or init function.
+        """
         super().__init__(**kwargs)
         self.sampler_data_pack = sampler_data_pack
         self.paint_func = None
@@ -157,6 +234,11 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
             self.paint_func = nothing_to_paint
 
     def init(self, **kwargs):
+        """
+
+        :param \**kwargs:
+
+        """
         super().init(**kwargs)
 
         if self.sampler_data_pack is not None:
@@ -164,9 +246,11 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
                 self.sampler_data_pack.visualise_pygame_paint_init(self)
 
     def paint(self):
+        """ """
         self.paint_func(self)
 
     def terminates_hook(self):
+        """ """
         if self.sampler_data_pack is not None:
             if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
                 self.sampler_data_pack.visualise_pygame_paint_terminate(self)
@@ -174,13 +258,25 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
 
 # noinspection PyAttributeOutsideInit
 class PygameEnvVisualiser(BaseEnvVisualiser):
+    """
+    Environment Visualiser with the Pygame engine
+    """
+
     def __init__(self: Env, **kwargs):
         super().__init__(**kwargs)
         self.extra = 25
         self.img = pygame.image.load(self.args.image)
         self.dim = kwargs["image_shape"]
 
-    def visualiser_init(self: Env, no_display=False):
+    def visualiser_init(self: Env, no_display: bool = False):
+        """Delayed *initialisation* method for environment visualiser.
+
+        :param no_display: Controls whether turn on the
+            visualisation or not, defaults to False. This option is deprecated,
+            and instead, the environment should derived directly from the base
+            visualisation to turn off visualisation.
+
+        """
         self.args.no_display = no_display
         if self.args.no_display:
             return
@@ -248,8 +344,15 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         self.sampledPoint_screen.set_colorkey(Colour.ALPHA_CK)
         ################################################################################
 
-    def set_start_goal_points(self: Env, start, goal):
-        """A function that query user for start/goal and set them accordingly."""
+    def set_start_goal_points(
+        self: Env, start: Optional[np.ndarray] = None, goal: Optional[np.ndarray] = None
+    ):
+        """A function that query user for start/goal and set them accordingly.
+
+        :param start: the start configuration of the motion planning problem
+        :param goal: the goal configuration of the motion planning problem
+
+        """
         from utils.helpers import Node
 
         ##################################################
@@ -291,27 +394,49 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
     @staticmethod
     def process_pygame_event():
+        """ """
         for e in pygame.event.get():
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                 LOGGER.info("Leaving.")
                 sys.exit(0)
 
     def pygame_show(self: Env):
+        """
+
+        :param self: Env:
+
+        """
         self.args.no_display = False
 
     def pygame_hide(self: Env):
+        """
+
+        :param self: Env:
+
+        """
         self.args.no_display = True
         pygame.display.iconify()
         # pygame.quit()
 
     def draw_stick_robot(
-            self: Env,
-            node,
-            colour1=Colour.cAlpha(Colour.orange, 128),
-            colour2=Colour.cAlpha(Colour.cyan, 128),
-            line_modifier=2.5,
-            layer=None,
+        self: Env,
+        node,
+        colour1=Colour.cAlpha(Colour.orange, 128),
+        colour2=Colour.cAlpha(Colour.cyan, 128),
+        line_modifier=2.5,
+        layer=None,
     ):
+        """
+
+        :param self: Env:
+        :param node:
+        :param colour1:  (Default value = Colour.cAlpha(Colour.orange)
+        :param 128):
+        :param colour2:  (Default value = Colour.cAlpha(Colour.cyan)
+        :param line_modifier:  (Default value = 2.5)
+        :param layer:  (Default value = None)
+
+        """
 
         # draw config for node 1
         pt1 = node.pos[:2]
@@ -348,9 +473,18 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # )
 
     def draw_path(
-            self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1,
-            layer=None
+        self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None
     ):
+        """
+
+        :param self: Env:
+        :param node1:
+        :param node2:
+        :param colour:  (Default value = Colour.path_blue)
+        :param line_modifier:  (Default value = 1)
+        :param layer:  (Default value = None)
+
+        """
         if layer is None:
             layer = self.path_layers
         if node1 is not None and node2 is not None:
@@ -385,10 +519,25 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             )
 
     def draw_circle(self: Env, pos, colour, radius, layer):
+        """
+
+        :param self: Env:
+        :param pos:
+        :param colour:
+        :param radius:
+        :param layer:
+
+        """
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
         pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
 
     def update_screen(self: Env, update_all=False):
+        """
+
+        :param self: Env:
+        :param update_all:  (Default value = False)
+
+        """
         self.process_pygame_event()
         if "refresh_cnt" not in self.__dict__:
             # INIT (this section will only run when this function is first called)
@@ -402,6 +551,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
         ##################################################
         def draw_start_goal_pt():
+            """ """
             if self.start_pt is not None:
                 self.draw_circle(
                     pos=self.start_pt.pos,
@@ -484,11 +634,31 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
 
 class KlamptPlannerVisualiser(BasePlannerVisualiser):
+    """ """
+
     def init(self: Planner, **kwargs):
+        """
+
+        :param self: Planner: 
+        :param \**kwargs:
+
+        """
         return
 
     def paint(self: Planner, **kwargs):
+        """
+
+        :param self: Planner: 
+        :param \**kwargs:
+
+        """
+
         def get_world_pos(config):
+            """
+
+            :param config: 
+
+            """
             self.args.env.cc.robot.setConfig(
                 self.args.env.cc.translate_to_klampt(config)
             )
@@ -497,11 +667,21 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
             return pos
 
         def nothing_paint():
+            """ """
             pass
 
         def RRdTSampler_paint():
+            """ """
+
             # return
             def get_color_transists(value, max_prob, min_prob):
+                """
+
+                :param value: 
+                :param max_prob: 
+                :param min_prob: 
+
+                """
                 denominator = max_prob - min_prob
                 if denominator == 0:
                     denominator = 1  # prevent division by zero
@@ -521,6 +701,12 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                 )
 
         def _helper_draw_nodes_edges(nodes, colour):
+            """
+
+            :param nodes: 
+            :param colour: 
+
+            """
             drawn_nodes_pairs = set()
             for n in nodes:
                 self.args.env.draw_node(get_world_pos(n.pos), colour=colour)
@@ -537,18 +723,21 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                 self.draw_solution_path()
 
         def RRTPlanner_paint():
+            """ """
             # self.args.env.path_layers.fill(Colour.ALPHA_CK)
             _helper_draw_nodes_edges(nodes=self.nodes, colour=(1, 0, 0, 1))
 
         def BiRRTPlanner_paint():
+            """ """
             drawn_nodes_pairs = set()
             for c, nodes in (
-                    ((1, 0, 0, 1), self.nodes),
-                    ((0, 0, 1, 1), self.goal_tree_nodes),
+                ((1, 0, 0, 1), self.nodes),
+                ((0, 0, 1, 1), self.goal_tree_nodes),
             ):
                 _helper_draw_nodes_edges(nodes=nodes, colour=c)
 
         def PRMPlanner_paint():
+            """ """
             edges = list()
             colour = (1, 0, 0, 1)
             for n in self.nodes:
@@ -560,12 +749,13 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                 )
 
         def RRdTPlanner_paint():
+            """ """
             from planners.rrdtPlanner import BFS
 
             drawn_nodes_pairs = set()
 
             def generate_random_colors():
-                """Return a generator that generate distinct colour."""
+                """ """
                 import colorsys
                 import ghalton
 
@@ -618,12 +808,13 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                         )
 
         def RRFPlanner_paint():
+            """ """
             from planners.rrdtPlanner import BFS
 
             drawn_nodes_pairs = set()
 
             def generate_random_colors():
-                """Return a generator that generate distinct colour."""
+                """ """
                 import colorsys
                 import ghalton
 
@@ -664,7 +855,7 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
             c = (1, 0, 0, 1)
             # draw nodes
             for root, c in zip(
-                    (self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))
+                (self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))
             ):
                 for node in root.nodes:
                     self.args.env.draw_node(get_world_pos(node.pos), colour=c)
@@ -683,6 +874,7 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
             # self.draw_solution_path()
 
         def default_paint():
+            """ """
             raise NotImplementedError(
                 f"{self.__class__.__name__} visualising " "is not not implemented!"
             )
@@ -705,10 +897,12 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
         implemented_classes.get(self.__class__.__name__, default_paint)()
 
     def draw_solution_path(self):
+        """ """
         # not implemented
         return
 
     def terminates_hook(self):
+        """ """
         if self.__class__.__name__ == "PRMPlanner":
             self.build_graph()
             # draw all edges
@@ -722,11 +916,18 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
 
 
 class KlamptEnvVisualiser(BaseEnvVisualiser):
+    """ """
+
     def __init__(self, **kwargs):
         self.drawn_label = set()
         self.kwargs = kwargs
 
     def visualiser_init(self, no_display=False):
+        """
+
+        :param no_display:  (Default value = False)
+
+        """
         if not no_display:
             from klampt import vis
 
@@ -734,7 +935,15 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             vis.show()
         return
 
-    def set_start_goal_points(self, start, goal):
+    def set_start_goal_points(
+        self, start: Optional[np.ndarray] = None, goal: Optional[np.ndarray] = None
+    ):
+        """
+
+        :param start: 
+        :param goal: 
+
+        """
         if start:
             start = self.cc.translate_to_klampt(start)
         if goal:
@@ -742,6 +951,12 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         from klampt.io import resource
 
         def user_set_config(q, type_str="<..>"):
+            """
+
+            :param q: 
+            :param type_str:  (Default value = "<..>")
+
+            """
             save = None
             # it's worthwhile to make sure that it's feasible
             while q is None or not self.cc.space.feasible(q):
@@ -759,6 +974,16 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         return tuple(map(self.cc.translate_from_klampt, (start, goal)))
 
     def draw_node(self, pos, colour=(1, 0, 0, 1), size=15, label=None):
+        """
+
+        :param pos: 
+        :param colour:  (Default value = (1)
+        :param 0: 
+        :param 1): 
+        :param size:  (Default value = 15)
+        :param label:  (Default value = None)
+
+        """
         from klampt import vis
         from klampt.model.coordinates import Point
 
@@ -770,6 +995,13 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         vis.hideLabel(label)
 
     def draw_path(self, pos1, pos2, colour=None):
+        """
+
+        :param pos1: 
+        :param pos2: 
+        :param colour:  (Default value = None)
+
+        """
         from klampt import vis
         from klampt.model.trajectory import Trajectory
 
@@ -784,10 +1016,23 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             # self.drawn_label.add(label)
 
     def draw_circle(self, pos, colour, radius, layer):
+        """
+
+        :param pos: 
+        :param colour: 
+        :param radius: 
+        :param layer: 
+
+        """
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
         pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
 
     def update_screen(self, update_all=False):
+        """
+
+        :param update_all:  (Default value = False)
+
+        """
         if "refresh_cnt" not in self.__dict__:
             # INIT (this section will only run when this function is first called)
             self.refresh_cnt = 0
@@ -800,6 +1045,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
         ###################################################################################
         def draw_start_goal_pt():
+            """ """
             if self.start_pt is not None:
                 self.draw_circle(
                     pos=self.start_pt.pos,
@@ -846,10 +1092,12 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
 
 class KlamptSamplerVisualiser(BaseSamplerVisualiser):
+    """ """
+
     def __init__(
-            self,
-            sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
-            **kwargs,
+        self,
+        sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.sampler_data_pack = sampler_data_pack
@@ -865,12 +1113,19 @@ class KlamptSamplerVisualiser(BaseSamplerVisualiser):
         #     self.paint_func = nothing_to_paint
 
     def init(self, **kwargs):
+        """
+
+        :param \**kwargs:
+
+        """
         super().init(**kwargs)
 
     def paint(self):
+        """ """
         self.paint_func(self)
 
     def terminates_hook(self):
+        """ """
         pass
         # if self.sampler_data_pack is not None:
         #     if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
@@ -878,9 +1133,7 @@ class KlamptSamplerVisualiser(BaseSamplerVisualiser):
 
 
 class VisualiserSwitcher:
-    """
-    Default to Pygame visualiser
-    """
+    """Default to Pygame visualiser"""
 
     env_clname = PygameEnvVisualiser
     planner_clname = PygamePlannerVisualiser
@@ -888,6 +1141,11 @@ class VisualiserSwitcher:
 
     @staticmethod
     def choose_visualiser(visualiser_type: str):
+        """
+
+        :param visualiser_type: str: 
+
+        """
         if visualiser_type == "base":
             VisualiserSwitcher.env_clname = BaseEnvVisualiser
             VisualiserSwitcher.planner_clname = BasePlannerVisualiser

@@ -1,22 +1,36 @@
 """Represent a planner."""
-import numpy as np
 import operator
+from typing import List, Optional
+
+import numpy as np
 from rtree import index
 
 from planners.basePlanner import Planner
 from utils import planner_registry
-from utils.helpers import MagicDict, Node
+from utils.helpers import Node
 
 
 class Tree:
-    def __init__(self, dimension):
+    """
+    A tree representation that stores nodes and edges.
+    """
+
+    def __init__(self, dimension: int):
+        """
+        :param dimension: A positive integer that represents :math:`d`,
+            the dimensionality of the C-space.
+        """
         p = index.Property()
         p.dimension = dimension
         self.V = index.Index(interleaved=True, properties=p)
-        # self.V_raw = []
         self.E = {}  # edges in form E[child] = parent
 
-    def add_vertex(self, v, pos):
+    def add_vertex(self, v: Node, pos: np.ndarray) -> None:
+        """Add a new vertex to this tree
+
+        :param v: Node to be added
+        :param pos: The configuration :math:`q` that corresponds to the node ``v``
+        """
         if len(pos) == 2:
             # print(v)
             # print(pos)
@@ -26,13 +40,31 @@ class Tree:
             self.V.insert(0, np.tile(pos, 2), v)
         # self.V_raw.append(v)
 
-    def add_edge(self, child, parent):
+    def add_edge(self, child: Node, parent: Node) -> None:
+        """Add a new edge to this tree
+
+        :param child: The child node of the edge
+        :param parent: The parent node of the edge
+
+        """
         self.E[child] = parent
 
-    def nearby(self, x, n):
+    def nearby(self, x: np.ndarray, n: int) -> List[Node]:
+        """Find ``n`` many nearby nodes that are closest to a given position
+
+        :param x: Position
+        :param n: Max number of results
+
+        """
         return self.V.nearest(np.tile(x, 2), num_results=n, objects="raw")
 
-    def get_nearest(self, x):
+    def get_nearest(self, x: np.ndarray) -> Node:
+        """Get the closest node
+
+        :param x: Position
+
+        :return: the closest node
+        """
         return next(self.nearby(x, 1))
 
     # def connect_to_point(self, tree, x_a, x_b):
@@ -65,7 +97,7 @@ class Tree:
 
 
 class RRTPlanner(Planner):
-    """This planner is largely a RRT planner, though with extra features."""
+    """The Rapidly-exploring random tree."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -100,12 +132,22 @@ class RRTPlanner(Planner):
             self.rewire = no_opt_rewire
 
     def init(self, *argv, **kwargs):
+        """The delayed **initialisation** function
+
+        :param start_pt: the start configuration
+        :param goal_pt: the goal configuration
+        """
         # self.args.env = kwargs['RRT']
         self.args.sampler.init(*argv, **kwargs)
         self.start_pt = kwargs["start_pt"]
         self.goal_pt = kwargs["goal_pt"]
 
     def run_once(self):
+        """Execute the main planning procedure once (mostly of the time this
+        corresponds to adding one new node to the tree)
+
+        This where the main bulk of actions happens, e.g., creating nodes or edges.
+        """
         # Get an sample that is free (not in blocked space)
         rand_pos, report_success, report_fail = self.args[
             "sampler"
@@ -147,7 +189,12 @@ class RRTPlanner(Planner):
                         # newnode.children.append(self.goal_pt.parent)
                         self.draw_solution_path()
 
-    def add_newnode(self, node):
+    def add_newnode(self, node: Node):
+        """Add a new node to the tree
+
+        :param node: node to be added
+
+        """
         # self.tree.add_vertex(node, pos=node.pos)
 
         self.poses[len(self.nodes)] = node.pos
@@ -155,15 +202,26 @@ class RRTPlanner(Planner):
 
     def choose_least_cost_parent(
         self,
-        newnode,
-        nn=None,
-        nodes=None,
-        skip_optimality=False,
-        use_rtree=True,
-        poses=None,
-    ):
+        newnode: Node,
+        nn: Node = None,
+        nodes: List[Node] = None,
+        skip_optimality: bool = False,
+        use_rtree: bool = True,
+        poses: List[np.ndarray] = None,
+    ) -> Node:
         """Given a new node, a node from root, return a node from root that
-        has the least cost (toward the newly added node)"""
+        has the least cost (toward the newly added node)
+
+        :param newnode: the newly created node that we want to search for a new parent
+        :param nn: the current closest node, optional.
+        :param nodes: the list of node to search against
+        :param skip_optimality: skip searching for optimality (i.e. non-asymptomatic)
+        :param use_rtree: whether use rtree to store tree or not
+        :param poses: the list of configurations that should have the same length as
+            ``nodes``
+
+        :return: the node with the lowest cost
+        """
         skip_optimality = False
         use_rtree = False
         # if nn is not None:
@@ -239,7 +297,16 @@ class RRTPlanner(Planner):
         use_rtree=True,
         poses=None,
     ):
-        """Reconsider parents of nodes that had change, so that the optimiality would change instantly"""
+        """Reconsider parents of nodes that had change, so that the optimiality would change instantly
+
+        :param newnode: 
+        :param nodes: 
+        :param already_rewired:  (Default value = None)
+        :param skip_optimality:  (Default value = False)
+        :param use_rtree:  (Default value = True)
+        :param poses:  (Default value = None)
+
+        """
         skip_optimality = False
         use_rtree = False
         # skip_optimality = True
@@ -313,6 +380,12 @@ class RRTPlanner(Planner):
 
     @staticmethod
     def find_nearest_neighbour_idx(pos, poses):
+        """
+
+        :param pos: 
+        :param poses: 
+
+        """
         # Make use of numpy fast parallel operation to find
         # all distance with one operation.
         distances = np.linalg.norm(poses - pos, axis=1)
@@ -324,6 +397,11 @@ class RRTPlanner(Planner):
 
 
 def pygame_rrt_paint(planner):
+    """
+
+    :param planner: 
+
+    """
     from utils.helpers import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
