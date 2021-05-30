@@ -9,31 +9,33 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class NearbyPolicySampler(likelihoodPolicySampler.LikelihoodPolicySampler):
-    """ """
+    __doc__ = r"""This sampler uses the same mechanism as
+    :class:`samplers.likelihoodPolicySampler.LikelihoodPolicySampler` to update 
+    probability :math:`p`. However, this sampler prioritise configurations that are 
+    closer to existing tree nodes (i.e. the tree structure).
+
+    """ + r"""
+    .. note::
+        {only_work_with_2d_image}
+
+    .. note::
+        {currently_expr_for_research}
+
+    """.format(
+        **likelihoodPolicySampler.experimental_sampler_note
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def init(self, **kwargs):
-        """
-
-        :param **kwargs: 
-
-        """
         super().init(**kwargs)
         self.prob_vector = np.zeros(self.shape)
         # self.prob_vector *= 2 # IMPORTANT because we are using log2
 
     @overrides
     def _report_fail_impl(self, x, y, **kwargs):
-        """
-
-        :param x: 
-        :param y: 
-        :param **kwargs: 
-
-        """
         if "obstacle" in kwargs:
             self.obst_vector[x][y] += 2
         elif not kwargs["free"]:
@@ -89,6 +91,7 @@ class NearbyPolicySampler(likelihoodPolicySampler.LikelihoodPolicySampler):
             self.sampleCount += 1
 
 
+# start register
 sampler_id = "nearby_sampler"
 
 planner_registry.register_sampler(
@@ -97,3 +100,4 @@ planner_registry.register_sampler(
     visualise_pygame_paint=likelihoodPolicySampler.pygame_likelihood_sampler_paint,
     visualise_pygame_paint_init=likelihoodPolicySampler.pygame_likelihood_sampler_paint_init,
 )
+# finish register

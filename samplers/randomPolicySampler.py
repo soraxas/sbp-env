@@ -9,16 +9,31 @@ from utils import planner_registry
 
 
 class RandomPolicySampler(Sampler):
-    """Uniformly and randomly samples configurations across :math:`d` where :math:`d` is
-    the dimensionality of the C-space.
+    r"""Uniformly and randomly samples configurations across :math:`d` where
+    :math:`d` is
+    the dimensionality of the *C-Space*.
+    :class:`~samplers.randomPolicySampler.RandomPolicySampler` samples configuration
+    :math:`q \in \mathbb{R}^d` across each dimension uniformly with an
+    :math:`0 \le \epsilon < 1` bias towds the goal configuration.
+
+    A random number :math:`p \sim \mathcal{U}(0,1)` is first drawn, then the
+    configuration :math:`q_\text{new}` that this function returns is given by
+
+    .. math::
+        q_\text{new} =
+        \begin{cases}
+            q \sim \mathcal{U}(0,1)^d & \text{if } p < \epsilon\\
+            q_\text{target}  & \text{otherwise.}
+        \end{cases}
+
+    :py:const:`CONSTANT`
     """
 
     @overrides
-    def __init__(self, random_method="pseudo_random", **kwargs):
+    def __init__(self, random_method: str = "pseudo_random", **kwargs):
         """
         :param random_method: the kind of random method to use. Must be a choice from
-            [pseudo_random, sobol_sequence, saltelli, latin_hypercube,
-            finite_differences, fast].
+            :data:`randomness.SUPPORTED_RANDOM_METHODS`.
         :param kwargs: pass through to super class
         """
         super().__init__(**kwargs)
@@ -36,14 +51,13 @@ class RandomPolicySampler(Sampler):
         self.random = None
 
     @overrides
-    def init(self, *args, **kwargs):
-        """
+    def init(self, **kwargs):
+        """The delayed **initialisation** method
 
-        :param *args: 
-        :param **kwargs: 
+        :param num_dim: the number of dimensions
 
         """
-        super().init(*args, **kwargs)
+        super().init(**kwargs)
         self.random = RandomnessManager(num_dim=kwargs["num_dim"])
 
         self.use_original_method = False
@@ -76,8 +90,7 @@ class RandomPolicySampler(Sampler):
             self.use_original_method = True
 
     @overrides
-    def get_next_pos(self):
-        """ """
+    def get_next_pos(self) -> Sampler.GetNextPosReturnType:
         # Random path
         if random.random() < self.args.goalBias:
             # goal bias
@@ -92,8 +105,10 @@ class RandomPolicySampler(Sampler):
         return p, self.report_success, self.report_fail
 
 
+# start register
 sampler_id = "random"
 
 planner_registry.register_sampler(
     sampler_id, sampler_class=RandomPolicySampler, visualise_pygame_paint=None,
 )
+# finish register

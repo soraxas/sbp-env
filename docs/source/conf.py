@@ -37,11 +37,33 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    # "sphinx.ext.mathjax",
+    "sphinxcontrib.katex",
+    "sphinx_autodoc_typehints",  # better typehint and simplify fully quantified class
+    "sphinx_autodoc_defaultargs",
 ]
 autoclass_content = "both"  # use both class and __init__ docstring for docs.
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary
 autodoc_typehints = "description"  # signature or description
 todo_include_todos = True
+# always_document_param_types = True  # sphinx-autodoc-typehints
+
+intersphinx_mapping = {
+    "python": ("http://docs.python.org/3", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+}
+
+# for sphinx_autodoc_defaultargs (https://pypi.org/project/sphinx-autodoc-defaultargs/)
+rst_prolog = (
+    """
+.. |default| raw:: html
+
+    <div class="default-value-section">"""
+    + ' <span class="default-value-label">Default:</span>'
+)
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

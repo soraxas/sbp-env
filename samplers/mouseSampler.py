@@ -11,14 +11,22 @@ For demo / testing only. This policy wait for user mouse input for next sampling
 
 
 class MouseSampler(Sampler):
-    """ """
+    """A sampler that hooks into *PyGame*'s functionality to create sampled
+    configurations with a mouse/touchpad, for **testing** if the motion planner is
+    functioning correctly in creating tree edges or if certain bottlenecks within a
+    map is accessibly.
+
+    .. warning::
+        This sampler is for **testing purpose** only, and hence will not be
+        extended for :math:`d > 2` or for collision checker other than *PyGame*.
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def get_next_pos(self):
-        """ """
         return (
             self.get_mouse_click_position(scaling=self.args.scaling),
             self.report_success,
@@ -27,9 +35,9 @@ class MouseSampler(Sampler):
 
     @staticmethod
     def get_mouse_click_position(scaling):
-        """
+        """Helper function to return the current position of the mouse pointer
 
-        :param scaling: 
+        :param scaling: scaling factor ot be applied to the mouse position
 
         """
         import pygame
@@ -43,8 +51,10 @@ class MouseSampler(Sampler):
                 return pos
 
 
+# start register
 sampler_id = "mouse"
 
 planner_registry.register_sampler(
     sampler_id, sampler_class=MouseSampler,
 )
+# finish register

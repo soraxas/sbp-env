@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import logging
 import math
+import random
+from typing import Optional, Tuple, List
+
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 from overrides import overrides
 from tqdm import tqdm
 
@@ -11,7 +15,7 @@ from randomness import NormalRandomnessManager
 from samplers.baseSampler import Sampler
 from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
-from utils.helpers import BFS
+from utils.common import BFS
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +34,7 @@ RANDOM_RESTART_PARTICLES_ENERGY_UNDER = 0.1  # .75
 
 
 class DisjointTreeParticle:
-    """ """
+    """RRdT's sampler particle"""
 
     def __init__(
         self,
@@ -153,7 +157,7 @@ class DisjointTreeParticle:
 
 
 class DynamicDisjointTreeParticle(DisjointTreeParticle):
-    """ """
+    """Bayesian RRdT's sampler particle"""
 
     def __init__(self, proposal_type, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -394,7 +398,7 @@ class DynamicDisjointTreeParticle(DisjointTreeParticle):
 
 
 class RRdTSampler(Sampler):
-    """ """
+    """Represents RRdT's sampler"""
 
     def __init__(self, restart_when_merge=True, **kwargs):
         super().__init__(**kwargs)
@@ -406,11 +410,6 @@ class RRdTSampler(Sampler):
         self.last_failed = True
 
     def init(self, **kwargs):
-        """
-
-        :param **kwargs: 
-
-        """
         super().init(**kwargs)
         # For benchmark stats tracking
         self.args.env.stats.lscampler_restart_counter = 0
@@ -477,7 +476,7 @@ class RRdTSampler(Sampler):
         self.p_manager.particles.append(root_particle)
 
     def particles_random_free_space_restart(self):
-        """ """
+        r"""Randomly restarts particle in :math:`C_\text{free}`"""
         for i in range(self.p_manager.num_dtrees):
             if self.p_manager.dtrees_energy[i] < RANDOM_RESTART_PARTICLES_ENERGY_UNDER:
                 self.p_manager.add_to_restart(self.p_manager.particles[i])
@@ -485,10 +484,11 @@ class RRdTSampler(Sampler):
                 # print(_z.successed, _z.failed, _z.failed_reset)
 
     def report_success(self, idx, **kwargs):
-        """
+        """Report that the sample returned by particle with index ``idx`` was
+        successful
 
-        :param idx: 
-        :param **kwargs: 
+        :param idx: the index of the particle
+        :param newnode: the node that was created
 
         """
         self.p_manager.particles[idx].last_node = kwargs["newnode"]
@@ -501,10 +501,9 @@ class RRdTSampler(Sampler):
         # self.p_manager.modify_energy(idx=idx, factor=.99)
 
     def report_fail(self, idx, **kwargs):
-        """
+        """Reports that the sampled position from the particle had failed
 
-        :param idx: 
-        :param **kwargs: 
+        :param idx: the index of the particle
 
         """
         self.last_failed = True
@@ -513,7 +512,7 @@ class RRdTSampler(Sampler):
             self.p_manager.particles[idx].fail()
 
     def restart_all_pending_local_samplers(self):
-        """ """
+        """Restarts all disjointed-tree particle that are pending to be restarts"""
         # restart all pending local samplers
         while len(self.p_manager.local_samplers_to_be_rstart) > 0:
             # during the proces of restart, if the new restart position
@@ -529,7 +528,6 @@ class RRdTSampler(Sampler):
         return True
 
     def get_next_pos(self):
-        """ """
         self._c_random += 1
 
         if self._c_random > RANDOM_RESTART_EVERY > 0:
@@ -553,7 +551,10 @@ class RRdTSampler(Sampler):
         )
 
     def random_walk_by_mouse(self):
-        """FOR testing purpose. Mimic random walk, but do so via mouse click."""
+        """
+        .. warning::
+            For testing purpose. Mimic random walk, but do so via mouse click.
+        """
         from samplers.mouseSampler import MouseSampler as mouse
 
         pos = mouse.get_mouse_click_position(scaling=self.scaling)
@@ -570,9 +571,9 @@ class RRdTSampler(Sampler):
         return pos, p_idx
 
     def randomWalk(self, idx):
-        """
+        """Performs a random walk for the particle at the given index
 
-        :param idx: 
+        :param idx: the index of the particle
 
         """
         self.args.env.stats.lscampler_randomwalk_counter += 1
@@ -596,7 +597,10 @@ class RRdTSampler(Sampler):
         return new_pos
 
     def get_random_choice(self):
-        """ """
+        """Get a random particle (disjointed tree) from the currently managed particiles
+
+        :return: Node from p_manager
+        """
         if self.p_manager.num_dtrees == 1:
             return 0
 
@@ -625,7 +629,7 @@ class RRdTSampler(Sampler):
 
 
 class Node:
-    """ """
+    """Overloads the Tree-based node with extra info"""
 
     def __init__(self, pos):
         self.pos = np.array(pos)
@@ -646,16 +650,40 @@ class Node:
 
 
 class RRdTPlanner(RRTPlanner):
-    """ """
+    r"""The Rapidly-exploring Random disjointed-Trees.
+    The RRdT* planner is implemented based on Lai *et. al.*'s [#Lai]_ work.
+    The main idea is that the planner keeps a pool of disjointed trees
 
-    def __init__(self, *argv, **kwargs):
-        super().__init__(*argv, **kwargs)
+    .. math::
+        \mathbb{T}=\{\mathcal{T}_\text{root}, \mathcal{T}_1, \ldots, \mathcal{T}_k\}
+
+    where it consists of a rooted tree that connects to the :math:`q_\text{start}`
+    starting configuration, and :math:`k` many disjointed trees that randomly explores
+    *C-Space*.
+    Each disjointed tree is modelled as an arm in the Multi-Armed Bandit problem,
+    i.e. each :math:`\mathcal{T}_i` has an arm :math:`a_i`, where the probability to
+    draw each arm is dependent on its previous success as given by
+
+    .. math::
+        \mathbb{P}(a_{i,t} \mid a_{i,t-1}, o_{t-1})\,\forall_{i\in\{1,...,k\}}
+
+    with :math:`o_{t-1}` as the arm :math:`a_i`'s previous observation.
+
+
+    .. [#Lai] Lai, Tin, Fabio Ramos, and Gilad Francis. "Balancing global
+        exploration and local-connectivity exploitation with rapidly-exploring random
+        disjointed-trees." 2019 International Conference on Robotics and Automation (
+        ICRA). IEEE, 2019.
+
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.root = None
         self.disjointedTrees = []
 
     @overrides
     def run_once(self):
-        """ """
         # Get an sample that is free (not in blocked space)
         # _tmp = self.args.sampler.get_valid_next_pos()
         # print(self.args.goal_radius)
@@ -720,18 +748,18 @@ class RRdTPlanner(RRTPlanner):
             #     vis.hideLabel(unique_label)
 
             self.args.env.stats.add_free()
-            self.args.sampler.add_tree_node(newnode.pos)
+            self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(newnode=newnode, pos=newnode.pos)
             ######################
             newnode, nn = self.connect_two_nodes(newnode, nn, parent_tree)
             # try to add this newnode to existing trees
             self.add_pos_to_existing_tree(newnode, parent_tree)
 
-    def rrt_star_add_node(self, newnode, nn=None):
+    def rrt_star_add_node(self, newnode: Node, nn: Optional[Node] = None):
         """This function perform finding optimal parent, and rewiring.
 
-        :param newnode: 
-        :param nn:  (Default value = None)
+        :param newnode: the node to add to the tree
+        :param nn: an approximate of nearest node
 
         """
 
@@ -754,12 +782,14 @@ class RRdTPlanner(RRTPlanner):
     ##################################################
     ## Tree management:
     ##################################################
-    def connect_two_nodes(self, newnode, nn, parent_tree=None):
+    def connect_two_nodes(
+        self, newnode: Node, nn: Node, parent_tree: Optional[TreeDisjoint] = None
+    ):
         """Add node to disjoint tree OR root tree.
 
-        :param newnode: 
-        :param nn: 
-        :param parent_tree:  (Default value = None)
+        :param newnode: the new node to connects
+        :param nn: a node from the existing tree to be connected
+        :param parent_tree: if given, add newnode to this tree
 
         """
 
@@ -784,11 +814,13 @@ class RRdTPlanner(RRTPlanner):
             parent_tree.add_newnode(newnode)
         return newnode, nn
 
-    def add_pos_to_existing_tree(self, newnode, parent_tree):
+    def add_pos_to_existing_tree(
+        self, newnode: Node, parent_tree: TreeDisjoint
+    ) -> bool:
         """Try to add pos to existing tree. If success, return True.
 
-        :param newnode: 
-        :param parent_tree: 
+        :param newnode: the node to be added
+        :param parent_tree: the tree to add the node
 
         """
         r = self.args.epsilon
@@ -830,18 +862,25 @@ class RRdTPlanner(RRTPlanner):
                 break
         return parent_tree
 
-    def find_nearest_node_from_neighbour(self, node, parent_tree, radius):
+    def find_nearest_node_from_neighbour(
+        self, node: Node, parent_tree: TreeDisjoint, radius: float
+    ) -> List[Tuple[Node, TreeDisjoint]]:
         """Given a tree, a node within that tree, and radius
         Return a list of cloest nodes (and its corresponding tree) within the radius (that's from other neighbourhood trees)
 
-        :param node: 
-        :param parent_tree: 
-        :param radius: 
-        :returns: IF root exists in the list, add it at the last position (So the connection behaviour would remain stable)
-            This ensure all previous action would only add add edges to each nodes, and only the last action would it
-            modifies the entire tree structures wtih rrt* procedures.
+        :param node: the node to be added
+        :param parent_tree: the tree to add the given node
+        :param radius: the maximum radius to add the given node
+
+        :returns: a list of potential nodes
 
         """
+
+        # IF root exists in the list, add it at the last position (So the connection
+        # behaviour would remain stable)
+        # This ensure all previous action would only add add edges to each nodes,
+        # and only the last action would it modifies the entire tree structures with
+        # rrt* procedures.
         nearest_nodes = {}
         for tree in [*self.disjointedTrees, self.root]:
             if tree is parent_tree:
@@ -860,12 +899,15 @@ class RRdTPlanner(RRTPlanner):
             nearest_nodes_list.append((root_nn, self.root))
         return nearest_nodes_list
 
-    def join_tree_to_root(self, tree, middle_node, root_tree_node):
+    def join_tree_to_root(
+        self, tree: TreeDisjoint, middle_node: Node, root_tree_node: Node
+    ):
         """It will join the given tree to the root
 
-        :param tree: 
-        :param middle_node: 
-        :param root_tree_node: 
+        :param tree: the disjointed tree to be added to root tree
+        :param middle_node: the middle node that connects the disjointed tree and the
+            root tree
+        :param root_tree_node: a node from the root tree
 
         """
         # from env import Colour
@@ -907,18 +949,24 @@ class RRdTPlanner(RRTPlanner):
         # assert progress == total_num, "Inconsistency in BFS walk {} != {}".format(
         #     progress, total_num)
 
-    def join_trees(self, tree1, tree2, tree1_node, tree2_node):
+    def join_trees(
+        self,
+        tree1: TreeDisjoint,
+        tree2: TreeDisjoint,
+        tree1_node: Node,
+        tree2_node: Node,
+    ):
         """Join the two given tree together (along with their nodes).
         It will delete the particle reference from the second tree.
         It will use RRT* method to add all nodes if one of the tree is the ROOT.
         
-        tree1_node & 2 represent the nodes that join the two tree together. It only matters currently to
-        joining root tree to disjointed treeself.
+        tree1_node & 2 represent the nodes that join the two tree together.
+        It only matters currently to joining root tree to disjointed tree itself.
 
-        :param tree1: 
-        :param tree2: 
-        :param tree1_node: 
-        :param tree2_node: 
+        :param tree1: disjointed tree 1 :math:`\mathcal{T}_1`
+        :param tree2: disjointed tree 2 :math:`\mathcal{T}_2`
+        :param tree1_node: a node from tree 1 :math:`v_1 \in \mathcal{T}_1`
+        :param tree2_node: a node from tree 2 :math:`v_2 \in \mathcal{T}_2`
 
         """
         assert tree1 is not tree2, "Both given tree should not be the same"
@@ -1212,7 +1260,7 @@ def pygame_rrdt_planner_paint(planner):
     :param planner: 
 
     """
-    from utils.helpers import Colour
+    from utils.common import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     from planners.rrdtPlanner import BFS
@@ -1238,8 +1286,11 @@ def pygame_rrdt_planner_paint(planner):
     planner.draw_solution_path()
 
 
+# start register
+sampler_id = "rrdt_sampler"
+
 planner_registry.register_sampler(
-    "rrdt_sampler",
+    sampler_id,
     sampler_class=RRdTSampler,
     visualise_pygame_paint=pygame_rrdt_sampler_paint,
     visualise_pygame_paint_init=pygame_rrdt_sampler_paint_init,
@@ -1249,5 +1300,6 @@ planner_registry.register_planner(
     "rrdt",
     planner_class=RRdTPlanner,
     visualise_pygame_paint=pygame_rrdt_planner_paint,
-    sampler_id="rrdt_sampler",
+    sampler_id=sampler_id,
 )
+# finish register

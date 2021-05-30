@@ -1,105 +1,30 @@
 """Represent a planner."""
 import operator
-from typing import List, Optional
+from typing import List
 
 import numpy as np
-from rtree import index
 
 from planners.basePlanner import Planner
 from utils import planner_registry
-from utils.helpers import Node
-
-
-class Tree:
-    """
-    A tree representation that stores nodes and edges.
-    """
-
-    def __init__(self, dimension: int):
-        """
-        :param dimension: A positive integer that represents :math:`d`,
-            the dimensionality of the C-space.
-        """
-        p = index.Property()
-        p.dimension = dimension
-        self.V = index.Index(interleaved=True, properties=p)
-        self.E = {}  # edges in form E[child] = parent
-
-    def add_vertex(self, v: Node, pos: np.ndarray) -> None:
-        """Add a new vertex to this tree
-
-        :param v: Node to be added
-        :param pos: The configuration :math:`q` that corresponds to the node ``v``
-        """
-        if len(pos) == 2:
-            # print(v)
-            # print(pos)
-            # print(np.tile(pos, 2))
-            self.V.insert(0, tuple(pos), v)
-        else:
-            self.V.insert(0, np.tile(pos, 2), v)
-        # self.V_raw.append(v)
-
-    def add_edge(self, child: Node, parent: Node) -> None:
-        """Add a new edge to this tree
-
-        :param child: The child node of the edge
-        :param parent: The parent node of the edge
-
-        """
-        self.E[child] = parent
-
-    def nearby(self, x: np.ndarray, n: int) -> List[Node]:
-        """Find ``n`` many nearby nodes that are closest to a given position
-
-        :param x: Position
-        :param n: Max number of results
-
-        """
-        return self.V.nearest(np.tile(x, 2), num_results=n, objects="raw")
-
-    def get_nearest(self, x: np.ndarray) -> Node:
-        """Get the closest node
-
-        :param x: Position
-
-        :return: the closest node
-        """
-        return next(self.nearby(x, 1))
-
-    # def connect_to_point(self, tree, x_a, x_b):
-    #     """
-    #     Connect vertex x_a in tree to vertex x_b
-    #     :param tree: int, tree to which to add edge
-    #     :param x_a: tuple, vertex
-    #     :param x_b: tuple, vertex
-    #     :return: bool, True if able to add edge, False if prohibited by an obstacle
-    #     """
-    #     if self.V.count(x_b) == 0 and self.X.collision_free(x_a, x_b, self.r):
-    #         self.add_vertex(tree, x_b)
-    #         self.add_edge(tree, x_b, x_a)
-    #         return True
-    #     return False
-
-    # def can_connect_to_goal(self, tree):
-    #     """
-    #     Check if the goal can be connected to the graph
-    #     :param tree: rtree of all Vertices
-    #     :return: True if can be added, False otherwise
-    #     """
-    #     x_nearest = self.get_nearest(tree, self.x_goal)
-    #     if self.x_goal in self.E and x_nearest in self.E[self.x_goal]:
-    #         # tree is already connected to goal using nearest vertex
-    #         return True
-    #     if self.X.collision_free(x_nearest, self.x_goal, self.r):  # check if obstacle-free
-    #         return True
-    #     return False
+from utils.common import Node, Tree
 
 
 class RRTPlanner(Planner):
-    """The Rapidly-exploring random tree."""
+    r"""The Rapidly-exploring random tree.
+
+    Rapidly-exploring Random Tree* (RRT*) is an anytime, asymptotic optimal sampling-based
+    motion planner that continuously updates its solution within the given budget.
+    The planner itself is implemented in :class:`~planners.rrtPlanner.RRTPlanner`, while
+    the default sampling
+    policy is implemented in :class:`~samplers.randomPolicySampler.RandomPolicySampler`.
+    """
 
     def __init__(self, **kwargs):
+        """
+        :param num_dim: the number of dimensionality :math:`d`
+
+        :type num_dim: int
+        """
         super().__init__(**kwargs)
         self.poses = np.empty(
             (self.args.max_number_nodes * 2 + 50, kwargs["num_dim"])
@@ -131,14 +56,17 @@ class RRTPlanner(Planner):
             self.choose_least_cost_parent = no_opt_choose_least_cost_parent
             self.rewire = no_opt_rewire
 
-    def init(self, *argv, **kwargs):
+    def init(self, **kwargs):
         """The delayed **initialisation** function
 
         :param start_pt: the start configuration
         :param goal_pt: the goal configuration
+
+        :type start_pt: numpy.ndarray
+        :type goal_pt: numpy.ndarray
         """
         # self.args.env = kwargs['RRT']
-        self.args.sampler.init(*argv, **kwargs)
+        self.args.sampler.init(**kwargs)
         self.start_pt = kwargs["start_pt"]
         self.goal_pt = kwargs["goal_pt"]
 
@@ -164,7 +92,7 @@ class RRTPlanner(Planner):
         else:
             newnode = Node(newpos)
             self.args.env.stats.add_free()
-            self.args.sampler.add_tree_node(newnode.pos)
+            self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
@@ -209,7 +137,8 @@ class RRTPlanner(Planner):
         use_rtree: bool = True,
         poses: List[np.ndarray] = None,
     ) -> Node:
-        """Given a new node, a node from root, return a node from root that
+        """
+        Given a new node, a node from root, return a node from root that
         has the least cost (toward the newly added node)
 
         :param newnode: the newly created node that we want to search for a new parent
@@ -217,8 +146,7 @@ class RRTPlanner(Planner):
         :param nodes: the list of node to search against
         :param skip_optimality: skip searching for optimality (i.e. non-asymptomatic)
         :param use_rtree: whether use rtree to store tree or not
-        :param poses: the list of configurations that should have the same length as
-            ``nodes``
+        :param poses: list of configurations, with the same length as ``nodes``
 
         :return: the node with the lowest cost
         """
@@ -290,21 +218,21 @@ class RRTPlanner(Planner):
 
     def rewire(
         self,
-        newnode,
-        nodes,
-        already_rewired=None,
-        skip_optimality=False,
-        use_rtree=True,
-        poses=None,
+        newnode: Node,
+        nodes: List[Node],
+        already_rewired: bool = None,
+        skip_optimality: bool = False,
+        use_rtree: bool = True,
+        poses: np.ndarray = None,
     ):
-        """Reconsider parents of nodes that had change, so that the optimiality would change instantly
+        """Rewire the given new node
 
-        :param newnode: 
-        :param nodes: 
-        :param already_rewired:  (Default value = None)
-        :param skip_optimality:  (Default value = False)
-        :param use_rtree:  (Default value = True)
-        :param poses:  (Default value = None)
+        :param newnode: the newly created node that we want to rewires
+        :param nodes: the list of node to search against
+        :param already_rewired: if the node had already been rewired previously
+        :param skip_optimality: skip optimality to speed up (reduce to RRT as opposed to RRT*)
+        :param use_rtree: if we should use rtree as opposed to native numpy operations
+        :param poses: an array of positions
 
         """
         skip_optimality = False
@@ -379,11 +307,11 @@ class RRTPlanner(Planner):
                 # self.rewire(n, reconsider, already_rewired=already_rewired)
 
     @staticmethod
-    def find_nearest_neighbour_idx(pos, poses):
-        """
+    def find_nearest_neighbour_idx(pos: np.ndarray, poses: np.ndarray):
+        """Find the nearest neighbour from the list of nodes
 
-        :param pos: 
-        :param poses: 
+        :param pos: the position to search against the array of positions
+        :param poses: the array of positions
 
         """
         # Make use of numpy fast parallel operation to find
@@ -396,13 +324,13 @@ class RRTPlanner(Planner):
 # Methods for visualisation
 
 
-def pygame_rrt_paint(planner):
-    """
+def pygame_rrt_paint(planner: Planner) -> None:
+    """Visualiser paint function for RRT
 
-    :param planner: 
+    :param planner: the planner to be visualised
 
     """
-    from utils.helpers import Colour
+    from utils.common import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     drawn_nodes_pairs = set()
@@ -416,9 +344,11 @@ def pygame_rrt_paint(planner):
         planner.draw_solution_path()
 
 
+# start register
 planner_registry.register_planner(
     "rrt",
     planner_class=RRTPlanner,
     visualise_pygame_paint=pygame_rrt_paint,
     sampler_id="random",
 )
+# finish register

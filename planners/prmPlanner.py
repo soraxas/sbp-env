@@ -1,10 +1,12 @@
+from typing import List
+
 import networkx as nx
 import numpy as np
 from overrides import overrides
 
 from env import Node
 from planners.rrtPlanner import RRTPlanner
-from samplers.prmSampler import PRMSampler
+from samplers import prmSampler
 from utils import planner_registry
 
 volume_of_unit_ball = {
@@ -21,13 +23,15 @@ volume_of_unit_ball = {
 }
 
 
-def nearest_neighbours(nodes, poses, pos, radius):
-    """
+def nearest_neighbours(
+    nodes: List[Node], poses: np.ndarray, pos: np.ndarray, radius: float
+):
+    """A helper function to find the nearest neighbours from a roadmap
 
-    :param nodes: 
-    :param poses: 
-    :param pos: 
-    :param radius: 
+    :param nodes: the list of nodes to search against
+    :param poses: array of positions
+    :param pos: the position of interest
+    :param radius: the maximum radius of distance
 
     """
     distances = np.linalg.norm(poses[: len(nodes)] - pos, axis=1)
@@ -39,16 +43,12 @@ def nearest_neighbours(nodes, poses, pos, radius):
 
 
 class PRMPlanner(RRTPlanner):
-    """ """
+    """
+    Probabilistic Roadmap motion planner, the multi-query sampling-based planner.
+    """
 
     @overrides
     def init(self, *argv, **kwargs):
-        """
-
-        :param *argv: 
-        :param **kwargs: 
-
-        """
         super().init(*argv, **kwargs)
         self.args.env.stats.invalid_samples_connections = "-- "
 
@@ -68,29 +68,22 @@ class PRMPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
-        """ """
         rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
         self.args.env.stats.add_free()
         self.add_newnode(Node(rand_pos))
 
-    def get_free_area(self):
-        """ """
-        area = 0
-        for i in range(self.args.env.dim[0]):
-            for j in range(self.args.env.dim[1]):
-                color = self.args.env.img.get_at((i, j))
-                if color != (255, 255, 255) and color != (255, 255, 255, 255):
-                    area += 1
-        return area
-
     def clear_graph(self):
-        """ """
+        """Clear the current roadmap graph"""
         self.graph = nx.DiGraph()
         self.graph.add_node(self.args.env.start_pt)
         self.args.env.end_state = None
 
     def build_graph(self):
-        """ """
+        """Performs the graph building process where
+
+        .. math::
+            G = (V, E).
+        """
         for v in self.nodes:
 
             n = len(self.nodes)
@@ -109,11 +102,12 @@ class PRMPlanner(RRTPlanner):
                     [(m_g, v, self.args.env.dist(m_g.pos, v.pos))]
                 )
 
-    def get_nearest_free(self, node, neighbours):
-        """
+    def get_nearest_free(self, node: Node, neighbours: List[Node]):
+        """Internal method to get the closest existing node that is free to connects
+        to the given node.
 
-        :param node: 
-        :param neighbours: 
+        :param node: the node of interest
+        :param neighbours: the list of nodes to search against
 
         """
         nn = None
@@ -134,7 +128,7 @@ class PRMPlanner(RRTPlanner):
         return nn
 
     def get_solution(self):
-        """ """
+        """Build the solution path"""
         # get two nodes that is cloest to start/goal and are free routes
         m_near = nearest_neighbours(
             self.nodes, self.poses, self.args.sampler.start_pos, self.args.epsilon
@@ -163,9 +157,9 @@ class PRMPlanner(RRTPlanner):
 
 
 def pygame_prm_planner_paint(planner):
-    """
+    """Visualisation function to paint for planner
 
-    :param planner: 
+    :param planner: the planner to visualise
 
     """
     for n in planner.nodes:
@@ -178,12 +172,12 @@ def pygame_prm_planner_paint(planner):
 
 
 def pygame_prm_planner_paint_when_terminate(planner):
-    """
+    """Visualisation function to paint for planner when termiante
 
-    :param planner: 
+    :param planner: the planner to visualise
 
     """
-    from utils.helpers import Colour
+    from utils.common import Colour
 
     planner.build_graph()
     # draw all edges
@@ -195,10 +189,12 @@ def pygame_prm_planner_paint_when_terminate(planner):
     input("\nPress Enter to quit...")
 
 
+# start register
 planner_registry.register_planner(
     "prm",
     planner_class=PRMPlanner,
     visualise_pygame_paint=pygame_prm_planner_paint,
     visualise_pygame_paint_terminate=pygame_prm_planner_paint_when_terminate,
-    sampler_id="prm_sampler",
+    sampler_id=prmSampler.sampler_id,
 )
+# finish register

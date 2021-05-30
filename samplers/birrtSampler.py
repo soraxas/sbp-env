@@ -1,7 +1,5 @@
 import random
-from typing import Tuple, Callable
 
-import numpy as np
 from overrides import overrides
 
 from samplers.baseSampler import Sampler
@@ -11,8 +9,36 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class BiRRTSampler(Sampler):
-    """The sampler that is used internally in
-    :class:`planners.birrtPlanner.BiRRTPlanner`"""
+    r"""
+    The sampler that is used internally by :class:`~planners.birrtPlanner.BiRRTPlanner`.
+    Internally, :class:`~samplers.birrtSampler.BiRRTSampler`
+    uses :class:`~samplers.randomPolicySampler.RandomPolicySampler` to draw from its
+    supported random methods.
+    The main differences lies in the epsilon biasing when
+
+    .. math::
+
+        p \sim \mathcal{U}(0,1) < \epsilon,
+
+    where the sampler will bias towards the correct **start** or **goal** tree
+    depending on the current tree :math:`\mathcal{T}_\text{current}` that
+    :class:`~samplers.birrtSampler.BiRRTSampler`
+    is currently planning for (in contrast to only always biasing towards the goal tree).
+
+    That is, :math:`p \sim \mathcal{U}(0,1)` is first drawn, then :math:`q_\text{new}`
+    is given by
+
+    .. math::
+        q_\text{new} =
+        \begin{cases}
+            q \sim \mathcal{U}(0,1)^d & \text{if } p < \epsilon\\
+            q_\text{target}  & \text{if } \mathcal{T}_\text{current} \equiv \mathcal{
+            T}_{start}\\
+            q_\text{start}  &  \text{if } \mathcal{T}_\text{current} \equiv \mathcal{
+            T}_{target}\text{.}
+        \end{cases}
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,8 +46,6 @@ class BiRRTSampler(Sampler):
     @overrides
     def init(self, **kwargs):
         """The delayed **initialisation** method
-
-        :param **kwargs:
 
         """
         super().init(**kwargs)
@@ -39,8 +63,10 @@ class BiRRTSampler(Sampler):
         self.randomSampler.use_radian = value
 
     @overrides
-    def get_next_pos(self) -> Tuple[np.ndarray, Callable, Callable]:
-        """Get next sampled position"""
+    def get_next_pos(self) -> Sampler.GetNextPosReturnType:
+        """Get next sampled position
+
+        """
         # Random path
         while True:
             if random.random() < self.args.goalBias:
@@ -54,6 +80,8 @@ class BiRRTSampler(Sampler):
             return p, self.report_success, self.report_fail
 
 
+# start register
 planner_registry.register_sampler(
     "birrt_sampler", sampler_class=BiRRTSampler,
 )
+# finish register

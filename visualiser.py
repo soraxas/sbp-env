@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from utils.helpers import Colour
+from utils.common import Colour
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"  # disable pygame prompt
 
@@ -218,7 +218,7 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
     ):
         """
         :param sampler_data_pack: a sampler data pack that stores the implemented
-            paint function or init function.
+        paint function or init function.
         """
         super().__init__(**kwargs)
         self.sampler_data_pack = sampler_data_pack
@@ -353,7 +353,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         :param goal: the goal configuration of the motion planning problem
 
         """
-        from utils.helpers import Node
+        from utils.common import Node
 
         ##################################################
         # Get starting and ending point

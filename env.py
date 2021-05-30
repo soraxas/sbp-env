@@ -7,7 +7,7 @@ import numpy as np
 from scipy import spatial
 
 import collisionChecker
-from utils.helpers import Node, MagicDict, Stats
+from utils.common import Node, MagicDict, Stats
 from visualiser import VisualiserSwitcher
 
 LOGGER = logging.getLogger(__name__)

@@ -1,4 +1,8 @@
-from utils.helpers import MagicDict
+from typing import Tuple, Callable
+
+import numpy as np
+
+from utils.common import MagicDict
 from visualiser import VisualiserSwitcher
 
 
@@ -8,6 +12,9 @@ class Sampler(VisualiserSwitcher.sampler_clname):
     Abstract base sampler that defines each unique methods that some
     sampler, but not all samplers, uses.
     """
+
+    GetNextPosReturnType = Tuple[np.ndarray, Callable, Callable]
+    """The return type of :func:`get_next_pos`."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -21,8 +28,8 @@ class Sampler(VisualiserSwitcher.sampler_clname):
         :param start_pt: the starting configuration for the planning problem
         :param goal_pt: the goal configuration for the planning problem
 
-        :type start_pt: :class:`~utils.helpers.Node`
-        :type goal_pt: :class:`~utils.helpers.Node`
+        :type start_pt: :class:`~utils.common.Node`
+        :type goal_pt: :class:`~utils.common.Node`
 
         """
         self.args = MagicDict(kwargs)
@@ -33,10 +40,10 @@ class Sampler(VisualiserSwitcher.sampler_clname):
         super().init(**kwargs)
 
     def get_next_pos(self, **kwargs):
-        """Retrieve next sampled position. Must be override by subclass.
+        """Retrieve next sampled position
 
-        :param **kwargs: not used
-
+        :return: a sampled position, a callable to report success,
+            and a callable to report failure
         """
         raise NotImplementedError()
 

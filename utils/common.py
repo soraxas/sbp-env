@@ -1,7 +1,8 @@
 import logging
-from typing import Set
+from typing import Set, List
 
 import numpy as np
+from rtree import index
 
 
 class MagicDict(dict):
@@ -60,14 +61,14 @@ class Node:
 
     :ivar pos: position, a.k.a., the configuration :math:`q \in C` that this node
         represents
-    :ivar cost: initial value: par2
+    :ivar cost: a positive float that represents the cost of this node
     :ivar parent: parent node
     :ivar children: children nodes
     :ivar is_start: a flag to indicate this is the start node
     :ivar is_goal: a flag to indicate this is the goal node
 
     :vartype pos: :class:`np.ndarray`
-    :vartype cost: positive float
+    :vartype cost: float
     :vartype parent: :class:`Node`
     :vartype children: a list of :class:`Node`
     :vartype is_start: bool
@@ -264,3 +265,89 @@ class BFS:
         node = self.next_node
         self.next_node = None
         return node
+
+
+class Tree:
+    """
+    A tree representation that stores nodes and edges.
+    """
+
+    def __init__(self, dimension: int):
+        """
+        :param dimension: A positive integer that represents :math:`d`,
+            the dimensionality of the C-space.
+        """
+        p = index.Property()
+        p.dimension = dimension
+        self.V = index.Index(interleaved=True, properties=p)
+        self.E = {}  # edges in form E[child] = parent
+
+    def add_vertex(self, v: Node, pos: np.ndarray) -> None:
+        """Add a new vertex to this tree
+
+        :param v: Node to be added
+        :param pos: The configuration :math:`q` that corresponds to the node ``v``
+        """
+        if len(pos) == 2:
+            # print(v)
+            # print(pos)
+            # print(np.tile(pos, 2))
+            self.V.insert(0, tuple(pos), v)
+        else:
+            self.V.insert(0, np.tile(pos, 2), v)
+        # self.V_raw.append(v)
+
+    def add_edge(self, child: Node, parent: Node) -> None:
+        """Add a new edge to this tree
+
+        :param child: The child node of the edge
+        :param parent: The parent node of the edge
+
+        """
+        self.E[child] = parent
+
+    def nearby(self, x: np.ndarray, n: int) -> List[Node]:
+        """Find ``n`` many nearby nodes that are closest to a given position
+
+        :param x: Position
+        :param n: Max number of results
+
+        """
+        return self.V.nearest(np.tile(x, 2), num_results=n, objects="raw")
+
+    def get_nearest(self, x: np.ndarray) -> Node:
+        """Get the closest node
+
+        :param x: Position
+
+        :return: the closest node
+        """
+        return next(self.nearby(x, 1))
+
+    # def connect_to_point(self, tree, x_a, x_b):
+    #     """
+    #     Connect vertex x_a in tree to vertex x_b
+    #     :param tree: int, tree to which to add edge
+    #     :param x_a: tuple, vertex
+    #     :param x_b: tuple, vertex
+    #     :return: bool, True if able to add edge, False if prohibited by an obstacle
+    #     """
+    #     if self.V.count(x_b) == 0 and self.X.collision_free(x_a, x_b, self.r):
+    #         self.add_vertex(tree, x_b)
+    #         self.add_edge(tree, x_b, x_a)
+    #         return True
+    #     return False
+
+    # def can_connect_to_goal(self, tree):
+    #     """
+    #     Check if the goal can be connected to the graph
+    #     :param tree: rtree of all Vertices
+    #     :return: True if can be added, False otherwise
+    #     """
+    #     x_nearest = self.get_nearest(tree, self.x_goal)
+    #     if self.x_goal in self.E and x_nearest in self.E[self.x_goal]:
+    #         # tree is already connected to goal using nearest vertex
+    #         return True
+    #     if self.X.collision_free(x_nearest, self.x_goal, self.r):  # check if obstacle-free
+    #         return True
+    #     return False

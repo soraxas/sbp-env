@@ -1,33 +1,63 @@
 import logging
-import numpy as np
 import random
+
+import numpy as np
 import scipy as sp
 import scipy.ndimage
-from collisionChecker import ImgCollisionChecker
 from overrides import overrides
-from planners import rrtPlanner
+
+from collisionChecker import ImgCollisionChecker
 from samplers.baseSampler import Sampler
 from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
 
 LOGGER = logging.getLogger(__name__)
 
+experimental_sampler_note = {
+    "only_work_with_2d_image": r"""This sampler currently only works with **2D Image 
+        Space** as it's hard-coded to sub-divide the space into grid cells. However, 
+        the idea is generic and should be applicable for :math:`d > 2`.""",
+    "currently_expr_for_research": r"""This sampler is experimental for research 
+        purpose, and is currently incomplete.""",
+}
+
 
 # noinspection PyAttributeOutsideInit
 class LikelihoodPolicySampler(Sampler):
-    """ """
+    __doc__ = r"""This sampler discretise *C-Space* into equal cells, then each cells is
+    consists of a probability value :math:`p` that stores a likelihood value.
+
+    The probability :math:`p` of a cell will be increased if
+    :math:`q \in C_\text{free}` is reported but the tree extension is failed due to visibility test
+    (intermediate obstacles). The probability :math:`p` will be dropped depending on
+    its proximity to an existing tree node.
+    """ + r"""
+    .. note::
+        {only_work_with_2d_image}
+
+    .. note::
+        {currently_expr_for_research}
+
+    """.format(
+        **experimental_sampler_note
+    )
 
     @overrides
-    def __init__(self, prob_block_size, suppress_visited_area=True, **kwargs):
+    def __init__(
+        self, prob_block_size: int, suppress_visited_area: bool = True, **kwargs
+    ):
+        """
+        :param prob_block_size: the unit size for one probability block
+        :param suppress_visited_area: reduce the probability :math:`p` if it is close
+            to an existing tree node
+        """
         super().__init__(**kwargs)
         self.PROB_BLOCK_SIZE = int(prob_block_size)
         self.suppress_visited_area = suppress_visited_area
 
     @overrides
     def init(self, **kwargs):
-        """
-
-        :param **kwargs: 
+        """The delayed **initialisation** method
 
         """
         super().init(**kwargs)
@@ -48,8 +78,7 @@ class LikelihoodPolicySampler(Sampler):
         self.sampleCount = 0
 
     @overrides
-    def get_next_pos(self):
-        """ """
+    def get_next_pos(self) -> Sampler.GetNextPosReturnType:
         if self.prob_vector_normalized is None or random.random() < 0.05:
             p = self.random_sampler.get_next_pos()[0]
         else:
@@ -66,10 +95,10 @@ class LikelihoodPolicySampler(Sampler):
         return p, self.report_success, self.report_fail
 
     @overrides
-    def add_tree_node(self, pos):
-        """
+    def add_tree_node(self, pos: np.ndarray, **kwargs):
+        """Report that a new tree node has been created
 
-        :param pos: 
+        :param pos: the configuration of the new tree node
 
         """
         x, y = pos
@@ -78,13 +107,14 @@ class LikelihoodPolicySampler(Sampler):
         self.tree_vector[x][y] += 1
 
     @overrides
-    def add_sample_line(self, x1, y1, x2, y2):
-        """
+    def add_sample_line(self, x1: int, y1: int, x2: int, y2: int):
+        """Add a 2D sample line to denotes from a visibility line that are all in free
+        space
 
-        :param x1: 
-        :param y1: 
-        :param x2: 
-        :param y2: 
+        :param x1: :math:`x` of :math:`q_1`
+        :param y1: :math:`y` of :math:`q_1`
+        :param x2: :math:`x` of :math:`q_2`
+        :param y2: :math:`y` of :math:`q_2`
 
         """
         x1 = int(x1 / self.PROB_BLOCK_SIZE)
@@ -97,9 +127,15 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def report_success(self, **kwargs):
-        """
+        """Report a successful sample
 
-        :param **kwargs: 
+        :param pos: the position of a newly created node
+        :param nn: the nearest existing node
+        :param rand_pos: the position of a successful random sample
+
+        :type pos: numpy.ndarray
+        :type nn: Node
+        :type rand_pos: numpy.ndarray
 
         """
         x, y = kwargs["pos"]
@@ -111,9 +147,11 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def report_fail(self, **kwargs):
-        """
+        """Report a failed sample
 
-        :param **kwargs: 
+        :param pos: the position of the random sample
+
+        :type pos: numpy.ndarray
 
         """
         p = kwargs["pos"]
@@ -142,12 +180,17 @@ class LikelihoodPolicySampler(Sampler):
         ###############################
         return self._report_fail_impl(x, y, **kwargs)
 
-    def _report_fail_impl(self, x, y, **kwargs):
-        """
+    def _report_fail_impl(self, x: int, y: int, **kwargs):
+        r"""The internal implantation of the :func:`report_fail`.
 
-        :param x: 
-        :param y: 
-        :param **kwargs: 
+        :param x: :math:`x` of :math:`q`
+        :param y: :math:`y` of :math:`q`
+        :param weight: the weight for this sample
+        :param free: whether it failed due to :math:`q \in C_\text{free}` or
+            :math:`q \in C_\text{obs}`
+
+        :type weight: float, optional
+        :type free: bool
 
         """
         if "obstacle" in kwargs:
@@ -191,9 +234,9 @@ class LikelihoodPolicySampler(Sampler):
 
 
 def pygame_likelihood_sampler_paint_init(sampler):
-    """
+    """The paint int function for visualisation
 
-    :param sampler: 
+    :param sampler: the sampler to be visualised
 
     """
     import pygame
@@ -209,9 +252,9 @@ def pygame_likelihood_sampler_paint_init(sampler):
 
 
 def pygame_likelihood_sampler_paint(sampler):
-    """
+    """The paint function for visualisation
 
-    :param sampler: 
+    :param sampler: the sampler to be visualised
 
     """
 
@@ -248,6 +291,7 @@ def pygame_likelihood_sampler_paint(sampler):
                 )
 
 
+# start register
 sampler_id = "likelihood_sampler"
 
 planner_registry.register_sampler(
@@ -256,3 +300,4 @@ planner_registry.register_sampler(
     visualise_pygame_paint=pygame_likelihood_sampler_paint,
     visualise_pygame_paint_init=pygame_likelihood_sampler_paint_init,
 )
+# finish register

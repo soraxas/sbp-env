@@ -1,26 +1,64 @@
 """Represent a planner."""
 import math
-import numpy as np
 import random
+
+import numpy as np
 from overrides import overrides
-from planners import rrtPlanner
+
 from samplers.baseSampler import Sampler
 from samplers.randomPolicySampler import RandomPolicySampler
 from utils import planner_registry
 
 
 # noinspection PyAttributeOutsideInit
-class InformedRRTSampler(Sampler):
-    """ """
+class InformedSampler(Sampler):
+    r"""The informed sampler is largely similar to
+    :class:`~samplers.randomPolicySampler.RandomPolicySampler`, excepts when an
+    initial solution is found (i.e. when the current maximum cost :math:`\mathcal{
+    L}_\text{max} < \infty`), the
+    sampler will uses ellipsoidal heuristic to speed up convergence of solution cost.
+
+    The sampled configuratioin :math:`q_\text{new}` is given by
+
+    .. math::
+        q_\text{new} =
+        \begin{cases}
+            \mathbf{C}\,\mathbf{L}\,q_\text{ball} + q_\text{center} & \text{if }
+            \mathcal{L}_\text{
+            max} <
+            \infty\\
+            q \sim \mathcal{U}(0,1)^d  & \text{otherwise,}
+        \end{cases}
+
+    where :math:`q_\text{ball} \sim \mathcal{U}(\mathcal{Q}_\text{ball})` is a
+    uniform sample drawn from a unit :math:`n`-ball, :math:`q_\text{center} = \frac{
+    q_\text{start} + q_\text{start}}{2}` is the center location in-between the start
+    and goal configuration, :math:`\mathbf{C} \in SO(d)` is the rotational matrix to
+    transforms from the hyperellipsoid frame to the world frame,
+
+    .. math::
+        \mathbf{L} = \operatorname{diag}\left\{
+            \frac{\mathcal{L}_\text{max}}{2},
+            \frac{\sqrt{\mathcal{L}^2_\text{max} -\mathcal{L}^2_\text{min}}}{2},
+            \ldots,
+            \frac{\sqrt{\mathcal{L}^2_\text{max} -\mathcal{L}^2_\text{min}}}{2}
+        \right\}
+
+    is the diagonal transformation matrix to maintain uniform distribution in the
+    ellipse space, and the minimum cost is given by
+
+    .. math::
+        \mathcal{L}_\text{min} =
+            \lVert q_\text{start} -q_\text{target}\rVert_2 .
+
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @overrides
     def init(self, **kwargs):
-        """
-
-        :param **kwargs: 
+        """The delayed **initialisation** method
 
         """
         super().init(**kwargs)
@@ -65,7 +103,9 @@ class InformedRRTSampler(Sampler):
 
     @overrides
     def get_next_pos(self):
-        """ """
+        """Retrieve next sampled position
+
+        """
         if self.args.engine == "klampt":
             # not possible with radian space
             p = self.random_sampler.get_next_pos()[0]
@@ -79,7 +119,7 @@ class InformedRRTSampler(Sampler):
                 math.sqrt(self.cBest ** 2 - self.cMin ** 2) / 2.0,
             ]
             L = np.diag(r)
-            xBall = self.sampleUnitBall()
+            xBall = self.sample_unit_ball()
             rnd = np.dot(np.dot(self.C, L), xBall) + self.xCenter
             p = [rnd[(0, 0)], rnd[(1, 0)]]
             if self.args.image == "maps/4d.png":
@@ -89,8 +129,11 @@ class InformedRRTSampler(Sampler):
         return p, self.report_success, self.report_fail
 
     @staticmethod
-    def sampleUnitBall():
-        """ """
+    def sample_unit_ball() -> np.ndarray:
+        """Samples a unit :math:`n`-ball
+
+        :return: a random samples from a unit :math:`n`-ball
+        """
         a = random.random()
         b = random.random()
         if b < a:
@@ -100,14 +143,14 @@ class InformedRRTSampler(Sampler):
         return np.array([[sample[0]], [sample[1]], [0]])
 
 
-def pygame_informed_sampler_paint(sampler):
-    """
+def pygame_informed_sampler_paint(sampler: Sampler) -> None:
+    """Visualiser paint function for informed sampler
 
-    :param sampler: 
+    :param sampler: the sampler to be visualised
 
     """
     import pygame
-    from utils.helpers import Colour
+    from utils.common import Colour
 
     # draw the ellipse
     if sampler.cBest < float("inf"):
@@ -139,10 +182,12 @@ def pygame_informed_sampler_paint(sampler):
         sampler.args.env.window.blit(ellipse_surface, (ellipse_x, ellipse_y))
 
 
+# start register
 sampler_id = "informed_sampler"
 
 planner_registry.register_sampler(
     sampler_id,
-    sampler_class=InformedRRTSampler,
+    sampler_class=InformedSampler,
     visualise_pygame_paint=pygame_informed_sampler_paint,
 )
+# finish register

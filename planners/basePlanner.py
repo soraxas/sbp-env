@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.helpers import MagicDict
+from utils.common import MagicDict
 from visualiser import VisualiserSwitcher
 
 

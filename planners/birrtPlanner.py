@@ -8,7 +8,13 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class BiRRTPlanner(RRTPlanner):
-    """ """
+    """The bidrectional RRT* planner, or sometimes it's also referred to as the
+    *RRT-Connect\**.
+
+    The class :class:`~planners.birrtPlanner.BiRRTPlanner` uses an adopted version of
+    random policy sampler that makes it suitable for using in both the start and goal
+    trees, which is implemented in :class:`~samplers.birrtSampler.BiRRTSampler`.
+    """
 
     @overrides
     def init(self, **kwargs):
@@ -125,12 +131,12 @@ class BiRRTPlanner(RRTPlanner):
 
 
 def pygame_birrt_planner_paint(planner):
-    """
+    """Visualisation function for BiRRT
 
-    :param planner: 
+    :param planner: planner to be visualised
 
     """
-    from utils.helpers import Colour
+    from utils.common import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     drawn_nodes_pairs = set()
@@ -145,9 +151,11 @@ def pygame_birrt_planner_paint(planner):
         planner.draw_solution_path()
 
 
+# start register
 planner_registry.register_planner(
     "birrt",
     planner_class=BiRRTPlanner,
     visualise_pygame_paint=pygame_birrt_planner_paint,
     sampler_id="birrt_sampler",
 )
+# finish register

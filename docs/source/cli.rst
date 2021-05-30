@@ -13,7 +13,7 @@ If you just want to quickly test different planners in a newly created environme
 
 
 Usage
-=====
+-----
 
 The full commandline interface is docunmented below:
 
