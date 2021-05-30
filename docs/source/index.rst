@@ -1,7 +1,7 @@
-Sampling-based Motion Planners' Benchmark Suite
-===============================================
+Sampling-based Motion Planners' Testing Environment
+===================================================
 
-Here is where ``sbp-bench``'s documentation, the Sampling-based Motion Planner
+Here is where ``sbp-env``'s documentation, the Sampling-based Motion Planner
 Benchmark suite, lies.
 To quickly get started, see the :ref:`Quick Start` guide.
 For various documentation of th implemented planners and samplers, checkout the

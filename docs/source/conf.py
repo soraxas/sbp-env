@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 
-project = "sbp-bench"
+project = "sbp-env"
 copyright = "2021, Tin Lai"
 author = "Tin Lai"
 

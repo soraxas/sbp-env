@@ -6,6 +6,6 @@ the `Github issue tracker`_.
 If there is any details that the documentation is missing, feel free
 to send in a PR to help improve the project.
 
-Project page: https://github.com/soraxas/sbp-bench
+Project page: https://github.com/soraxas/sbp-env
 
-.. _Github issue tracker: https://github.com/soraxas/sbp-bench/issues
+.. _Github issue tracker: https://github.com/soraxas/sbp-env/issues

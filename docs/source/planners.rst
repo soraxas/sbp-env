@@ -1,7 +1,7 @@
 Motion Planners
 ===============
 
-The following are all of the available motion planners in ``sbp-bench``.
+The following are all of the available motion planners in ``sbp-env``.
 
 
 RRT*

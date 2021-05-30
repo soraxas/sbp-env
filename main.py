@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""SBP-Bench
+"""SBP-Env
 
 Usage:
   main.py ({all_available_planners}) <MAP>
@@ -117,7 +117,7 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
     :param sampler:  (Default value = None)
 
     """
-    args = docopt(__doc__, version="SBP-Bench Research v2.0")
+    args = docopt(__doc__, version="SBP-Env Research v2.0")
 
     ########## Switch Visualiser to inherinet from ##########
     from visualiser import VisualiserSwitcher
