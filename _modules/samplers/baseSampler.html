@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>samplers.baseSampler &mdash; sbp-bench 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+        <script src="../../_static/katex_autorenderer.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> sbp-bench
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">sbp-bench</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>samplers.baseSampler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for samplers.baseSampler</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">MagicDict</span>
+<span class="kn">from</span> <span class="nn">visualiser</span> <span class="kn">import</span> <span class="n">VisualiserSwitcher</span>
+
+
+<span class="c1"># noinspection PyAttributeOutsideInit</span>
+<div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">sampler_clname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base sampler that defines each unique methods that some</span>
+<span class="sd">    sampler, but not all samplers, uses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">GetNextPosReturnType</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;The return type of :func:`get_next_pos`.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Sampler.init"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_radian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method</span>
+
+<span class="sd">        :param use_radian: whether this sampler should returns value in radian (as</span>
+<span class="sd">            opposite to Euclidean)</span>
+<span class="sd">        :param start_pt: the starting configuration for the planning problem</span>
+<span class="sd">        :param goal_pt: the goal configuration for the planning problem</span>
+
+<span class="sd">        :type start_pt: :class:`~utils.common.Node`</span>
+<span class="sd">        :type goal_pt: :class:`~utils.common.Node`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">MagicDict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;start_pt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;goal_pt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span> <span class="o">=</span> <span class="n">use_radian</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sampler.get_next_pos"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.get_next_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve next sampled position</span>
+
+<span class="sd">        :return: a sampled position, a callable to report success,</span>
+<span class="sd">            and a callable to report failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Sampler.get_valid_next_pos"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.get_valid_next_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loop until we find a valid next node. Uses ``get_next_pos`` internally.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">coordinate</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_pos</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_sampled_node</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">coordinate</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">coordinate</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span>
+            <span class="n">report_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">obstacle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_invalid</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Sampler.set_use_radian"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.set_use_radian">[docs]</a>    <span class="k">def</span> <span class="nf">set_use_radian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set this sampler to use radian or not</span>
+
+<span class="sd">        :param value: the value to set</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Sampler.report_success"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.report_success">[docs]</a>    <span class="k">def</span> <span class="nf">report_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report to the sampler that the last sample was successfully. This function is</span>
+<span class="sd">        sampler dependent.</span>
+
+<span class="sd">        :param **kwargs: pass through to derived class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Sampler.report_fail"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.report_fail">[docs]</a>    <span class="k">def</span> <span class="nf">report_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report to the sampler that the last sample was unsuccessful. This function is</span>
+<span class="sd">        sampler dependent.</span>
+
+<span class="sd">        :param **kwargs: pass through to derived class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Sampler.add_tree_node"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.add_tree_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_tree_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report to the sampler about the last node that was added to the tree</span>
+
+<span class="sd">        :param **kwargs: pass through to derived class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Sampler.add_sample_line"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.add_sample_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_sample_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report to the sampler about the entire line that was sampled last time</span>
+
+<span class="sd">        :param **kwargs: pass through to derived class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Tin Lai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

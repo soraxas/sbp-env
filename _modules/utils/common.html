@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>utils.common &mdash; sbp-bench 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+        <script src="../../_static/katex_autorenderer.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> sbp-bench
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">sbp-bench</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>utils.common</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for utils.common</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Set</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">rtree</span> <span class="kn">import</span> <span class="n">index</span>
+
+
+<span class="k">class</span> <span class="nc">MagicDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dictionary, but content is accessible like property.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">copy</span>
+
+        <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">memo</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">memo</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called what self.attr doesn&#39;t exist.</span>
+
+<span class="sd">        :param attr: attribute to access</span>
+<span class="sd">        :return: self[attr]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Colour</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convenient class to define some RGB colour</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ALPHA_CK</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span>
+    <span class="n">white</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span>
+    <span class="n">black</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span>
+    <span class="n">red</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">blue</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span>
+    <span class="n">path_blue</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">178</span>
+    <span class="n">green</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">cyan</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+    <span class="n">orange</span> <span class="o">=</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">16</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cAlpha</span><span class="p">(</span><span class="n">colour</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add alpha value to the given colour</span>
+
+<span class="sd">        :param colour: the base colour</span>
+<span class="sd">        :param alpha: the desire alpha value to be added</span>
+
+<span class="sd">        :return: colour with alpha</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">colour</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colour</span><span class="p">)</span>
+        <span class="n">colour</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">colour</span>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../misc.html#utils.common.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Represents a node inside a tree.</span>
+
+<span class="sd">    :ivar pos: position, a.k.a., the configuration :math:`q \in C` that this node</span>
+<span class="sd">        represents</span>
+<span class="sd">    :ivar cost: a positive float that represents the cost of this node</span>
+<span class="sd">    :ivar parent: parent node</span>
+<span class="sd">    :ivar children: children nodes</span>
+<span class="sd">    :ivar is_start: a flag to indicate this is the start node</span>
+<span class="sd">    :ivar is_goal: a flag to indicate this is the goal node</span>
+
+<span class="sd">    :vartype pos: :class:`np.ndarray`</span>
+<span class="sd">    :vartype cost: float</span>
+<span class="sd">    :vartype parent: :class:`Node`</span>
+<span class="sd">    :vartype children: a list of :class:`Node`</span>
+<span class="sd">    :vartype is_start: bool</span>
+<span class="sd">    :vartype is_goal: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param pos: configuration of this node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_start</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_goal</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.__class__.__name__}</span><span class="s2">&lt;</span><span class="si">{self.pos}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">))</span></div>
+
+
+<span class="k">class</span> <span class="nc">Stats</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores statistics of a planning problem instance</span>
+
+<span class="sd">    :ivar invalid_samples_connections: the number of invalid samples due to</span>
+<span class="sd">        intermediate connections being invalid</span>
+<span class="sd">    :ivar invalid_samples_obstacles: the number of invalid samples due to</span>
+<span class="sd">        the sampled configurations is invalid, i.e., :math:`q \in C_\text{obs}`</span>
+<span class="sd">    :ivar valid_sample: the number of valid samples, i.e., :math:`q \in C_\text{free}`</span>
+<span class="sd">    :ivar sampledNodes: temporarily list of the recently sampled configurations</span>
+<span class="sd">    :ivar showSampledPoint: A flag to denote whether we should store the list of</span>
+<span class="sd">        recently sampled configurations</span>
+<span class="sd">    :ivar sampler_success: UNDOCUNMENTED</span>
+<span class="sd">    :ivar sampler_success_all: UNDOCUNMENTED</span>
+<span class="sd">    :ivar sampler_fail: UNDOCUNMENTED</span>
+<span class="sd">    :ivar visible_cnt: the number of calls to visibility test in the collision checker</span>
+<span class="sd">    :ivar feasible_cnt: the number of calls to feasibility test in the collision checker</span>
+
+
+<span class="sd">    :type invalid_samples_connections: int</span>
+<span class="sd">    :type invalid_samples_obstacles: int</span>
+<span class="sd">    :type valid_sample: int</span>
+<span class="sd">    :type sampledNodes: List[:class:`Node`]</span>
+<span class="sd">    :type showSampledPoint: bool</span>
+<span class="sd">    :type sampler_success: int</span>
+<span class="sd">    :type sampler_success_all: int</span>
+<span class="sd">    :type sampler_fail: int</span>
+<span class="sd">    :type visible_cnt: int</span>
+<span class="sd">    :type feasible_cnt: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">showSampledPoint</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_samples_connections</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_samples_obstacles</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_sample</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampledNodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showSampledPoint</span> <span class="o">=</span> <span class="n">showSampledPoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler_success</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler_success_all</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler_fail</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">add_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param obs: </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">obs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invalid_samples_obstacles</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invalid_samples_connections</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">add_free</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Increment the free sampled point counter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_sample</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">add_sampled_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a sampled node position</span>
+
+<span class="sd">        :param pos: the position of a sampled node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if pygame is not enabled, skip showing sampled point</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">showSampledPoint</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampledNodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Stats&lt;</span><span class="si">{}</span><span class="s2">&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{attr}</span><span class="s2">={getattr(self, attr)}&quot;</span>
+                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">update_progress</span><span class="p">(</span><span class="n">progress</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_of_blocks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print a progress bar</span>
+
+<span class="sd">    :param progress: the current progress</span>
+<span class="sd">    :param total_num: the total count for the progress</span>
+<span class="sd">    :param num_of_blocks: number of blocks for the progress bar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">percentage</span> <span class="o">=</span> <span class="n">progress</span> <span class="o">/</span> <span class="n">total_num</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\r</span><span class="s2">[{bar:&lt;</span><span class="si">{num_of_blocks}</span><span class="s2">}] </span><span class="si">{cur}</span><span class="s2">/</span><span class="si">{total}</span><span class="s2"> </span><span class="si">{percen:0.1f}</span><span class="s2">%&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">bar</span><span class="o">=</span><span class="s2">&quot;#&quot;</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">percentage</span> <span class="o">*</span> <span class="n">num_of_blocks</span><span class="p">),</span>
+            <span class="n">cur</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">total_num</span><span class="p">,</span>
+            <span class="n">percen</span><span class="o">=</span><span class="n">percentage</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="n">num_of_blocks</span><span class="o">=</span><span class="n">num_of_blocks</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">percentage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">BFS</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Walk through the connected nodes with BFS&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">validNodes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param node: the starting node</span>
+<span class="sd">        :param validNodes: the set of valid nodes that this BFS will transverse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visitedNodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validNodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">validNodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">visit_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visits the given node</span>
+
+<span class="sd">        :param node: the node to visit</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visitedNodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+        <span class="c1"># self.next_node_to_visit.extend(node.children)</span>
+        <span class="c1"># try:</span>
+        <span class="c1">#     if node.parent is not None:</span>
+        <span class="c1">#         self.next_node_to_visit.append(node.parent)</span>
+        <span class="c1"># except AttributeError:</span>
+        <span class="c1">#     pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="n">node</span>
+
+    <span class="k">def</span> <span class="nf">has_next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether there&#39;s a next node for the BFS search. This function also</span>
+<span class="sd">        performs the actual computation of finding next available node.</span>
+
+<span class="sd">        :return: whether a next node is available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># get next available node</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">visitedNodes</span> <span class="ow">and</span> <span class="n">_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validNodes</span><span class="p">:</span>
+                <span class="c1"># if _node not in self.visitedNodes:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visit_node</span><span class="p">(</span><span class="n">_node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the next node</span>
+
+<span class="sd">        :return: the next node from the BFS search</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">node</span>
+
+
+<div class="viewcode-block" id="Tree"><a class="viewcode-back" href="../../misc.html#utils.common.Tree">[docs]</a><span class="k">class</span> <span class="nc">Tree</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A tree representation that stores nodes and edges.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param dimension: A positive integer that represents :math:`d`,</span>
+<span class="sd">            the dimensionality of the C-space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">Property</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">dimension</span> <span class="o">=</span> <span class="n">dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">interleaved</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">E</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># edges in form E[child] = parent</span>
+
+<div class="viewcode-block" id="Tree.add_vertex"><a class="viewcode-back" href="../../misc.html#utils.common.Tree.add_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a new vertex to this tree</span>
+
+<span class="sd">        :param v: Node to be added</span>
+<span class="sd">        :param pos: The configuration :math:`q` that corresponds to the node ``v``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># print(v)</span>
+            <span class="c1"># print(pos)</span>
+            <span class="c1"># print(np.tile(pos, 2))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span></div>
+        <span class="c1"># self.V_raw.append(v)</span>
+
+<div class="viewcode-block" id="Tree.add_edge"><a class="viewcode-back" href="../../misc.html#utils.common.Tree.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a new edge to this tree</span>
+
+<span class="sd">        :param child: The child node of the edge</span>
+<span class="sd">        :param parent: The parent node of the edge</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">child</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent</span></div>
+
+<div class="viewcode-block" id="Tree.nearby"><a class="viewcode-back" href="../../misc.html#utils.common.Tree.nearby">[docs]</a>    <span class="k">def</span> <span class="nf">nearby</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Find ``n`` many nearby nodes that are closest to a given position</span>
+
+<span class="sd">        :param x: Position</span>
+<span class="sd">        :param n: Max number of results</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">nearest</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">num_results</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tree.get_nearest"><a class="viewcode-back" href="../../misc.html#utils.common.Tree.get_nearest">[docs]</a>    <span class="k">def</span> <span class="nf">get_nearest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the closest node</span>
+
+<span class="sd">        :param x: Position</span>
+
+<span class="sd">        :return: the closest node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nearby</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div></div>
+
+    <span class="c1"># def connect_to_point(self, tree, x_a, x_b):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Connect vertex x_a in tree to vertex x_b</span>
+    <span class="c1">#     :param tree: int, tree to which to add edge</span>
+    <span class="c1">#     :param x_a: tuple, vertex</span>
+    <span class="c1">#     :param x_b: tuple, vertex</span>
+    <span class="c1">#     :return: bool, True if able to add edge, False if prohibited by an obstacle</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     if self.V.count(x_b) == 0 and self.X.collision_free(x_a, x_b, self.r):</span>
+    <span class="c1">#         self.add_vertex(tree, x_b)</span>
+    <span class="c1">#         self.add_edge(tree, x_b, x_a)</span>
+    <span class="c1">#         return True</span>
+    <span class="c1">#     return False</span>
+
+    <span class="c1"># def can_connect_to_goal(self, tree):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Check if the goal can be connected to the graph</span>
+    <span class="c1">#     :param tree: rtree of all Vertices</span>
+    <span class="c1">#     :return: True if can be added, False otherwise</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     x_nearest = self.get_nearest(tree, self.x_goal)</span>
+    <span class="c1">#     if self.x_goal in self.E and x_nearest in self.E[self.x_goal]:</span>
+    <span class="c1">#         # tree is already connected to goal using nearest vertex</span>
+    <span class="c1">#         return True</span>
+    <span class="c1">#     if self.X.collision_free(x_nearest, self.x_goal, self.r):  # check if obstacle-free</span>
+    <span class="c1">#         return True</span>
+    <span class="c1">#     return False</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Tin Lai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

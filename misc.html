@@ -173,6 +173,236 @@
   <div class="section" id="misc-classes">
 <h1>Misc Classes<a class="headerlink" href="#misc-classes" title="Permalink to this headline">¶</a></h1>
 <p>The following are classes that are used throughout different files.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="utils.common.Node">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a node inside a tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
+represents</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – a positive float that represents the cost of this node</p></li>
+<li><p><strong>parent</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – parent node</p></li>
+<li><p><strong>children</strong> (a list of <a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – children nodes</p></li>
+<li><p><strong>is_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – a flag to indicate this is the start node</p></li>
+<li><p><strong>is_goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – a flag to indicate this is the goal node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="utils.common.Tree">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tree representation that stores nodes and edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – A positive integer that represents <span class="math">\(d\)</span>,
+the dimensionality of the C-space.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.common.Tree.add_edge">
+<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree.add_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new edge to this tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>child</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – The child node of the edge</p></li>
+<li><p><strong>parent</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – The parent node of the edge</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.common.Tree.add_vertex">
+<span class="sig-name descname"><span class="pre">add_vertex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree.add_vertex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree.add_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new vertex to this tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – Node to be added</p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.common.Tree.get_nearest">
+<span class="sig-name descname"><span class="pre">get_nearest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree.get_nearest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree.get_nearest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the closest node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the closest node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.common.Tree.nearby">
+<span class="sig-name descname"><span class="pre">nearby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree.nearby"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree.nearby" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find <code class="docutils literal notranslate"><span class="pre">n</span></code> many nearby nodes that are closest to a given position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Max number of results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="randomness.SUPPORTED_RANDOM_METHODS">
+<span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_RANDOM_METHODS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('pseudo_random',</span> <span class="pre">'sobol_sequence',</span> <span class="pre">'saltelli',</span> <span class="pre">'latin_hypercube',</span> <span class="pre">'finite_differences',</span> <span class="pre">'fast')</span></em><a class="headerlink" href="#randomness.SUPPORTED_RANDOM_METHODS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supported methods to draw random numbers in samplers. Supported random methods are 
+as follows:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">pseudo_random</span></code> from numpy</dt><dd><p><strong>Pseudo Random</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">sobol_sequence</span></code> from <em>SALib</em></dt><dd><p><strong>Sobol sequence</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">saltelli</span></code> from <em>SALib</em></dt><dd><p><strong>Saltelli’s extension of Sobol sequence</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">latin_hypercube</span></code> from <em>SALib</em></dt><dd><p><strong>Latin hypercube</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">finite_differences</span></code> from <em>SALib</em></dt><dd><p><strong>Finite differences</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fast</span></code> from <em>SALib</em></dt><dd><p><strong>Fourier Amplitude Sensitivity Test (FAST)</strong></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="randomness.RandomnessManager">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="randomness.RandomnessManager.get_random">
+<span class="sig-name descname"><span class="pre">get_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager.get_random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager.get_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get one sample of random number <span class="math">\(r\)</span> where <span class="math">\(0 \lt r \lt 1\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>random_method</strong> – The kind of random number method to use, must be one of</p>
+</dd>
+</dl>
+<p>the choice in <a class="reference internal" href="#randomness.SUPPORTED_RANDOM_METHODS" title="randomness.SUPPORTED_RANDOM_METHODS"><code class="xref py py-data docutils literal notranslate"><span class="pre">SUPPORTED_RANDOM_METHODS</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="randomness.RandomnessManager.redraw">
+<span class="sig-name descname"><span class="pre">redraw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager.redraw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>random_method</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="randomness.NormalRandomnessManager">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">NormalRandomnessManager</span></span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomness Manager that draw a bucket of <strong>normally distributed</strong> random numbers
+and refill the bucket on-demand when it is exhausted.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="randomness.NormalRandomnessManager.draw_half_normal">
+<span class="sig-name descname"><span class="pre">draw_half_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager.draw_half_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager.draw_half_normal" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_at</strong> – </p></li>
+<li><p><strong>scale</strong> (<em>optional</em>) – (Default value = 1)
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="randomness.NormalRandomnessManager.redraw_half_normal">
+<span class="sig-name descname"><span class="pre">redraw_half_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager.redraw_half_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager.redraw_half_normal" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_at</strong> – </p></li>
+<li><p><strong>scale</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="randomness.NormalRandomnessManager.redraw_normal">
+<span class="sig-name descname"><span class="pre">redraw_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vonmises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager.redraw_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager.redraw_normal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraw the bucket of normally distributed random numbers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kappa</strong> – <p>the kappa <span class="math">\(\kappa\)</span> parameter to be used to draw from a
+von Mises distribution</p>
+<div class="math">
+\[x \sim f_\text{VonMises}( x | \mu, \kappa)
+
+\]</div>
+</p></li>
+<li><p><strong>sigma</strong> – <p>the sigma <span class="math">\(\sigma\)</span> parameter to be used to draw from a
+normal distribution
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> \<span class="n">sim</span> \<span class="n">mathcal</span><span class="p">{</span><span class="n">N</span><span class="p">}(</span> <span class="n">x</span> <span class="o">|</span> \<span class="n">mu</span><span class="p">,</span> \<span class="n">sigma</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>use_vonmises</strong> (<em>optional</em>) – (Default value = True)
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
