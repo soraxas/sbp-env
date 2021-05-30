@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath("../.."))
 # sys.path.insert(0, os.path.abspath('../../planners'))
@@ -42,6 +43,8 @@ extensions = [
     "sphinxcontrib.katex",
     "sphinx_autodoc_typehints",  # better typehint and simplify fully quantified class
     "sphinx_autodoc_defaultargs",
+    "sphinx.ext.githubpages",
+    "sphinx_rtd_theme",
 ]
 autoclass_content = "both"  # use both class and __init__ docstring for docs.
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary
