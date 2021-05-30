@@ -1,5 +1,5 @@
-Welcome to sbp-bench's documentation!
-=====================================
+Sampling-based Motion Planners' Benchmark Suite
+===============================================
 
 Here is where ``sbp-bench``'s documentation, the Sampling-based Motion Planner
 Benchmark suite, lies.
@@ -11,7 +11,6 @@ corresponding sections from the side bar.
    :maxdepth: 2
    :caption: Contents:
 
-   install
    cli
    quick-start
    planners

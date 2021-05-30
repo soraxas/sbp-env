@@ -7,12 +7,16 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Welcome to sbp-bench’s documentation! &mdash; sbp-bench 1.0 documentation</title>
+  <title>Sampling-based Motion Planners’ Benchmark Suite &mdash; sbp-bench 1.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
 
   
   
@@ -29,18 +33,20 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+        <script src="_static/katex_autorenderer.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" /> 
+    <link rel="next" title="Commandline Interface" href="cli.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -87,9 +93,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html#usage">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
@@ -146,7 +150,7 @@
     
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Welcome to sbp-bench’s documentation!</li>
+      <li>Sampling-based Motion Planners’ Benchmark Suite</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -165,8 +169,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-sbp-bench-s-documentation">
-<h1>Welcome to sbp-bench’s documentation!<a class="headerlink" href="#welcome-to-sbp-bench-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="sampling-based-motion-planners-benchmark-suite">
+<h1>Sampling-based Motion Planners’ Benchmark Suite<a class="headerlink" href="#sampling-based-motion-planners-benchmark-suite" title="Permalink to this headline">¶</a></h1>
 <p>Here is where <code class="docutils literal notranslate"><span class="pre">sbp-bench</span></code>’s documentation, the Sampling-based Motion Planner
 Benchmark suite, lies.
 To quickly get started, see the <span class="xref std std-ref">Quick Start</span> guide.
@@ -175,9 +179,10 @@ corresponding sections from the side bar.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#usage">Usage</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#rrt">RRT*</a></li>
@@ -189,21 +194,17 @@ corresponding sections from the side bar.</p>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#nearby-planner">Nearby Planner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#mouse-planner">Mouse Planner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#abstract-base-planner">Abstract Base Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="planners.html#rrdt-planner">RRdT* Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="planners.html#asdas">asdas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="planners.html#id1">RRdT* Planner</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="samplers.html#random-policy-sampler">Random Policy Sampler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#bi-rrt-sampler">Bi-RRT Sampler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#rrdt">RRdT*</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#informedrrt-rrt">Informedrrt-RRT*</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#prm">PRM*</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#likelihood-planner">Likelihood Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#nearby-planner">Nearby Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#mouse-planner">Mouse Planner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="samplers.html#abstract-base-planner">Abstract Base Planner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#bidirectional-random-sampler">Bidirectional Random Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#informed-sampler">Informed Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#rrdt-particle-sampler">RRdT Particle Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#prm-sampler">PRM Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#likelihood-sampler">Likelihood Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#nearby-sampler">Nearby Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samplers.html#mouse-sampler">Mouse Sampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="samplers.html#abstract-base-sampler">Abstract Base Sampler</a></li>
 </ul>
 </li>
@@ -235,7 +236,7 @@ corresponding sections from the side bar.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli.html" class="btn btn-neutral float-right" title="Commandline Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
