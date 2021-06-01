@@ -21,9 +21,10 @@ General Options:
 
 Environment Options:
   -e --engine=ENGINE     Environment engine to use.
-                         Could be either "image" or "klampt".
+                         Could be either "image", "klampt" or "4d".
                          "image" engine uses an image as the map.
-                         "klampt" engine is a multi-dof engine that are more
+                         "4d" engine uses an image as the map and an 4d robot arm.
+                         "klampt" engine is a multi-dof engine that is more
                            features rich.
 
 Display Options:
@@ -89,6 +90,7 @@ import logging
 import re
 import sys
 
+import numpy as np
 from docopt import docopt
 
 import planners
@@ -98,6 +100,7 @@ assert planners
 
 LOGGER = logging.getLogger()
 
+# add all of the registered planners
 __doc__ = __doc__.format(
     all_available_planners="|".join(
         sorted(
@@ -108,18 +111,16 @@ __doc__ = __doc__.format(
 )
 
 
-def main(map_fname=None, start=None, goal=None, sampler=None):
-    """
+def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = None):
+    """The entry point of the planning scene module
 
-    :param map_fname:  (Default value = None)
-    :param start:  (Default value = None)
-    :param goal:  (Default value = None)
-    :param sampler:  (Default value = None)
+    :param map_fname: overrides the map to test
+    :param start: overrides the starting configuration
+    :param goal: overrides the goal configuration
 
     """
     args = docopt(__doc__, version="SBP-Env Research v2.0")
 
-    ########## Switch Visualiser to inherinet from ##########
     from visualiser import VisualiserSwitcher
 
     # allow the map filename, start and goal point to be override.
@@ -132,7 +133,7 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
 
     # setup environment engine
     args["--engine"] = "" if args["--engine"] is None else args["--engine"].lower()
-    if args["--engine"] not in ("image", "klampt", ""):
+    if args["--engine"] not in ("image", "klampt", "4d", ""):
         raise RuntimeError(
             f"Unrecognised value '{args['--engine']}' for engine option!"
         )
@@ -163,7 +164,7 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
         # use pass-through visualiser
         VisualiserSwitcher.choose_visualiser("base")
     else:
-        if args["--engine"] == "image":
+        if args["--engine"] in ("image", "4d"):
             # use pygame visualiser
             VisualiserSwitcher.choose_visualiser("pygame")
         elif args["--engine"] == "klampt":
@@ -193,7 +194,7 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
         if (not a.startswith("--") and args[a] is True and a not in ("start", "goal"))
     ]
     assert (
-        len(planner_canidates) == 1
+            len(planner_canidates) == 1
     ), f"Planner to use '{planner_canidates}' has length {len(planner_canidates)}"
     planner_to_use = planner_canidates[0]
     print(planner_to_use)
@@ -233,18 +234,6 @@ def main(map_fname=None, start=None, goal=None, sampler=None):
     # reduce goal radius for klampt as it plans in radian
     if args["--engine"] == "klampt":
         args["--goal_radius"] = 0.001
-
-    # quick and dirty fix for docopt not able to handle negative argument
-    if planner_options["start_pt"]:
-        if planner_options["start_pt"].startswith("(") and planner_options[
-            "start_pt"
-        ].endswith(")"):
-            planner_options["start_pt"] = planner_options["start_pt"][1:-1]
-    if planner_options["goal_pt"]:
-        if planner_options["goal_pt"].startswith("(") and planner_options[
-            "goal_pt"
-        ].endswith(")"):
-            planner_options["goal_pt"] = planner_options["goal_pt"][1:-1]
 
     import env
 
