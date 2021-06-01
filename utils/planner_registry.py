@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Optional, Callable, Dict, Type, TYPE_CHECKING
 
@@ -8,8 +10,12 @@ if TYPE_CHECKING:
 
 @dataclass
 class BaseDataPack:
-    """ """
+    """
+    Base data pack that is common to sampler and planner, which
+    includes visualisation method for pygame
+    """
 
+    #: an unique id to identify this data-pack
     name: str
     visualise_pygame_paint_init: Optional[Callable]
     visualise_pygame_paint: Optional[Callable]
@@ -18,40 +24,50 @@ class BaseDataPack:
 
 @dataclass
 class PlannerDataPack(BaseDataPack):
-    """ """
+    """
+    Data pack to stores planner class and the sampler with `sample_id` to use
+    """
 
+    #: the class to construct the planner
     planner_class: Type["Planner"]
+    #: the sampler id to associate to this planner
     sampler_id: str
 
 
 @dataclass
 class SamplerDataPack(BaseDataPack):
-    """ """
+    """
+    Data pack to store sampler class
+    """
 
+    #: the class to construct the sampler
     sampler_class: Type["Sampler"]
 
 
-# the registry to store all registered planners and samplers
+#: the registry to store a dictionary to map a friendly name to a planner data pack
 PLANNERS: Dict[str, PlannerDataPack] = {}
+#: the registry to store a dictionary to map a friendly name to a sampler data pack
 SAMPLERS: Dict[str, SamplerDataPack] = {}
 
 
 def register_planner(
     planner_id: str,
-    planner_class: Type["Planner"],
+    planner_class: Type[Planner],
     sampler_id: str,
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
     visualise_pygame_paint_terminate: Optional[Callable] = None,
 ) -> None:
-    """
+    """Register a planner to make it available for planning.
 
-    :param planner_id: str: 
-    :param planner_class: Type['Planner']: 
-    :param sampler_id: str: 
-    :param visualise_pygame_paint_init: Optional[Callable]:  (Default value = None)
-    :param visualise_pygame_paint: Optional[Callable]:  (Default value = None)
-    :param visualise_pygame_paint_terminate: Optional[Callable]:  (Default value = None)
+    :param planner_id: the unique planner id for this registering planner
+    :param planner_class: the planner class
+    :param sampler_id: sampler id to construct
+    :param visualise_pygame_paint_init: the paint function for pygame,
+        during initialisation
+    :param visualise_pygame_paint: the paint function for pygame
+    :param visualise_pygame_paint_terminate: the paint function for pygame,
+        when terminating
 
     """
     if planner_id in PLANNERS:
@@ -69,18 +85,20 @@ def register_planner(
 
 def register_sampler(
     sampler_id: str,
-    sampler_class: Type["Sampler"],
+    sampler_class: Type[Sampler],
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
     visualise_pygame_paint_terminate: Optional[Callable] = None,
 ) -> None:
-    """
+    """Register a sampler to make it available for planning.
 
-    :param sampler_id: str: 
-    :param sampler_class: Type['Sampler']: 
-    :param visualise_pygame_paint_init: Optional[Callable]:  (Default value = None)
-    :param visualise_pygame_paint: Optional[Callable]:  (Default value = None)
-    :param visualise_pygame_paint_terminate: Optional[Callable]:  (Default value = None)
+    :param sampler_id: the unique id for this sampler
+    :param sampler_class: the class to construct this sampler
+    :param visualise_pygame_paint_init: the paint function for pygame,
+        during initialisation
+    :param visualise_pygame_paint: the paint function for pygame
+    :param visualise_pygame_paint_terminate: the paint function for pygame,
+        when terminating
 
     """
     if sampler_id in SAMPLERS:

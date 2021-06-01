@@ -81,7 +81,7 @@ class RandomPolicySampler(Sampler):
                     3.12413936106985,
                 ],
             )
-        elif self.args.image == "maps/4d.png":
+        elif self.args.engine == "4d":
             self.low, self.high = [
                 [0, 0, -np.pi, -np.pi],
                 [self.args.env.dim[0], self.args.env.dim[1], np.pi, np.pi],

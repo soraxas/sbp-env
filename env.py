@@ -91,6 +91,14 @@ class Env(VisualiserSwitcher.env_clname):
         self.planner.init(env=self, **kwargs)
         if kwargs["engine"] == "klampt":
             self.args.sampler.set_use_radian(True)
+            if kwargs["epsilon"] > 1:
+                import warnings
+
+                warnings.warn(
+                    f"Epsilon value is very high at {kwargs['epsilon']} ("
+                    f">than 1.0). It might not work well as klampt uses "
+                    f"radian for joints value"
+                )
 
     @staticmethod
     def radian_dist(p1: np.ndarray, p2: np.ndarray):
@@ -144,7 +152,7 @@ class Env(VisualiserSwitcher.env_clname):
         self.started = True
 
         with tqdm(
-                total=self.args.max_number_nodes, desc=self.args.sampler.name
+            total=self.args.max_number_nodes, desc=self.args.sampler.name
         ) as pbar:
             while self.stats.valid_sample < self.args.max_number_nodes:
                 self.update_screen()

@@ -1,5 +1,5 @@
 import logging
-from typing import Set, List
+from typing import List
 
 import numpy as np
 from rtree import index
@@ -14,8 +14,8 @@ class MagicDict(dict):
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            setattr(result, k, copy.deepcopy(v, memo))
+        for k, v in self.items():
+            result[k] = copy.deepcopy(v, memo)
         return result
 
     def __getattr__(self, attr):
@@ -67,7 +67,7 @@ class Node:
     :ivar is_start: a flag to indicate this is the start node
     :ivar is_goal: a flag to indicate this is the goal node
 
-    :vartype pos: :class:`np.ndarray`
+    :vartype pos: :class:`numpy.ndarray`
     :vartype cost: float
     :vartype parent: :class:`Node`
     :vartype children: a list of :class:`Node`
@@ -114,9 +114,9 @@ class Stats:
     :ivar sampledNodes: temporarily list of the recently sampled configurations
     :ivar showSampledPoint: A flag to denote whether we should store the list of
         recently sampled configurations
-    :ivar sampler_success: UNDOCUNMENTED
-    :ivar sampler_success_all: UNDOCUNMENTED
-    :ivar sampler_fail: UNDOCUNMENTED
+    :ivar sampler_success: UNDOCUMENTED
+    :ivar sampler_success_all: UNDOCUMENTED
+    :ivar sampler_fail: UNDOCUMENTED
     :ivar visible_cnt: the number of calls to visibility test in the collision checker
     :ivar feasible_cnt: the number of calls to feasibility test in the collision checker
 
@@ -209,7 +209,7 @@ def update_progress(progress: int, total_num: int, num_of_blocks: int = 10):
 class BFS:
     """Walk through the connected nodes with BFS"""
 
-    def __init__(self, node: Node, validNodes: Set[Node]):
+    def __init__(self, node, validNodes):
         """
         :param node: the starting node
         :param validNodes: the set of valid nodes that this BFS will transverse
@@ -219,7 +219,7 @@ class BFS:
         self.next_node_to_visit = [node]
         self.next_node = None
 
-    def visit_node(self, node: Node):
+    def visit_node(self, node):
         """Visits the given node
 
         :param node: the node to visit
@@ -257,11 +257,13 @@ class BFS:
         self.visit_node(_node)
         return True
 
-    def next(self) -> Node:
+    def next(self):
         """Get the next node
 
         :return: the next node from the BFS search
         """
+        if self.next_node is None and not self.has_next():
+            raise StopIteration("No more node to visit")
         node = self.next_node
         self.next_node = None
         return node

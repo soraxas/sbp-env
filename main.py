@@ -194,7 +194,7 @@ def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = Non
         if (not a.startswith("--") and args[a] is True and a not in ("start", "goal"))
     ]
     assert (
-            len(planner_canidates) == 1
+        len(planner_canidates) == 1
     ), f"Planner to use '{planner_canidates}' has length {len(planner_canidates)}"
     planner_to_use = planner_canidates[0]
     print(planner_to_use)

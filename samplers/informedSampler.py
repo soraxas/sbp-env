@@ -122,7 +122,7 @@ class InformedSampler(Sampler):
             xBall = self.sample_unit_ball()
             rnd = np.dot(np.dot(self.C, L), xBall) + self.xCenter
             p = [rnd[(0, 0)], rnd[(1, 0)]]
-            if self.args.image == "maps/4d.png":
+            if self.args.engine == "4d":
                 p.extend(np.random.uniform([-np.pi, -np.pi], [np.pi, np.pi]))
         else:
             p = self.random_sampler.get_next_pos()[0]

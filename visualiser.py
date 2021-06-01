@@ -39,7 +39,8 @@ def nothing_to_paint(*args):
 
 class BasePlannerVisualiser(ABC):
     """
-    Abstract base Planner Visualiser
+    Base Planner Visualiser that performs nothing.
+    Good for benchmark when you don't care about visual inspection.
     """
 
     def __init__(self, **kwargs):
@@ -73,7 +74,8 @@ class BasePlannerVisualiser(ABC):
 
 class BaseSamplerVisualiser(ABC):
     """
-    Abstract base Sampler Visualiser
+    Base Sampler Visualiser that performs nothing.
+    Good for benchmark when you don't care about visual inspection.
     """
 
     def __init__(self, **kwargs):
@@ -101,7 +103,8 @@ class BaseSamplerVisualiser(ABC):
 
 class BaseEnvVisualiser(ABC):
     """
-    Abstract base environment visualiser
+    Base Environment Visualiser that performs nothing.
+    Good for benchmark when you don't care about visual inspection.
     """
 
     def __init__(self, **kwargs):
@@ -218,7 +221,7 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
     ):
         """
         :param sampler_data_pack: a sampler data pack that stores the implemented
-        paint function or init function.
+            paint function or init function.
         """
         super().__init__(**kwargs)
         self.sampler_data_pack = sampler_data_pack
@@ -234,11 +237,6 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
             self.paint_func = nothing_to_paint
 
     def init(self, **kwargs):
-        """
-
-        :param \**kwargs:
-
-        """
         super().init(**kwargs)
 
         if self.sampler_data_pack is not None:
@@ -246,11 +244,9 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
                 self.sampler_data_pack.visualise_pygame_paint_init(self)
 
     def paint(self):
-        """ """
         self.paint_func(self)
 
     def terminates_hook(self):
-        """ """
         if self.sampler_data_pack is not None:
             if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
                 self.sampler_data_pack.visualise_pygame_paint_terminate(self)
@@ -345,7 +341,10 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         ################################################################################
 
     def set_start_goal_points(
-        self: Env, start: Optional[np.ndarray] = None, goal: Optional[np.ndarray] = None
+        self: Env,
+        start: Optional[np.ndarray] = None,
+        goal: Optional[np.ndarray] = None,
+        **kwargs,
     ):
         """A function that query user for start/goal and set them accordingly.
 
@@ -401,19 +400,9 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 sys.exit(0)
 
     def pygame_show(self: Env):
-        """
-
-        :param self: Env:
-
-        """
         self.args.no_display = False
 
     def pygame_hide(self: Env):
-        """
-
-        :param self: Env:
-
-        """
         self.args.no_display = True
         pygame.display.iconify()
         # pygame.quit()
@@ -427,15 +416,13 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         layer=None,
     ):
         """
+        Draw a 4D stick robotic arm
 
-        :param self: Env:
-        :param node:
-        :param colour1:  (Default value = Colour.cAlpha(Colour.orange)
-        :param 128):
-        :param colour2:  (Default value = Colour.cAlpha(Colour.cyan)
-        :param line_modifier:  (Default value = 2.5)
-        :param layer:  (Default value = None)
-
+        :param node: the origin of the robot arm
+        :param colour1: the colour of the first link
+        :param colour2: the colour of the second link
+        :param line_modifier: modify the weight of the link to be drawn
+        :param layer: the layer to draw the arm
         """
 
         # draw config for node 1
@@ -475,14 +462,13 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
     def draw_path(
         self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None
     ):
-        """
+        """Draw a path that represents an edge
 
-        :param self: Env:
-        :param node1:
-        :param node2:
-        :param colour:  (Default value = Colour.path_blue)
-        :param line_modifier:  (Default value = 1)
-        :param layer:  (Default value = None)
+        :param node1: the starting node of the edge
+        :param node2: the ending node of the edge
+        :param colour: the color of the edge
+        :param line_modifier: modify the weight of the edge to be drawn
+        :param layer: the layer to draw th edge
 
         """
         if layer is None:
@@ -519,23 +505,22 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             )
 
     def draw_circle(self: Env, pos, colour, radius, layer):
-        """
+        """Draw a circle (e.g. to represent a node)
 
-        :param self: Env:
-        :param pos:
-        :param colour:
-        :param radius:
-        :param layer:
+        :param pos: the origin position of the circle
+        :param colour: the color of the circle
+        :param radius: the radius of the circle
+        :param layer: the layer to draw the circle
 
         """
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
         pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
 
     def update_screen(self: Env, update_all=False):
-        """
+        """Refresh the screen
 
-        :param self: Env:
-        :param update_all:  (Default value = False)
+        :param update_all: Force update the screen (as oppose to limit drawing to
+            speed up)
 
         """
         self.process_pygame_event()
@@ -575,6 +560,11 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             try:
                 self.planner.paint()
             except AttributeError as e:
+                # only raise the exception if the planning had started
+                # because during setup there might be attributes that are
+                # not available yet.
+                if self.started:
+                    raise e
                 # print(e)
                 pass
             draw_start_goal_pt()
@@ -590,7 +580,9 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             try:
                 self.args.sampler.paint()
             except AttributeError as e:
-                print(e)
+                if self.started:
+                    raise e
+                # print(e)
                 pass
 
         # Sampled points
@@ -936,7 +928,10 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         return
 
     def set_start_goal_points(
-        self, start: Optional[np.ndarray] = None, goal: Optional[np.ndarray] = None
+        self,
+        start: Optional[np.ndarray] = None,
+        goal: Optional[np.ndarray] = None,
+        **kwargs,
     ):
         """
 
@@ -978,8 +973,6 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
         :param pos: 
         :param colour:  (Default value = (1)
-        :param 0: 
-        :param 1): 
         :param size:  (Default value = 15)
         :param label:  (Default value = None)
 
@@ -1065,6 +1058,8 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             try:
                 self.planner.paint()
             except AttributeError as e:
+                if self.started:
+                    raise e
                 # print(e)
                 pass
 
@@ -1073,6 +1068,8 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             try:
                 self.args.sampler.paint()
             except AttributeError as e:
+                if self.started:
+                    raise e
                 # print(e)
                 pass
 

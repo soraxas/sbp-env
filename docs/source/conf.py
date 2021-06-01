@@ -45,6 +45,7 @@ extensions = [
     "sphinx_autodoc_defaultargs",
     "sphinx.ext.githubpages",
     "sphinx_rtd_theme",
+    "sphinx-prompt",  # commandline prompt
 ]
 autoclass_content = "both"  # use both class and __init__ docstring for docs.
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary

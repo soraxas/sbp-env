@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 import scipy
 from SALib.sample import (
@@ -10,6 +8,7 @@ from SALib.sample import (
     fast_sampler,
 )
 
+#: the size of bucket to draw random samples
 NUM_DATA_POINTS = 10000
 SUPPORTED_RANDOM_METHODS_TITLES = {
     "pseudo_random": "Pseudo Random",
@@ -62,6 +61,7 @@ class NormalRandomnessManager:
 
         :param sigma: the sigma :math:`\sigma` parameter to be used to draw from a
             normal distribution
+
             .. math::
                 x \sim \mathcal{N}( x | \mu, \sigma^2)
 
@@ -102,21 +102,21 @@ class NormalRandomnessManager:
     #     # shift location
     #     return draw + origin
 
-    def redraw_half_normal(self, start_at, scale):
-        """
+    def redraw_half_normal(self, start_at: np.ndarray, scale: float):
+        """Re-draw from a half normal distribution
 
-        :param start_at: 
-        :param scale: 
+        :param start_at: the origin
+        :param scale: the scale of the half normal
 
         """
         dist = scipy.stats.halfnorm.rvs(loc=start_at, scale=scale, size=NUM_DATA_POINTS)
         self.half_normal_draws_reserve = dist
 
-    def draw_half_normal(self, start_at, scale=1):
-        """
+    def draw_half_normal(self, start_at: np.ndarray, scale: float = 1):
+        """Draw from a half normal distribution
 
-        :param start_at: 
-        :param scale:  (Default value = 1)
+        :param start_at: the origin
+        :param scale: the scale of the half normal
 
         """
         if (
@@ -131,17 +131,23 @@ class NormalRandomnessManager:
 
 
 class RandomnessManager:
-    """ """
+    """
+    A random number manager that draw a buckets of random numbers at a number and
+    redraw when the bucket is exhausted.
+    """
 
-    def __init__(self, num_dim):
+    def __init__(self, num_dim: int):
+        """
+        :param num_dim: the number of dimension
+        """
         # draws of random numbers
         self.random_draws = {}
         self.num_dim = num_dim
 
-    def redraw(self, random_method):
-        """
+    def redraw(self, random_method: str):
+        """Redraw the random number with the given method
 
-        :param random_method: 
+        :param random_method: the random method to use
 
         """
         problem = {
@@ -164,7 +170,7 @@ class RandomnessManager:
         self.random_draws[random_method] = seq
 
     def get_random(self, random_method):
-        """Get one sample of random number :math:`r` where :math:`0 \lt r \lt 1`
+        """Get one sample of random number :math:`r` where :math:`0 \le r \le 1`
 
         :param random_method: The kind of random number method to use, must be one of
         the choice in :data:`SUPPORTED_RANDOM_METHODS`
@@ -186,13 +192,6 @@ if __name__ == "__main__":
     from matplotlib.pyplot import figure
 
     def show_fig(x, y, title=None):
-        """
-
-        :param x: 
-        :param y: 
-        :param title:  (Default value = None)
-
-        """
         figure(num=1, figsize=(8, 6), dpi=200)
         plt.title(title)
         plt.plot(x, y, "r.")

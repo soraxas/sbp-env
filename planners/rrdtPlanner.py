@@ -539,7 +539,6 @@ class RRdTSampler(Sampler):
         # get a node to random walk
         choice = self.get_random_choice()
 
-        # NOTE This controls if testing (via mouse) or actual runs
         pos = self.randomWalk(choice)
         # pos, choice = self.random_walk_by_mouse()
         return (
@@ -551,7 +550,8 @@ class RRdTSampler(Sampler):
         )
 
     def random_walk_by_mouse(self):
-        """
+        """Random walk by mouse
+
         .. warning::
             For testing purpose. Mimic random walk, but do so via mouse click.
         """
@@ -608,8 +608,11 @@ class RRdTSampler(Sampler):
         self._last_prob = prob  # this will be used to paint particles
         try:
             choice = np.random.choice(range(self.p_manager.num_dtrees), p=prob)
+            assert hasattr(self.p_manager.particles[choice].tree, "poses")
         except ValueError as e:
-            # NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob
+            # NOTE dont know why the probability got out of sync... (not sums to 1)
+            # probably because of underflow?
+            # We will notify the use, then try re-sync the prob
             LOGGER.error(
                 "!! probability got exception '{}'... trying to re-sync prob again.".format(
                     e
@@ -685,20 +688,16 @@ class RRdTPlanner(RRTPlanner):
     @overrides
     def run_once(self):
         # Get an sample that is free (not in blocked space)
-        # _tmp = self.args.sampler.get_valid_next_pos()
-        # print(self.args.goal_radius)
-
         while True:
             _tmp = self.args.sampler.get_next_pos()
             if _tmp is None:
                 # This denotes a particle had tried to restart and added the new node
-                # to existing tree instead. Skip remaining steps and iterate to next loop
-                _tmp = None
+                # to existing tree instead.
+                # Skip remaining steps and iterate to next loop
                 break
             rand_pos = _tmp[0]
             self.args.env.stats.add_sampled_node(rand_pos)
             if self.args.env.cc.feasible(rand_pos):
-                pass
                 self.args.env.stats.sampler_success += 1
                 break
             report_fail = _tmp[-1]
@@ -721,6 +720,7 @@ class RRdTPlanner(RRTPlanner):
             idx = self.find_nearest_neighbour_idx(
                 rand_pos, parent_tree.poses[: len(parent_tree.nodes)]
             )
+            print(idx)
             nn = parent_tree.nodes[idx]
             # get an intermediate node according to step-size
             newpos = self.args.env.step_from_to(nn.pos, rand_pos)
@@ -730,22 +730,6 @@ class RRdTPlanner(RRTPlanner):
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
-
-            # if True:
-            #     from klampt import vis
-            #     from klampt.model.coordinates import Point, Direction
-            #     import numpy as np
-            #
-            #     self.args.env.cc.robot.setConfig(self.args.env.cc._translate_to_klampt(newpos))
-            #     link = self.args.env.cc.robot.link(11)
-            #
-            #     unique_label = f"pt{self.args.env.stats.valid_sample}"
-            #     pos = link.getWorldPosition([0, 0, 0])
-            #     vis.add(unique_label, Point(pos), keepAppearance=True)
-            #     # print(unique_label)
-            #     vis.setAttribute(unique_label, "size", 20)
-            #     vis.setAttribute(unique_label, "color", (1, 0, 0, 1))
-            #     vis.hideLabel(unique_label)
 
             self.args.env.stats.add_free()
             self.args.sampler.add_tree_node(pos=newnode.pos)
@@ -793,17 +777,6 @@ class RRdTPlanner(RRTPlanner):
 
         """
 
-        # # hot fix. if nn has no edges, it should be from root tree
-        # if parent_tree is not self.root:
-        #     try:
-        #         nn.edges
-        #         newnode.edges
-        #     except AttributeError:
-        #         parent_tree = self.root
-        #         LOGGER.warning(
-        #             f"HOT FIX with parent_tree-is-None={parent_tree is None}"
-        #         )
-
         if parent_tree is self.root:
             # using rrt* algorithm to add each nodes
             newnode, nn = self.rrt_star_add_node(newnode, nn)
@@ -823,11 +796,8 @@ class RRdTPlanner(RRTPlanner):
         :param parent_tree: the tree to add the node
 
         """
-        r = self.args.epsilon
-        if self.args.engine == "klampt":
-            r = 1
         nearest_nodes = self.find_nearest_node_from_neighbour(
-            node=newnode, parent_tree=parent_tree, radius=r
+            node=newnode, parent_tree=parent_tree, radius=self.args.epsilon
         )
         cnt = 0
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
@@ -1013,12 +983,20 @@ class RRdTPlanner(RRTPlanner):
             tree1.extend_tree(tree2)
         del tree2.nodes
         del tree2.poses
-        self.disjointedTrees.remove(tree2)
+
+        # remove any particles that contains the tree that is being discarded
+        self.args.sampler.p_manager.particles = [
+            p for p in self.args.sampler.p_manager.particles if hasattr(p.tree, "poses")
+        ]
 
         if self.args.sampler.restart_when_merge:
             # restart all particles
             for p in tree2.particle_handler:
-                p.restart()
+                try:
+                    p.restart()
+                except AttributeError:
+                    # AttributeError: 'TreeDisjoint' object has no attribute 'poses'
+                    pass
             del tree2.particle_handler
         else:
             # pass the remaining particle to the remaining tree
@@ -1238,8 +1216,8 @@ def pygame_rrdt_sampler_paint(sampler):
             denominator = 1  # prevent division by zero
         return 220 - 180 * (1 - (value - min_prob) / denominator)
 
-    # if self._last_prob is None:
-    #     return
+    if sampler._last_prob is None:
+        return
     max_num = sampler._last_prob.max()
     min_num = sampler._last_prob.min()
     for i, p in enumerate(sampler.p_manager.particles):
@@ -1251,7 +1229,7 @@ def pygame_rrdt_sampler_paint(sampler):
         sampler.args.env.draw_circle(
             pos=p.pos, colour=color, radius=4, layer=sampler.particles_layer
         )
-        sampler.window.blit(sampler.particles_layer, (0, 0))
+        sampler.args.env.window.blit(sampler.particles_layer, (0, 0))
 
 
 def pygame_rrdt_planner_paint(planner):
