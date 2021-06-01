@@ -92,8 +92,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
@@ -167,9 +167,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for randomness</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">math</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">from</span> <span class="nn">SALib.sample</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">saltelli</span><span class="p">,</span>
@@ -179,6 +177,7 @@
     <span class="n">fast_sampler</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1">#: the size of bucket to draw random samples</span>
 <span class="n">NUM_DATA_POINTS</span> <span class="o">=</span> <span class="mi">10000</span>
 <span class="n">SUPPORTED_RANDOM_METHODS_TITLES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;pseudo_random&quot;</span><span class="p">:</span> <span class="s2">&quot;Pseudo Random&quot;</span><span class="p">,</span>
@@ -231,6 +230,7 @@
 
 <span class="sd">        :param sigma: the sigma :math:`\sigma` parameter to be used to draw from a</span>
 <span class="sd">            normal distribution</span>
+
 <span class="sd">            .. math::</span>
 <span class="sd">                x \sim \mathcal{N}( x | \mu, \sigma^2)</span>
 
@@ -271,21 +271,21 @@
     <span class="c1">#     # shift location</span>
     <span class="c1">#     return draw + origin</span>
 
-<div class="viewcode-block" id="NormalRandomnessManager.redraw_half_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.redraw_half_normal">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_half_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_at</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="NormalRandomnessManager.redraw_half_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.redraw_half_normal">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_half_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_at</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Re-draw from a half normal distribution</span>
 
-<span class="sd">        :param start_at: </span>
-<span class="sd">        :param scale: </span>
+<span class="sd">        :param start_at: the origin</span>
+<span class="sd">        :param scale: the scale of the half normal</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dist</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">halfnorm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">start_at</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">NUM_DATA_POINTS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">half_normal_draws_reserve</span> <span class="o">=</span> <span class="n">dist</span></div>
 
-<div class="viewcode-block" id="NormalRandomnessManager.draw_half_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.draw_half_normal">[docs]</a>    <span class="k">def</span> <span class="nf">draw_half_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_at</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="NormalRandomnessManager.draw_half_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.draw_half_normal">[docs]</a>    <span class="k">def</span> <span class="nf">draw_half_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_at</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw from a half normal distribution</span>
 
-<span class="sd">        :param start_at: </span>
-<span class="sd">        :param scale:  (Default value = 1)</span>
+<span class="sd">        :param start_at: the origin</span>
+<span class="sd">        :param scale: the scale of the half normal</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -300,17 +300,23 @@
 
 
 <div class="viewcode-block" id="RandomnessManager"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager">[docs]</a><span class="k">class</span> <span class="nc">RandomnessManager</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A random number manager that draw a buckets of random numbers at a number and</span>
+<span class="sd">    redraw when the bucket is exhausted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_dim</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param num_dim: the number of dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># draws of random numbers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_draws</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_dim</span> <span class="o">=</span> <span class="n">num_dim</span>
 
-<div class="viewcode-block" id="RandomnessManager.redraw"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_method</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RandomnessManager.redraw"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Redraw the random number with the given method</span>
 
-<span class="sd">        :param random_method: </span>
+<span class="sd">        :param random_method: the random method to use</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">problem</span> <span class="o">=</span> <span class="p">{</span>
@@ -333,7 +339,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">random_draws</span><span class="p">[</span><span class="n">random_method</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq</span></div>
 
 <div class="viewcode-block" id="RandomnessManager.get_random"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager.get_random">[docs]</a>    <span class="k">def</span> <span class="nf">get_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_method</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get one sample of random number :math:`r` where :math:`0 \lt r \lt 1`</span>
+        <span class="sd">&quot;&quot;&quot;Get one sample of random number :math:`r` where :math:`0 \le r \le 1`</span>
 
 <span class="sd">        :param random_method: The kind of random number method to use, must be one of</span>
 <span class="sd">        the choice in :data:`SUPPORTED_RANDOM_METHODS`</span>
@@ -355,13 +361,6 @@
     <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">figure</span>
 
     <span class="k">def</span> <span class="nf">show_fig</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param x: </span>
-<span class="sd">        :param y: </span>
-<span class="sd">        :param title:  (Default value = None)</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">figure</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;r.&quot;</span><span class="p">)</span>

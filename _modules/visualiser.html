@@ -92,8 +92,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
@@ -208,7 +208,8 @@
 
 <span class="k">class</span> <span class="nc">BasePlannerVisualiser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Abstract base Planner Visualiser</span>
+<span class="sd">    Base Planner Visualiser that performs nothing.</span>
+<span class="sd">    Good for benchmark when you don&#39;t care about visual inspection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -242,7 +243,8 @@
 
 <span class="k">class</span> <span class="nc">BaseSamplerVisualiser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Abstract base Sampler Visualiser</span>
+<span class="sd">    Base Sampler Visualiser that performs nothing.</span>
+<span class="sd">    Good for benchmark when you don&#39;t care about visual inspection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -270,7 +272,8 @@
 
 <span class="k">class</span> <span class="nc">BaseEnvVisualiser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Abstract base environment visualiser</span>
+<span class="sd">    Base Environment Visualiser that performs nothing.</span>
+<span class="sd">    Good for benchmark when you don&#39;t care about visual inspection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -387,7 +390,7 @@
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param sampler_data_pack: a sampler data pack that stores the implemented</span>
-<span class="sd">        paint function or init function.</span>
+<span class="sd">            paint function or init function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="o">=</span> <span class="n">sampler_data_pack</span>
@@ -403,11 +406,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">nothing_to_paint</span>
 
 <div class="viewcode-block" id="PygameSamplerVisualiser.init"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param \**kwargs:</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -415,11 +413,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygameSamplerVisualiser.paint"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygameSamplerVisualiser.terminates_hook"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser.terminates_hook">[docs]</a>    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
@@ -514,7 +510,10 @@
         <span class="c1">################################################################################</span>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.set_start_goal_points"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.set_start_goal_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;A function that query user for start/goal and set them accordingly.</span>
 
@@ -569,22 +568,12 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Leaving.&quot;</span><span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PygameEnvVisualiser.pygame_show"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.pygame_show">[docs]</a>    <span class="k">def</span> <span class="nf">pygame_show</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">pygame_show</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="sd">        :param self: Env:</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">False</span></div>
-
-<div class="viewcode-block" id="PygameEnvVisualiser.pygame_hide"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.pygame_hide">[docs]</a>    <span class="k">def</span> <span class="nf">pygame_hide</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param self: Env:</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">pygame_hide</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">iconify</span><span class="p">()</span></div>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">iconify</span><span class="p">()</span>
         <span class="c1"># pygame.quit()</span>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.draw_stick_robot"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_stick_robot">[docs]</a>    <span class="k">def</span> <span class="nf">draw_stick_robot</span><span class="p">(</span>
@@ -596,15 +585,13 @@
         <span class="n">layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw a 4D stick robotic arm</span>
 
-<span class="sd">        :param self: Env:</span>
-<span class="sd">        :param node:</span>
-<span class="sd">        :param colour1:  (Default value = Colour.cAlpha(Colour.orange)</span>
-<span class="sd">        :param 128):</span>
-<span class="sd">        :param colour2:  (Default value = Colour.cAlpha(Colour.cyan)</span>
-<span class="sd">        :param line_modifier:  (Default value = 2.5)</span>
-<span class="sd">        :param layer:  (Default value = None)</span>
-
+<span class="sd">        :param node: the origin of the robot arm</span>
+<span class="sd">        :param colour1: the colour of the first link</span>
+<span class="sd">        :param colour2: the colour of the second link</span>
+<span class="sd">        :param line_modifier: modify the weight of the link to be drawn</span>
+<span class="sd">        :param layer: the layer to draw the arm</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># draw config for node 1</span>
@@ -644,14 +631,13 @@
 <div class="viewcode-block" id="PygameEnvVisualiser.draw_path"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_path">[docs]</a>    <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">path_blue</span><span class="p">,</span> <span class="n">line_modifier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Draw a path that represents an edge</span>
 
-<span class="sd">        :param self: Env:</span>
-<span class="sd">        :param node1:</span>
-<span class="sd">        :param node2:</span>
-<span class="sd">        :param colour:  (Default value = Colour.path_blue)</span>
-<span class="sd">        :param line_modifier:  (Default value = 1)</span>
-<span class="sd">        :param layer:  (Default value = None)</span>
+<span class="sd">        :param node1: the starting node of the edge</span>
+<span class="sd">        :param node2: the ending node of the edge</span>
+<span class="sd">        :param colour: the color of the edge</span>
+<span class="sd">        :param line_modifier: modify the weight of the edge to be drawn</span>
+<span class="sd">        :param layer: the layer to draw th edge</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -688,23 +674,22 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.draw_circle"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_circle">[docs]</a>    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Draw a circle (e.g. to represent a node)</span>
 
-<span class="sd">        :param self: Env:</span>
-<span class="sd">        :param pos:</span>
-<span class="sd">        :param colour:</span>
-<span class="sd">        :param radius:</span>
-<span class="sd">        :param layer:</span>
+<span class="sd">        :param pos: the origin position of the circle</span>
+<span class="sd">        :param colour: the color of the circle</span>
+<span class="sd">        :param radius: the radius of the circle</span>
+<span class="sd">        :param layer: the layer to draw the circle</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">draw_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">)</span>
         <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">draw_pos</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">radius</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.update_screen"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.update_screen">[docs]</a>    <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Refresh the screen</span>
 
-<span class="sd">        :param self: Env:</span>
-<span class="sd">        :param update_all:  (Default value = False)</span>
+<span class="sd">        :param update_all: Force update the screen (as oppose to limit drawing to</span>
+<span class="sd">            speed up)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_pygame_event</span><span class="p">()</span>
@@ -744,6 +729,11 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># only raise the exception if the planning had started</span>
+                <span class="c1"># because during setup there might be attributes that are</span>
+                <span class="c1"># not available yet.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
             <span class="n">draw_start_goal_pt</span><span class="p">()</span>
@@ -759,7 +749,9 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
+                <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
 
         <span class="c1"># Sampled points</span>
@@ -1105,7 +1097,10 @@
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1147,8 +1142,6 @@
 
 <span class="sd">        :param pos: </span>
 <span class="sd">        :param colour:  (Default value = (1)</span>
-<span class="sd">        :param 0: </span>
-<span class="sd">        :param 1): </span>
 <span class="sd">        :param size:  (Default value = 15)</span>
 <span class="sd">        :param label:  (Default value = None)</span>
 
@@ -1234,6 +1227,8 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
 
@@ -1242,6 +1237,8 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
 

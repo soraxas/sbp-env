@@ -46,8 +46,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quick Start" href="quick-start.html" />
-    <link rel="prev" title="Sampling-based Motion Planners’ Testing Environment" href="index.html" /> 
+    <link rel="next" title="Motion Planners" href="planners.html" />
+    <link rel="prev" title="Quick Start" href="quick-start.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,11 +94,11 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Commandline Interface</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
@@ -206,9 +206,10 @@ main.py –version</p>
 -v –verbose           Display debug message.</p>
 </dd>
 <dt>Environment Options:</dt><dd><dl>
-<dt>-e –engine=ENGINE     Environment engine to use.</dt><dd><p>Could be either “image” or “klampt”.
+<dt>-e –engine=ENGINE     Environment engine to use.</dt><dd><p>Could be either “image”, “klampt” or “4d”.
 “image” engine uses an image as the map.
-“klampt” engine is a multi-dof engine that are more</p>
+“4d” engine uses an image as the map and an 4d robot arm.
+“klampt” engine is a multi-dof engine that is more</p>
 <blockquote>
 <div><p>features rich.</p>
 </div></blockquote>
@@ -317,8 +318,8 @@ is exhausted.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="quick-start.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="index.html" class="btn btn-neutral float-left" title="Sampling-based Motion Planners’ Testing Environment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="planners.html" class="btn btn-neutral float-right" title="Motion Planners" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quick-start.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

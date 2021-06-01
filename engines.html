@@ -94,12 +94,17 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Simulator Engine</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Simulator Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#d-image-space">2D Image Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-robot-arm">4D Robot Arm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#n-d-mainpulator"><span class="math">\(n\)</span>-D Mainpulator</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -173,9 +178,107 @@
   <div class="section" id="simulator-engine">
 <h1>Simulator Engine<a class="headerlink" href="#simulator-engine" title="Permalink to this headline">¶</a></h1>
 <p>Currently there are three engines used in <code class="docutils literal notranslate"><span class="pre">sbp-env</span></code> that are used to simulate collisions and the planning environment.</p>
+<div class="section" id="d-image-space">
+<h2>2D Image Space<a class="headerlink" href="#d-image-space" title="Permalink to this headline">¶</a></h2>
 <p>The first one is a <strong>2D</strong> image space engine with the configuration space (<em>C-Space</em>) as <span class="math">\(C \subseteq \mathbb{R}^2\)</span>.
 This engine is very easy to use and very easy to add new environments.
 This uses the <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code> for environment simulation and with the <a class="reference internal" href="visualisers.html#id2" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a> to visualise the planning scene.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">python main.py rrdt maps/room1.png -vv</span>
+</pre></div></div><div class="sidebar">
+<p class="sidebar-title">2D Image simulator</p>
+<div class="figure align-default">
+<img alt="_images/rrdt.gif" src="_images/rrdt.gif" />
+</div>
+</div>
+<p>This simulator uses images as its <em>C-Space</em> by treating each white pixlels as configurations in <span class="math">\(C_\text{free}\)</span>,
+and each non-white pixles as configurations in <span class="math">\(C_\text{obs}\)</span>.
+The two dimensional space of the <em>C-Space</em></p>
+<div class="math">
+\[q \equiv [x_0, x_1] \in C \subseteq \mathbb{R}^2
+
+\]</div>
+<p>would be taken as the <em>width</em> and the <em>height</em> of the image</p>
+<div class="math">
+\[0 \le x_0 < \mathcal{I}_\text{Width} \\
+0 \le x_1 < \mathcal{I}_\text{Height}
+
+\]</div>
+<p>where <span class="math">\(\mathcal{I}\)</span> denotes the image space.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Internally, all pixels with an <strong>RGB value</strong> of <cite>(255, 255, 255)</cite> would be treated as <span class="math">\(q \in C_\text{free}\)</span>,
+and any non-white pixels value will be treated as <span class="math">\(q \in C_\text{obs}\)</span> (e.g. <cite>(10, 20, 10)</cite>, <cite>(0, 0, 0)</cite>, etc.).
+The alpha channel would not be considered.</p>
+</div>
+</div>
+<div class="section" id="d-robot-arm">
+<h2>4D Robot Arm<a class="headerlink" href="#d-robot-arm" title="Permalink to this headline">¶</a></h2>
+<p>This simulator internally depends on <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code> to check for collision in the image space.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python main.py rrt maps/4d.png -s .5 --engine 4d</span>
+</pre></div></div><div class="sidebar">
+<p class="sidebar-title">4D Robot Arm simulator</p>
+<div class="figure align-default">
+<img alt="_images/rrdt.gif" src="_images/rrdt.gif" />
+</div>
+</div>
+<p>In conctast to the former, this simulator not only check for point mass collisions, but performs forward kinentamic on the given joints configuration to obtain body points in worldspace <span class="math">\(\mathcal{W}\subseteq \mathbb{R}^2\)</span>.
+Since the robot arm contains two configurable joints, the full configuration space <span class="math">\(C\)</span> is given by</p>
+<div class="math">
+\[q \equiv [x_0, x_1, r_0, r_1] \in C \subseteq \mathbb{R}^4
+
+\]</div>
+<p>where</p>
+<div class="math">
+\[\begin{aligned}
+    0      & \le  x_0  <  \mathcal{I}_\text{Width} \\
+    0      & \le  x_1  <  \mathcal{I}_\text{Height} \\
+    - \pi  & \le  r_0  <  \pi \\
+    - \pi  & \le  r_1  <  \pi
+\end{aligned}
+
+\]</div>
+<p>and we use <span class="math">\(r_0, r_1\)</span> to denote the rotational angles of the first and second joints respectively.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Similar to <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code>, all white pixels will be within <span class="math">\(q \in C_\text{free}\)</span> and vice versa.
+The body points obtained by the forward kinentamic on <span class="math">\(r_0, r_1\)</span> would be used to check collision in <span class="math">\(\mathcal{W}\)</span> to ensure the entire body is in free space.</p>
+</div>
+</div>
+<div class="section" id="n-d-mainpulator">
+<h2><span class="math">\(n\)</span>-D Mainpulator<a class="headerlink" href="#n-d-mainpulator" title="Permalink to this headline">¶</a></h2>
+<p>This simulator internally depends on <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code> to check for collision in the image space.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python main.py rrt maps/4d.png -s .5 --engine 4d</span>
+</pre></div></div><div class="sidebar">
+<p class="sidebar-title"><span class="math">\(n\)</span>-D Mainpulator simulator</p>
+<div class="figure align-default">
+<img alt="_images/klampt-simulator.png" src="_images/klampt-simulator.png" />
+</div>
+</div>
+<p>In conctast to the former, this simulator not only check for point mass collisions, but performs forward kinentamic on the given joints configuration to obtain body points in worldspace <span class="math">\(\mathcal{W}\subseteq \mathbb{R}^3\)</span> and <span class="math">\(C \subseteq \mathbb{R}^d\)</span>.
+Since the robot arm contains two configurable joints, the full configuration space <span class="math">\(C\)</span> is given by</p>
+<div class="math">
+\[q \equiv [r_0, \ldots, r_{d-1}] \in C \subseteq \mathbb{R}^
+
+\]</div>
+<p>where</p>
+<div class="math">
+\[\begin{aligned}
+    - \pi  & \le  r_i  <  \pi \quad \forall i \in \{0, \ldots, d-1\}
+\end{aligned}
+
+\]</div>
+<p>and we use <span class="math">\(r_0, r_1\)</span> to denote the rotational angles of the first and second joints respectively.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Internally, all pixels with an <strong>RGB value</strong> of <cite>(255, 255, 255)</cite> would be treated as <span class="math">\(q \in C_\text{free}\)</span>,
+and any non-white pixels value will be treated as <span class="math">\(q \in C_\text{obs}\)</span> (e.g. <cite>(10, 20, 10)</cite>, <cite>(0, 0, 0)</cite>, etc.).
+The alpha channel would not be considered.</p>
+</div>
+</div>
 </div>
 
 

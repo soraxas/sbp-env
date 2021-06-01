@@ -92,8 +92,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
@@ -708,7 +708,6 @@
         <span class="c1"># get a node to random walk</span>
         <span class="n">choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_choice</span><span class="p">()</span>
 
-        <span class="c1"># NOTE This controls if testing (via mouse) or actual runs</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">randomWalk</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
         <span class="c1"># pos, choice = self.random_walk_by_mouse()</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -720,7 +719,8 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="RRdTSampler.random_walk_by_mouse"><a class="viewcode-back" href="../../samplers.html#planners.rrdtPlanner.RRdTSampler.random_walk_by_mouse">[docs]</a>    <span class="k">def</span> <span class="nf">random_walk_by_mouse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Random walk by mouse</span>
+
 <span class="sd">        .. warning::</span>
 <span class="sd">            For testing purpose. Mimic random walk, but do so via mouse click.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -777,8 +777,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_prob</span> <span class="o">=</span> <span class="n">prob</span>  <span class="c1"># this will be used to paint particles</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">choice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">num_dtrees</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">prob</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;poses&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c1"># NOTE dont know why the probability got out of sync... We notify the use, then try re-sync the prob</span>
+            <span class="c1"># NOTE dont know why the probability got out of sync... (not sums to 1)</span>
+            <span class="c1"># probably because of underflow?</span>
+            <span class="c1"># We will notify the use, then try re-sync the prob</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">&quot;!! probability got exception &#39;</span><span class="si">{}</span><span class="s2">&#39;... trying to re-sync prob again.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">e</span>
@@ -854,20 +857,16 @@
 <div class="viewcode-block" id="RRdTPlanner.run_once"><a class="viewcode-back" href="../../planners.html#planners.rrdtPlanner.RRdTPlanner.run_once">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">run_once</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Get an sample that is free (not in blocked space)</span>
-        <span class="c1"># _tmp = self.args.sampler.get_valid_next_pos()</span>
-        <span class="c1"># print(self.args.goal_radius)</span>
-
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">_tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_next_pos</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">_tmp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># This denotes a particle had tried to restart and added the new node</span>
-                <span class="c1"># to existing tree instead. Skip remaining steps and iterate to next loop</span>
-                <span class="n">_tmp</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># to existing tree instead.</span>
+                <span class="c1"># Skip remaining steps and iterate to next loop</span>
                 <span class="k">break</span>
             <span class="n">rand_pos</span> <span class="o">=</span> <span class="n">_tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_sampled_node</span><span class="p">(</span><span class="n">rand_pos</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">rand_pos</span><span class="p">):</span>
-                <span class="k">pass</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampler_success</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">break</span>
             <span class="n">report_fail</span> <span class="o">=</span> <span class="n">_tmp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -890,6 +889,7 @@
             <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_neighbour_idx</span><span class="p">(</span>
                 <span class="n">rand_pos</span><span class="p">,</span> <span class="n">parent_tree</span><span class="o">.</span><span class="n">poses</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent_tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
             <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="n">nn</span> <span class="o">=</span> <span class="n">parent_tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="c1"># get an intermediate node according to step-size</span>
             <span class="n">newpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step_from_to</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">rand_pos</span><span class="p">)</span>
@@ -899,22 +899,6 @@
             <span class="n">report_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">,</span> <span class="n">free</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">newpos</span><span class="p">)</span>
-
-            <span class="c1"># if True:</span>
-            <span class="c1">#     from klampt import vis</span>
-            <span class="c1">#     from klampt.model.coordinates import Point, Direction</span>
-            <span class="c1">#     import numpy as np</span>
-            <span class="c1">#</span>
-            <span class="c1">#     self.args.env.cc.robot.setConfig(self.args.env.cc._translate_to_klampt(newpos))</span>
-            <span class="c1">#     link = self.args.env.cc.robot.link(11)</span>
-            <span class="c1">#</span>
-            <span class="c1">#     unique_label = f&quot;pt{self.args.env.stats.valid_sample}&quot;</span>
-            <span class="c1">#     pos = link.getWorldPosition([0, 0, 0])</span>
-            <span class="c1">#     vis.add(unique_label, Point(pos), keepAppearance=True)</span>
-            <span class="c1">#     # print(unique_label)</span>
-            <span class="c1">#     vis.setAttribute(unique_label, &quot;size&quot;, 20)</span>
-            <span class="c1">#     vis.setAttribute(unique_label, &quot;color&quot;, (1, 0, 0, 1))</span>
-            <span class="c1">#     vis.hideLabel(unique_label)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_free</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">add_tree_node</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
@@ -962,17 +946,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># # hot fix. if nn has no edges, it should be from root tree</span>
-        <span class="c1"># if parent_tree is not self.root:</span>
-        <span class="c1">#     try:</span>
-        <span class="c1">#         nn.edges</span>
-        <span class="c1">#         newnode.edges</span>
-        <span class="c1">#     except AttributeError:</span>
-        <span class="c1">#         parent_tree = self.root</span>
-        <span class="c1">#         LOGGER.warning(</span>
-        <span class="c1">#             f&quot;HOT FIX with parent_tree-is-None={parent_tree is None}&quot;</span>
-        <span class="c1">#         )</span>
-
         <span class="k">if</span> <span class="n">parent_tree</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
             <span class="c1"># using rrt* algorithm to add each nodes</span>
             <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rrt_star_add_node</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="p">)</span>
@@ -992,11 +965,8 @@
 <span class="sd">        :param parent_tree: the tree to add the node</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">epsilon</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;klampt&quot;</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">nearest_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_node_from_neighbour</span><span class="p">(</span>
-            <span class="n">node</span><span class="o">=</span><span class="n">newnode</span><span class="p">,</span> <span class="n">parent_tree</span><span class="o">=</span><span class="n">parent_tree</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">r</span>
+            <span class="n">node</span><span class="o">=</span><span class="n">newnode</span><span class="p">,</span> <span class="n">parent_tree</span><span class="o">=</span><span class="n">parent_tree</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">epsilon</span>
         <span class="p">)</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">nearest_neighbour_node</span><span class="p">,</span> <span class="n">nearest_neighbour_tree</span> <span class="ow">in</span> <span class="n">nearest_nodes</span><span class="p">:</span>
@@ -1182,12 +1152,20 @@
             <span class="n">tree1</span><span class="o">.</span><span class="n">extend_tree</span><span class="p">(</span><span class="n">tree2</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">nodes</span>
         <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">poses</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disjointedTrees</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tree2</span><span class="p">)</span>
+
+        <span class="c1"># remove any particles that contains the tree that is being discarded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">particles</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">particles</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;poses&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">restart_when_merge</span><span class="p">:</span>
             <span class="c1"># restart all particles</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tree2</span><span class="o">.</span><span class="n">particle_handler</span><span class="p">:</span>
-                <span class="n">p</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">p</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="c1"># AttributeError: &#39;TreeDisjoint&#39; object has no attribute &#39;poses&#39;</span>
+                    <span class="k">pass</span>
             <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">particle_handler</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># pass the remaining particle to the remaining tree</span>
@@ -1407,8 +1385,8 @@
             <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># prevent division by zero</span>
         <span class="k">return</span> <span class="mi">220</span> <span class="o">-</span> <span class="mi">180</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">min_prob</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span>
 
-    <span class="c1"># if self._last_prob is None:</span>
-    <span class="c1">#     return</span>
+    <span class="k">if</span> <span class="n">sampler</span><span class="o">.</span><span class="n">_last_prob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
     <span class="n">max_num</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">_last_prob</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
     <span class="n">min_num</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">_last_prob</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">particles</span><span class="p">):</span>
@@ -1420,7 +1398,7 @@
         <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
             <span class="n">pos</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">sampler</span><span class="o">.</span><span class="n">particles_layer</span>
         <span class="p">)</span>
-        <span class="n">sampler</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">particles_layer</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">particles_layer</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">pygame_rrdt_planner_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">):</span>

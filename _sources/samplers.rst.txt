@@ -1,6 +1,8 @@
 C-space Samplers
 ================
 
+The following are samplers that generates sampled configurations :math:`q \in C` in
+*C-Space* with different strategies.
 
 Random Policy Sampler
 ---------------------

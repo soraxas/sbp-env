@@ -92,8 +92,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
@@ -168,7 +168,7 @@
             
   <h1>Source code for utils.common</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Set</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">rtree</span> <span class="kn">import</span> <span class="n">index</span>
@@ -183,8 +183,8 @@
         <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">memo</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">memo</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
@@ -236,7 +236,7 @@
 <span class="sd">    :ivar is_start: a flag to indicate this is the start node</span>
 <span class="sd">    :ivar is_goal: a flag to indicate this is the goal node</span>
 
-<span class="sd">    :vartype pos: :class:`np.ndarray`</span>
+<span class="sd">    :vartype pos: :class:`numpy.ndarray`</span>
 <span class="sd">    :vartype cost: float</span>
 <span class="sd">    :vartype parent: :class:`Node`</span>
 <span class="sd">    :vartype children: a list of :class:`Node`</span>
@@ -283,9 +283,9 @@
 <span class="sd">    :ivar sampledNodes: temporarily list of the recently sampled configurations</span>
 <span class="sd">    :ivar showSampledPoint: A flag to denote whether we should store the list of</span>
 <span class="sd">        recently sampled configurations</span>
-<span class="sd">    :ivar sampler_success: UNDOCUNMENTED</span>
-<span class="sd">    :ivar sampler_success_all: UNDOCUNMENTED</span>
-<span class="sd">    :ivar sampler_fail: UNDOCUNMENTED</span>
+<span class="sd">    :ivar sampler_success: UNDOCUMENTED</span>
+<span class="sd">    :ivar sampler_success_all: UNDOCUMENTED</span>
+<span class="sd">    :ivar sampler_fail: UNDOCUMENTED</span>
 <span class="sd">    :ivar visible_cnt: the number of calls to visibility test in the collision checker</span>
 <span class="sd">    :ivar feasible_cnt: the number of calls to feasibility test in the collision checker</span>
 
@@ -378,7 +378,7 @@
 <span class="k">class</span> <span class="nc">BFS</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Walk through the connected nodes with BFS&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">validNodes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Node</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">validNodes</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param node: the starting node</span>
 <span class="sd">        :param validNodes: the set of valid nodes that this BFS will transverse</span>
@@ -388,7 +388,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">next_node_to_visit</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">visit_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">visit_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Visits the given node</span>
 
 <span class="sd">        :param node: the node to visit</span>
@@ -426,11 +426,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">visit_node</span><span class="p">(</span><span class="n">_node</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the next node</span>
 
 <span class="sd">        :return: the next node from the BFS search</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">(</span><span class="s2">&quot;No more node to visit&quot;</span><span class="p">)</span>
         <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">node</span>
