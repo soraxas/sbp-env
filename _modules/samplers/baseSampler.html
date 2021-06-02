@@ -167,16 +167,17 @@
            <div itemprop="articleBody">
             
   <h1>Source code for samplers.baseSampler</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">MagicDict</span>
-<span class="kn">from</span> <span class="nn">visualiser</span> <span class="kn">import</span> <span class="n">VisualiserSwitcher</span>
+<span class="kn">from</span> <span class="nn">visualiser</span> <span class="kn">import</span> <span class="n">VisualiserSwitcher</span><span class="p">,</span> <span class="n">BaseSamplerVisualiser</span>
 
 
 <span class="c1"># noinspection PyAttributeOutsideInit</span>
-<div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">sampler_clname</span><span class="p">):</span>
+<div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract base sampler that defines each unique methods that some</span>
 <span class="sd">    sampler, but not all samplers, uses.</span>
@@ -186,8 +187,16 @@
     <span class="sd">&quot;&quot;&quot;The return type of :func:`get_next_pos`.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;sampler_data_pack&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span> <span class="o">=</span> <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">sampler_clname</span><span class="p">(</span>
+                <span class="n">sampler_instance</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampler_data_pack</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sampler_data_pack&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if kwargs does not contains data-pack, it means we do not need to</span>
+            <span class="c1"># visualise this sampler (e.g. nested sampler)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span> <span class="o">=</span> <span class="n">BaseSamplerVisualiser</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Sampler.init"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_radian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method</span>
@@ -205,8 +214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;start_pt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;goal_pt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span> <span class="o">=</span> <span class="n">use_radian</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Sampler.get_next_pos"><a class="viewcode-back" href="../../samplers.html#samplers.baseSampler.Sampler.get_next_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Retrieve next sampled position</span>

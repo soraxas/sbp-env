@@ -189,6 +189,7 @@
     <span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">planner_registry</span>
     <span class="kn">from</span> <span class="nn">env</span> <span class="kn">import</span> <span class="n">Env</span>
     <span class="kn">from</span> <span class="nn">planners.basePlanner</span> <span class="kn">import</span> <span class="n">Planner</span>
+    <span class="kn">from</span> <span class="nn">samplers.baseSampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -276,8 +277,9 @@
 <span class="sd">    Good for benchmark when you don&#39;t care about visual inspection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_instance</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span> <span class="o">=</span> <span class="n">env_instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">env_instance</span><span class="o">.</span><span class="n">args</span>
 
     <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -304,6 +306,12 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;start/goal is not set yet&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span>
 
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called what self.attr doesn&#39;t exist.</span>
+<span class="sd">        Forward the call to the :class:`Env` instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
 
 <span class="c1">############################################################</span>
 <span class="c1">#              Pygame (2D) visualisation                   #</span>
@@ -315,13 +323,19 @@
 <span class="sd">    Planner Visualiser with the Pygame engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">planner_data_pack</span><span class="p">:</span> <span class="n">planner_registry</span><span class="o">.</span><span class="n">PlannerDataPack</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">planner_instance</span><span class="p">:</span> <span class="n">Planner</span><span class="p">,</span>
+        <span class="n">planner_data_pack</span><span class="p">:</span> <span class="n">planner_registry</span><span class="o">.</span><span class="n">PlannerDataPack</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param planner_instance: an instance of a planner</span>
 <span class="sd">        :param planner_data_pack: a planner data pack that stores the implemented</span>
 <span class="sd">            paint function or init function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">found_solution</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span> <span class="o">=</span> <span class="n">planner_instance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="o">=</span> <span class="n">planner_data_pack</span>
 
         <span class="c1"># retrieve function for painting</span>
@@ -339,35 +353,41 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
+                <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygamePlannerVisualiser.paint"><a class="viewcode-back" href="../visualisers.html#visualiser.PygamePlannerVisualiser.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Paint method for planner visualiser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygamePlannerVisualiser.draw_solution_path"><a class="viewcode-back" href="../visualisers.html#visualiser.PygamePlannerVisualiser.draw_solution_path">[docs]</a>    <span class="k">def</span> <span class="nf">draw_solution_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to draw solution path for planner visualiser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">found_solution</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">c_max</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="c1"># redraw new path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">ALPHA_CK</span><span class="p">)</span>
-        <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">ALPHA_CK</span><span class="p">)</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">c_max</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">nn</span><span class="o">.</span><span class="n">is_start</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
                 <span class="n">nn</span><span class="p">,</span>
                 <span class="n">nn</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
                 <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span>
                 <span class="n">line_modifier</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="p">,</span>
+                <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">nn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">parent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">solution_path_screen</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygamePlannerVisualiser.terminates_hook"><a class="viewcode-back" href="../visualisers.html#visualiser.PygamePlannerVisualiser.terminates_hook">[docs]</a>    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -375,7 +395,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
+                <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PygameSamplerVisualiser"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser">[docs]</a><span class="k">class</span> <span class="nc">PygameSamplerVisualiser</span><span class="p">(</span><span class="n">BaseSamplerVisualiser</span><span class="p">):</span>
@@ -385,14 +407,17 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sampler_instance</span><span class="p">:</span> <span class="n">Sampler</span><span class="p">,</span>
         <span class="n">sampler_data_pack</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">planner_registry</span><span class="o">.</span><span class="n">SamplerDataPack</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sampler_instance: an instance of a sampler</span>
 <span class="sd">        :param sampler_data_pack: a sampler data pack that stores the implemented</span>
 <span class="sd">            paint function or init function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler_instance</span> <span class="o">=</span> <span class="n">sampler_instance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="o">=</span> <span class="n">sampler_data_pack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -410,15 +435,19 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_init</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sampler_instance</span>
+                <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygameSamplerVisualiser.paint"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampler_instance</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PygameSamplerVisualiser.terminates_hook"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameSamplerVisualiser.terminates_hook">[docs]</a>    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sampler_instance</span>
+                <span class="p">)</span></div></div>
 
 
 <span class="c1"># noinspection PyAttributeOutsideInit</span>
@@ -427,13 +456,13 @@
 <span class="sd">    Environment Visualiser with the Pygame engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="mi">25</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;image_shape&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;image_shape&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="PygameEnvVisualiser.visualiser_init"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.visualiser_init">[docs]</a>    <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">no_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PygameEnvVisualiser.visualiser_init"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.visualiser_init">[docs]</a>    <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">no_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delayed *initialisation* method for environment visualiser.</span>
 
 <span class="sd">        :param no_display: Controls whether turn on the</span>
@@ -510,7 +539,7 @@
         <span class="c1">################################################################################</span>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.set_start_goal_points"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.set_start_goal_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -528,7 +557,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Select Starting Point and then Goal Point&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">goal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_screen</span><span class="p">(</span><span class="n">update_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">goal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mouse_pos</span> <span class="o">=</span> <span class="kc">None</span>
@@ -551,11 +580,11 @@
             <span class="k">if</span> <span class="n">mouse_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">start</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">mouse_pos</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span> <span class="o">=</span> <span class="n">start</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span> <span class="o">=</span> <span class="n">start</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;starting point set: </span><span class="si">{mouse_pos}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">goal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">goal</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">mouse_pos</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span> <span class="o">=</span> <span class="n">goal</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span> <span class="o">=</span> <span class="n">goal</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;goal point set: </span><span class="si">{mouse_pos}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_screen</span><span class="p">(</span><span class="n">update_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span></div>
@@ -568,16 +597,16 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Leaving.&quot;</span><span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">pygame_show</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pygame_show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">pygame_hide</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">pygame_hide</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">iconify</span><span class="p">()</span>
         <span class="c1"># pygame.quit()</span>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.draw_stick_robot"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_stick_robot">[docs]</a>    <span class="k">def</span> <span class="nf">draw_stick_robot</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">node</span><span class="p">,</span>
         <span class="n">colour1</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">cAlpha</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">orange</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
         <span class="n">colour2</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">cAlpha</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">cyan</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
@@ -629,7 +658,7 @@
         <span class="c1"># )</span>
 
 <div class="viewcode-block" id="PygameEnvVisualiser.draw_path"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_path">[docs]</a>    <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">path_blue</span><span class="p">,</span> <span class="n">line_modifier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">path_blue</span><span class="p">,</span> <span class="n">line_modifier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Draw a path that represents an edge</span>
 
@@ -673,7 +702,7 @@
                 <span class="nb">int</span><span class="p">(</span><span class="n">line_modifier</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">),</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="PygameEnvVisualiser.draw_circle"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_circle">[docs]</a>    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+<div class="viewcode-block" id="PygameEnvVisualiser.draw_circle"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.draw_circle">[docs]</a>    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Draw a circle (e.g. to represent a node)</span>
 
 <span class="sd">        :param pos: the origin position of the circle</span>
@@ -685,7 +714,7 @@
         <span class="n">draw_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">)</span>
         <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">draw_pos</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">radius</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PygameEnvVisualiser.update_screen"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.update_screen">[docs]</a>    <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Env</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PygameEnvVisualiser.update_screen"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.update_screen">[docs]</a>    <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Refresh the screen</span>
 
 <span class="sd">        :param update_all: Force update the screen (as oppose to limit drawing to</span>
@@ -706,16 +735,16 @@
         <span class="c1">##################################################</span>
         <span class="k">def</span> <span class="nf">draw_start_goal_pt</span><span class="p">():</span>
             <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
                     <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">red</span><span class="p">,</span>
                     <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
                     <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
                     <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">green</span><span class="p">,</span>
                     <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
                     <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
@@ -727,12 +756,12 @@
 
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">60</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="c1"># only raise the exception if the planning had started</span>
                 <span class="c1"># because during setup there might be attributes that are</span>
                 <span class="c1"># not available yet.</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
@@ -747,9 +776,9 @@
         <span class="c1"># Sampler hook</span>
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
@@ -758,7 +787,7 @@
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sampledPoint_screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">ALPHA_CK</span><span class="p">)</span>
             <span class="c1"># Draw sampled nodes</span>
-            <span class="k">for</span> <span class="n">sampledPos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampledNodes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sampledPos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampledNodes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
                     <span class="n">pos</span><span class="o">=</span><span class="n">sampledPos</span><span class="p">,</span>
                     <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">red</span><span class="p">,</span>
@@ -767,7 +796,7 @@
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampledPoint_screen</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
             <span class="c1"># remove them from list</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampledNodes</span><span class="p">[:]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampledNodes</span><span class="p">[:]</span>
 
         <span class="c1"># Texts</span>
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -778,8 +807,8 @@
             <span class="p">)</span>
             <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Cost: </span><span class="si">{}</span><span class="s2"> | Inv.Samples: </span><span class="si">{}</span><span class="s2">(con) </span><span class="si">{}</span><span class="s2">(obs)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">_cost</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">invalid_samples_connections</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">invalid_samples_obstacles</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">invalid_samples_connections</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">invalid_samples_obstacles</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">Colour</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">Colour</span><span class="o">.</span><span class="n">black</span><span class="p">),</span>
@@ -880,8 +909,8 @@
                             <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
                             <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
                         <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">RRTPlanner_paint</span><span class="p">():</span>
             <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
@@ -1208,16 +1237,16 @@
         <span class="c1">###################################################################################</span>
         <span class="k">def</span> <span class="nf">draw_start_goal_pt</span><span class="p">():</span>
             <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
                     <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">red</span><span class="p">,</span>
                     <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
                     <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
                     <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">green</span><span class="p">,</span>
                     <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
                     <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
@@ -1225,9 +1254,9 @@
 
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">60</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
@@ -1235,9 +1264,9 @@
         <span class="c1"># Sampler hook</span>
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">e</span>
                 <span class="c1"># print(e)</span>
                 <span class="k">pass</span>
@@ -1246,7 +1275,7 @@
         <span class="c1"># if count % 4 == 0:</span>
         <span class="c1">#     self.sampledPoint_screen.fill(Colour.ALPHA_CK)</span>
         <span class="c1">#     # Draw sampled nodes</span>
-        <span class="c1">#     for sampledPos in self.stats.sampledNodes:</span>
+        <span class="c1">#     for sampledPos in self.env_instance.stats.sampledNodes:</span>
         <span class="c1">#         self.draw_circle(</span>
         <span class="c1">#             pos=sampledPos,</span>
         <span class="c1">#             colour=Colour.red,</span>
@@ -1254,7 +1283,7 @@
         <span class="c1">#             layer=self.sampledPoint_screen)</span>
         <span class="c1">#     self.window.blit(self.sampledPoint_screen, (0, 0))</span>
         <span class="c1">#     # remove them from list</span>
-        <span class="c1">#     del self.stats.sampledNodes[:]</span>
+        <span class="c1">#     del self.env_instance.stats.sampledNodes[:]</span>
 
 
 <span class="k">class</span> <span class="nc">KlamptSamplerVisualiser</span><span class="p">(</span><span class="n">BaseSamplerVisualiser</span><span class="p">):</span>
@@ -1302,8 +1331,8 @@
     <span class="sd">&quot;&quot;&quot;Default to Pygame visualiser&quot;&quot;&quot;</span>
 
     <span class="n">env_clname</span> <span class="o">=</span> <span class="n">PygameEnvVisualiser</span>
-    <span class="n">planner_clname</span> <span class="o">=</span> <span class="n">PygamePlannerVisualiser</span>
-    <span class="n">sampler_clname</span> <span class="o">=</span> <span class="n">PygameSamplerVisualiser</span>
+    <span class="n">planner_clname</span> <span class="o">=</span> <span class="n">BasePlannerVisualiser</span>
+    <span class="n">sampler_clname</span> <span class="o">=</span> <span class="n">BaseSamplerVisualiser</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">choose_visualiser</span><span class="p">(</span><span class="n">visualiser_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>

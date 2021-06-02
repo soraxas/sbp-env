@@ -319,12 +319,6 @@ is given by</p>
 \end{cases}
 
 \]</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sampler_data_pack</strong> – a sampler data pack that stores the implemented</p>
-</dd>
-</dl>
-<p>paint function or init function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="samplers.birrtSampler.BiRRTSampler.get_next_pos">
 <span class="sig-name descname"><span class="pre">get_next_pos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/samplers/birrtSampler.html#BiRRTSampler.get_next_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samplers.birrtSampler.BiRRTSampler.get_next_pos" title="Permalink to this definition">¶</a></dt>
@@ -402,12 +396,6 @@ ellipse space, and the minimum cost is given by</p>
     \lVert q_\text{start} -q_\text{target}\rVert_2 .
 
 \]</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sampler_data_pack</strong> – a sampler data pack that stores the implemented</p>
-</dd>
-</dl>
-<p>paint function or init function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="samplers.informedSampler.InformedSampler.get_next_pos">
 <span class="sig-name descname"><span class="pre">get_next_pos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/samplers/informedSampler.html#InformedSampler.get_next_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samplers.informedSampler.InformedSampler.get_next_pos" title="Permalink to this definition">¶</a></dt>
@@ -444,12 +432,6 @@ ellipse space, and the minimum cost is given by</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.rrdtPlanner.</span></span><span class="sig-name descname"><span class="pre">RRdTSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restart_when_merge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">samplers.baseSampler.Sampler</span></code></a></p>
 <p>Represents RRdT’s sampler</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sampler_data_pack</strong> – a sampler data pack that stores the implemented</p>
-</dd>
-</dl>
-<p>paint function or init function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTSampler.get_next_pos">
 <span class="sig-name descname"><span class="pre">get_next_pos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler.get_next_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler.get_next_pos" title="Permalink to this definition">¶</a></dt>
@@ -781,12 +763,6 @@ map is accessibly.</p>
 <p>This sampler is for <strong>testing purpose</strong> only, and hence will not be
 extended for <span class="math">\(d &gt; 2\)</span> or for collision checker other than <em>PyGame</em>.</p>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sampler_data_pack</strong> – a sampler data pack that stores the implemented</p>
-</dd>
-</dl>
-<p>paint function or init function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="samplers.mouseSampler.MouseSampler.get_mouse_click_position">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_mouse_click_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samplers/mouseSampler.html#MouseSampler.get_mouse_click_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samplers.mouseSampler.MouseSampler.get_mouse_click_position" title="Permalink to this definition">¶</a></dt>
@@ -821,12 +797,6 @@ and a callable to report failure</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">samplers.baseSampler.</span></span><span class="sig-name descname"><span class="pre">Sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samplers/baseSampler.html#Sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samplers.baseSampler.Sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract base sampler that defines each unique methods that some
 sampler, but not all samplers, uses.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sampler_data_pack</strong> – a sampler data pack that stores the implemented</p>
-</dd>
-</dl>
-<p>paint function or init function.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="samplers.baseSampler.Sampler.GetNextPosReturnType">
 <span class="sig-name descname"><span class="pre">GetNextPosReturnType</span></span><a class="headerlink" href="#samplers.baseSampler.Sampler.GetNextPosReturnType" title="Permalink to this definition">¶</a></dt>
