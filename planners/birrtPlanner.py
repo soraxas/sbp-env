@@ -148,7 +148,7 @@ def pygame_birrt_planner_paint(planner):
                     drawn_nodes_pairs.add(new_set)
                     planner.args.env.draw_path(n, n.parent)
     if planner.goal_pt.parent is not None:
-        planner.draw_solution_path()
+        planner.visualiser.draw_solution_path()
 
 
 # start register

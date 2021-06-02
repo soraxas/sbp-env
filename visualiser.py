@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from utils import planner_registry
     from env import Env
     from planners.basePlanner import Planner
+    from samplers.baseSampler import Sampler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -107,8 +108,9 @@ class BaseEnvVisualiser(ABC):
     Good for benchmark when you don't care about visual inspection.
     """
 
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self, env_instance: Env, **kwargs):
+        self.env_instance = env_instance
+        self.args = env_instance.args
 
     def visualiser_init(self, **kwargs):
         """
@@ -135,6 +137,12 @@ class BaseEnvVisualiser(ABC):
             raise Exception("start/goal is not set yet")
         return start, goal
 
+    def __getattr__(self, attr):
+        """This is called what self.attr doesn't exist.
+        Forward the call to the :class:`Env` instance
+        """
+        return getattr(self.env_instance, attr)
+
 
 ############################################################
 #              Pygame (2D) visualisation                   #
@@ -146,13 +154,19 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
     Planner Visualiser with the Pygame engine
     """
 
-    def __init__(self, planner_data_pack: planner_registry.PlannerDataPack, **kwargs):
+    def __init__(
+        self,
+        planner_instance: Planner,
+        planner_data_pack: planner_registry.PlannerDataPack,
+        **kwargs,
+    ):
         """
+        :param planner_instance: an instance of a planner
         :param planner_data_pack: a planner data pack that stores the implemented
             paint function or init function.
         """
         super().__init__(**kwargs)
-        self.found_solution = None
+        self.planner_instance = planner_instance
         self.planner_data_pack = planner_data_pack
 
         # retrieve function for painting
@@ -170,35 +184,41 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
 
         if self.planner_data_pack is not None:
             if self.planner_data_pack.visualise_pygame_paint_init is not None:
-                self.planner_data_pack.visualise_pygame_paint_init(self)
+                self.planner_data_pack.visualise_pygame_paint_init(
+                    self.planner_instance
+                )
 
     def paint(self):
         """
         Paint method for planner visualiser.
         """
-        self.paint_func(self)
+        self.paint_func(self.planner_instance)
 
     def draw_solution_path(self):
         """
         Method to draw solution path for planner visualiser.
         """
-        if not self.found_solution or self.c_max == float("inf"):
+        if self.planner_instance.c_max == float("inf"):
             return
         # redraw new path
-        self.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
-        nn = self.goal_pt.parent
-        self.c_max = nn.cost
+        self.planner_instance.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
+        nn = self.planner_instance.goal_pt.parent
+        self.planner_instance.c_max = nn.cost
         while not nn.is_start:
-            self.args.env.draw_path(
+            self.planner_instance.args.env.draw_path(
                 nn,
                 nn.parent,
                 colour=Colour.blue,
                 line_modifier=5,
-                layer=self.args.env.solution_path_screen,
+                layer=self.planner_instance.args.env.solution_path_screen,
             )
             nn = nn.parent
-        self.args.env.window.blit(self.args.env.path_layers, (0, 0))
-        self.args.env.window.blit(self.args.env.solution_path_screen, (0, 0))
+        self.planner_instance.args.env.window.blit(
+            self.planner_instance.args.env.path_layers, (0, 0)
+        )
+        self.planner_instance.args.env.window.blit(
+            self.planner_instance.args.env.solution_path_screen, (0, 0)
+        )
 
     def terminates_hook(self):
         """
@@ -206,7 +226,9 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
         """
         if self.planner_data_pack is not None:
             if self.planner_data_pack.visualise_pygame_paint_terminate is not None:
-                self.planner_data_pack.visualise_pygame_paint_terminate(self)
+                self.planner_data_pack.visualise_pygame_paint_terminate(
+                    self.planner_instance
+                )
 
 
 class PygameSamplerVisualiser(BaseSamplerVisualiser):
@@ -216,14 +238,17 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
 
     def __init__(
         self,
+        sampler_instance: Sampler,
         sampler_data_pack: Optional[planner_registry.SamplerDataPack] = None,
         **kwargs,
     ):
         """
+        :param sampler_instance: an instance of a sampler
         :param sampler_data_pack: a sampler data pack that stores the implemented
             paint function or init function.
         """
         super().__init__(**kwargs)
+        self.sampler_instance = sampler_instance
         self.sampler_data_pack = sampler_data_pack
         self.paint_func = None
 
@@ -241,15 +266,19 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
 
         if self.sampler_data_pack is not None:
             if self.sampler_data_pack.visualise_pygame_paint_init is not None:
-                self.sampler_data_pack.visualise_pygame_paint_init(self)
+                self.sampler_data_pack.visualise_pygame_paint_init(
+                    self.sampler_instance
+                )
 
     def paint(self):
-        self.paint_func(self)
+        self.paint_func(self.sampler_instance)
 
     def terminates_hook(self):
         if self.sampler_data_pack is not None:
             if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
-                self.sampler_data_pack.visualise_pygame_paint_terminate(self)
+                self.sampler_data_pack.visualise_pygame_paint_terminate(
+                    self.sampler_instance
+                )
 
 
 # noinspection PyAttributeOutsideInit
@@ -258,13 +287,13 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
     Environment Visualiser with the Pygame engine
     """
 
-    def __init__(self: Env, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.extra = 25
         self.img = pygame.image.load(self.args.image)
-        self.dim = kwargs["image_shape"]
+        self.dim = self.args["image_shape"]
 
-    def visualiser_init(self: Env, no_display: bool = False):
+    def visualiser_init(self, no_display: bool = False):
         """Delayed *initialisation* method for environment visualiser.
 
         :param no_display: Controls whether turn on the
@@ -341,7 +370,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         ################################################################################
 
     def set_start_goal_points(
-        self: Env,
+        self,
         start: Optional[np.ndarray] = None,
         goal: Optional[np.ndarray] = None,
         **kwargs,
@@ -359,7 +388,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         LOGGER.info("Select Starting Point and then Goal Point")
         if start is not None and goal is not None:
             return start, goal
-        self.start_pt = self.goal_pt = None
+        self.env_instance.start_pt = self.env_instance.goal_pt = None
         self.update_screen(update_all=True)
         while start is None or goal is None:
             mouse_pos = None
@@ -382,11 +411,11 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             if mouse_pos is not None:
                 if start is None:
                     start = Node(mouse_pos)
-                    self.start_pt = start
+                    self.env_instance.start_pt = start
                     LOGGER.info(f"starting point set: {mouse_pos}")
                 elif goal is None:
                     goal = Node(mouse_pos)
-                    self.goal_pt = goal
+                    self.env_instance.goal_pt = goal
                     LOGGER.info(f"goal point set: {mouse_pos}")
             self.update_screen(update_all=True)
         return start, goal
@@ -399,16 +428,16 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 LOGGER.info("Leaving.")
                 sys.exit(0)
 
-    def pygame_show(self: Env):
+    def pygame_show(self):
         self.args.no_display = False
 
-    def pygame_hide(self: Env):
+    def pygame_hide(self):
         self.args.no_display = True
         pygame.display.iconify()
         # pygame.quit()
 
     def draw_stick_robot(
-        self: Env,
+        self,
         node,
         colour1=Colour.cAlpha(Colour.orange, 128),
         colour2=Colour.cAlpha(Colour.cyan, 128),
@@ -460,7 +489,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # )
 
     def draw_path(
-        self: Env, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None
+        self, node1, node2, colour=Colour.path_blue, line_modifier=1, layer=None
     ):
         """Draw a path that represents an edge
 
@@ -504,7 +533,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 int(line_modifier * self.args.scaling),
             )
 
-    def draw_circle(self: Env, pos, colour, radius, layer):
+    def draw_circle(self, pos, colour, radius, layer):
         """Draw a circle (e.g. to represent a node)
 
         :param pos: the origin position of the circle
@@ -516,7 +545,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
         pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
 
-    def update_screen(self: Env, update_all=False):
+    def update_screen(self, update_all=False):
         """Refresh the screen
 
         :param update_all: Force update the screen (as oppose to limit drawing to
@@ -537,16 +566,16 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         ##################################################
         def draw_start_goal_pt():
             """ """
-            if self.start_pt is not None:
+            if self.env_instance.start_pt is not None:
                 self.draw_circle(
-                    pos=self.start_pt.pos,
+                    pos=self.env_instance.start_pt.pos,
                     colour=Colour.red,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
                 )
-            if self.goal_pt is not None:
+            if self.env_instance.goal_pt is not None:
                 self.draw_circle(
-                    pos=self.goal_pt.pos,
+                    pos=self.env_instance.goal_pt.pos,
                     colour=Colour.green,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
@@ -558,12 +587,12 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
         if count % 60 == 0:
             try:
-                self.planner.paint()
+                self.planner.visualiser.paint()
             except AttributeError as e:
                 # only raise the exception if the planning had started
                 # because during setup there might be attributes that are
                 # not available yet.
-                if self.started:
+                if self.env_instance.started:
                     raise e
                 # print(e)
                 pass
@@ -578,9 +607,9 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # Sampler hook
         if count % 20 == 0:
             try:
-                self.args.sampler.paint()
+                self.args.sampler.visualiser.paint()
             except AttributeError as e:
-                if self.started:
+                if self.env_instance.started:
                     raise e
                 # print(e)
                 pass
@@ -589,7 +618,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         if count % 4 == 0:
             self.sampledPoint_screen.fill(Colour.ALPHA_CK)
             # Draw sampled nodes
-            for sampledPos in self.stats.sampledNodes:
+            for sampledPos in self.env_instance.stats.sampledNodes:
                 self.draw_circle(
                     pos=sampledPos,
                     colour=Colour.red,
@@ -598,7 +627,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 )
             self.window.blit(self.sampledPoint_screen, (0, 0))
             # remove them from list
-            del self.stats.sampledNodes[:]
+            del self.env_instance.stats.sampledNodes[:]
 
         # Texts
         if count % 10 == 0:
@@ -609,8 +638,8 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             )
             text = "Cost: {} | Inv.Samples: {}(con) {}(obs)".format(
                 _cost,
-                self.stats.invalid_samples_connections,
-                self.stats.invalid_samples_obstacles,
+                self.env_instance.stats.invalid_samples_connections,
+                self.env_instance.stats.invalid_samples_obstacles,
             )
             self.window.blit(
                 self.myfont.render(text, False, Colour.white, Colour.black),
@@ -711,8 +740,8 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
                             get_world_pos(n.parent.pos),
                             colour=colour,
                         )
-            if self.goal_pt.parent is not None:
-                self.draw_solution_path()
+            if self.env_instance.goal_pt.parent is not None:
+                self.visualiser.draw_solution_path()
 
         def RRTPlanner_paint():
             """ """
@@ -1039,16 +1068,16 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         ###################################################################################
         def draw_start_goal_pt():
             """ """
-            if self.start_pt is not None:
+            if self.env_instance.start_pt is not None:
                 self.draw_circle(
-                    pos=self.start_pt.pos,
+                    pos=self.env_instance.start_pt.pos,
                     colour=Colour.red,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
                 )
-            if self.goal_pt is not None:
+            if self.env_instance.goal_pt is not None:
                 self.draw_circle(
-                    pos=self.goal_pt.pos,
+                    pos=self.env_instance.goal_pt.pos,
                     colour=Colour.green,
                     radius=self.args.goal_radius,
                     layer=self.path_layers,
@@ -1056,9 +1085,9 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
         if count % 60 == 0:
             try:
-                self.planner.paint()
+                self.planner.visualiser.paint()
             except AttributeError as e:
-                if self.started:
+                if self.env_instance.started:
                     raise e
                 # print(e)
                 pass
@@ -1066,9 +1095,9 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         # Sampler hook
         if count % 20 == 0:
             try:
-                self.args.sampler.paint()
+                self.args.sampler.visualiser.paint()
             except AttributeError as e:
-                if self.started:
+                if self.env_instance.started:
                     raise e
                 # print(e)
                 pass
@@ -1077,7 +1106,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         # if count % 4 == 0:
         #     self.sampledPoint_screen.fill(Colour.ALPHA_CK)
         #     # Draw sampled nodes
-        #     for sampledPos in self.stats.sampledNodes:
+        #     for sampledPos in self.env_instance.stats.sampledNodes:
         #         self.draw_circle(
         #             pos=sampledPos,
         #             colour=Colour.red,
@@ -1085,7 +1114,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         #             layer=self.sampledPoint_screen)
         #     self.window.blit(self.sampledPoint_screen, (0, 0))
         #     # remove them from list
-        #     del self.stats.sampledNodes[:]
+        #     del self.env_instance.stats.sampledNodes[:]
 
 
 class KlamptSamplerVisualiser(BaseSamplerVisualiser):
@@ -1133,8 +1162,8 @@ class VisualiserSwitcher:
     """Default to Pygame visualiser"""
 
     env_clname = PygameEnvVisualiser
-    planner_clname = PygamePlannerVisualiser
-    sampler_clname = PygameSamplerVisualiser
+    planner_clname = BasePlannerVisualiser
+    sampler_clname = BaseSamplerVisualiser
 
     @staticmethod
     def choose_visualiser(visualiser_type: str):

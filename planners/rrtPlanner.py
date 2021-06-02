@@ -115,7 +115,7 @@ class RRTPlanner(Planner):
                         self.c_max = newnode.cost
                         self.goal_pt.parent = newnode
                         # newnode.children.append(self.goal_pt.parent)
-                        self.draw_solution_path()
+                        self.visualiser.draw_solution_path()
 
     def add_newnode(self, node: Node):
         """Add a new node to the tree
@@ -341,7 +341,7 @@ def pygame_rrt_paint(planner: Planner) -> None:
                 drawn_nodes_pairs.add(new_set)
                 planner.args.env.draw_path(n, n.parent)
     if planner.goal_pt.parent is not None:
-        planner.draw_solution_path()
+        planner.visualiser.draw_solution_path()
 
 
 # start register

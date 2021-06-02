@@ -14,7 +14,7 @@ from visualiser import VisualiserSwitcher
 LOGGER = logging.getLogger(__name__)
 
 
-class Env(VisualiserSwitcher.env_clname):
+class Env:
     """Represents the planning environment. The main loop happens inside this class"""
 
     def __init__(self, writer=None, fname=None, fixed_seed=None, **kwargs):
@@ -43,36 +43,38 @@ class Env(VisualiserSwitcher.env_clname):
             )
             self.dist = self.radian_dist
 
-        kwargs["num_dim"] = self.cc.get_dimension()
-        kwargs["image_shape"] = self.cc.get_image_shape()
-        self.dim = kwargs["image_shape"]
-        kwargs["cc"] = self.cc
+        self.args["num_dim"] = self.cc.get_dimension()
+        self.args["image_shape"] = self.cc.get_image_shape()
+        self.dim = self.args["image_shape"]
+        self.args["cc"] = self.cc
 
         def parse_input_pt(pt_as_str):
             if pt_as_str is None:
                 return None
             pt = pt_as_str.split(",")
-            if len(pt) != kwargs["num_dim"]:
+            if len(pt) != self.args["num_dim"]:
                 raise RuntimeError(
-                    f"Expected to have number of dimension = {kwargs['num_dim']}, but "
+                    f"Expected to have number of dimension = {self.args['num_dim']}, "
+                    f"but "
                     f"was n={len(pt)} from input '{pt_as_str}'"
                 )
             return tuple(map(float, pt))
 
-        kwargs["start_pt"] = parse_input_pt(kwargs["start_pt"])
-        kwargs["goal_pt"] = parse_input_pt(kwargs["goal_pt"])
+        self.args["start_pt"] = parse_input_pt(self.args["start_pt"])
+        self.args["goal_pt"] = parse_input_pt(self.args["goal_pt"])
 
-        self.args.planner = kwargs["planner_type"](**kwargs)
-        kwargs["planner"] = self.args.planner
+        self.args.planner = self.args["planner_type"](**self.args)
+        self.args["planner"] = self.args.planner
 
         self.planner = self.args.planner
         self.planner.args.env = self
 
-        super().__init__(**kwargs)
+        super().__init__()
 
-        self.visualiser_init(no_display=kwargs["no_display"])
-        start_pt, goal_pt = self.set_start_goal_points(
-            start=kwargs["start_pt"], goal=kwargs["goal_pt"]
+        self.visualiser = VisualiserSwitcher.env_clname(env_instance=self)
+        self.visualiser.visualiser_init(no_display=self.args["no_display"])
+        start_pt, goal_pt = self.visualiser.set_start_goal_points(
+            start=self.args["start_pt"], goal=self.args["goal_pt"]
         )
 
         self.start_pt = self.goal_pt = None
@@ -83,22 +85,28 @@ class Env(VisualiserSwitcher.env_clname):
         self.start_pt.is_start = True
         self.goal_pt.is_goal = True
         self.planner.add_newnode(self.start_pt)
-        self.update_screen(update_all=True)
+        self.visualiser.update_screen(update_all=True)
         # update the string pt to object
-        kwargs["start_pt"] = self.start_pt
-        kwargs["goal_pt"] = self.goal_pt
+        self.args["start_pt"] = self.start_pt
+        self.args["goal_pt"] = self.goal_pt
 
-        self.planner.init(env=self, **kwargs)
-        if kwargs["engine"] == "klampt":
+        self.planner.init(env=self, **self.args)
+        if self.args["engine"] == "klampt":
             self.args.sampler.set_use_radian(True)
-            if kwargs["epsilon"] > 1:
+            if self.args["epsilon"] > 1:
                 import warnings
 
                 warnings.warn(
-                    f"Epsilon value is very high at {kwargs['epsilon']} ("
+                    f"Epsilon value is very high at {self.args['epsilon']} ("
                     f">than 1.0). It might not work well as klampt uses "
                     f"radian for joints value"
                 )
+
+    def __getattr__(self, attr):
+        """This is called what self.attr doesn't exist.
+        Forward the call to the visualiser instance
+        """
+        return getattr(self.visualiser, attr)
 
     @staticmethod
     def radian_dist(p1: np.ndarray, p2: np.ndarray):
@@ -155,7 +163,7 @@ class Env(VisualiserSwitcher.env_clname):
             total=self.args.max_number_nodes, desc=self.args.sampler.name
         ) as pbar:
             while self.stats.valid_sample < self.args.max_number_nodes:
-                self.update_screen()
+                self.visualiser.update_screen()
                 self.planner.run_once()
 
                 pbar.n = self.stats.valid_sample

@@ -152,7 +152,7 @@ class PRMPlanner(RRTPlanner):
         self.c_max = goal.cost
         self.args.env.goal_pt.parent = goal
         start.parent = self.args.env.start_pt
-        self.draw_solution_path()
+        self.visualiser.draw_solution_path()
         return self.c_max
 
 

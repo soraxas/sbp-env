@@ -1,13 +1,14 @@
+from abc import ABC
 from typing import Tuple, Callable
 
 import numpy as np
 
 from utils.common import MagicDict
-from visualiser import VisualiserSwitcher
+from visualiser import VisualiserSwitcher, BaseSamplerVisualiser
 
 
 # noinspection PyAttributeOutsideInit
-class Sampler(VisualiserSwitcher.sampler_clname):
+class Sampler(ABC):
     """
     Abstract base sampler that defines each unique methods that some
     sampler, but not all samplers, uses.
@@ -17,8 +18,16 @@ class Sampler(VisualiserSwitcher.sampler_clname):
     """The return type of :func:`get_next_pos`."""
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
         self.use_radian = False
+        if "sampler_data_pack" in kwargs:
+            self.visualiser = VisualiserSwitcher.sampler_clname(
+                sampler_instance=self, sampler_data_pack=kwargs["sampler_data_pack"]
+            )
+        else:
+            # if kwargs does not contains data-pack, it means we do not need to
+            # visualise this sampler (e.g. nested sampler)
+            self.visualiser = BaseSamplerVisualiser()
 
     def init(self, use_radian: bool = False, **kwargs):
         """The delayed **initialisation** method
@@ -36,8 +45,7 @@ class Sampler(VisualiserSwitcher.sampler_clname):
         self.start_pos = kwargs["start_pt"].pos
         self.goal_pos = kwargs["goal_pt"].pos
         self.use_radian = use_radian
-
-        super().init(**kwargs)
+        self.visualiser.init(**kwargs)
 
     def get_next_pos(self, **kwargs):
         """Retrieve next sampled position
