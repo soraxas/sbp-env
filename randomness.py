@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import scipy
 from SALib.sample import (
@@ -76,31 +78,31 @@ class NormalRandomnessManager:
             dist = np.random.normal(0, sigma, NUM_DATA_POINTS)
         self.normal_draws_reserve = dist
 
-    # def draw_normal(
-    #     self,
-    #     origin: np.ndarray,
-    #     use_vonmises: bool = True,
-    #     kappa: float = 1,
-    #     sigma: float = math.pi / 4,
-    # ) -> np.ndarray:
-    #     """
-    #
-    #     :param origin: the origin (mean) for the random number, which will be used to
-    #     shift the number that this function returns
-    #     :param use_vonmises:  (Default value = True)
-    #     :param kappa:  (Default value = 1)
-    #     :param sigma:  (Default value = math.pi / 4)
-    #
-    #     """
-    #     if self.normal_draws_reserve is None or self.normal_draws_reserve.size < 1:
-    #         self.redraw_normal(
-    #             use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4
-    #         )
-    #     # draw from samples
-    #     draw = self.normal_draws_reserve[-1]
-    #     self.normal_draws_reserve = self.normal_draws_reserve[:-1]
-    #     # shift location
-    #     return draw + origin
+    def draw_normal(
+        self,
+        origin: np.ndarray,
+        use_vonmises: bool = True,
+        kappa: float = 1,
+        sigma: float = math.pi / 4,
+    ) -> np.ndarray:
+        """
+
+        :param origin: the origin (mean) for the random number, which will be used to
+        shift the number that this function returns
+        :param use_vonmises:  (Default value = True)
+        :param kappa:  (Default value = 1)
+        :param sigma:  (Default value = math.pi / 4)
+
+        """
+        if self.normal_draws_reserve is None or self.normal_draws_reserve.size < 1:
+            self.redraw_normal(
+                use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4
+            )
+        # draw from samples
+        draw = self.normal_draws_reserve[-1]
+        self.normal_draws_reserve = self.normal_draws_reserve[:-1]
+        # shift location
+        return draw + origin
 
     def redraw_half_normal(self, start_at: np.ndarray, scale: float):
         """Re-draw from a half normal distribution
@@ -136,13 +138,14 @@ class RandomnessManager:
     redraw when the bucket is exhausted.
     """
 
-    def __init__(self, num_dim: int):
+    def __init__(self, num_dim: int, bucket_size: int = NUM_DATA_POINTS):
         """
         :param num_dim: the number of dimension
         """
         # draws of random numbers
         self.random_draws = {}
         self.num_dim = num_dim
+        self.bucket_size = bucket_size
 
     def redraw(self, random_method: str):
         """Redraw the random number with the given method
@@ -156,24 +159,26 @@ class RandomnessManager:
             "bounds": [[0, 1]] * self.num_dim,
         }
         if random_method == "pseudo_random":
-            seq = np.random.random((NUM_DATA_POINTS, 2))
+            seq = np.random.random((self.bucket_size, 2))
         elif random_method == "sobol_sequence":
-            seq = sobol_sequence.sample(NUM_DATA_POINTS, 2)
+            seq = sobol_sequence.sample(self.bucket_size, 2)
         elif random_method == "saltelli":
-            seq = saltelli.sample(problem, NUM_DATA_POINTS, calc_second_order=False)
+            seq = saltelli.sample(problem, self.bucket_size, calc_second_order=False)
         elif random_method == "latin_hypercube":
-            seq = latin.sample(problem, NUM_DATA_POINTS)
+            seq = latin.sample(problem, self.bucket_size)
         elif random_method == "finite_differences":
-            seq = finite_diff.sample(problem, NUM_DATA_POINTS)
+            seq = finite_diff.sample(problem, self.bucket_size)
         elif random_method == "fast":
-            seq = fast_sampler.sample(problem, NUM_DATA_POINTS, M=45)
+            seq = fast_sampler.sample(problem, self.bucket_size, M=45)
+        else:
+            raise ValueError(f"Unknown random method {random_method}")
         self.random_draws[random_method] = seq
 
     def get_random(self, random_method):
         """Get one sample of random number :math:`r` where :math:`0 \le r \le 1`
 
         :param random_method: The kind of random number method to use, must be one of
-        the choice in :data:`SUPPORTED_RANDOM_METHODS`
+            the choice in :data:`SUPPORTED_RANDOM_METHODS`
 
         """
         if (
