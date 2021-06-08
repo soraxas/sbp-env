@@ -2,8 +2,11 @@ from unittest import TestCase
 
 import numpy as np
 
-from randomness import RandomnessManager, SUPPORTED_RANDOM_METHODS, \
-    NormalRandomnessManager
+from randomness import (
+    RandomnessManager,
+    SUPPORTED_RANDOM_METHODS,
+    NormalRandomnessManager,
+)
 
 
 class TestRandomnessManager(TestCase):
@@ -57,7 +60,6 @@ class TestRandomnessManager(TestCase):
 
 
 class TestNormalRandomnessManager(TestCase):
-
     def test_draw_half_normal(self):
         randomness = NormalRandomnessManager()
 

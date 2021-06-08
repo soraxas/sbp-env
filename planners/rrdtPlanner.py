@@ -66,9 +66,7 @@ class DisjointTreeParticle:
             self._reset(pos)
             self.tree = isroot
         else:
-            self.restart(
-                pos=pos, restart_when_merge=False, initial_setup=True,
-            )
+            self.restart(pos=pos, restart_when_merge=False)
 
         ##############################
 

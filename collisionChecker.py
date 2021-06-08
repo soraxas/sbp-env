@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -7,18 +8,19 @@ class CollisionChecker(ABC):
     """ """
 
     @abstractmethod
-    def get_dimension(self):
-        """ """
-        pass
+    def get_dimension(self) -> int:
+        """Return the dimensionality"""
+        raise NotImplementedError("Must derive from this class")
 
-    def visible(self, posA, posB):
+    def visible(self, pos1, pos2):
+        """Check if the straight line connection between pos1 and pos2 is in
+        :math:`C_\text{free}`
+
+        :param pos1:
+        :param pos2:
+
         """
-
-        :param posA: 
-        :param posB: 
-
-        """
-        pass
+        raise NotImplementedError("Must derive from this class")
 
     def feasible(self, p):
         """
@@ -48,43 +50,48 @@ class ImgCollisionChecker(CollisionChecker):
         # plt.colorbar()
 
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
-        self.img = image.T
+        self._img = image.T
+
+    @property
+    def image(self):
+        # return original image
+        return self._img.T
 
     def get_image_shape(self):
         """ """
-        return self.img.shape
+        return self._img.shape
 
     def get_dimension(self):
         """ """
         return 2
 
-    def get_coor_before_collision(self, posA, posB):
+    def get_coor_before_collision(self, pos1, pos2):
         """
 
-        :param posA: 
-        :param posB: 
+        :param pos1:
+        :param pos2:
 
         """
-        pixels = self.get_line(posA, posB)
+        pixels = self.get_line(pos1, pos2)
         # check that all pixel are white (free space)
-        endPos = posB
+        endPos = pos2
         for p in pixels:
             endPos = (p[0], p[1])
             if not self.feasible(p):
                 break
         return endPos
 
-    def visible(self, posA, posB):
+    def visible(self, pos1, pos2):
         """
 
-        :param posA: 
-        :param posB: 
+        :param pos1:
+        :param pos2:
 
         """
         try:
             # get list of pixel between node A and B
-            # pixels = lineGenerationAlgorithm(posA, posB)
-            pixels = self.get_line(posA, posB)
+            # pixels = lineGenerationAlgorithm(pos1, pos2)
+            pixels = self.get_line(pos1, pos2)
             # check that all pixel are white (free space)
             for p in pixels:
                 if not self.feasible(p):
@@ -100,7 +107,7 @@ class ImgCollisionChecker(CollisionChecker):
 
         """
         try:
-            return self.img[tuple(map(int, p))] == 1
+            return self._img[tuple(map(int, p))] == 1
         except IndexError:
             return False
 
@@ -174,7 +181,6 @@ class KlamptCollisionChecker(CollisionChecker):
         self.stats = stats
         import klampt
         from klampt.plan import robotplanning
-        from klampt.io import resource
 
         self.cc_feasible = 0
         self.cc_visible = 0
@@ -218,7 +224,6 @@ class KlamptCollisionChecker(CollisionChecker):
 
         """
         assert len(p) == 6, p
-        import copy
 
         new_pos = list(self.template_pos)
         new_pos[1:7] = p
@@ -258,11 +263,8 @@ class KlamptCollisionChecker(CollisionChecker):
         return self.space.feasible(p)
 
 
-import math
-
-
 class RobotArm4dCollisionChecker(CollisionChecker):
-    def __init__(self, img, map_mat=None):
+    def __init__(self, img, map_mat=None, stick_robot_length_config=(35, 35)):
         if map_mat is None:
             from PIL import Image
 
@@ -275,40 +277,29 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             # import matplotlib.pyplot as plt
             # plt.imshow(image)
             # plt.colorbar()
-            self.img = image
+            self._img = image
 
         else:
-            self.img = (map_mat / map_mat.max()).astype(int)
+            self._img = (map_mat / map_mat.max()).astype(int)
 
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
-        self.img = self.img.T
+        self._img = self._img.T
 
-        # self.stick_robot_length_config = stick_robot_length_config
-        self.stick_robot_length_config = [35, 35]
+        self.stick_robot_length_config = stick_robot_length_config
+        self._img = image.T
+
+    @property
+    def image(self):
+        # return original image
+        return self._img.T
 
     def get_image_shape(self):
         """ """
-        return self.img.shape
+        return self._img.shape
 
     def get_dimension(self):
         """ """
         return 4
-
-    def get_coor_before_collision(self, posA, posB):
-        """
-
-        :param posA: 
-        :param posB: 
-
-        """
-        pixels = self._get_line(posA, posB)
-        # check that all pixel are white (free space)
-        endPos = posB
-        for p in pixels:
-            endPos = (p[0], p[1])
-            if not self.feasible(p):
-                break
-        return endPos
 
     @staticmethod
     def create_ranges(start, stop, N, endpoint=True):
@@ -328,7 +319,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         return steps[:, None] * np.arange(N) + start[:, None]
 
     def _interpolate_configs(self, c1, c2):
-        """Given two configs (x, y, r1, r2), return intepolate in-between
+        """Given two configs (x, y, r1, r2), return interpolate in-between
 
         :param c1: 
         :param c2: 
@@ -337,7 +328,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         loc_interpolate = self._get_line(c1[:2], c2[:2])
         # print(np.array(loc_interpolate).T)
         if len(loc_interpolate) == 1:
-            # to hot-fix because config interpolate must be >= 2
+            # because config interpolate must be >= 2
             loc_interpolate.append(loc_interpolate[0])
 
         rot_interpolate = self.create_ranges(c1[2:], c2[2:], N=len(loc_interpolate))
@@ -346,16 +337,16 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
         return combined
 
-    def visible(self, posA, posB):
+    def visible(self, pos1, pos2):
         """
 
-        :param posA: 
-        :param posB: 
+        :param pos1:
+        :param pos2:
 
         """
         # get list of pixel between node A and B
-        # pixels = lineGenerationAlgorithm(posA, posB)
-        for p in self._interpolate_configs(posA, posB):
+        # pixels = lineGenerationAlgorithm(pos1, pos2)
+        for p in self._interpolate_configs(pos1, pos2):
             if not self.feasible(p):
                 return False
         return True
@@ -367,7 +358,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
         """
         try:
-            return self.img[tuple(map(int, p))] == 1
+            return self._img[tuple(map(int, p))] == 1
         except IndexError:
             return False
 

@@ -38,15 +38,13 @@ class RandomPolicySampler(Sampler):
         """
         super().__init__(**kwargs)
         if random_method not in SUPPORTED_RANDOM_METHODS:
-            print(
+            raise ValueError(
                 "Given random_method is not valid! Valid options includes:\n"
                 "{}".format(
                     "\n".join((" - {}".format(m) for m in SUPPORTED_RANDOM_METHODS))
                 )
             )
-            import sys
 
-            sys.exit(1)
         self.random_method = random_method
         self.random = None
 
