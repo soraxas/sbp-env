@@ -96,7 +96,7 @@ class Node:
         return f"{self.__class__.__name__}<{self.pos}>"
 
     def __eq__(self, other):
-        return np.all(self.pos == other.pos)
+        return isinstance(other, self.__class__) and np.all(self.pos == other.pos)
 
     def __hash__(self):
         return hash(tuple(self.pos))

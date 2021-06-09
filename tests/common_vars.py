@@ -4,7 +4,6 @@ import numpy as np
 from PIL import Image
 
 from planners.basePlanner import Planner
-from planners.rrtPlanner import RRTPlanner
 from samplers.baseSampler import Sampler
 from utils.common import MagicDict
 from utils.planner_registry import PlannerDataPack
@@ -70,3 +69,15 @@ template_args = MagicDict(
     showSampledPoint=False,
     skip_optimality=False,
 )
+
+
+# helper class to test equality for numpy array
+class MockNumpyEquality:
+    def __init__(self, target):
+        self.target = target
+
+    def __eq__(self, other):
+        if not isinstance(other, np.ndarray):
+            return False
+        np.testing.assert_array_equal(self.target, other)
+        return True
