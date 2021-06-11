@@ -208,7 +208,6 @@
 
 <div class="viewcode-block" id="BiRRTPlanner.run_once"><a class="viewcode-back" href="../../planners.html#planners.birrtPlanner.BiRRTPlanner.run_once">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">run_once</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_tree_turn</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">found_solution</span><span class="p">:</span>
             <span class="c1"># extend from goal tree</span>
             <span class="n">poses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_tree_poses</span>
@@ -223,7 +222,7 @@
         <span class="c1">###################################################################</span>
         <span class="c1">###################################################################</span>
         <span class="c1"># Get an sample that is free (not in blocked space)</span>
-        <span class="n">rand_pos</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
+        <span class="n">rand_pos</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
         <span class="c1"># Found a node that is not in X_obs</span>
 
         <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_neighbour_idx</span><span class="p">(</span><span class="n">rand_pos</span><span class="p">,</span> <span class="n">poses</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)])</span>
@@ -233,10 +232,11 @@
         <span class="c1"># check if it has a free path to nn or not</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newpos</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_invalid</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">report_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">,</span> <span class="n">free</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">newpos</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_free</span><span class="p">()</span>
-
+            <span class="n">report_success</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">rand_pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">)</span>
             <span class="c1">######################</span>
             <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_least_cost_parent</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">)</span>
             <span class="n">poses</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span>

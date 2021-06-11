@@ -235,9 +235,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">isroot</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span>
-                <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">restart_when_merge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">initial_setup</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">restart_when_merge</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="c1">##############################</span>
 
@@ -401,9 +399,10 @@
 <div class="viewcode-block" id="RRdTSampler"><a class="viewcode-back" href="../../samplers.html#planners.rrdtPlanner.RRdTSampler">[docs]</a><span class="k">class</span> <span class="nc">RRdTSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents RRdT&#39;s sampler&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restart_when_merge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restart_when_merge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">num_dtrees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">restart_when_merge</span> <span class="o">=</span> <span class="n">restart_when_merge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_dtrees</span> <span class="o">=</span> <span class="n">num_dtrees</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_prob</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_c_random</span> <span class="o">=</span> <span class="mi">0</span>
@@ -436,7 +435,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">p_manager</span> <span class="o">=</span> <span class="n">MABScheduler</span><span class="p">(</span>
-            <span class="n">num_dtrees</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">num_dtrees</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_dtrees</span><span class="p">,</span>
             <span class="n">start_pt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">,</span>
             <span class="n">goal_pt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">,</span>
             <span class="n">args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
@@ -1000,7 +999,7 @@
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tree2</span><span class="o">.</span><span class="n">particle_handlers</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">add_to_restart</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                 <span class="n">p</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">p</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
+                <span class="c1"># p.restart()</span>
             <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">particle_handlers</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># pass the remaining particle to the remaining tree</span>
