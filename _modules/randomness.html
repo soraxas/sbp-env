@@ -167,7 +167,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for randomness</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">from</span> <span class="nn">SALib.sample</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">saltelli</span><span class="p">,</span>
@@ -245,31 +247,31 @@
             <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">NUM_DATA_POINTS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span> <span class="o">=</span> <span class="n">dist</span></div>
 
-    <span class="c1"># def draw_normal(</span>
-    <span class="c1">#     self,</span>
-    <span class="c1">#     origin: np.ndarray,</span>
-    <span class="c1">#     use_vonmises: bool = True,</span>
-    <span class="c1">#     kappa: float = 1,</span>
-    <span class="c1">#     sigma: float = math.pi / 4,</span>
-    <span class="c1"># ) -&gt; np.ndarray:</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#</span>
-    <span class="c1">#     :param origin: the origin (mean) for the random number, which will be used to</span>
-    <span class="c1">#     shift the number that this function returns</span>
-    <span class="c1">#     :param use_vonmises:  (Default value = True)</span>
-    <span class="c1">#     :param kappa:  (Default value = 1)</span>
-    <span class="c1">#     :param sigma:  (Default value = math.pi / 4)</span>
-    <span class="c1">#</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     if self.normal_draws_reserve is None or self.normal_draws_reserve.size &lt; 1:</span>
-    <span class="c1">#         self.redraw_normal(</span>
-    <span class="c1">#             use_vonmises=use_vonmises, kappa=kappa, sigma=math.pi / 4</span>
-    <span class="c1">#         )</span>
-    <span class="c1">#     # draw from samples</span>
-    <span class="c1">#     draw = self.normal_draws_reserve[-1]</span>
-    <span class="c1">#     self.normal_draws_reserve = self.normal_draws_reserve[:-1]</span>
-    <span class="c1">#     # shift location</span>
-    <span class="c1">#     return draw + origin</span>
+<div class="viewcode-block" id="NormalRandomnessManager.draw_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.draw_normal">[docs]</a>    <span class="k">def</span> <span class="nf">draw_normal</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">origin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">use_vonmises</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param origin: the origin (mean) for the random number, which will be used to</span>
+<span class="sd">        shift the number that this function returns</span>
+<span class="sd">        :param use_vonmises:  (Default value = True)</span>
+<span class="sd">        :param kappa:  (Default value = 1)</span>
+<span class="sd">        :param sigma:  (Default value = math.pi / 4)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">redraw_normal</span><span class="p">(</span>
+                <span class="n">use_vonmises</span><span class="o">=</span><span class="n">use_vonmises</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="n">kappa</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span>
+            <span class="p">)</span>
+        <span class="c1"># draw from samples</span>
+        <span class="n">draw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_draws_reserve</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># shift location</span>
+        <span class="k">return</span> <span class="n">draw</span> <span class="o">+</span> <span class="n">origin</span></div>
 
 <div class="viewcode-block" id="NormalRandomnessManager.redraw_half_normal"><a class="viewcode-back" href="../misc.html#randomness.NormalRandomnessManager.redraw_half_normal">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_half_normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_at</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Re-draw from a half normal distribution</span>
@@ -305,13 +307,14 @@
 <span class="sd">    redraw when the bucket is exhausted.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bucket_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">NUM_DATA_POINTS</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param num_dim: the number of dimension</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># draws of random numbers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_draws</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_dim</span> <span class="o">=</span> <span class="n">num_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span> <span class="o">=</span> <span class="n">bucket_size</span>
 
 <div class="viewcode-block" id="RandomnessManager.redraw"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Redraw the random number with the given method</span>
@@ -325,24 +328,26 @@
             <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dim</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;pseudo_random&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="n">NUM_DATA_POINTS</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;sobol_sequence&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">sobol_sequence</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">NUM_DATA_POINTS</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">sobol_sequence</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;saltelli&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">saltelli</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">NUM_DATA_POINTS</span><span class="p">,</span> <span class="n">calc_second_order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">saltelli</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">,</span> <span class="n">calc_second_order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;latin_hypercube&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">latin</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">NUM_DATA_POINTS</span><span class="p">)</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">latin</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;finite_differences&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">finite_diff</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">NUM_DATA_POINTS</span><span class="p">)</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">finite_diff</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">random_method</span> <span class="o">==</span> <span class="s2">&quot;fast&quot;</span><span class="p">:</span>
-            <span class="n">seq</span> <span class="o">=</span> <span class="n">fast_sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">NUM_DATA_POINTS</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">fast_sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bucket_size</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown random method </span><span class="si">{random_method}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_draws</span><span class="p">[</span><span class="n">random_method</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq</span></div>
 
 <div class="viewcode-block" id="RandomnessManager.get_random"><a class="viewcode-back" href="../misc.html#randomness.RandomnessManager.get_random">[docs]</a>    <span class="k">def</span> <span class="nf">get_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_method</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get one sample of random number :math:`r` where :math:`0 \le r \le 1`</span>
 
 <span class="sd">        :param random_method: The kind of random number method to use, must be one of</span>
-<span class="sd">        the choice in :data:`SUPPORTED_RANDOM_METHODS`</span>
+<span class="sd">            the choice in :data:`SUPPORTED_RANDOM_METHODS`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span>

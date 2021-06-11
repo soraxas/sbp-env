@@ -337,12 +337,15 @@ as follows:</p>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">randomness.RandomnessManager:</span></code> is used by most samplers to draw random numbers.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="randomness.RandomnessManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>A random number manager that draw a buckets of random numbers at a number and
 redraw when the bucket is exhausted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the number of dimension</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the number of dimension</p></li>
+<li><p><strong>bucket_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -351,10 +354,10 @@ redraw when the bucket is exhausted.</p>
 <dd><p>Get one sample of random number <span class="math">\(r\)</span> where <span class="math">\(0 \le r \le 1\)</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>random_method</strong> – The kind of random number method to use, must be one of</p>
+<dd class="field-odd"><p><strong>random_method</strong> – The kind of random number method to use, must be one of
+the choice in <a class="reference internal" href="#randomness.SUPPORTED_RANDOM_METHODS" title="randomness.SUPPORTED_RANDOM_METHODS"><code class="xref py py-data docutils literal notranslate"><span class="pre">SUPPORTED_RANDOM_METHODS</span></code></a></p>
 </dd>
 </dl>
-<p>the choice in <a class="reference internal" href="#randomness.SUPPORTED_RANDOM_METHODS" title="randomness.SUPPORTED_RANDOM_METHODS"><code class="xref py py-data docutils literal notranslate"><span class="pre">SUPPORTED_RANDOM_METHODS</span></code></a></p>
 </dd></dl>
 
 <dl class="py method">
@@ -390,6 +393,45 @@ and refill the bucket on-demand when it is exhausted.</p>
 <li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the scale of the half normal
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="randomness.NormalRandomnessManager.draw_normal">
+<span class="sig-name descname"><span class="pre">draw_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vonmises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7853981633974483</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager.draw_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager.draw_normal" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to</p></li>
+<li><p><strong>use_vonmises</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – </p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a></p>
+</dd>
+</dl>
+<p>shift the number that this function returns
+:type use_vonmises: <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>
+:param use_vonmises:  (Default value = True)</p>
+<blockquote>
+<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – (Default value = 1)
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – (Default value = math.pi / 4)
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">0.7853981633974483</span></code></p></li>
+<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – </p></li>
+<li><p><strong>use_vonmises</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

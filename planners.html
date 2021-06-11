@@ -417,11 +417,11 @@ ICRA). IEEE, 2019.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
-<li><p><strong>parent_tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>) – the tree to add the node</p></li>
+<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]) – the tree to add the node</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -434,8 +434,8 @@ ICRA). IEEE, 2019.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the new node to connects</p></li>
-<li><p><strong>nn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from the existing tree to be connected</p></li>
-<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>], <em>optional</em>) – if given, add newnode to this tree
+<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>]) – a node from the existing tree to be connected</p></li>
+<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>], <em>optional</em>) – if given, add newnode to this tree
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -451,12 +451,12 @@ Return a list of cloest nodes (and its corresponding tree) within the radius (th
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
-<li><p><strong>parent_tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>) – the tree to add the given node</p></li>
+<li><p><strong>parent_tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – the tree to add the given node</p></li>
 <li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the maximum radius to add the given node</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>]]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]]</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>a list of potential nodes</p>
@@ -471,7 +471,7 @@ Return a list of cloest nodes (and its corresponding tree) within the radius (th
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>) – the disjointed tree to be added to root tree</p></li>
+<li><p><strong>tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – the disjointed tree to be added to root tree</p></li>
 <li><p><strong>middle_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the middle node that connects the disjointed tree and the
 root tree</p></li>
 <li><p><strong>root_tree_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from the root tree</p></li>
@@ -491,8 +491,8 @@ It only matters currently to joining root tree to disjointed tree itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tree1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>) – disjointed tree 1 <span class="math">\(\mathcal{T}_1\)</span></p></li>
-<li><p><strong>tree2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TreeDisjoint</span></code>) – disjointed tree 2 <span class="math">\(\mathcal{T}_2\)</span></p></li>
+<li><p><strong>tree1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – disjointed tree 1 <span class="math">\(\mathcal{T}_1\)</span></p></li>
+<li><p><strong>tree2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – disjointed tree 2 <span class="math">\(\mathcal{T}_2\)</span></p></li>
 <li><p><strong>tree1_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from tree 1 <span class="math">\(v_1 \in \mathcal{T}_1\)</span></p></li>
 <li><p><strong>tree2_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from tree 2 <span class="math">\(v_2 \in \mathcal{T}_2\)</span></p></li>
 </ul>

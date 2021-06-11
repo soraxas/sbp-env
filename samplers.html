@@ -432,6 +432,11 @@ ellipse space, and the minimum cost is given by</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.rrdtPlanner.</span></span><span class="sig-name descname"><span class="pre">RRdTSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restart_when_merge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">samplers.baseSampler.Sampler</span></code></a></p>
 <p>Represents RRdT’s sampler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>restart_when_merge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTSampler.get_next_pos">
 <span class="sig-name descname"><span class="pre">get_next_pos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler.get_next_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler.get_next_pos" title="Permalink to this definition">¶</a></dt>
@@ -478,12 +483,12 @@ opposite to Euclidean)</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTSampler.randomWalk">
-<span class="sig-name descname"><span class="pre">randomWalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler.randomWalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler.randomWalk" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTSampler.random_walk">
+<span class="sig-name descname"><span class="pre">random_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTSampler.random_walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTSampler.random_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a random walk for the particle at the given index</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – the index of the particle</p>
+<dd class="field-odd"><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the index of the particle</p>
 </dd>
 </dl>
 </dd></dl>
@@ -504,7 +509,7 @@ opposite to Euclidean)</p></li>
 <dd><p>Reports that the sampled position from the particle had failed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>idx</strong> – the index of the particle</p>
+<dd class="field-odd"><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the index of the particle</p>
 </dd>
 </dl>
 </dd></dl>
@@ -517,7 +522,7 @@ successful</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>idx</strong> – the index of the particle</p></li>
+<li><p><strong>idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the index of the particle</p></li>
 <li><p><strong>newnode</strong> – the node that was created</p></li>
 </ul>
 </dd>

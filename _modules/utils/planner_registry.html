@@ -198,7 +198,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">#: the class to construct the planner</span>
-    <span class="n">planner_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Planner&quot;</span><span class="p">]</span>
+    <span class="n">planner_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Planner</span><span class="p">]</span>
     <span class="c1">#: the sampler id to associate to this planner</span>
     <span class="n">sampler_id</span><span class="p">:</span> <span class="nb">str</span></div>
 
@@ -210,7 +210,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">#: the class to construct the sampler</span>
-    <span class="n">sampler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Sampler&quot;</span><span class="p">]</span></div>
+    <span class="n">sampler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Sampler</span><span class="p">]</span></div>
 
 
 <span class="c1">#: the registry to store a dictionary to map a friendly name to a planner data pack</span>
@@ -239,8 +239,15 @@
 <span class="sd">        when terminating</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">planners.basePlanner</span> <span class="kn">import</span> <span class="n">Planner</span>
+
     <span class="k">if</span> <span class="n">planner_id</span> <span class="ow">in</span> <span class="n">PLANNERS</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A planner with name &#39;</span><span class="si">{planner_id}</span><span class="s2">&#39; already exists!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">planner_class</span><span class="p">,</span> <span class="n">Planner</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The given class &#39;</span><span class="si">{planner_class}</span><span class="s2">&#39; must derived from base &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;type &#39;</span><span class="si">{Planner.__name__}</span><span class="s2">&#39;!&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">PLANNERS</span><span class="p">[</span><span class="n">planner_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">PlannerDataPack</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">planner_id</span><span class="p">,</span>
@@ -270,8 +277,15 @@
 <span class="sd">        when terminating</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">samplers.baseSampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+
     <span class="k">if</span> <span class="n">sampler_id</span> <span class="ow">in</span> <span class="n">SAMPLERS</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A sampler with name &#39;</span><span class="si">{sampler_id}</span><span class="s2">&#39; already exists!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">sampler_class</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The given class &#39;</span><span class="si">{sampler_class}</span><span class="s2">&#39; must derived from base &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;type &#39;</span><span class="si">{Sampler.__name__}</span><span class="s2">&#39;!&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">SAMPLERS</span><span class="p">[</span><span class="n">sampler_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">SamplerDataPack</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">sampler_id</span><span class="p">,</span>
