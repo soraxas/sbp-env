@@ -140,7 +140,7 @@ class PRMPlanner(RRTPlanner):
         goal = self.get_nearest_free(self.args.env.goal_pt, m_near)
 
         if start is None or goal is None or not nx.has_path(self.graph, start, goal):
-            return False
+            return float("inf")
 
         solution_path = nx.shortest_path(self.graph, start, goal)
         solution_path[0].cost = self.args.env.dist(solution_path[0].pos, start.pos)

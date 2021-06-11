@@ -42,6 +42,9 @@ class BiRRTSampler(Sampler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.random_method = (
+            kwargs["random_method"] if "random_method" in kwargs else "pseudo_random"
+        )
 
     @overrides
     def init(self, **kwargs):
@@ -49,7 +52,7 @@ class BiRRTSampler(Sampler):
 
         """
         super().init(**kwargs)
-        self.randomSampler = RandomPolicySampler()
+        self.randomSampler = RandomPolicySampler(random_method=self.random_method)
         self.randomSampler.init(use_radian=self.use_radian, **kwargs)
 
     def set_use_radian(self, value=True):

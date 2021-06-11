@@ -201,7 +201,6 @@ def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = Non
 
     planner_data_pack = planner_registry.PLANNERS[planner_to_use]
 
-    planner_type = planner_data_pack.planner_class
     sampler_data_pack = planner_registry.SAMPLERS[planner_data_pack.sampler_id]
     sampler = sampler_data_pack.sampler_class(
         sampler_data_pack=sampler_data_pack,
@@ -226,7 +225,6 @@ def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = Non
         rrdt_proposal_distribution=args["--proposal-dist"],
         no_display=args["--no-display"],
         engine=args["--engine"],
-        planner_type=planner_type,
         start_pt=args["<start_x1,x2,..,xn>"],
         goal_pt=args["<goal_x1,x2,..,xn>"],
     )

@@ -63,7 +63,7 @@ class Env:
         self.args["start_pt"] = parse_input_pt(self.args["start_pt"])
         self.args["goal_pt"] = parse_input_pt(self.args["goal_pt"])
 
-        self.args.planner = self.args["planner_type"](**self.args)
+        self.args.planner = self.args.planner_data_pack.planner_class(**self.args)
         self.args["planner"] = self.args.planner
 
         self.planner = self.args.planner

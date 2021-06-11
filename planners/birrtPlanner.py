@@ -39,7 +39,6 @@ class BiRRTPlanner(RRTPlanner):
 
     @overrides
     def run_once(self):
-        """ """
         if self.goal_tree_turn and not self.found_solution:
             # extend from goal tree
             poses = self.goal_tree_poses
@@ -54,7 +53,7 @@ class BiRRTPlanner(RRTPlanner):
         ###################################################################
         ###################################################################
         # Get an sample that is free (not in blocked space)
-        rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
+        rand_pos, report_success, report_fail = self.args.sampler.get_valid_next_pos()
         # Found a node that is not in X_obs
 
         idx = self.find_nearest_neighbour_idx(rand_pos, poses[: len(nodes)])
@@ -64,10 +63,11 @@ class BiRRTPlanner(RRTPlanner):
         # check if it has a free path to nn or not
         if not self.args.env.cc.visible(nn.pos, newpos):
             self.args.env.stats.add_invalid(obs=False)
+            report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
             self.args.env.stats.add_free()
-
+            report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=nodes)
             poses[len(nodes)] = newnode.pos
