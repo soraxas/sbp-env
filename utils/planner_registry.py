@@ -29,7 +29,7 @@ class PlannerDataPack(BaseDataPack):
     """
 
     #: the class to construct the planner
-    planner_class: Type["Planner"]
+    planner_class: Type[Planner]
     #: the sampler id to associate to this planner
     sampler_id: str
 
@@ -41,7 +41,7 @@ class SamplerDataPack(BaseDataPack):
     """
 
     #: the class to construct the sampler
-    sampler_class: Type["Sampler"]
+    sampler_class: Type[Sampler]
 
 
 #: the registry to store a dictionary to map a friendly name to a planner data pack
@@ -70,8 +70,15 @@ def register_planner(
         when terminating
 
     """
+    from planners.basePlanner import Planner
+
     if planner_id in PLANNERS:
         raise ValueError(f"A planner with name '{planner_id}' already exists!")
+    if not issubclass(planner_class, Planner):
+        raise TypeError(
+            f"The given class '{planner_class}' must derived from base "
+            f"type '{Planner.__name__}'!"
+        )
 
     PLANNERS[planner_id] = PlannerDataPack(
         name=planner_id,
@@ -101,8 +108,15 @@ def register_sampler(
         when terminating
 
     """
+    from samplers.baseSampler import Sampler
+
     if sampler_id in SAMPLERS:
         raise ValueError(f"A sampler with name '{sampler_id}' already exists!")
+    if not issubclass(sampler_class, Sampler):
+        raise TypeError(
+            f"The given class '{sampler_class}' must derived from base "
+            f"type '{Sampler.__name__}'!"
+        )
 
     SAMPLERS[sampler_id] = SamplerDataPack(
         name=sampler_id,
