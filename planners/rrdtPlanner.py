@@ -230,9 +230,10 @@ class DisjointTreeParticle:
 class RRdTSampler(Sampler):
     """Represents RRdT's sampler"""
 
-    def __init__(self, restart_when_merge: bool = True, **kwargs):
+    def __init__(self, restart_when_merge: bool = True, num_dtrees: int = 4, **kwargs):
         super().__init__(**kwargs)
         self.restart_when_merge = restart_when_merge
+        self.num_dtrees = num_dtrees
         self._last_prob = None
 
         self._c_random = 0
@@ -265,7 +266,7 @@ class RRdTSampler(Sampler):
         self.random_sampler.init(**kwargs)
 
         self.p_manager = MABScheduler(
-            num_dtrees=4,
+            num_dtrees=self.num_dtrees,
             start_pt=self.start_pos,
             goal_pt=self.goal_pos,
             args=self.args,
@@ -829,7 +830,7 @@ class RRdTPlanner(RRTPlanner):
             for p in tree2.particle_handlers:
                 self.args.sampler.p_manager.add_to_restart(p)
                 p.tree = None
-                p.restart()
+                # p.restart()
             del tree2.particle_handlers
         else:
             # pass the remaining particle to the remaining tree

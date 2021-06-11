@@ -73,11 +73,15 @@ template_args = MagicDict(
 
 # helper class to test equality for numpy array
 class MockNumpyEquality:
-    def __init__(self, target):
+    def __init__(self, target, almost_equal=False):
         self.target = target
+        self.check_almost_equal = almost_equal
 
     def __eq__(self, other):
         if not isinstance(other, np.ndarray):
             return False
-        np.testing.assert_array_equal(self.target, other)
+        if self.check_almost_equal:
+            np.testing.assert_allclose(self.target, other)
+        else:
+            np.testing.assert_array_equal(self.target, other)
         return True
