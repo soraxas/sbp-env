@@ -106,7 +106,5 @@ class RandomPolicySampler(Sampler):
 # start register
 sampler_id = "random"
 
-planner_registry.register_sampler(
-    sampler_id, sampler_class=RandomPolicySampler, visualise_pygame_paint=None,
-)
+planner_registry.register_sampler(sampler_id, sampler_class=RandomPolicySampler)
 # finish register

@@ -77,7 +77,7 @@ class Sampler(ABC):
         """Report to the sampler that the last sample was successfully. This function is
         sampler dependent.
 
-        :param **kwargs: pass through to derived class
+        :param kwargs: pass through to derived class
 
         """
         pass
@@ -86,7 +86,7 @@ class Sampler(ABC):
         """Report to the sampler that the last sample was unsuccessful. This function is
         sampler dependent.
 
-        :param **kwargs: pass through to derived class
+        :param kwargs: pass through to derived class
 
         """
         pass
@@ -94,7 +94,7 @@ class Sampler(ABC):
     def add_tree_node(self, **kwargs):
         """Report to the sampler about the last node that was added to the tree
 
-        :param **kwargs: pass through to derived class
+        :param kwargs: pass through to derived class
 
         """
         pass
@@ -102,7 +102,7 @@ class Sampler(ABC):
     def add_sample_line(self, **kwargs):
         """Report to the sampler about the entire line that was sampled last time
 
-        :param **kwargs: pass through to derived class
+        :param kwargs: pass through to derived class
 
         """
         pass

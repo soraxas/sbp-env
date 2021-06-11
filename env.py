@@ -31,17 +31,12 @@ class Env:
         self.args = MagicDict(kwargs)
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
-        if kwargs["engine"] == "image":
-            self.cc = collisionChecker.ImgCollisionChecker(self.args.image)
-            self.dist = self.euclidean_dist
-        elif kwargs["engine"] == "4d":
-            self.cc = collisionChecker.RobotArm4dCollisionChecker(self.args.image)
-            self.dist = self.euclidean_dist
-        elif kwargs["engine"] == "klampt":
-            self.cc = collisionChecker.KlamptCollisionChecker(
-                self.args.image, self.stats
-            )
-            self.dist = self.radian_dist
+        cc_type, self.dist = {
+            "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
+            "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
+            "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
+        }[kwargs["engine"]]
+        self.cc = cc_type(self.args.image, args=self.args)
 
         self.args["num_dim"] = self.cc.get_dimension()
         self.args["image_shape"] = self.cc.get_image_shape()

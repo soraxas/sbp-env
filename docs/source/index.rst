@@ -7,17 +7,33 @@ To quickly get started, see the :ref:`quick_start` guide.
 For various documentation of th implemented planners and samplers, checkout the
 corresponding sections from the side bar.
 
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: Guide
+   :maxdepth: 3
 
    quick-start
    cli
+   add-environment
+
+.. toctree::
+   :caption: Implemented SBPs
+   :maxdepth: 3
+
    planners
    samplers
-   add-environment
+
+.. toctree::
+   :caption: Planning environment
+   :maxdepth: 3
+
    engines
    visualisers
+
+.. toctree::
+   :caption: Others
+   :maxdepth: 3
+
    misc
    support
 

@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 def nothing_to_paint(*args):
     """Paint function that does nothing.
 
-    :param *args: unused
+    :param args: unused
     """
     pass
 
@@ -940,8 +940,8 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
     """ """
 
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.drawn_label = set()
-        self.kwargs = kwargs
 
     def visualiser_init(self, no_display=False):
         """
@@ -952,7 +952,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         if not no_display:
             from klampt import vis
 
-            vis.add("world", self.kwargs["cc"].world)
+            vis.add("world", self.args.cc.world)
             vis.show()
         return
 
@@ -984,10 +984,17 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             save = None
             # it's worthwhile to make sure that it's feasible
             while q is None or not self.cc.space.feasible(q):
+                print("=" * 20)
+                print("=" * 20)
+                print(type_str, q)
                 print(type_str + " configuration isn't feasible")
                 save, q = resource.edit(
                     type_str + " config", q, "Config", world=self.cc.world
                 )
+                q = [1, 2, 3, 4, 5, 6, 7]
+                print("=" * 20)
+                print(q)
+                print("=" * 20)
             return save, q
 
         # start = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]

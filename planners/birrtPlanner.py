@@ -18,11 +18,6 @@ class BiRRTPlanner(RRTPlanner):
 
     @overrides
     def init(self, **kwargs):
-        """
-
-        :param **kwargs: 
-
-        """
         super().init(**kwargs)
         self.goal_tree_nodes = []
         self.goal_tree_poses = np.empty(
