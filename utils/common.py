@@ -57,7 +57,7 @@ class Colour:
 
 
 class Node:
-    """Represents a node inside a tree.
+    r"""Represents a node inside a tree.
 
     :ivar pos: position, a.k.a., the configuration :math:`q \in C` that this node
         represents
@@ -103,7 +103,7 @@ class Node:
 
 
 class Stats:
-    """
+    r"""
     Stores statistics of a planning problem instance
 
     :ivar invalid_samples_connections: the number of invalid samples due to

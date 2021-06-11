@@ -8,7 +8,7 @@ from utils import planner_registry
 
 # noinspection PyAttributeOutsideInit
 class BiRRTPlanner(RRTPlanner):
-    """The bidrectional RRT* planner, or sometimes it's also referred to as the
+    r"""The bidrectional RRT* planner, or sometimes it's also referred to as the
     *RRT-Connect\**.
 
     The class :class:`~planners.birrtPlanner.BiRRTPlanner` uses an adopted version of

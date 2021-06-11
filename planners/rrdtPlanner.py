@@ -757,7 +757,7 @@ class RRdTPlanner(RRTPlanner):
     def join_trees(
         self, tree1: DTreeType, tree2: DTreeType, tree1_node: Node, tree2_node: Node,
     ):
-        """Join the two given tree together (along with their nodes).
+        r"""Join the two given tree together (along with their nodes).
         It will delete the particle reference from the second tree.
         It will use RRT* method to add all nodes if one of the tree is the ROOT.
         
