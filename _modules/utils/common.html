@@ -195,6 +195,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
 
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called `m_dict.attr = XX` is called</span>
+
+<span class="sd">        :param name: the key of the attribute</span>
+<span class="sd">        :param value: the value of the attribute</span>
+<span class="sd">        :return: self[attr]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
 
 <span class="k">class</span> <span class="nc">Colour</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
