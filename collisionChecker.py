@@ -4,14 +4,14 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from utils.common import MagicDict
+from utils.common import Stats
 
 
 class CollisionChecker(ABC):
     """Abstract collision checker"""
 
-    def __init__(self, args: MagicDict):
-        self.args = args
+    def __init__(self, stats: Stats):
+        self.stats = stats
 
     @abstractmethod
     def get_dimension(self) -> int:
@@ -54,13 +54,13 @@ class ImgCollisionChecker(CollisionChecker):
     2D Image Space simulator engine
     """
 
-    def __init__(self, img: typing.IO, args: MagicDict):
+    def __init__(self, img: typing.IO, stats: Stats):
         """
         :param img: a file-like object (e.g. a filename) for the image as the
             environment that the planning operates in
-        :param args: the args of the planning problem
+        :param stats: the Stats object to keep track of stats
         """
-        super().__init__(args)
+        super().__init__(stats)
         from PIL import Image
 
         image = Image.open(img).convert("L")
@@ -187,12 +187,12 @@ class ImgCollisionChecker(CollisionChecker):
 class KlamptCollisionChecker(CollisionChecker):
     """A wrapper around Klampt's 3D simulator"""
 
-    def __init__(self, xml: str, args: MagicDict):
+    def __init__(self, xml: str, stats: Stats):
         """
         :param xml: the xml filename for Klampt to read the world settings
-        :param args: the args of the planning problem
+        :param stats: the Stats object to keep track of stats
         """
-        super().__init__(args)
+        super().__init__(stats)
         import klampt
         from klampt.plan import robotplanning
 
@@ -254,12 +254,12 @@ class KlamptCollisionChecker(CollisionChecker):
         a = self.translate_to_klampt(a)
         b = self.translate_to_klampt(b)
         # print(self.space.visible(a, b))
-        self.args.env.stats.visible_cnt += 1
+        self.stats.visible_cnt += 1
         return self.space.isVisible(a, b)
 
     def feasible(self, p, stats=False):
         p = self.translate_to_klampt(p)
-        self.args.env.stats.feasible_cnt += 1
+        self.stats.feasible_cnt += 1
         return self.space.feasible(p)
 
 
@@ -271,9 +271,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def __init__(
         self,
         img: typing.IO,
-        args: MagicDict,
+        stats: Stats,
         map_mat: typing.Optional[np.ndarray] = None,
-        stick_robot_length_config: typing.Tuple[float, ...] = (35, 35),
+        stick_robot_length_config: typing.Sequence[float] = (35, 35),
     ):
         """
 
@@ -283,9 +283,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             uses `map_mat` directly as the map
         :param stick_robot_length_config: a list of numbers that represents the
             length of the stick robotic arm
-        :param args: the args of the planning problem
+        :param stats: the Stats object to keep track of stats
         """
-        super().__init__(args)
+        super().__init__(stats)
         if map_mat is None:
             from PIL import Image
 

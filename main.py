@@ -104,41 +104,38 @@ assert planners
 
 LOGGER = logging.getLogger()
 
-# add all of the registered planners
-__doc__ = __doc__.format(
-    all_available_planners="|".join(
-        sorted(
-            (planner.name for planner in planner_registry.PLANNERS.values()),
-            reverse=True,
-        )
-    )
-)
+RAW_DOC_STRING = __doc__
 
 
 def generate_args(
-    planner_id: Optional[str],
-    map_fname: Optional[str],
-    start: Optional[np.ndarray] = None,
-    goal: Optional[np.ndarray] = None,
+        planner_id: Optional[str],
+        map_fname: Optional[str],
+        start: Optional[np.ndarray] = None,
+        goal: Optional[np.ndarray] = None,
 ) -> MagicDict:
-    """The entry point of the planning scene module
+    """Get the default set of arguments
 
-    :param map_fname: overrides the map to test
+    :param planner_id: the planner to use in the planning environment
+    :param map_fname: the filename of the map to use in the planning environment
     :param start: overrides the starting configuration
     :param goal: overrides the goal configuration
 
     :return: the default dictionary of arguments to config the planning problem
     """
-    if map_fname is None or planner_id is None:
-        if len(sys.argv) < 3:
+    if __name__ != "__main__":
+        # being called as a standalone function (as oppose to cli)
+        if map_fname is None or planner_id is None:
             raise ValueError(
                 "Both `map_fname` and `planner_id` must be provided to " "generate args"
             )
-    else:
+        if planner_id not in planner_registry.PLANNERS:
+            raise ValueError(f"The given planner id '{planner_id}' does not exists.")
         # inject the inputs for docopt to parse
         sys.argv[1:] = [planner_id, map_fname]
 
-    args = docopt(__doc__, version="SBP-Env Research v2.0")
+    # add all of the registered planners
+    args = docopt(format_doc_with_registered_planners(RAW_DOC_STRING),
+                  version="SBP-Env Research v2.0")
 
     # allow the map filename, start and goal point to be override.
     if start is not None:
@@ -209,7 +206,7 @@ def generate_args(
         if (not a.startswith("--") and args[a] is True and a not in ("start", "goal"))
     ]
     assert (
-        len(planner_canidates) == 1
+            len(planner_canidates) == 1
     ), f"Planner to use '{planner_canidates}' has length {len(planner_canidates)}"
     planner_to_use = planner_canidates[0]
     print(planner_to_use)
@@ -251,8 +248,27 @@ def generate_args(
     return planning_option
 
 
-if __name__ == "__main__":
-    planning_option = generate_args(planner_id=None, map_fname=None)
+def format_doc_with_registered_planners(doc: str):
+    """
+    Format the main.py's doc with the current registered planner
 
-    environment = env.Env(**planning_option)
+    :param doc: the doc string to be formatted
+    """
+    return doc.format(
+        all_available_planners="|".join(
+            sorted(
+                (planner.name for planner in planner_registry.PLANNERS.values()),
+                reverse=True,
+            )
+        )
+    )
+
+
+if __name__ == "__main__":
+    # The entry point of the planning scene module from the cli
+    default_arguments = generate_args(planner_id=None, map_fname=None)
+
+    environment = env.Env(args=default_arguments)
     environment.run()
+
+__doc__ = format_doc_with_registered_planners(__doc__)

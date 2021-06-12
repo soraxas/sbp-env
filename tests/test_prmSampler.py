@@ -20,7 +20,7 @@ class TestPRMSampler(TestCase):
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["prm"]
 
-        self.env = Env(**args)
+        self.env = Env(args)
         self.sampler = self.env.args.sampler
 
     def test_init(self):

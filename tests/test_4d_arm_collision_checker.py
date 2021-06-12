@@ -8,12 +8,13 @@ from tests.test_image_space_collision_checker import (
     create_test_image,
     pt,
 )
+from utils.common import Stats
 
 
 class TestRobotArm4dCollisionChecker(TestCase):
     def setUp(self) -> None:
         self.cc = RobotArm4dCollisionChecker(
-            create_test_image(), stick_robot_length_config=[0.1, 0.1]
+            create_test_image(), stick_robot_length_config=[0.1, 0.1], stats=Stats()
         )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)

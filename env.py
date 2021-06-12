@@ -17,7 +17,7 @@ LOGGER = logging.getLogger(__name__)
 class Env:
     """Represents the planning environment. The main loop happens inside this class"""
 
-    def __init__(self, fixed_seed=None, **kwargs):
+    def __init__(self, args: MagicDict, fixed_seed: int = None):
         self.started = False
 
         if fixed_seed is not None:
@@ -26,15 +26,15 @@ class Env:
             print(f"Fixed random seed: {fixed_seed}")
 
         # initialize and prepare screen
-        self.args = MagicDict(kwargs)
+        self.args = args
         self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
         cc_type, self.dist = {
             "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
             "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
             "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
-        }[kwargs["engine"]]
-        self.cc = cc_type(self.args.image, args=self.args)
+        }[self.args.engine]
+        self.cc = cc_type(self.args.image, stats=self.stats)
 
         self.args["num_dim"] = self.cc.get_dimension()
         self.args["image_shape"] = self.cc.get_image_shape()

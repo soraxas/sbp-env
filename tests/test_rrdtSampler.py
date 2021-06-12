@@ -20,7 +20,7 @@ class TestRRdTSampler(TestCase):
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["rrdt"]
 
-        self.env = Env(**args)
+        self.env = Env(args)
         self.sampler = self.env.args.sampler
         # self.env.args.planner.run_once()
 

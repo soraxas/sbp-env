@@ -19,7 +19,7 @@ class TestInformedSampler(TestCase):
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["rrt"]
 
-        self.env = Env(**args)
+        self.env = Env(args)
         self.sampler = self.env.args.sampler
 
     def test_get_next_pos(self):

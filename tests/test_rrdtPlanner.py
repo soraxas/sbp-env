@@ -25,7 +25,7 @@ class TestRRdTPlanner(TestRRTPlanner):
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["rrdt"]
 
-        self.env = Env(**args)
+        self.env = Env(args)
         self.sampler = self.env.args.sampler
         self.planner = self.env.args.planner
 

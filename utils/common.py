@@ -129,7 +129,6 @@ class Stats:
     :ivar visible_cnt: the number of calls to visibility test in the collision checker
     :ivar feasible_cnt: the number of calls to feasibility test in the collision checker
 
-
     :type invalid_samples_connections: int
     :type invalid_samples_obstacles: int
     :type valid_sample: int
