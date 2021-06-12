@@ -47,7 +47,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="C-space Samplers" href="samplers.html" />
-    <link rel="prev" title="Commandline Interface" href="cli.html" /> 
+    <link rel="prev" title="Adding new environment to test" href="add-environment.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,10 +92,14 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <p class="caption"><span class="caption-text">Guide</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Motion Planners</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#rrt">RRT*</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bi-rrt">Bi-RRT*</a></li>
@@ -109,9 +113,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 </ul>
@@ -182,7 +191,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="motion-planners">
-<h1>Motion Planners<a class="headerlink" href="#motion-planners" title="Permalink to this headline">¶</a></h1>
+<span id="motion-planners-page"></span><h1>Motion Planners<a class="headerlink" href="#motion-planners" title="Permalink to this headline">¶</a></h1>
 <p>The following are all of the available motion planners in <code class="docutils literal notranslate"><span class="pre">sbp-env</span></code>.</p>
 <div class="section" id="rrt">
 <h2>RRT*<a class="headerlink" href="#rrt" title="Permalink to this headline">¶</a></h2>
@@ -306,9 +315,7 @@ corresponds to adding one new node to the tree)</p>
 <p>The sampler is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
 
-<span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span>
-    <span class="n">sampler_id</span><span class="p">,</span> <span class="n">sampler_class</span><span class="o">=</span><span class="n">RandomPolicySampler</span><span class="p">,</span> <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span><span class="n">sampler_id</span><span class="p">,</span> <span class="n">sampler_class</span><span class="o">=</span><span class="n">RandomPolicySampler</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and the planner is registered as follows</p>
@@ -341,9 +348,13 @@ trees, which is implemented in <a class="reference internal" href="samplers.html
 <dl class="py method">
 <dt class="sig sig-object py" id="planners.birrtPlanner.BiRRTPlanner.init">
 <span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/birrtPlanner.html#BiRRTPlanner.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.birrtPlanner.BiRRTPlanner.init" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>The delayed <strong>initialisation</strong> function</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>**kwargs</strong> – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
+<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -382,7 +393,7 @@ corresponds to adding one new node to the tree)</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.rrdtPlanner.</span></span><span class="sig-name descname"><span class="pre">RRdTPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrtPlanner.RRTPlanner</span></code></a></p>
 <p>The Rapidly-exploring Random disjointed-Trees.
-The RRdT* planner is implemented based on Lai <em>et. al.</em>’s <a class="footnote-reference brackets" href="#lai" id="id3">1</a> work.
+The RRdT* planner is implemented based on Lai <em>et. al.</em>’s <a class="footnote-reference brackets" href="#lai" id="id1">1</a> work.
 The main idea is that the planner keeps a pool of disjointed trees</p>
 <div class="math">
 \[\mathbb{T}=\{\mathcal{T}_\text{root}, \mathcal{T}_1, \ldots, \mathcal{T}_k\}
@@ -400,7 +411,7 @@ draw each arm is dependent on its previous success as given by</p>
 \]</div>
 <p>with <span class="math">\(o_{t-1}\)</span> as the arm <span class="math">\(a_i\)</span>’s previous observation.</p>
 <dl class="footnote brackets">
-<dt class="label" id="lai"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
+<dt class="label" id="lai"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Lai, Tin, Fabio Ramos, and Gilad Francis. “Balancing global
 exploration and local-connectivity exploitation with rapidly-exploring random
 disjointed-trees.” 2019 International Conference on Robotics and Automation (
@@ -776,7 +787,7 @@ parent, in reverse, starting from the goal node.</p>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="samplers.html" class="btn btn-neutral float-right" title="C-space Samplers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="cli.html" class="btn btn-neutral float-left" title="Commandline Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="add-environment.html" class="btn btn-neutral float-left" title="Adding new environment to test" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

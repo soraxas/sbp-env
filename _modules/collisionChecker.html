@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>collisionChecker &mdash; sbp-env 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+        <script src="../_static/katex_autorenderer.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> sbp-env
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sbp-env</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>collisionChecker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for collisionChecker</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">Stats</span>
+
+
+<span class="k">class</span> <span class="nc">CollisionChecker</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract collision checker&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="n">stats</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must derive from this class&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pos2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check if the straight line connection between pos1 and pos2 is in</span>
+<span class="sd">        :math:`C_\text{free}`. Internally it might calls :meth:`feasible`.</span>
+
+<span class="sd">        :param pos1: the starting configuration of the line</span>
+<span class="sd">        :param pos2: the target configuration of th eline</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must derive from this class&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check if the configuration is in free-space, i.e.,</span>
+<span class="sd">        :math:`q \in C_\text{free}`</span>
+
+<span class="sd">        :param p: configuration to check</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the image shape of the planning problem.</span>
+<span class="sd">        Return None if this is not applicable to the current space</span>
+
+<span class="sd">        :return: the shape of the planning problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="ImgCollisionChecker"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker">[docs]</a><span class="k">class</span> <span class="nc">ImgCollisionChecker</span><span class="p">(</span><span class="n">CollisionChecker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    2D Image Space simulator engine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param img: a file-like object (e.g. a filename) for the image as the</span>
+<span class="sd">            environment that the planning operates in</span>
+<span class="sd">        :param stats: the Stats object to keep track of stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="mi">255</span>
+        <span class="c1"># white pixxel should now have value of 1</span>
+        <span class="n">image</span><span class="p">[</span><span class="n">image</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># need to transpose because pygame has a difference coordinate system than matplotlib matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;The image that represents the planning problem</span>
+
+<span class="sd">        :return: the input image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">T</span>
+
+<div class="viewcode-block" id="ImgCollisionChecker.get_image_shape"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.get_image_shape">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span></div>
+
+<div class="viewcode-block" id="ImgCollisionChecker.get_dimension"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="ImgCollisionChecker.get_coor_before_collision"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.get_coor_before_collision">[docs]</a>    <span class="k">def</span> <span class="nf">get_coor_before_collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the list of coordinate before the collision</span>
+
+<span class="sd">        :param pos1: first configuration</span>
+<span class="sd">        :param pos2: second configuration</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
+        <span class="c1"># check that all pixel are white (free space)</span>
+        <span class="n">endPos</span> <span class="o">=</span> <span class="n">pos2</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
+            <span class="n">endPos</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">endPos</span></div>
+
+<div class="viewcode-block" id="ImgCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># get list of pixel between node A and B</span>
+            <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
+            <span class="n">pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
+            <span class="c1"># check that all pixel are white (free space)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ImgCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">p</span><span class="p">))]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="ImgCollisionChecker.get_line"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.get_line">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_line</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bresenham&#39;s Line Algorithm</span>
+<span class="sd">        Produces a list of tuples from start and end</span>
+
+<span class="sd">        :param start: the starting pixel coordinate</span>
+<span class="sd">        :param end: the ending pixel coordinate</span>
+
+<span class="sd">        &gt;&gt;&gt; points1 = get_line((0, 0), (3, 4))</span>
+<span class="sd">        &gt;&gt;&gt; points2 = get_line((3, 4), (0, 0))</span>
+<span class="sd">        &gt;&gt;&gt; assert(set(points1) == set(points2))</span>
+<span class="sd">        &gt;&gt;&gt; print points1</span>
+<span class="sd">        [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]</span>
+<span class="sd">        &gt;&gt;&gt; print points2</span>
+<span class="sd">        [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]</span>
+<span class="sd">        http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup initial conditions</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+
+        <span class="c1"># Determine how steep the line is</span>
+        <span class="n">is_steep</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+
+        <span class="c1"># Rotate line</span>
+        <span class="k">if</span> <span class="n">is_steep</span><span class="p">:</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x1</span>
+            <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">y2</span><span class="p">,</span> <span class="n">x2</span>
+
+        <span class="c1"># Swap start and end points if necessary and store swap state</span>
+        <span class="n">swapped</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">x1</span> <span class="o">&gt;</span> <span class="n">x2</span><span class="p">:</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x1</span>
+            <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y1</span>
+            <span class="n">swapped</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Recalculate differentials</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+
+        <span class="c1"># Calculate error</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">ystep</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">y1</span> <span class="o">&lt;</span> <span class="n">y2</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Iterate over bounding box generating points between start and end</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y1</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_steep</span> <span class="k">else</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">-=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">+=</span> <span class="n">ystep</span>
+                <span class="n">error</span> <span class="o">+=</span> <span class="n">dx</span>
+
+        <span class="c1"># Reverse the list if the coordinates were swapped</span>
+        <span class="k">if</span> <span class="n">swapped</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">points</span></div></div>
+
+
+<div class="viewcode-block" id="KlamptCollisionChecker"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker">[docs]</a><span class="k">class</span> <span class="nc">KlamptCollisionChecker</span><span class="p">(</span><span class="n">CollisionChecker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A wrapper around Klampt&#39;s 3D simulator&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param xml: the xml filename for Klampt to read the world settings</span>
+<span class="sd">        :param stats: the Stats object to keep track of stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">klampt</span>
+        <span class="kn">from</span> <span class="nn">klampt.plan</span> <span class="kn">import</span> <span class="n">robotplanning</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc_feasible</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc_visible</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">world</span> <span class="o">=</span> <span class="n">klampt</span><span class="o">.</span><span class="n">WorldModel</span><span class="p">()</span>
+        <span class="n">world</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>  <span class="c1"># very cluttered</span>
+        <span class="n">robot</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">robot</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># this is the CSpace that will be used.  Standard collision and joint limit constraints</span>
+        <span class="c1"># will be checked</span>
+        <span class="n">space</span> <span class="o">=</span> <span class="n">robotplanning</span><span class="o">.</span><span class="n">makeSpace</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">robot</span><span class="p">,</span> <span class="n">edgeCheckResolution</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="c1"># fire up a visual editor to get some start and goal configurations</span>
+        <span class="n">qstart</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+        <span class="n">qgoal</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="o">=</span> <span class="n">space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span> <span class="o">=</span> <span class="n">robot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">world</span> <span class="o">=</span> <span class="n">world</span>
+
+        <span class="kn">import</span> <span class="nn">copy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">qstart</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">(</span><span class="n">qstart</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">(</span><span class="n">qgoal</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KlamptCollisionChecker.get_dimension"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">6</span></div>
+
+    <span class="k">def</span> <span class="nf">get_dimension_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">getJointLimits</span><span class="p">()</span>
+
+<div class="viewcode-block" id="KlamptCollisionChecker.translate_to_klampt"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.translate_to_klampt">[docs]</a>    <span class="k">def</span> <span class="nf">translate_to_klampt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translate the given configuration to klampt&#39;s configuration</span>
+
+<span class="sd">        :param p: configuratino to translate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="n">p</span>
+
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span><span class="p">)</span>
+        <span class="n">new_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="k">return</span> <span class="n">new_pos</span></div>
+
+<div class="viewcode-block" id="KlamptCollisionChecker.translate_from_klampt"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.translate_from_klampt">[docs]</a>    <span class="k">def</span> <span class="nf">translate_from_klampt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translate the given klampt&#39;s configuration to our protocol</span>
+
+<span class="sd">        :param p: configuratino to translate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="KlamptCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="c1"># print(self.space.visible(a, b))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">isVisible</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KlamptCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker">[docs]</a><span class="k">class</span> <span class="nc">RobotArm4dCollisionChecker</span><span class="p">(</span><span class="n">CollisionChecker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    4D robot arm simulator engine that operates in the Image Space</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">,</span>
+        <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">,</span>
+        <span class="n">map_mat</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stick_robot_length_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param img: a file-like object (e.g. a filename) for the image as the</span>
+<span class="sd">            environment that the planning operates</span>
+<span class="sd">        :param map_mat: an image that, if given, will ignore the `img` argument and</span>
+<span class="sd">            uses `map_mat` directly as the map</span>
+<span class="sd">        :param stick_robot_length_config: a list of numbers that represents the</span>
+<span class="sd">            length of the stick robotic arm</span>
+<span class="sd">        :param stats: the Stats object to keep track of stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">map_mat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="mi">255</span>
+            <span class="c1"># white pixxel should now have value of 1</span>
+            <span class="n">image</span><span class="p">[</span><span class="n">image</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># import matplotlib.pyplot as plt</span>
+            <span class="c1"># plt.imshow(image)</span>
+            <span class="c1"># plt.colorbar()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">image</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="p">(</span><span class="n">map_mat</span> <span class="o">/</span> <span class="n">map_mat</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># need to transpose because pygame has a difference coordinate system than matplotlib matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span> <span class="o">=</span> <span class="n">stick_robot_length_config</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">T</span>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.get_image_shape"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.get_image_shape">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.get_dimension"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">4</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.create_ranges"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.create_ranges">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_ranges</span><span class="p">(</span>
+        <span class="n">start</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a batch of linspace.</span>
+
+<span class="sd">        :param start: an array of starting values</span>
+<span class="sd">        :param stop: an array of stopping values</span>
+<span class="sd">        :param N: the size of linspace</span>
+<span class="sd">        :param endpoint: whether to include end point or not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># From https://stackoverflow.com/questions/40624409/vectorized-numpy-linspace-for-multiple-start-and-stop-values</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">divisor</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">divisor</span> <span class="o">=</span> <span class="n">N</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">divisor</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">steps</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="n">start</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker._interpolate_configs"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker._interpolate_configs">[docs]</a>    <span class="k">def</span> <span class="nf">_interpolate_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given two configs (x, y, r1, r2), return interpolate in-between</span>
+
+<span class="sd">        :param c1: the first configuration</span>
+<span class="sd">        :param c2: the second configuration</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loc_interpolate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_line</span><span class="p">(</span><span class="n">c1</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">c2</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># print(np.array(loc_interpolate).T)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loc_interpolate</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># because config interpolate must be &gt;= 2</span>
+            <span class="n">loc_interpolate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_interpolate</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">rot_interpolate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_ranges</span><span class="p">(</span><span class="n">c1</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">c2</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">N</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">loc_interpolate</span><span class="p">))</span>
+
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">loc_interpolate</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">rot_interpolate</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">combined</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+        <span class="c1"># get list of pixel between node A and B</span>
+        <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_configs</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker._pt_feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker._pt_feasible">[docs]</a>    <span class="k">def</span> <span class="nf">_pt_feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;check if point is white (which means free space) in 2d</span>
+
+<span class="sd">        :param p: the configuration to check</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">p</span><span class="p">))]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="n">pt1</span> <span class="o">=</span> <span class="n">p</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">pt2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pt_from_angle_and_length</span><span class="p">(</span>
+            <span class="n">pt1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># this stick should be free</span>
+        <span class="k">for</span> <span class="n">__p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_line</span><span class="p">(</span><span class="n">pt1</span><span class="p">,</span> <span class="n">pt2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pt_feasible</span><span class="p">(</span><span class="n">__p</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">pt3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pt_from_angle_and_length</span><span class="p">(</span>
+            <span class="n">pt2</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># this stick should be free</span>
+        <span class="k">for</span> <span class="n">__p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_line</span><span class="p">(</span><span class="n">pt2</span><span class="p">,</span> <span class="n">pt3</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pt_feasible</span><span class="p">(</span><span class="n">__p</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.get_pt_from_angle_and_length"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.get_pt_from_angle_and_length">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_pt_from_angle_and_length</span><span class="p">(</span><span class="n">pt1</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">line_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Obtain point 2 based of the given settings</span>
+
+<span class="sd">        :param pt1: coordinate of pt1</span>
+<span class="sd">        :param angle: the current angle</span>
+<span class="sd">        :param line_length: the length of the arm</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pt2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">line_length</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span>
+            <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">line_length</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pt2</span></div>
+
+<div class="viewcode-block" id="RobotArm4dCollisionChecker._get_line"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker._get_line">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_line</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bresenham&#39;s Line Algorithm</span>
+<span class="sd">        Produces a list of tuples from start and end</span>
+
+<span class="sd">        :param start: the start configuration</span>
+<span class="sd">        :param end: the end configuration</span>
+
+<span class="sd">        &gt;&gt;&gt; points1 = get_line((0, 0), (3, 4))</span>
+<span class="sd">        &gt;&gt;&gt; points2 = get_line((3, 4), (0, 0))</span>
+<span class="sd">        &gt;&gt;&gt; assert(set(points1) == set(points2))</span>
+<span class="sd">        &gt;&gt;&gt; print points1</span>
+<span class="sd">        [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]</span>
+<span class="sd">        &gt;&gt;&gt; print points2</span>
+<span class="sd">        [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]</span>
+<span class="sd">        http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup initial conditions</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+
+        <span class="c1"># Determine how steep the line is</span>
+        <span class="n">is_steep</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+
+        <span class="c1"># Rotate line</span>
+        <span class="k">if</span> <span class="n">is_steep</span><span class="p">:</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x1</span>
+            <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">y2</span><span class="p">,</span> <span class="n">x2</span>
+
+        <span class="c1"># Swap start and end points if necessary and store swap state</span>
+        <span class="n">swapped</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">x1</span> <span class="o">&gt;</span> <span class="n">x2</span><span class="p">:</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x1</span>
+            <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y1</span>
+            <span class="n">swapped</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Recalculate differentials</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+
+        <span class="c1"># Calculate error</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">ystep</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">y1</span> <span class="o">&lt;</span> <span class="n">y2</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Iterate over bounding box generating points between start and end</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y1</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span> <span class="k">if</span> <span class="n">is_steep</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">-=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">+=</span> <span class="n">ystep</span>
+                <span class="n">error</span> <span class="o">+=</span> <span class="n">dx</span>
+
+        <span class="c1"># Reverse the list if the coordinates were swapped</span>
+        <span class="k">if</span> <span class="n">swapped</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">points</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Tin Lai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -90,15 +90,24 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
 </ul>
@@ -197,7 +206,7 @@
 <span class="k">def</span> <span class="nf">nothing_to_paint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Paint function that does nothing.</span>
 
-<span class="sd">    :param *args: unused</span>
+<span class="sd">    :param args: unused</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 
@@ -1109,8 +1118,8 @@
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drawn_label</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
     <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">no_display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1121,7 +1130,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_display</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">klampt</span> <span class="kn">import</span> <span class="n">vis</span>
 
-            <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">world</span><span class="p">)</span>
+            <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">world</span><span class="p">)</span>
             <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="k">return</span>
 
@@ -1153,10 +1162,17 @@
             <span class="n">save</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># it&#39;s worthwhile to make sure that it&#39;s feasible</span>
             <span class="k">while</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">type_str</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">type_str</span> <span class="o">+</span> <span class="s2">&quot; configuration isn&#39;t feasible&quot;</span><span class="p">)</span>
                 <span class="n">save</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span>
                     <span class="n">type_str</span> <span class="o">+</span> <span class="s2">&quot; config&quot;</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="s2">&quot;Config&quot;</span><span class="p">,</span> <span class="n">world</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">world</span>
                 <span class="p">)</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">save</span><span class="p">,</span> <span class="n">q</span>
 
         <span class="c1"># start = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]</span>

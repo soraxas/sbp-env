@@ -91,15 +91,24 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 </ul>
@@ -176,14 +185,24 @@ Benchmark suite, lies.
 To quickly get started, see the <a class="reference internal" href="quick-start.html#quick-start"><span class="std std-ref">Quick Start</span></a> guide.
 For various documentation of th implemented planners and samplers, checkout the
 corresponding sections from the side bar.</p>
+<p>The code is hosted in a <a class="reference external" href="https://github.com/soraxas/sbp-env">repository</a>, and the
+implementation requires <em>Python 3.7+</em>. The code comes with some example environments,
+and in addition, several state-of-the-art sampling-based <a class="reference internal" href="planners.html#motion-planners-page"><span class="std std-ref">Motion Planners</span></a>
+and <a class="reference internal" href="samplers.html#samplers-page"><span class="std std-ref">C-space Samplers</span></a> are implemented.</p>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cli.html#usage">Usage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#rrt">RRT*</a></li>
 <li class="toctree-l2"><a class="reference internal" href="planners.html#bi-rrt">Bi-RRT*</a></li>
@@ -208,11 +227,15 @@ corresponding sections from the side bar.</p>
 <li class="toctree-l2"><a class="reference internal" href="samplers.html#abstract-base-sampler">Abstract Base Sampler</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="engines.html#d-image-space">2D Image Space</a></li>
 <li class="toctree-l2"><a class="reference internal" href="engines.html#d-robot-arm">4D Robot Arm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#n-d-mainpulator"><span class="math">\(n\)</span>-D Mainpulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines.html#n-d-manipulator"><span class="math">\(n\)</span>-D Manipulator</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a><ul>
@@ -221,10 +244,22 @@ corresponding sections from the side bar.</p>
 <li class="toctree-l2"><a class="reference internal" href="visualisers.html#d-object-based-visualiser">3D Object-based Visualiser</a></li>
 </ul>
 </li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="misc.html#data-structure">Data structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="misc.html#randomness">Randomness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="misc.html#planners-and-samplers-registry">Planners and Samplers Registry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#randomness">Randomness</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="misc.html#drawing-random-samplings">Drawing random samplings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="misc.html#drawing-normally-distributed-samplings">Drawing normally distributed samplings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="misc.html#planners-and-samplers-registry">Planners and Samplers Registry</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="misc.html#registry-data-structure">Registry data structure</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>

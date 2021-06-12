@@ -1,3 +1,5 @@
+.. _motion_planners_page:
+
 Motion Planners
 ===============
 

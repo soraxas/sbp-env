@@ -90,15 +90,24 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
 </ul>
@@ -174,7 +183,7 @@
 <span class="kn">from</span> <span class="nn">rtree</span> <span class="kn">import</span> <span class="n">index</span>
 
 
-<span class="k">class</span> <span class="nc">MagicDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="MagicDict"><a class="viewcode-back" href="../../misc.html#utils.common.MagicDict">[docs]</a><span class="k">class</span> <span class="nc">MagicDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dictionary, but content is accessible like property.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
@@ -187,13 +196,13 @@
             <span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+<div class="viewcode-block" id="MagicDict.__getattr__"><a class="viewcode-back" href="../../misc.html#utils.common.MagicDict.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This is called what self.attr doesn&#39;t exist.</span>
 
 <span class="sd">        :param attr: attribute to access</span>
 <span class="sd">        :return: self[attr]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This is called `m_dict.attr = XX` is called</span>
@@ -202,7 +211,7 @@
 <span class="sd">        :param value: the value of the attribute</span>
 <span class="sd">        :return: self[attr]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
 <span class="k">class</span> <span class="nc">Colour</span><span class="p">:</span>
@@ -297,7 +306,6 @@
 <span class="sd">    :ivar sampler_fail: UNDOCUMENTED</span>
 <span class="sd">    :ivar visible_cnt: the number of calls to visibility test in the collision checker</span>
 <span class="sd">    :ivar feasible_cnt: the number of calls to feasibility test in the collision checker</span>
-
 
 <span class="sd">    :type invalid_samples_connections: int</span>
 <span class="sd">    :type invalid_samples_obstacles: int</span>

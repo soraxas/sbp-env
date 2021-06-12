@@ -90,15 +90,24 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 </ul>
@@ -179,6 +188,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -193,6 +203,16 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="misc.html#utils.common.MagicDict.__getattr__">__getattr__() (utils.common.MagicDict method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker._get_line">_get_line() (collisionChecker.RobotArm4dCollisionChecker static method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker._interpolate_configs">_interpolate_configs() (collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker._pt_feasible">_pt_feasible() (collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
       <li><a href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler._report_fail_impl">_report_fail_impl() (samplers.likelihoodPolicySampler.LikelihoodPolicySampler method)</a>
 
       <ul>
@@ -249,11 +269,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="planners.html#planners.rrtPlanner.RRTPlanner.choose_least_cost_parent">choose_least_cost_parent() (planners.rrtPlanner.RRTPlanner method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="planners.html#planners.prmPlanner.PRMPlanner.clear_graph">clear_graph() (planners.prmPlanner.PRMPlanner method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="planners.html#planners.rrdtPlanner.RRdTPlanner.connect_two_nodes">connect_two_nodes() (planners.rrdtPlanner.RRdTPlanner method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.create_ranges">create_ranges() (collisionChecker.RobotArm4dCollisionChecker static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -261,7 +283,7 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id3">draw_circle() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_circle">[1]</a>
+      <li><a href="visualisers.html#id1">draw_circle() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_circle">[1]</a>
 </li>
       <li><a href="misc.html#randomness.NormalRandomnessManager.draw_half_normal">draw_half_normal() (randomness.NormalRandomnessManager method)</a>
 </li>
@@ -269,11 +291,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id4">draw_path() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_path">[1]</a>
+      <li><a href="visualisers.html#id2">draw_path() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_path">[1]</a>
 </li>
-      <li><a href="visualisers.html#id11">draw_solution_path() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.draw_solution_path">[1]</a>
+      <li><a href="visualisers.html#id9">draw_solution_path() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.draw_solution_path">[1]</a>
 </li>
-      <li><a href="visualisers.html#id5">draw_stick_robot() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_stick_robot">[1]</a>
+      <li><a href="visualisers.html#id3">draw_stick_robot() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.draw_stick_robot">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -281,10 +303,18 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="planners.html#planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx">find_nearest_neighbour_idx() (planners.rrtPlanner.RRTPlanner static method)</a>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.feasible">feasible() (collisionChecker.ImgCollisionChecker method)</a>
+
+      <ul>
+        <li><a href="engines.html#collisionChecker.KlamptCollisionChecker.feasible">(collisionChecker.KlamptCollisionChecker method)</a>
 </li>
+        <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.feasible">(collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="planners.html#planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx">find_nearest_neighbour_idx() (planners.rrtPlanner.RRTPlanner static method)</a>
+</li>
       <li><a href="planners.html#planners.rrdtPlanner.RRdTPlanner.find_nearest_node_from_neighbour">find_nearest_node_from_neighbour() (planners.rrdtPlanner.RRdTPlanner method)</a>
 </li>
   </ul></td>
@@ -293,6 +323,24 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.get_coor_before_collision">get_coor_before_collision() (collisionChecker.ImgCollisionChecker method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.get_dimension">get_dimension() (collisionChecker.ImgCollisionChecker method)</a>
+
+      <ul>
+        <li><a href="engines.html#collisionChecker.KlamptCollisionChecker.get_dimension">(collisionChecker.KlamptCollisionChecker method)</a>
+</li>
+        <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.get_dimension">(collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
+      </ul></li>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.get_image_shape">get_image_shape() (collisionChecker.ImgCollisionChecker method)</a>
+
+      <ul>
+        <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.get_image_shape">(collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
+      </ul></li>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.get_line">get_line() (collisionChecker.ImgCollisionChecker static method)</a>
+</li>
       <li><a href="samplers.html#samplers.mouseSampler.MouseSampler.get_mouse_click_position">get_mouse_click_position() (samplers.mouseSampler.MouseSampler static method)</a>
 </li>
       <li><a href="misc.html#utils.common.Tree.get_nearest">get_nearest() (utils.common.Tree method)</a>
@@ -317,6 +365,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.get_pt_from_angle_and_length">get_pt_from_angle_and_length() (collisionChecker.RobotArm4dCollisionChecker static method)</a>
+</li>
       <li><a href="misc.html#randomness.RandomnessManager.get_random">get_random() (randomness.RandomnessManager method)</a>
 </li>
       <li><a href="samplers.html#planners.rrdtPlanner.RRdTSampler.get_random_choice">get_random_choice() (planners.rrdtPlanner.RRdTSampler method)</a>
@@ -335,6 +385,10 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.image">image (collisionChecker.ImgCollisionChecker property)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker">ImgCollisionChecker (class in collisionChecker)</a>
+</li>
       <li><a href="samplers.html#samplers.informedSampler.InformedSampler">InformedSampler (class in samplers.informedSampler)</a>
 </li>
       <li><a href="planners.html#planners.birrtPlanner.BiRRTPlanner.init">init() (planners.birrtPlanner.BiRRTPlanner method)</a>
@@ -360,9 +414,9 @@
 </li>
         <li><a href="samplers.html#samplers.randomPolicySampler.RandomPolicySampler.init">(samplers.randomPolicySampler.RandomPolicySampler method)</a>
 </li>
-        <li><a href="visualisers.html#id12">(visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.init">[1]</a>
+        <li><a href="visualisers.html#id10">(visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.init">[1]</a>
 </li>
-        <li><a href="visualisers.html#id16">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.init">[1]</a>
+        <li><a href="visualisers.html#id14">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.init">[1]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -380,6 +434,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.KlamptCollisionChecker">KlamptCollisionChecker (class in collisionChecker)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -391,6 +453,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="misc.html#utils.common.MagicDict">MagicDict (class in utils.common)</a>
+</li>
       <li>
     main
 
@@ -437,10 +501,10 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id13">paint() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.paint">[1]</a>
+      <li><a href="visualisers.html#id11">paint() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.paint">[1]</a>
 
       <ul>
-        <li><a href="visualisers.html#id17">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.paint">[1]</a>
+        <li><a href="visualisers.html#id15">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.paint">[1]</a>
 </li>
       </ul></li>
       <li><a href="samplers.html#planners.rrdtPlanner.RRdTSampler.particles_random_free_space_restart">particles_random_free_space_restart() (planners.rrdtPlanner.RRdTSampler method)</a>
@@ -457,13 +521,13 @@
 </li>
       <li><a href="samplers.html#samplers.prmSampler.PRMSampler">PRMSampler (class in samplers.prmSampler)</a>
 </li>
-      <li><a href="visualisers.html#id6">process_pygame_event() (visualiser.PygameEnvVisualiser static method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.process_pygame_event">[1]</a>
+      <li><a href="visualisers.html#id4">process_pygame_event() (visualiser.PygameEnvVisualiser static method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.process_pygame_event">[1]</a>
 </li>
-      <li><a href="visualisers.html#id0">PygameEnvVisualiser (class in visualiser)</a>, <a href="visualisers.html#id2">[1]</a>
+      <li><a href="visualisers.html#id0">PygameEnvVisualiser (class in visualiser)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser">[1]</a>
 </li>
-      <li><a href="visualisers.html#id10">PygamePlannerVisualiser (class in visualiser)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser">[1]</a>
+      <li><a href="visualisers.html#id8">PygamePlannerVisualiser (class in visualiser)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser">[1]</a>
 </li>
-      <li><a href="visualisers.html#id15">PygameSamplerVisualiser (class in visualiser)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser">[1]</a>
+      <li><a href="visualisers.html#id13">PygameSamplerVisualiser (class in visualiser)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -497,8 +561,6 @@
         <li><a href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler.report_fail">(samplers.likelihoodPolicySampler.LikelihoodPolicySampler method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="samplers.html#planners.rrdtPlanner.RRdTSampler.report_success">report_success() (planners.rrdtPlanner.RRdTSampler method)</a>
 
       <ul>
@@ -507,9 +569,13 @@
         <li><a href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler.report_success">(samplers.likelihoodPolicySampler.LikelihoodPolicySampler method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="samplers.html#planners.rrdtPlanner.RRdTSampler.restart_all_pending_local_samplers">restart_all_pending_local_samplers() (planners.rrdtPlanner.RRdTSampler method)</a>
 </li>
       <li><a href="planners.html#planners.rrtPlanner.RRTPlanner.rewire">rewire() (planners.rrtPlanner.RRTPlanner method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker">RobotArm4dCollisionChecker (class in collisionChecker)</a>
 </li>
       <li><a href="planners.html#planners.rrdtPlanner.RRdTPlanner">RRdTPlanner (class in planners.rrdtPlanner)</a>
 </li>
@@ -547,7 +613,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="misc.html#utils.planner_registry.SamplerDataPack">SamplerDataPack (class in utils.planner_registry)</a>
 </li>
-      <li><a href="visualisers.html#id7">set_start_goal_points() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.set_start_goal_points">[1]</a>
+      <li><a href="visualisers.html#id5">set_start_goal_points() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.set_start_goal_points">[1]</a>
 </li>
       <li><a href="samplers.html#samplers.baseSampler.Sampler.set_use_radian">set_use_radian() (samplers.baseSampler.Sampler method)</a>
 
@@ -563,14 +629,18 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id14">terminates_hook() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.terminates_hook">[1]</a>
+      <li><a href="visualisers.html#id12">terminates_hook() (visualiser.PygamePlannerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygamePlannerVisualiser.terminates_hook">[1]</a>
 
       <ul>
-        <li><a href="visualisers.html#id18">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.terminates_hook">[1]</a>
+        <li><a href="visualisers.html#id16">(visualiser.PygameSamplerVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameSamplerVisualiser.terminates_hook">[1]</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="engines.html#collisionChecker.KlamptCollisionChecker.translate_from_klampt">translate_from_klampt() (collisionChecker.KlamptCollisionChecker method)</a>
+</li>
+      <li><a href="engines.html#collisionChecker.KlamptCollisionChecker.translate_to_klampt">translate_to_klampt() (collisionChecker.KlamptCollisionChecker method)</a>
+</li>
       <li><a href="misc.html#utils.common.Tree">Tree (class in utils.common)</a>
 </li>
   </ul></td>
@@ -579,7 +649,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id8">update_screen() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.update_screen">[1]</a>
+      <li><a href="visualisers.html#id6">update_screen() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.update_screen">[1]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -587,11 +657,17 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#visualiser.PygameEnvVisualiser">visualiser.PygameEnvVisualiser (built-in class)</a>
+      <li><a href="engines.html#collisionChecker.ImgCollisionChecker.visible">visible() (collisionChecker.ImgCollisionChecker method)</a>
+
+      <ul>
+        <li><a href="engines.html#collisionChecker.KlamptCollisionChecker.visible">(collisionChecker.KlamptCollisionChecker method)</a>
 </li>
+        <li><a href="engines.html#collisionChecker.RobotArm4dCollisionChecker.visible">(collisionChecker.RobotArm4dCollisionChecker method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualisers.html#id9">visualiser_init() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.visualiser_init">[1]</a>
+      <li><a href="visualisers.html#id7">visualiser_init() (visualiser.PygameEnvVisualiser method)</a>, <a href="visualisers.html#visualiser.PygameEnvVisualiser.visualiser_init">[1]</a>
 </li>
   </ul></td>
 </tr></table>

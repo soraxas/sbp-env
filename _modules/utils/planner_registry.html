@@ -90,15 +90,24 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Planning environment</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Others</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
 </ul>
@@ -221,7 +230,7 @@
 
 <div class="viewcode-block" id="register_planner"><a class="viewcode-back" href="../../misc.html#utils.planner_registry.register_planner">[docs]</a><span class="k">def</span> <span class="nf">register_planner</span><span class="p">(</span>
     <span class="n">planner_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">planner_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Planner</span><span class="p">],</span>
+    <span class="n">planner_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Planner&quot;</span><span class="p">],</span>
     <span class="n">sampler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -261,7 +270,7 @@
 
 <div class="viewcode-block" id="register_sampler"><a class="viewcode-back" href="../../misc.html#utils.planner_registry.register_sampler">[docs]</a><span class="k">def</span> <span class="nf">register_sampler</span><span class="p">(</span>
     <span class="n">sampler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">sampler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Sampler</span><span class="p">],</span>
+    <span class="n">sampler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s2">&quot;Sampler&quot;</span><span class="p">],</span>
     <span class="n">visualise_pygame_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
