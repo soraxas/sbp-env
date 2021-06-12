@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
+import visualiser
 from env import Env
 from samplers.randomPolicySampler import RandomPolicySampler
 from tests.common_vars import template_args
@@ -14,6 +15,7 @@ class TestRandomPolicySampler(TestCase):
     def setUp(self) -> None:
 
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = RandomPolicySampler()

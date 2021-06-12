@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
+import visualiser
 from env import Env
 from samplers.likelihoodPolicySampler import LikelihoodPolicySampler
 from tests.common_vars import template_args
@@ -13,6 +14,7 @@ from utils.common import Node
 class TestLikelihoodPolicySampler(TestCase):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = LikelihoodPolicySampler(10)

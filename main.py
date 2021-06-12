@@ -89,7 +89,7 @@ Likelihood/Nearby Sampler Options:
 import logging
 import re
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from docopt import docopt
@@ -98,7 +98,6 @@ import env
 import planners
 from utils import planner_registry
 from utils.common import MagicDict
-from visualiser import VisualiserSwitcher
 
 assert planners
 
@@ -108,17 +107,17 @@ RAW_DOC_STRING = __doc__
 
 
 def generate_args(
-        planner_id: Optional[str],
-        map_fname: Optional[str],
-        start: Optional[np.ndarray] = None,
-        goal: Optional[np.ndarray] = None,
+    planner_id: Optional[str],
+    map_fname: Optional[str],
+    start_pt: Optional[Union[np.ndarray, str]] = None,
+    goal_pt: Optional[Union[np.ndarray, str]] = None,
 ) -> MagicDict:
     """Get the default set of arguments
 
     :param planner_id: the planner to use in the planning environment
     :param map_fname: the filename of the map to use in the planning environment
-    :param start: overrides the starting configuration
-    :param goal: overrides the goal configuration
+    :param start_pt: overrides the starting configuration
+    :param goal_pt: overrides the goal configuration
 
     :return: the default dictionary of arguments to config the planning problem
     """
@@ -134,14 +133,16 @@ def generate_args(
         sys.argv[1:] = [planner_id, map_fname]
 
     # add all of the registered planners
-    args = docopt(format_doc_with_registered_planners(RAW_DOC_STRING),
-                  version="SBP-Env Research v2.0")
+    args = docopt(
+        format_doc_with_registered_planners(RAW_DOC_STRING),
+        version="SBP-Env Research v2.0",
+    )
 
     # allow the map filename, start and goal point to be override.
-    if start is not None:
-        args["<start_x1,x2,..,xn>"] = start
-    if goal is not None:
-        args["<goal_x1,x2,..,xn>"] = goal
+    if start_pt is not None:
+        args["<start_x1,x2,..,xn>"] = start_pt
+    if goal_pt is not None:
+        args["<goal_x1,x2,..,xn>"] = goal_pt
 
     # setup environment engine
     args["--engine"] = "" if args["--engine"] is None else args["--engine"].lower()
@@ -172,16 +173,6 @@ def generate_args(
             )
         LOGGER.info(_notice.format(args["--engine"], _file_extension))
 
-    if args["--no-display"]:
-        # use pass-through visualiser
-        VisualiserSwitcher.choose_visualiser("base")
-    else:
-        if args["--engine"] in ("image", "4d"):
-            # use pygame visualiser
-            VisualiserSwitcher.choose_visualiser("pygame")
-        elif args["--engine"] == "klampt":
-            VisualiserSwitcher.choose_visualiser("klampt")
-
     ########################################
 
     if args["--verbose"] > 2:
@@ -206,7 +197,7 @@ def generate_args(
         if (not a.startswith("--") and args[a] is True and a not in ("start", "goal"))
     ]
     assert (
-            len(planner_canidates) == 1
+        len(planner_canidates) == 1
     ), f"Planner to use '{planner_canidates}' has length {len(planner_canidates)}"
     planner_to_use = planner_canidates[0]
     print(planner_to_use)

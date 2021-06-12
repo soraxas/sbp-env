@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
+import visualiser
 from env import Env
 from planners.rrdtPlanner import RRdTSampler, Node
 from tests.common_vars import template_args, MockNumpyEquality
@@ -13,6 +14,7 @@ from utils import planner_registry
 class TestRRdTSampler(TestCase):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = RRdTSampler()

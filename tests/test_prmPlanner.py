@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
+import visualiser
 from env import Env
 from samplers.prmSampler import PRMSampler
 from tests.common_vars import template_args, MockNumpyEquality
@@ -14,6 +15,7 @@ from utils import planner_registry
 class PRMPlanner(TestRRTPlanner):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = PRMSampler(prob_block_size=10)

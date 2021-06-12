@@ -1,6 +1,7 @@
 from copy import deepcopy
 from unittest.mock import MagicMock
 
+import visualiser
 from env import Env
 from samplers.nearbyPolicySampler import NearbyPolicySampler
 from tests.common_vars import template_args
@@ -12,6 +13,7 @@ from utils import planner_registry
 class TestNearbyPolicyPlanner(TestRRTPlanner):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = NearbyPolicySampler(prob_block_size=10)

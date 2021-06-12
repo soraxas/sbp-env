@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, ANY
 import numpy as np
 from tqdm import tqdm
 
+import visualiser
 from env import Env
 from planners.rrdtPlanner import RRdTSampler
 from tests.common_vars import template_args, MockNumpyEquality
@@ -18,6 +19,7 @@ tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 class TestRRdTPlanner(TestRRTPlanner):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = RRdTSampler()

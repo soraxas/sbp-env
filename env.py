@@ -15,9 +15,15 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Env:
-    """Represents the planning environment. The main loop happens inside this class"""
+    """Represents the planning environment.
+    The main planning loop happens inside this class.
+    """
 
     def __init__(self, args: MagicDict, fixed_seed: int = None):
+        """
+        :param args: the dictionary of arguments to config the planning problem
+        :param fixed_seed: if given, fix the random seed
+        """
         self.started = False
 
         if fixed_seed is not None:
@@ -36,6 +42,17 @@ class Env:
         }[self.args.engine]
         self.cc = cc_type(self.args.image, stats=self.stats)
 
+        # setup visualiser
+        if self.args.no_display:
+            # use pass-through visualiser
+            VisualiserSwitcher.choose_visualiser("base")
+        else:
+            if self.args.engine in ("image", "4d"):
+                # use pygame visualiser
+                VisualiserSwitcher.choose_visualiser("pygame")
+            elif self.args.engine == "klampt":
+                VisualiserSwitcher.choose_visualiser("klampt")
+
         self.args["num_dim"] = self.cc.get_dimension()
         self.args["image_shape"] = self.cc.get_image_shape()
         self.dim = self.args["image_shape"]
@@ -53,16 +70,16 @@ class Env:
                 )
             return tuple(map(float, pt))
 
-        self.args["start_pt"] = parse_input_pt(self.args["start_pt"])
-        self.args["goal_pt"] = parse_input_pt(self.args["goal_pt"])
+        if type(self.args["start_pt"]) is str:
+            self.args["start_pt"] = parse_input_pt(self.args["start_pt"])
+        if type(self.args["goal_pt"]) is str:
+            self.args["goal_pt"] = parse_input_pt(self.args["goal_pt"])
 
         self.args.planner = self.args.planner_data_pack.planner_class(**self.args)
         self.args["planner"] = self.args.planner
 
         self.planner = self.args.planner
         self.planner.args.env = self
-
-        super().__init__()
 
         self.visualiser = VisualiserSwitcher.env_clname(env_instance=self)
         self.visualiser.visualiser_init(no_display=self.args["no_display"])
@@ -71,9 +88,9 @@ class Env:
         )
 
         self.start_pt = self.goal_pt = None
-        if start_pt:
+        if start_pt is not None:
             self.start_pt = Node(start_pt)
-        if goal_pt:
+        if goal_pt is not None:
             self.goal_pt = Node(goal_pt)
         self.start_pt.is_start = True
         self.goal_pt.is_goal = True

@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
+import visualiser
 from env import Env
 from planners.rrdtPlanner import Node
 from samplers.nearbyPolicySampler import NearbyPolicySampler
@@ -13,6 +14,7 @@ from utils import planner_registry
 class TestNearbyPolicySampler(TestCase):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = NearbyPolicySampler(prob_block_size=10)

@@ -3,6 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
+import visualiser
 from env import Env
 from samplers.informedSampler import InformedSampler
 from tests.common_vars import template_args
@@ -12,6 +13,7 @@ from utils import planner_registry
 class TestInformedSampler(TestCase):
     def setUp(self) -> None:
         args = deepcopy(template_args)
+        visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
         args["sampler"] = InformedSampler()
