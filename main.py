@@ -89,12 +89,16 @@ Likelihood/Nearby Sampler Options:
 import logging
 import re
 import sys
+from typing import Optional
 
 import numpy as np
 from docopt import docopt
 
+import env
 import planners
 from utils import planner_registry
+from utils.common import MagicDict
+from visualiser import VisualiserSwitcher
 
 assert planners
 
@@ -111,21 +115,32 @@ __doc__ = __doc__.format(
 )
 
 
-def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = None):
+def generate_args(
+    planner_id: Optional[str],
+    map_fname: Optional[str],
+    start: Optional[np.ndarray] = None,
+    goal: Optional[np.ndarray] = None,
+) -> MagicDict:
     """The entry point of the planning scene module
 
     :param map_fname: overrides the map to test
     :param start: overrides the starting configuration
     :param goal: overrides the goal configuration
 
+    :return: the default dictionary of arguments to config the planning problem
     """
+    if map_fname is None or planner_id is None:
+        if len(sys.argv) < 3:
+            raise ValueError(
+                "Both `map_fname` and `planner_id` must be provided to " "generate args"
+            )
+    else:
+        # inject the inputs for docopt to parse
+        sys.argv[1:] = [planner_id, map_fname]
+
     args = docopt(__doc__, version="SBP-Env Research v2.0")
 
-    from visualiser import VisualiserSwitcher
-
     # allow the map filename, start and goal point to be override.
-    if map_fname is not None:
-        args["<MAP>"] = map_fname
     if start is not None:
         args["<start_x1,x2,..,xn>"] = start
     if goal is not None:
@@ -208,7 +223,7 @@ def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = Non
         **{re.sub(r"^--", "", k).replace("-", "_"): v for (k, v) in args.items()},
     )
 
-    planner_options = dict(
+    planning_option = MagicDict(
         planner_data_pack=planner_data_pack,
         skip_optimality=args["--skip-optimality"],
         showSampledPoint=not args["--hide-sampled-points"],
@@ -230,14 +245,14 @@ def main(map_fname: str = None, start: np.ndarray = None, goal: np.ndarray = Non
     )
 
     # reduce goal radius for klampt as it plans in radian
-    if args["--engine"] == "klampt":
-        args["--goal_radius"] = 0.001
+    if planning_option.engine == "klampt":
+        planning_option["goal_radius"] = 0.001
 
-    import env
-
-    environment = env.Env(**planner_options)
-    environment.run()
+    return planning_option
 
 
 if __name__ == "__main__":
-    main()
+    planning_option = generate_args(planner_id=None, map_fname=None)
+
+    environment = env.Env(**planning_option)
+    environment.run()

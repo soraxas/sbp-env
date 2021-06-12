@@ -17,9 +17,7 @@ LOGGER = logging.getLogger(__name__)
 class Env:
     """Represents the planning environment. The main loop happens inside this class"""
 
-    def __init__(self, writer=None, fname=None, fixed_seed=None, **kwargs):
-        self.writer = writer
-        self.fname = fname
+    def __init__(self, fixed_seed=None, **kwargs):
         self.started = False
 
         if fixed_seed is not None:
@@ -106,7 +104,7 @@ class Env:
         """This is called what self.attr doesn't exist.
         Forward the call to the visualiser instance
         """
-        return getattr(self.visualiser, attr)
+        return object.__getattribute__(self.visualiser, attr)
 
     @staticmethod
     def radian_dist(p1: np.ndarray, p2: np.ndarray):

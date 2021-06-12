@@ -26,6 +26,15 @@ class MagicDict(dict):
         """
         return self[attr]
 
+    def __setattr__(self, name, value):
+        """This is called `m_dict.attr = XX` is called
+
+        :param name: the key of the attribute
+        :param value: the value of the attribute
+        :return: self[attr]
+        """
+        self[name] = value
+
 
 class Colour:
     """

@@ -141,7 +141,7 @@ class BaseEnvVisualiser(ABC):
         """This is called what self.attr doesn't exist.
         Forward the call to the :class:`Env` instance
         """
-        return getattr(self.env_instance, attr)
+        return object.__getattribute__(self.env_instance, attr)
 
 
 ############################################################
