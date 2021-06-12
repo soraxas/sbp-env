@@ -12,14 +12,14 @@ This uses the :class:`collisionChecker.ImgCollisionChecker` for environment simu
 
 .. prompt:: bash
 
-    python main.py rrdt maps/room1.png -vv
+    python main.py rrdt maps/room1.png
 
 .. sidebar:: 2D Image simulator
 
     .. Figure:: ../images/rrdt.gif
 
-This simulator uses images as its *C-Space* by treating each white pixlels as configurations in :math:`C_\text{free}`,
-and each non-white pixles as configurations in :math:`C_\text{obs}`.
+This simulator uses images as its *C-Space* by treating each white pixels as configurations in :math:`C_\text{free}`,
+and each non-white pixels as configurations in :math:`C_\text{obs}`.
 The two dimensional space of the *C-Space*
 
 .. math::
@@ -38,6 +38,11 @@ where :math:`\mathcal{I}` denotes the image space.
     and any non-white pixels value will be treated as :math:`q \in C_\text{obs}` (e.g. `(10, 20, 10)`, `(0, 0, 0)`, etc.).
     The alpha channel would not be considered.
 
+.. autoclass:: collisionChecker.ImgCollisionChecker
+  :members:
+  :private-members:
+  :show-inheritance:
+
 
 4D Robot Arm
 --------------
@@ -51,9 +56,11 @@ This simulator internally depends on :class:`collisionChecker.ImgCollisionChecke
 
 .. sidebar:: 4D Robot Arm simulator
 
-    .. Figure:: ../images/rrdt.gif
+    .. Figure:: ../images/robot-arm4d.gif
 
-In conctast to the former, this simulator not only check for point mass collisions, but performs forward kinentamic on the given joints configuration to obtain body points in worldspace :math:`\mathcal{W}\subseteq \mathbb{R}^2`.
+In contrast to the former, this simulator not only check for point mass collisions,
+but performs forward kinematic on the given joints configuration to obtain body
+points in world-space :math:`\mathcal{W}\subseteq \mathbb{R}^2`.
 Since the robot arm contains two configurable joints, the full configuration space :math:`C` is given by
 
 .. math::
@@ -74,29 +81,37 @@ and we use :math:`r_0, r_1` to denote the rotational angles of the first and sec
 
 .. important::
     Similar to :class:`collisionChecker.ImgCollisionChecker`, all white pixels will be within :math:`q \in C_\text{free}` and vice versa.
-    The body points obtained by the forward kinentamic on :math:`r_0, r_1` would be used to check collision in :math:`\mathcal{W}` to ensure the entire body is in free space.
+    The body points obtained by the forward kinematic on :math:`r_0, r_1` would be used to check collision in :math:`\mathcal{W}` to ensure the entire body is in free space.
+
+.. autoclass:: collisionChecker.RobotArm4dCollisionChecker
+  :members:
+  :private-members:
+  :show-inheritance:
 
 
+:math:`n`-D Manipulator
+-----------------------
 
-:math:`n`-D Mainpulator
---------------
-
-This simulator internally depends on :class:`collisionChecker.ImgCollisionChecker` to check for collision in the image space.
+This simulator internally depends on `klampt` package to check for collision in the
+the 3D space.
 
 .. prompt:: bash
 
-    python main.py rrt maps/4d.png -s .5 --engine 4d
+    python main.py rrt klampt_data/tx90blocks.xml --engine klampt
 
 
-.. sidebar:: :math:`n`-D Mainpulator simulator
+.. sidebar:: :math:`n`-D Manipulator simulator
 
     .. Figure:: ../images/klampt-simulator.png
 
-In conctast to the former, this simulator not only check for point mass collisions, but performs forward kinentamic on the given joints configuration to obtain body points in worldspace :math:`\mathcal{W}\subseteq \mathbb{R}^3` and :math:`C \subseteq \mathbb{R}^d`.
-Since the robot arm contains two configurable joints, the full configuration space :math:`C` is given by
+In contrast to the former, this simulator not only check for point mass collisions,
+but performs forward kinematic with full body collision on the given joints
+configuration to check validity in world-sapce :math:`\mathcal{W}\subseteq
+\mathbb{R}^3` and :math:`C \subseteq \mathbb{R}^d`.
+The full configuration space :math:`C` is given by
 
 .. math::
-    q \equiv [r_0, \ldots, r_{d-1}] \in C \subseteq \mathbb{R}^
+    q \equiv [r_0, \ldots, r_{d-1}] \in C \subseteq \mathbb{R}^d
 
 where
 
@@ -109,11 +124,14 @@ and we use :math:`r_0, r_1` to denote the rotational angles of the first and sec
 
 
 .. important::
-    Internally, all pixels with an **RGB value** of `(255, 255, 255)` would be treated as :math:`q \in C_\text{free}`,
-    and any non-white pixels value will be treated as :math:`q \in C_\text{obs}` (e.g. `(10, 20, 10)`, `(0, 0, 0)`, etc.).
-    The alpha channel would not be considered.
+    This simulator is based on the upstream `klampt` and the upstream repository
+    might update its api without notice. The current implementation is based on
+    `Klampt==0.8.7`
 
-
+.. autoclass:: collisionChecker.KlamptCollisionChecker
+  :members:
+  :private-members:
+  :show-inheritance:
 
 
 

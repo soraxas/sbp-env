@@ -1,42 +1,66 @@
 import math
+import typing
 from abc import ABC, abstractmethod
 
 import numpy as np
 
+from utils.common import MagicDict
+
 
 class CollisionChecker(ABC):
-    """ """
+    """Abstract collision checker"""
+
+    def __init__(self, args: MagicDict):
+        self.args = args
 
     @abstractmethod
     def get_dimension(self) -> int:
-        """Return the dimensionality"""
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
         raise NotImplementedError("Must derive from this class")
 
-    def visible(self, pos1, pos2):
-        """Check if the straight line connection between pos1 and pos2 is in
-        :math:`C_\text{free}`
+    def visible(self, pos1: np.ndarray, pos2: np.ndarray):
+        r"""Check if the straight line connection between pos1 and pos2 is in
+        :math:`C_\text{free}`. Internally it might calls :meth:`feasible`.
 
-        :param pos1:
-        :param pos2:
+        :param pos1: the starting configuration of the line
+        :param pos2: the target configuration of th eline
 
         """
         raise NotImplementedError("Must derive from this class")
 
-    def feasible(self, p):
-        """
+    def feasible(self, p: np.ndarray):
+        r"""Check if the configuration is in free-space, i.e.,
+        :math:`q \in C_\text{free}`
 
-        :param p: 
+        :param p: configuration to check
 
         """
         pass
 
     def get_image_shape(self):
-        """ """
+        """Get the image shape of the planning problem.
+        Return None if this is not applicable to the current space
+
+        :return: the shape of the planning problem
+        """
         return None
 
 
 class ImgCollisionChecker(CollisionChecker):
-    def __init__(self, img):
+    """
+    2D Image Space simulator engine
+    """
+
+    def __init__(self, img: typing.IO, args: MagicDict):
+        """
+        :param img: a file-like object (e.g. a filename) for the image as the
+            environment that the planning operates in
+        :param args: the args of the planning problem
+        """
+        super().__init__(args)
         from PIL import Image
 
         image = Image.open(img).convert("L")
@@ -45,31 +69,28 @@ class ImgCollisionChecker(CollisionChecker):
         # white pixxel should now have value of 1
         image[image != 1.0] = 0
 
-        # import matplotlib.pyplot as plt
-        # plt.imshow(image)
-        # plt.colorbar()
-
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self._img = image.T
 
     @property
-    def image(self):
-        # return original image
+    def image(self) -> np.ndarray:
+        """The image that represents the planning problem
+
+        :return: the input image
+        """
         return self._img.T
 
     def get_image_shape(self):
-        """ """
         return self._img.shape
 
     def get_dimension(self):
-        """ """
         return 2
 
     def get_coor_before_collision(self, pos1, pos2):
-        """
+        """Get the list of coordinate before the collision
 
-        :param pos1:
-        :param pos2:
+        :param pos1: first configuration
+        :param pos2: second configuration
 
         """
         pixels = self.get_line(pos1, pos2)
@@ -82,12 +103,6 @@ class ImgCollisionChecker(CollisionChecker):
         return endPos
 
     def visible(self, pos1, pos2):
-        """
-
-        :param pos1:
-        :param pos2:
-
-        """
         try:
             # get list of pixel between node A and B
             # pixels = lineGenerationAlgorithm(pos1, pos2)
@@ -101,11 +116,6 @@ class ImgCollisionChecker(CollisionChecker):
         return True
 
     def feasible(self, p):
-        """check if point is white (which means free space)
-
-        :param p: 
-
-        """
         try:
             return self._img[tuple(map(int, p))] == 1
         except IndexError:
@@ -116,8 +126,8 @@ class ImgCollisionChecker(CollisionChecker):
         """Bresenham's Line Algorithm
         Produces a list of tuples from start and end
 
-        :param start: 
-        :param end: 
+        :param start: the starting pixel coordinate
+        :param end: the ending pixel coordinate
 
         >>> points1 = get_line((0, 0), (3, 4))
         >>> points2 = get_line((3, 4), (0, 0))
@@ -175,10 +185,14 @@ class ImgCollisionChecker(CollisionChecker):
 
 
 class KlamptCollisionChecker(CollisionChecker):
-    """ """
+    """A wrapper around Klampt's 3D simulator"""
 
-    def __init__(self, xml, stats):
-        self.stats = stats
+    def __init__(self, xml: str, args: MagicDict):
+        """
+        :param xml: the xml filename for Klampt to read the world settings
+        :param args: the args of the planning problem
+        """
+        super().__init__(args)
         import klampt
         from klampt.plan import robotplanning
 
@@ -210,17 +224,15 @@ class KlamptCollisionChecker(CollisionChecker):
         self.qgoal = self.translate_from_klampt(qgoal)
 
     def get_dimension(self):
-        """ """
         return 6
 
     def get_dimension_limits(self):
-        """ """
         return self.robot.getJointLimits()
 
     def translate_to_klampt(self, p):
-        """
+        """Translate the given configuration to klampt's configuration
 
-        :param p: 
+        :param p: configuratino to translate
 
         """
         assert len(p) == 6, p
@@ -230,41 +242,50 @@ class KlamptCollisionChecker(CollisionChecker):
         return new_pos
 
     def translate_from_klampt(self, p):
-        """
+        """Translate the given klampt's configuration to our protocol
 
-        :param p: 
+        :param p: configuratino to translate
 
         """
         assert len(p) == 12, len(p)
         return p[1:7]
 
     def visible(self, a, b):
-        """
-
-        :param a: 
-        :param b: 
-
-        """
         a = self.translate_to_klampt(a)
         b = self.translate_to_klampt(b)
         # print(self.space.visible(a, b))
-        self.stats.visible_cnt += 1
+        self.args.env.stats.visible_cnt += 1
         return self.space.isVisible(a, b)
 
     def feasible(self, p, stats=False):
-        """
-
-        :param p: 
-        :param stats:  (Default value = False)
-
-        """
         p = self.translate_to_klampt(p)
-        self.stats.feasible_cnt += 1
+        self.args.env.stats.feasible_cnt += 1
         return self.space.feasible(p)
 
 
 class RobotArm4dCollisionChecker(CollisionChecker):
-    def __init__(self, img, map_mat=None, stick_robot_length_config=(35, 35)):
+    """
+    4D robot arm simulator engine that operates in the Image Space
+    """
+
+    def __init__(
+        self,
+        img: typing.IO,
+        args: MagicDict,
+        map_mat: typing.Optional[np.ndarray] = None,
+        stick_robot_length_config: typing.Tuple[float, ...] = (35, 35),
+    ):
+        """
+
+        :param img: a file-like object (e.g. a filename) for the image as the
+            environment that the planning operates
+        :param map_mat: an image that, if given, will ignore the `img` argument and
+            uses `map_mat` directly as the map
+        :param stick_robot_length_config: a list of numbers that represents the
+            length of the stick robotic arm
+        :param args: the args of the planning problem
+        """
+        super().__init__(args)
         if map_mat is None:
             from PIL import Image
 
@@ -284,33 +305,31 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self._img = self._img.T
-
         self.stick_robot_length_config = stick_robot_length_config
-        self._img = image.T
 
     @property
     def image(self):
-        # return original image
         return self._img.T
 
     def get_image_shape(self):
-        """ """
         return self._img.shape
 
     def get_dimension(self):
-        """ """
         return 4
 
     @staticmethod
-    def create_ranges(start, stop, N, endpoint=True):
-        """From https://stackoverflow.com/questions/40624409/vectorized-numpy-linspace-for-multiple-start-and-stop-values
+    def create_ranges(
+        start: np.ndarray, stop: np.ndarray, N: int, endpoint: bool = True
+    ):
+        """Create a batch of linspace.
 
-        :param start: 
-        :param stop: 
-        :param N: 
-        :param endpoint:  (Default value = True)
+        :param start: an array of starting values
+        :param stop: an array of stopping values
+        :param N: the size of linspace
+        :param endpoint: whether to include end point or not
 
         """
+        # From https://stackoverflow.com/questions/40624409/vectorized-numpy-linspace-for-multiple-start-and-stop-values
         if endpoint == 1:
             divisor = N - 1
         else:
@@ -321,8 +340,8 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def _interpolate_configs(self, c1, c2):
         """Given two configs (x, y, r1, r2), return interpolate in-between
 
-        :param c1: 
-        :param c2: 
+        :param c1: the first configuration
+        :param c2: the second configuration
 
         """
         loc_interpolate = self._get_line(c1[:2], c2[:2])
@@ -338,12 +357,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         return combined
 
     def visible(self, pos1, pos2):
-        """
-
-        :param pos1:
-        :param pos2:
-
-        """
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(pos1, pos2)
         for p in self._interpolate_configs(pos1, pos2):
@@ -354,7 +367,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def _pt_feasible(self, p):
         """check if point is white (which means free space) in 2d
 
-        :param p: 
+        :param p: the configuration to check
 
         """
         try:
@@ -363,11 +376,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             return False
 
     def feasible(self, p):
-        """check if configuration is fesible
-
-        :param p: 
-
-        """
         pt1 = p[:2]
         pt2 = self.get_pt_from_angle_and_length(
             pt1, p[2], self.stick_robot_length_config[0]
@@ -391,11 +399,11 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
     @staticmethod
     def get_pt_from_angle_and_length(pt1, angle, line_length):
-        """
+        """Obtain point 2 based of the given settings
 
-        :param pt1: 
-        :param angle: 
-        :param line_length: 
+        :param pt1: coordinate of pt1
+        :param angle: the current angle
+        :param line_length: the length of the arm
 
         """
         pt2 = (
@@ -409,8 +417,8 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         """Bresenham's Line Algorithm
         Produces a list of tuples from start and end
 
-        :param start: 
-        :param end: 
+        :param start: the start configuration
+        :param end: the end configuration
 
         >>> points1 = get_line((0, 0), (3, 4))
         >>> points2 = get_line((3, 4), (0, 0))

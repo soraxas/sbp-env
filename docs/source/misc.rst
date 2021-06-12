@@ -17,6 +17,9 @@ Data structure
   :private-members:
   :inherited-members:
 
+.. autoclass:: utils.common.MagicDict
+  :members: __getattr__
+  :show-inheritance:
 
 Randomness
 ----------------------------
@@ -49,7 +52,7 @@ The :class:`randomness.NormalRandomnessManager:` is used by :class:`planners.rrd
 
 
 Planners and Samplers Registry
------------------------------
+------------------------------
 
 The following function is used to register a new custom *planner*.
 

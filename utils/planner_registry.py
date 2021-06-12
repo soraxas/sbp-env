@@ -52,7 +52,7 @@ SAMPLERS: Dict[str, SamplerDataPack] = {}
 
 def register_planner(
     planner_id: str,
-    planner_class: Type[Planner],
+    planner_class: Type["Planner"],
     sampler_id: str,
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
@@ -92,7 +92,7 @@ def register_planner(
 
 def register_sampler(
     sampler_id: str,
-    sampler_class: Type[Sampler],
+    sampler_class: Type["Sampler"],
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
     visualise_pygame_paint_terminate: Optional[Callable] = None,

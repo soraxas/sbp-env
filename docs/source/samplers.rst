@@ -1,3 +1,5 @@
+.. _samplers_page:
+
 C-space Samplers
 ================
 

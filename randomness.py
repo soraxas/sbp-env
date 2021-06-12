@@ -85,13 +85,13 @@ class NormalRandomnessManager:
         kappa: float = 1,
         sigma: float = math.pi / 4,
     ) -> np.ndarray:
-        """
+        r"""Draw from the normal distribution
 
         :param origin: the origin (mean) for the random number, which will be used to
-        shift the number that this function returns
-        :param use_vonmises:  (Default value = True)
-        :param kappa:  (Default value = 1)
-        :param sigma:  (Default value = math.pi / 4)
+            shift the number that this function returns
+        :param use_vonmises: use vom-Mises distribution
+        :param kappa: the :math:`\kappa` value
+        :param sigma: the :math:`\sigma` value
 
         """
         if self.normal_draws_reserve is None or self.normal_draws_reserve.size < 1:
