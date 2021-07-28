@@ -4,7 +4,6 @@ import math
 import random
 
 import numpy as np
-from scipy import spatial
 from tqdm import tqdm
 
 import collisionChecker
@@ -111,6 +110,14 @@ class Env:
                     f">than 1.0). It might not work well as klampt uses "
                     f"radian for joints value"
                 )
+            if self.args["radius"] > 2:
+                import warnings
+
+                warnings.warn(
+                    f"Radius value is very high at {self.args['radius']} ("
+                    f">than 2.0). It might not work well as klampt uses "
+                    f"radian for joints value"
+                )
 
     def __getattr__(self, attr):
         """This is called what self.attr doesn't exist.
@@ -120,18 +127,17 @@ class Env:
 
     @staticmethod
     def radian_dist(p1: np.ndarray, p2: np.ndarray):
-        """Return the cosine similarity for radian
+        """Return the (possibly wrapped) distance between two vector of angles in
+        radians.
 
         :param p1: first configuration :math:`q_1`
         :param p2: second configuration :math:`q_2`
 
         """
-        # distance metric for angles
-        # https://en.wikipedia.org/wiki/Cosine_similarity#Angular_distance_and_similarity
-
-        cosine_similarity = 1 - spatial.distance.cosine(p1, p2)
-        return np.arccos(cosine_similarity) / np.pi
-        # return spatial.distance.cosine(p1, p2)
+        # https://stackoverflow.com/questions/28036652/finding-the-shortest-distance-between-two-angles/28037434
+        diff = (p2 - p1 + np.pi) % (2 * np.pi) - np.pi
+        diff = np.where(diff < -np.pi, diff + (2 * np.pi), diff)
+        return np.linalg.norm(diff)
 
     @staticmethod
     def euclidean_dist(p1: np.ndarray, p2: np.ndarray):
@@ -156,7 +162,7 @@ class Env:
         """
         if self.args.ignore_step_size:
             return p2
-        if np.all(p1 == p2):
+        if np.isclose(p1, p2).all():
             # p1 is at the same point as p2
             return p2
         unit_vector = p2 - p1
@@ -194,4 +200,4 @@ class Env:
                 )
                 pbar.refresh()
 
-        self.planner.terminates_hook()
+        self.visualiser.terminates_hook()

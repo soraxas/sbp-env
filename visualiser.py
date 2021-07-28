@@ -143,6 +143,10 @@ class BaseEnvVisualiser(ABC):
         """
         return object.__getattribute__(self.env_instance, attr)
 
+    def terminates_hook(self):
+        self.env_instance.planner.visualiser.terminates_hook()
+        self.env_instance.sampler.visualiser.terminates_hook()
+
 
 ############################################################
 #              Pygame (2D) visualisation                   #
@@ -422,7 +426,6 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
     @staticmethod
     def process_pygame_event():
-        """ """
         for e in pygame.event.get():
             if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
                 LOGGER.info("Leaving.")
@@ -655,298 +658,77 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
 
 class KlamptPlannerVisualiser(BasePlannerVisualiser):
-    """ """
+    """
+    Planner Visualiser with the Klampt engine
+    """
 
-    def init(self: Planner, **kwargs):
+    def __init__(
+        self,
+        planner_instance: Planner,
+        planner_data_pack: planner_registry.PlannerDataPack,
+        **kwargs,
+    ):
         """
-
-        :param self: Planner: 
-        :param \**kwargs:
-
+        :param planner_instance: an instance of a planner
+        :param planner_data_pack: a planner data pack that stores the implemented
+            paint function or init function.
         """
-        return
+        super().__init__(**kwargs)
+        self.planner_instance = planner_instance
+        self.planner_data_pack = planner_data_pack
 
-    def paint(self: Planner, **kwargs):
+        # retrieve function for painting
+        self.paint_func = planner_data_pack.visualise_klampt_paint
+
+        if self.paint_func is None:
+            # paint function has not been provided. Do nothing in paint function
+            self.paint_func = nothing_to_paint
+
+    def init(self, **kwargs):
         """
-
-        :param self: Planner: 
-        :param \**kwargs:
-
+        The delayed *initialisation* method for planner visualiser.
         """
+        super().init(**kwargs)
 
-        def get_world_pos(config):
-            """
-
-            :param config: 
-
-            """
-            self.args.env.cc.robot.setConfig(
-                self.args.env.cc.translate_to_klampt(config)
-            )
-            link = self.args.env.cc.robot.link(11)
-            pos = link.getWorldPosition([0, 0, 0])
-            return pos
-
-        def nothing_paint():
-            """ """
-            pass
-
-        def RRdTSampler_paint():
-            """ """
-
-            # return
-            def get_color_transists(value, max_prob, min_prob):
-                """
-
-                :param value: 
-                :param max_prob: 
-                :param min_prob: 
-
-                """
-                denominator = max_prob - min_prob
-                if denominator == 0:
-                    denominator = 1  # prevent division by zero
-                return 220 - 180 * (1 - (value - min_prob) / denominator)
-
-            # if self._last_prob is None:
-            #     return
-            max_num = self._last_prob.max()
-            min_num = self._last_prob.min()
-            for i, p in enumerate(self.p_manager.particles):
-                # get a transition from green to red
-                c = get_color_transists(self._last_prob[i], max_num, min_num)
-                c = max(min(255, c), 50)
-                color = (c, c, 0, 1)
-                self.args.env.draw_node(
-                    get_world_pos(p.pos), colour=color, size=25, label=id(p)
+        if self.planner_data_pack is not None:
+            if self.planner_data_pack.visualise_klampt_paint_init is not None:
+                self.planner_data_pack.visualise_klampt_paint_init(
+                    self.planner_instance
                 )
 
-        def _helper_draw_nodes_edges(nodes, colour):
-            """
-
-            :param nodes: 
-            :param colour: 
-
-            """
-            drawn_nodes_pairs = set()
-            for n in nodes:
-                self.args.env.draw_node(get_world_pos(n.pos), colour=colour)
-                if n.parent is not None:
-                    new_set = frozenset({n, n.parent})
-                    if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.add(new_set)
-                        self.args.env.draw_path(
-                            get_world_pos(n.pos),
-                            get_world_pos(n.parent.pos),
-                            colour=colour,
-                        )
-            if self.env_instance.goal_pt.parent is not None:
-                self.visualiser.draw_solution_path()
-
-        def RRTPlanner_paint():
-            """ """
-            # self.args.env.path_layers.fill(Colour.ALPHA_CK)
-            _helper_draw_nodes_edges(nodes=self.nodes, colour=(1, 0, 0, 1))
-
-        def BiRRTPlanner_paint():
-            """ """
-            drawn_nodes_pairs = set()
-            for c, nodes in (
-                ((1, 0, 0, 1), self.nodes),
-                ((0, 0, 1, 1), self.goal_tree_nodes),
-            ):
-                _helper_draw_nodes_edges(nodes=nodes, colour=c)
-
-        def PRMPlanner_paint():
-            """ """
-            edges = list()
-            colour = (1, 0, 0, 1)
-            for n in self.nodes:
-                self.args.env.draw_node(get_world_pos(n.pos), colour=colour)
-            for edge in self.graph.edges:
-                edge = np.array(edge).transpose()
-                self.args.env.draw_path(
-                    get_world_pos(n.pos), get_world_pos(n.parent.pos), colour=colour
-                )
-
-        def RRdTPlanner_paint():
-            """ """
-            from planners.rrdtPlanner import BFS
-
-            drawn_nodes_pairs = set()
-
-            def generate_random_colors():
-                """ """
-                import colorsys
-                import ghalton
-
-                perms = ghalton.EA_PERMS[:1]
-                sequencer = ghalton.GeneralizedHalton(perms)
-                while True:
-                    x = sequencer.get(1)[0][0]
-                    HSV_tuple = (x, 0.5, 0.5)
-                    HSV_tuple = (x, 1, 0.6)
-                    rgb_colour = colorsys.hsv_to_rgb(*HSV_tuple)
-                    yield (*rgb_colour, 1.0)  # add alpha channel
-
-            color_gen = generate_random_colors()
-
-            # Draw disjointed trees
-            for tree in self.disjointedTrees:
-                c = next(color_gen)
-                # draw nodes
-                for node in tree.nodes:
-                    self.args.env.draw_node(get_world_pos(node.pos), colour=c)
-                # draw edges
-                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
-                while bfs.has_next():
-                    newnode = bfs.next()
-                    for e in newnode.edges:
-                        new_set = frozenset({newnode, e})
-                        if new_set not in drawn_nodes_pairs:
-                            drawn_nodes_pairs.add(new_set)
-
-                            self.args.env.draw_path(
-                                get_world_pos(newnode.pos),
-                                get_world_pos(e.pos),
-                                colour=c,
-                            )
-            # Draw root tree
-            c = next(color_gen)
-            # override to red
-            c = (1, 0, 0, 1)
-            # draw nodes
-            for node in self.root.nodes:
-                self.args.env.draw_node(get_world_pos(node.pos), colour=c)
-            # draw edges
-            for n in self.root.nodes:
-                if n.parent is not None:
-                    new_set = frozenset({n, n.parent})
-                    if new_set not in drawn_nodes_pairs:
-                        drawn_nodes_pairs.add(new_set)
-                        self.args.env.draw_path(
-                            get_world_pos(n.pos), get_world_pos(n.parent.pos), colour=c
-                        )
-
-        def RRFPlanner_paint():
-            """ """
-            from planners.rrdtPlanner import BFS
-
-            drawn_nodes_pairs = set()
-
-            def generate_random_colors():
-                """ """
-                import colorsys
-                import ghalton
-
-                perms = ghalton.EA_PERMS[:1]
-                sequencer = ghalton.GeneralizedHalton(perms)
-                while True:
-                    x = sequencer.get(1)[0][0]
-                    HSV_tuple = (x, 0.5, 0.5)
-                    HSV_tuple = (x, 1, 0.6)
-                    rgb_colour = colorsys.hsv_to_rgb(*HSV_tuple)
-                    yield (*rgb_colour, 1.0)  # add alpha channel
-
-            color_gen = generate_random_colors()
-
-            # Draw disjointed trees
-            for tree in self.disjointedTrees:
-                c = next(color_gen)
-                # draw nodes
-                for node in tree.nodes:
-                    self.args.env.draw_node(get_world_pos(node.pos), colour=c)
-                # draw edges
-                bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
-                while bfs.has_next():
-                    newnode = bfs.next()
-                    for e in newnode.edges:
-                        new_set = frozenset({newnode, e})
-                        if new_set not in drawn_nodes_pairs:
-                            drawn_nodes_pairs.add(new_set)
-
-                            self.args.env.draw_path(
-                                get_world_pos(newnode.pos),
-                                get_world_pos(e.pos),
-                                colour=c,
-                            )
-            # Draw root tree
-            c = next(color_gen)
-            # override to red
-            c = (1, 0, 0, 1)
-            # draw nodes
-            for root, c in zip(
-                (self.root, self.goal_root), ((1, 0, 0, 1), (0, 0, 1, 1))
-            ):
-                for node in root.nodes:
-                    self.args.env.draw_node(get_world_pos(node.pos), colour=c)
-                # draw edges
-                for n in root.nodes:
-                    if n.parent is not None:
-                        new_set = frozenset({n, n.parent})
-                        if new_set not in drawn_nodes_pairs:
-                            drawn_nodes_pairs.add(new_set)
-                            self.args.env.draw_path(
-                                get_world_pos(n.pos),
-                                get_world_pos(n.parent.pos),
-                                colour=c,
-                            )
-
-            # self.draw_solution_path()
-
-        def default_paint():
-            """ """
-            raise NotImplementedError(
-                f"{self.__class__.__name__} visualising " "is not not implemented!"
-            )
-
-        implemented_classes = {
-            "RandomPolicySampler": nothing_paint,
-            "InformedRRTSampler": InformedRRTSampler_paint,
-            "RRdTSampler": RRdTSampler_paint,
-            "RRdTPlanner": RRdTPlanner_paint,
-            "RRFSampler": RRdTSampler_paint,
-            "RRFPlanner": RRFPlanner_paint,
-            "PRMSampler": nothing_paint,
-            "PRMPlanner": PRMPlanner_paint,
-            "RRTSampler": nothing_paint,
-            "RRTPlanner": RRTPlanner_paint,
-            "BiRRTSampler": nothing_paint,
-            "BiRRTPlanner": BiRRTPlanner_paint,
-        }
-
-        implemented_classes.get(self.__class__.__name__, default_paint)()
-
-    def draw_solution_path(self):
-        """ """
-        # not implemented
-        return
+    def paint(self, **kwargs):
+        """
+        Paint method for planner visualiser.
+        """
+        self.paint_func(self.planner_instance)
 
     def terminates_hook(self):
-        """ """
-        if self.__class__.__name__ == "PRMPlanner":
-            self.build_graph()
-            # draw all edges
-            for n1, n2 in self.tree.edges():
-                self.args.env.draw_path(n1, n2, Colour.path_blue)
-            self.get_solution()
-            self.args.env.update_screen()
-            import time
-
-            time.sleep(30)
+        """
+        Terminates hook for planner visualiser that is executed at the end of loop.
+        """
+        if self.planner_data_pack is not None:
+            if self.planner_data_pack.visualise_klampt_paint_terminate is not None:
+                self.planner_data_pack.visualise_klampt_paint_terminate(
+                    self.planner_instance
+                )
 
 
 class KlamptEnvVisualiser(BaseEnvVisualiser):
-    """ """
+    """
+    Environment Visualiser with the Klampt engine
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.drawn_label = set()
 
     def visualiser_init(self, no_display=False):
-        """
+        """Delayed *initialisation* method for environment visualiser.
 
-        :param no_display:  (Default value = False)
+        :param no_display: Controls whether turn on the
+            visualisation or not, defaults to False. This option is deprecated,
+            and instead, the environment should derived directly from the base
+            visualisation to turn off visualisation.
 
         """
         if not no_display:
@@ -954,7 +736,6 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
             vis.add("world", self.args.cc.world)
             vis.show()
-        return
 
     def set_start_goal_points(
         self,
@@ -962,16 +743,12 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         goal: Optional[np.ndarray] = None,
         **kwargs,
     ):
-        """
+        """A function that query user for start/goal and set them accordingly.
 
-        :param start: 
-        :param goal: 
+        :param start: the start configuration of the motion planning problem
+        :param goal: the goal configuration of the motion planning problem
 
         """
-        if start:
-            start = self.cc.translate_to_klampt(start)
-        if goal:
-            goal = self.cc.translate_to_klampt(goal)
         from klampt.io import resource
 
         def user_set_config(q, type_str="<..>"):
@@ -983,7 +760,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             """
             save = None
             # it's worthwhile to make sure that it's feasible
-            while q is None or not self.cc.space.feasible(q):
+            while q is None or not self.cc.feasible(q):
                 print("=" * 20)
                 print("=" * 20)
                 print(type_str, q)
@@ -991,26 +768,22 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
                 save, q = resource.edit(
                     type_str + " config", q, "Config", world=self.cc.world
                 )
-                q = [1, 2, 3, 4, 5, 6, 7]
-                print("=" * 20)
-                print(q)
-                print("=" * 20)
+                q = self.cc.translate_from_klampt(q)
+
             return save, q
 
-        # start = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]
-        # goal = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]
         _, start = user_set_config(start, "Start")
         _, goal = user_set_config(goal, "Goal")
 
-        return tuple(map(self.cc.translate_from_klampt, (start, goal)))
+        return start, goal
 
     def draw_node(self, pos, colour=(1, 0, 0, 1), size=15, label=None):
-        """
+        """Draw a node in the klampt visualiser
 
-        :param pos: 
-        :param colour:  (Default value = (1)
-        :param size:  (Default value = 15)
-        :param label:  (Default value = None)
+        :param pos: the position of the node
+        :param colour: the colour of the node
+        :param size: the size of the node
+        :param label: if given, add label to the node
 
         """
         from klampt import vis
@@ -1024,11 +797,11 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         vis.hideLabel(label)
 
     def draw_path(self, pos1, pos2, colour=None):
-        """
+        """Draw a path (line) in the klampt visualiser
 
-        :param pos1: 
-        :param pos2: 
-        :param colour:  (Default value = None)
+        :param pos1: the position of the start of line
+        :param pos2: the position of the end of line
+        :param colour: the colour of the line
 
         """
         from klampt import vis
@@ -1044,22 +817,11 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             vis.hideLabel(label)
             # self.drawn_label.add(label)
 
-    def draw_circle(self, pos, colour, radius, layer):
-        """
-
-        :param pos: 
-        :param colour: 
-        :param radius: 
-        :param layer: 
-
-        """
-        draw_pos = int(pos[0] * self.args.scaling), int(pos[1] * self.args.scaling)
-        pygame.draw.circle(layer, colour, draw_pos, int(radius * self.args.scaling))
-
     def update_screen(self, update_all=False):
-        """
+        """Refresh the screen
 
-        :param update_all:  (Default value = False)
+        :param update_all: Force update the screen (as oppose to limit drawing to
+            speed up)
 
         """
         if "refresh_cnt" not in self.__dict__:
@@ -1071,24 +833,6 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         else:
             count = self.refresh_cnt
             self.refresh_cnt += 1
-
-        ###################################################################################
-        def draw_start_goal_pt():
-            """ """
-            if self.env_instance.start_pt is not None:
-                self.draw_circle(
-                    pos=self.env_instance.start_pt.pos,
-                    colour=Colour.red,
-                    radius=self.args.goal_radius,
-                    layer=self.path_layers,
-                )
-            if self.env_instance.goal_pt is not None:
-                self.draw_circle(
-                    pos=self.env_instance.goal_pt.pos,
-                    colour=Colour.green,
-                    radius=self.args.goal_radius,
-                    layer=self.path_layers,
-                )
 
         if count % 60 == 0:
             try:
@@ -1106,26 +850,12 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             except AttributeError as e:
                 if self.env_instance.started:
                     raise e
-                # print(e)
-                pass
-
-        # # Sampled points
-        # if count % 4 == 0:
-        #     self.sampledPoint_screen.fill(Colour.ALPHA_CK)
-        #     # Draw sampled nodes
-        #     for sampledPos in self.env_instance.stats.sampledNodes:
-        #         self.draw_circle(
-        #             pos=sampledPos,
-        #             colour=Colour.red,
-        #             radius=2,
-        #             layer=self.sampledPoint_screen)
-        #     self.window.blit(self.sampledPoint_screen, (0, 0))
-        #     # remove them from list
-        #     del self.env_instance.stats.sampledNodes[:]
 
 
 class KlamptSamplerVisualiser(BaseSamplerVisualiser):
-    """ """
+    """
+    Visualisation of the sampler with Klampt engine
+    """
 
     def __init__(
         self,
@@ -1136,33 +866,25 @@ class KlamptSamplerVisualiser(BaseSamplerVisualiser):
         self.sampler_data_pack = sampler_data_pack
         self.paint_func = None
 
-        # # sampler can be nested, so sampler_data_pack is optional
-        # if sampler_data_pack is not None:
-        #     # retrieve function for painting
-        #     self.paint_func = sampler_data_pack.visualise_pygame_paint
-        #
-        # if self.paint_func is None:
-        #     # paint function has not been provided. Do nothing in paint function
-        #     self.paint_func = nothing_to_paint
+        # sampler can be nested, so sampler_data_pack is optional
+        if sampler_data_pack is not None:
+            # retrieve function for painting
+            self.paint_func = sampler_data_pack.visualise_klampt_paint
+
+        if self.paint_func is None:
+            # paint function has not been provided. Do nothing in paint function
+            self.paint_func = nothing_to_paint
 
     def init(self, **kwargs):
-        """
-
-        :param \**kwargs:
-
-        """
         super().init(**kwargs)
 
     def paint(self):
-        """ """
         self.paint_func(self)
 
     def terminates_hook(self):
-        """ """
-        pass
-        # if self.sampler_data_pack is not None:
-        #     if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:
-        #         self.sampler_data_pack.visualise_pygame_paint_terminate(self)
+        if self.sampler_data_pack is not None:
+            if self.sampler_data_pack.visualise_klampt_paint_terminate is not None:
+                self.sampler_data_pack.visualise_klampt_paint_terminate(self)
 
 
 class VisualiserSwitcher:
@@ -1174,9 +896,9 @@ class VisualiserSwitcher:
 
     @staticmethod
     def choose_visualiser(visualiser_type: str):
-        """
+        """Select the visualiser to use
 
-        :param visualiser_type: str: 
+        :param visualiser_type: the type of visualiser to use
 
         """
         if visualiser_type == "base":

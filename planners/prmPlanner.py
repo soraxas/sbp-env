@@ -189,12 +189,53 @@ def pygame_prm_planner_paint_when_terminate(planner):
     input("\nPress Enter to quit...")
 
 
+def klampt_prm_paint(planner) -> None:
+    """Visualiser paint function for PRM
+
+    :param planner: the planner to be visualised
+
+    """
+
+    colour = (1, 0, 0, 1)
+    for n in planner.nodes:
+        planner.args.env.draw_node(
+            planner.args.env.cc.get_eef_world_pos(n.pos), colour=colour
+        )
+    for edge in planner.graph.edges:
+        edge = np.array(edge).transpose()
+        planner.args.env.draw_path(
+            planner.args.env.cc.get_eef_world_pos(n.pos),
+            planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+            colour=colour,
+        )
+
+
+def klampt_prm_planner_paint_when_terminate(planner):
+    """Visualisation function to paint for planner when termiante
+
+    :param planner: the planner to visualise
+
+    """
+    from utils.common import Colour
+
+    planner.build_graph()
+    # draw all edges
+    for n1, n2 in planner.tree.edges():
+        planner.args.env.draw_path(n1, n2, Colour.path_blue)
+    planner.get_solution()
+    planner.args.env.update_screen()
+
+    input("\nPress Enter to quit...")
+
+
 # start register
 planner_registry.register_planner(
     "prm",
     planner_class=PRMPlanner,
     visualise_pygame_paint=pygame_prm_planner_paint,
     visualise_pygame_paint_terminate=pygame_prm_planner_paint_when_terminate,
+    visualise_klampt_paint=klampt_prm_paint,
+    visualise_klampt_paint_terminate=klampt_prm_planner_paint_when_terminate,
     sampler_id=prmSampler.sampler_id,
 )
 # finish register

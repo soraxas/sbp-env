@@ -36,7 +36,6 @@ Display Options:
 
 General Planner Options:
   --radius=RADIUS        Set radius for node connections.
-                         [default: 12.0]
   --epsilon=EPSILON      Set epsilon value.
                          [default: 10.0]
   --max-number-nodes=MAX_NODES
@@ -200,7 +199,6 @@ def generate_args(
         len(planner_canidates) == 1
     ), f"Planner to use '{planner_canidates}' has length {len(planner_canidates)}"
     planner_to_use = planner_canidates[0]
-    print(planner_to_use)
 
     planner_data_pack = planner_registry.PLANNERS[planner_to_use]
 
@@ -210,6 +208,14 @@ def generate_args(
         # sanitise keyword arguments by removing prefix -- and replacing - as _
         **{re.sub(r"^--", "", k).replace("-", "_"): v for (k, v) in args.items()},
     )
+
+    # setup defaults
+    if args["--engine"] == "klampt":
+        # setup defaults for klampt
+        if args["--epsilon"] == "10.0":
+            args["--epsilon"] = 1.0
+    if args["--radius"] is None:
+        args["--radius"] = float(args["--epsilon"]) * 1.1
 
     planning_option = MagicDict(
         planner_data_pack=planner_data_pack,

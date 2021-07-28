@@ -942,7 +942,6 @@ class MABScheduler:
         :param set_val: if given, set the value.
 
         """
-        # TODO: sometimes the keep tracking might go out of sync (and cause error in np.random.choice. Investigate this)
         # keep track how much energy this operation would modify,
         # so we can change the energy_sum accordingly
         old_energy = self.dtrees_energy[idx]
@@ -960,22 +959,15 @@ class MABScheduler:
         self.particles[idx].confirm(pos)
 
     def new_pos(self, idx: int, pos: np.ndarray, dir):
-        # Do nothing with new_pos for now as we confirm our final location via callback
-        #################################################################################
-        # new_dir is a scalar (for now TODO make it to general dimension later)
         self.particles[idx].provision_dir = dir
 
     def get_pos(self, idx):
         return self.particles[idx].pos
 
-    def get_dir(self, idx):
-        return self.particles[idx].direction
-
     def get_prob(self):
         return self.dtrees_energy / self.cur_energy_sum
 
     def resync_prob(self):
-        """ """
         self.dtrees_energy = np.nan_to_num(self.dtrees_energy)
         if self.dtrees_energy.sum() < 1e-10:
             # particle_energy demonlished to 0...
@@ -984,7 +976,7 @@ class MABScheduler:
         self.cur_energy_sum = self.dtrees_energy.sum()
 
     def new_pos_in_free_space(self):
-        """ """
+        """Return a new position in free space."""
         self.args.env.stats.lsampler_restart_counter += 1
         while True:
 
@@ -1078,6 +1070,67 @@ def pygame_rrdt_planner_paint(planner):
     planner.visualiser.draw_solution_path()
 
 
+def klampt_rrdt_planner_paint(planner):
+    drawn_nodes_pairs = set()
+
+    def generate_random_colors():
+        import colorsys
+        import ghalton
+
+        perms = ghalton.EA_PERMS[:1]
+        sequencer = ghalton.GeneralizedHalton(perms)
+        while True:
+            x = sequencer.get(1)[0][0]
+            HSV_tuple = (x, 1, 0.6)
+            rgb_colour = colorsys.hsv_to_rgb(*HSV_tuple)
+            yield (*rgb_colour, 1.0)  # add alpha channel
+
+    color_gen = generate_random_colors()
+
+    # Draw disjointed trees
+    for tree in planner._disjointed_trees:
+        c = next(color_gen)
+        # draw nodes
+        for node in tree.nodes:
+            planner.args.env.draw_node(
+                planner.args.env.cc.get_eef_world_pos(node.pos), colour=c
+            )
+        # draw edges
+        bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
+        while bfs.has_next():
+            newnode = bfs.next()
+            for e in newnode.edges:
+                new_set = frozenset({newnode, e})
+                if new_set not in drawn_nodes_pairs:
+                    drawn_nodes_pairs.add(new_set)
+
+                    planner.args.env.draw_path(
+                        planner.args.env.cc.get_eef_world_pos(newnode.pos),
+                        planner.args.env.cc.get_eef_world_pos(e.pos),
+                        colour=c,
+                    )
+    # Draw root tree
+    c = next(color_gen)
+    # override to red
+    c = (1, 0, 0, 1)
+    # draw nodes
+    for node in planner.root.nodes:
+        planner.args.env.draw_node(
+            planner.args.env.cc.get_eef_world_pos(node.pos), colour=c
+        )
+    # draw edges
+    for n in planner.root.nodes:
+        if n.parent is not None:
+            new_set = frozenset({n, n.parent})
+            if new_set not in drawn_nodes_pairs:
+                drawn_nodes_pairs.add(new_set)
+                planner.args.env.draw_path(
+                    planner.args.env.cc.get_eef_world_pos(n.pos),
+                    planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+                    colour=c,
+                )
+
+
 # start register
 sampler_id = "rrdt_sampler"
 
@@ -1092,6 +1145,7 @@ planner_registry.register_planner(
     "rrdt",
     planner_class=RRdTPlanner,
     visualise_pygame_paint=pygame_rrdt_planner_paint,
+    visualise_klampt_paint=klampt_rrdt_planner_paint,
     sampler_id=sampler_id,
 )
 # finish register

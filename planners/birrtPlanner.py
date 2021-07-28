@@ -146,11 +146,28 @@ def pygame_birrt_planner_paint(planner):
         planner.visualiser.draw_solution_path()
 
 
+from planners.rrtPlanner import klampt_draw_nodes_paint_func
+
+
+def klampt_birrt_paint(planner):
+    """Visualiser paint function for BiRRT
+
+    :param planner: the planner to be visualised
+
+    """
+    for c, nodes in (
+        ((1, 0, 0, 1), planner.nodes),
+        ((0, 0, 1, 1), planner.goal_tree_nodes),
+    ):
+        klampt_draw_nodes_paint_func(planner, nodes, c)
+
+
 # start register
 planner_registry.register_planner(
     "birrt",
     planner_class=BiRRTPlanner,
     visualise_pygame_paint=pygame_birrt_planner_paint,
+    visualise_klampt_paint=klampt_birrt_paint,
     sampler_id="birrt_sampler",
 )
 # finish register

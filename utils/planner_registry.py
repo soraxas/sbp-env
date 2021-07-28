@@ -20,6 +20,9 @@ class BaseDataPack:
     visualise_pygame_paint_init: Optional[Callable]
     visualise_pygame_paint: Optional[Callable]
     visualise_pygame_paint_terminate: Optional[Callable]
+    visualise_klampt_paint_init: Optional[Callable]
+    visualise_klampt_paint: Optional[Callable]
+    visualise_klampt_paint_terminate: Optional[Callable]
 
 
 @dataclass
@@ -57,6 +60,9 @@ def register_planner(
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
     visualise_pygame_paint_terminate: Optional[Callable] = None,
+    visualise_klampt_paint_init: Optional[Callable] = None,
+    visualise_klampt_paint: Optional[Callable] = None,
+    visualise_klampt_paint_terminate: Optional[Callable] = None,
 ) -> None:
     """Register a planner to make it available for planning.
 
@@ -67,6 +73,11 @@ def register_planner(
         during initialisation
     :param visualise_pygame_paint: the paint function for pygame
     :param visualise_pygame_paint_terminate: the paint function for pygame,
+        when terminating
+    :param visualise_klampt_paint_init: the paint function for klampt,
+        during initialisation
+    :param visualise_klampt_paint: the paint function for klampt
+    :param visualise_klampt_paint_terminate: the paint function for klampt,
         when terminating
 
     """
@@ -85,6 +96,9 @@ def register_planner(
         visualise_pygame_paint_init=visualise_pygame_paint_init,
         visualise_pygame_paint=visualise_pygame_paint,
         visualise_pygame_paint_terminate=visualise_pygame_paint_terminate,
+        visualise_klampt_paint_init=visualise_klampt_paint_init,
+        visualise_klampt_paint=visualise_klampt_paint,
+        visualise_klampt_paint_terminate=visualise_klampt_paint_terminate,
         planner_class=planner_class,
         sampler_id=sampler_id,
     )
@@ -96,6 +110,9 @@ def register_sampler(
     visualise_pygame_paint_init: Optional[Callable] = None,
     visualise_pygame_paint: Optional[Callable] = None,
     visualise_pygame_paint_terminate: Optional[Callable] = None,
+    visualise_klampt_paint_init: Optional[Callable] = None,
+    visualise_klampt_paint: Optional[Callable] = None,
+    visualise_klampt_paint_terminate: Optional[Callable] = None,
 ) -> None:
     """Register a sampler to make it available for planning.
 
@@ -105,6 +122,11 @@ def register_sampler(
         during initialisation
     :param visualise_pygame_paint: the paint function for pygame
     :param visualise_pygame_paint_terminate: the paint function for pygame,
+        when terminating
+    :param visualise_klampt_paint_init: the paint function for klampt,
+        during initialisation
+    :param visualise_klampt_paint: the paint function for klampt
+    :param visualise_klampt_paint_terminate: the paint function for klampt,
         when terminating
 
     """
@@ -123,5 +145,8 @@ def register_sampler(
         visualise_pygame_paint_init=visualise_pygame_paint_init,
         visualise_pygame_paint=visualise_pygame_paint,
         visualise_pygame_paint_terminate=visualise_pygame_paint_terminate,
+        visualise_klampt_paint_init=visualise_klampt_paint_init,
+        visualise_klampt_paint=visualise_klampt_paint,
+        visualise_klampt_paint_terminate=visualise_klampt_paint_terminate,
         sampler_class=sampler_class,
     )

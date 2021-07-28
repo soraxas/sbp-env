@@ -103,19 +103,22 @@ class ImgCollisionChecker(CollisionChecker):
         return endPos
 
     def visible(self, pos1, pos2):
+        self.stats.visible_cnt += 1
         try:
             # get list of pixel between node A and B
             # pixels = lineGenerationAlgorithm(pos1, pos2)
             pixels = self.get_line(pos1, pos2)
             # check that all pixel are white (free space)
             for p in pixels:
-                if not self.feasible(p):
+                if not self.feasible(p, save_stats=False):
                     return False
         except ValueError:
             return False
         return True
 
-    def feasible(self, p):
+    def feasible(self, p, save_stats=True):
+        if save_stats:
+            self.stats.feasible_cnt += 1
         try:
             return self._img[tuple(map(int, p))] == 1
         except IndexError:
@@ -196,20 +199,13 @@ class KlamptCollisionChecker(CollisionChecker):
         import klampt
         from klampt.plan import robotplanning
 
-        self.cc_feasible = 0
-        self.cc_visible = 0
-
         world = klampt.WorldModel()
         world.readFile(xml)  # very cluttered
         robot = world.robot(0)
 
-        # this is the CSpace that will be used.  Standard collision and joint limit constraints
-        # will be checked
+        # this is the CSpace that will be used.
+        # Standard collision and joint limit constraints will be checked
         space = robotplanning.makeSpace(world, robot, edgeCheckResolution=0.1)
-
-        # fire up a visual editor to get some start and goal configurations
-        qstart = robot.getConfig()
-        qgoal = robot.getConfig()
 
         self.space = space
         self.robot = robot
@@ -217,50 +213,59 @@ class KlamptCollisionChecker(CollisionChecker):
 
         import copy
 
-        self.template_pos = copy.copy(qstart)
+        self.template_pos = copy.copy(robot.getConfig())
         self.template_pos[1:7] = [0] * 6
-
-        self.qstart = self.translate_from_klampt(qstart)
-        self.qgoal = self.translate_from_klampt(qgoal)
 
     def get_dimension(self):
         return 6
 
     def get_dimension_limits(self):
-        return self.robot.getJointLimits()
+        return self.space.bound
 
     def translate_to_klampt(self, p):
         """Translate the given configuration to klampt's configuration
 
-        :param p: configuratino to translate
+        :param p: configuration to translate
 
         """
-        assert len(p) == 6, p
-
-        new_pos = list(self.template_pos)
-        new_pos[1:7] = p
-        return new_pos
+        assert len(p) == self.get_dimension(), p
+        # add a dummy end configuration that denotes the gripper's angle
+        return list(p) + [0]
 
     def translate_from_klampt(self, p):
         """Translate the given klampt's configuration to our protocol
 
-        :param p: configuratino to translate
+        :param p: configuration to translate
 
         """
-        assert len(p) == 12, len(p)
-        return p[1:7]
+        if len(p) == 12:
+            # this is what klampt's robot interface return, mixed with arm joints and
+            # gripper angles
+            return p[1:7]
+        elif len(p) == 7:
+            # this is what klampt's space interface return, mixed with arm joints and
+            # gripper rotation (single value)
+            return p[:6]
+        raise ValueError(f"Unknown length {p}")
+
+    def get_eef_world_pos(self, config):
+        _config = self.robot.getConfig()
+        _config[1:7] = list(config)[:6]
+        self.robot.setConfig(_config)
+        link = self.robot.link(11)  # the eef
+        pos = link.getWorldPosition([0, 0, 0])
+        return pos
 
     def visible(self, a, b):
         a = self.translate_to_klampt(a)
         b = self.translate_to_klampt(b)
-        # print(self.space.visible(a, b))
         self.stats.visible_cnt += 1
         return self.space.isVisible(a, b)
 
-    def feasible(self, p, stats=False):
+    def feasible(self, p, save_stats=True):
         p = self.translate_to_klampt(p)
         self.stats.feasible_cnt += 1
-        return self.space.feasible(p)
+        return self.space.isFeasible(p)
 
 
 class RobotArm4dCollisionChecker(CollisionChecker):
@@ -359,8 +364,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def visible(self, pos1, pos2):
         # get list of pixel between node A and B
         # pixels = lineGenerationAlgorithm(pos1, pos2)
+        self.stats.visible_cnt += 1
         for p in self._interpolate_configs(pos1, pos2):
-            if not self.feasible(p):
+            if not self.feasible(p, save_stats=False):
                 return False
         return True
 
@@ -375,7 +381,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         except IndexError:
             return False
 
-    def feasible(self, p):
+    def feasible(self, p, save_stats=True):
+        if save_stats:
+            self.stats.feasible_cnt += 1
         pt1 = p[:2]
         pt2 = self.get_pt_from_angle_and_length(
             pt1, p[2], self.stick_robot_length_config[0]

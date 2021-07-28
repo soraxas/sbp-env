@@ -77,9 +77,7 @@ class RRTPlanner(Planner):
         This where the main bulk of actions happens, e.g., creating nodes or edges.
         """
         # Get an sample that is free (not in blocked space)
-        rand_pos, report_success, report_fail = self.args[
-            "sampler"
-        ].get_valid_next_pos()
+        rand_pos, report_success, report_fail = self.args.sampler.get_valid_next_pos()
         # Found a node that is not in X_obs
         idx = self.find_nearest_neighbour_idx(rand_pos, self.poses[: len(self.nodes)])
         nn = self.nodes[idx]
@@ -344,11 +342,40 @@ def pygame_rrt_paint(planner: Planner) -> None:
         planner.visualiser.draw_solution_path()
 
 
+def klampt_draw_nodes_paint_func(planner, nodes, colour):
+    drawn_nodes_pairs = set()
+    for n in nodes:
+        planner.args.env.draw_node(
+            planner.args.env.cc.get_eef_world_pos(n.pos), colour=colour
+        )
+        if n.parent is not None:
+            new_set = frozenset({n, n.parent})
+            if new_set not in drawn_nodes_pairs:
+                drawn_nodes_pairs.add(new_set)
+                planner.args.env.draw_path(
+                    planner.args.env.cc.get_eef_world_pos(n.pos),
+                    planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+                    colour=colour,
+                )
+
+
+def klampt_rrt_paint(planner: Planner) -> None:
+    """Visualiser paint function for RRT
+
+    :param planner: the planner to be visualised
+
+    """
+
+    colour = (1, 0, 0, 1)
+    klampt_draw_nodes_paint_func(planner, planner.nodes, colour)
+
+
 # start register
 planner_registry.register_planner(
     "rrt",
     planner_class=RRTPlanner,
     visualise_pygame_paint=pygame_rrt_paint,
+    visualise_klampt_paint=klampt_rrt_paint,
     sampler_id="random",
 )
 # finish register
