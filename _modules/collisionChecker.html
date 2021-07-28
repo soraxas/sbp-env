@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
@@ -281,19 +281,22 @@
         <span class="k">return</span> <span class="n">endPos</span></div>
 
 <div class="viewcode-block" id="ImgCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># get list of pixel between node A and B</span>
             <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
             <span class="n">pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
             <span class="c1"># check that all pixel are white (free space)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                     <span class="k">return</span> <span class="kc">False</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="ImgCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="ImgCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.ImgCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">save_stats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">p</span><span class="p">))]</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
@@ -374,20 +377,13 @@
         <span class="kn">import</span> <span class="nn">klampt</span>
         <span class="kn">from</span> <span class="nn">klampt.plan</span> <span class="kn">import</span> <span class="n">robotplanning</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cc_feasible</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cc_visible</span> <span class="o">=</span> <span class="mi">0</span>
-
         <span class="n">world</span> <span class="o">=</span> <span class="n">klampt</span><span class="o">.</span><span class="n">WorldModel</span><span class="p">()</span>
         <span class="n">world</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>  <span class="c1"># very cluttered</span>
         <span class="n">robot</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">robot</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># this is the CSpace that will be used.  Standard collision and joint limit constraints</span>
-        <span class="c1"># will be checked</span>
+        <span class="c1"># this is the CSpace that will be used.</span>
+        <span class="c1"># Standard collision and joint limit constraints will be checked</span>
         <span class="n">space</span> <span class="o">=</span> <span class="n">robotplanning</span><span class="o">.</span><span class="n">makeSpace</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">robot</span><span class="p">,</span> <span class="n">edgeCheckResolution</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-
-        <span class="c1"># fire up a visual editor to get some start and goal configurations</span>
-        <span class="n">qstart</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
-        <span class="n">qgoal</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="o">=</span> <span class="n">space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">robot</span> <span class="o">=</span> <span class="n">robot</span>
@@ -395,50 +391,59 @@
 
         <span class="kn">import</span> <span class="nn">copy</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">qstart</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">(</span><span class="n">qstart</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qgoal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">(</span><span class="n">qgoal</span><span class="p">)</span>
 
 <div class="viewcode-block" id="KlamptCollisionChecker.get_dimension"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">6</span></div>
 
     <span class="k">def</span> <span class="nf">get_dimension_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">getJointLimits</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">bound</span>
 
 <div class="viewcode-block" id="KlamptCollisionChecker.translate_to_klampt"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.translate_to_klampt">[docs]</a>    <span class="k">def</span> <span class="nf">translate_to_klampt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Translate the given configuration to klampt&#39;s configuration</span>
 
-<span class="sd">        :param p: configuratino to translate</span>
+<span class="sd">        :param p: configuration to translate</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="n">p</span>
-
-        <span class="n">new_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_pos</span><span class="p">)</span>
-        <span class="n">new_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
-        <span class="k">return</span> <span class="n">new_pos</span></div>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">(),</span> <span class="n">p</span>
+        <span class="c1"># add a dummy end configuration that denotes the gripper&#39;s angle</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="KlamptCollisionChecker.translate_from_klampt"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.translate_from_klampt">[docs]</a>    <span class="k">def</span> <span class="nf">translate_from_klampt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Translate the given klampt&#39;s configuration to our protocol</span>
 
-<span class="sd">        :param p: configuratino to translate</span>
+<span class="sd">        :param p: configuration to translate</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span></div>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="c1"># this is what klampt&#39;s robot interface return, mixed with arm joints and</span>
+            <span class="c1"># gripper angles</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="c1"># this is what klampt&#39;s space interface return, mixed with arm joints and</span>
+            <span class="c1"># gripper rotation (single value)</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown length </span><span class="si">{p}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_eef_world_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">getConfig</span><span class="p">()</span>
+        <span class="n">_config</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="p">)[:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">setConfig</span><span class="p">(</span><span class="n">_config</span><span class="p">)</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>  <span class="c1"># the eef</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">getWorldPosition</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">pos</span>
 
 <div class="viewcode-block" id="KlamptCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="c1"># print(self.space.visible(a, b))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">isVisible</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="KlamptCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">isFeasible</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RobotArm4dCollisionChecker"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker">[docs]</a><span class="k">class</span> <span class="nc">RobotArm4dCollisionChecker</span><span class="p">(</span><span class="n">CollisionChecker</span><span class="p">):</span>
@@ -537,8 +542,9 @@
 <div class="viewcode-block" id="RobotArm4dCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
         <span class="c1"># get list of pixel between node A and B</span>
         <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_configs</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
@@ -553,7 +559,9 @@
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="RobotArm4dCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="RobotArm4dCollisionChecker.feasible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.feasible">[docs]</a>    <span class="k">def</span> <span class="nf">feasible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">save_stats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">pt1</span> <span class="o">=</span> <span class="n">p</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">pt2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pt_from_angle_and_length</span><span class="p">(</span>
             <span class="n">pt1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

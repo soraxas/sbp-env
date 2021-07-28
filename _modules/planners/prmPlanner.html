@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
@@ -367,12 +367,53 @@
     <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press Enter to quit...&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">klampt_prm_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Visualiser paint function for PRM</span>
+
+<span class="sd">    :param planner: the planner to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+            <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">klampt_prm_planner_paint_when_terminate</span><span class="p">(</span><span class="n">planner</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Visualisation function to paint for planner when termiante</span>
+
+<span class="sd">    :param planner: the planner to visualise</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">Colour</span>
+
+    <span class="n">planner</span><span class="o">.</span><span class="n">build_graph</span><span class="p">()</span>
+    <span class="c1"># draw all edges</span>
+    <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">Colour</span><span class="o">.</span><span class="n">path_blue</span><span class="p">)</span>
+    <span class="n">planner</span><span class="o">.</span><span class="n">get_solution</span><span class="p">()</span>
+    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update_screen</span><span class="p">()</span>
+
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Press Enter to quit...&quot;</span><span class="p">)</span>
+
+
 <span class="c1"># start register</span>
 <span class="n">planner_registry</span><span class="o">.</span><span class="n">register_planner</span><span class="p">(</span>
     <span class="s2">&quot;prm&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">PRMPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_prm_planner_paint</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="o">=</span><span class="n">pygame_prm_planner_paint_when_terminate</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_prm_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_terminate</span><span class="o">=</span><span class="n">klampt_prm_planner_paint_when_terminate</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="n">prmSampler</span><span class="o">.</span><span class="n">sampler_id</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="c1"># finish register</span>

@@ -92,18 +92,18 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Simulator Engine</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#d-image-space">2D Image Space</a></li>
@@ -113,7 +113,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -239,7 +239,7 @@ environment that the planning operates in</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.ImgCollisionChecker.feasible">
-<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the configuration is in free-space, i.e.,
 <span class="math">\(q \in C_\text{free}\)</span></p>
 <dl class="field-list simple">
@@ -317,7 +317,7 @@ Produces a list of tuples from start and end</p>
 <dd><p>The image that represents the planning problem</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the input image</p>
@@ -387,7 +387,7 @@ The body points obtained by the forward kinematic on <span class="math">\(r_0, r
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
 environment that the planning operates</p></li>
-<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
+<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
 uses <cite>map_mat</cite> directly as the map</p>
 <blockquote>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
@@ -460,8 +460,8 @@ Produces a list of tuples from start and end</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of starting values</p></li>
-<li><p><strong>stop</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of stopping values</p></li>
+<li><p><strong>start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of starting values</p></li>
+<li><p><strong>stop</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of stopping values</p></li>
 <li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the size of linspace</p></li>
 <li><p><strong>endpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether to include end point or not
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
@@ -472,7 +472,7 @@ Produces a list of tuples from start and end</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.RobotArm4dCollisionChecker.feasible">
-<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the configuration is in free-space, i.e.,
 <span class="math">\(q \in C_\text{free}\)</span></p>
 <dl class="field-list simple">
@@ -587,7 +587,7 @@ might update its api without notice. The current implementation is based on
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.KlamptCollisionChecker.feasible">
-<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#KlamptCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.KlamptCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#KlamptCollisionChecker.feasible"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.KlamptCollisionChecker.feasible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the configuration is in free-space, i.e.,
 <span class="math">\(q \in C_\text{free}\)</span></p>
 <dl class="field-list simple">
@@ -614,7 +614,7 @@ might update its api without notice. The current implementation is based on
 <dd><p>Translate the given klampt’s configuration to our protocol</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>p</strong> – configuratino to translate</p>
+<dd class="field-odd"><p><strong>p</strong> – configuration to translate</p>
 </dd>
 </dl>
 </dd></dl>
@@ -625,7 +625,7 @@ might update its api without notice. The current implementation is based on
 <dd><p>Translate the given configuration to klampt’s configuration</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>p</strong> – configuratino to translate</p>
+<dd class="field-odd"><p><strong>p</strong> – configuration to translate</p>
 </dd>
 </dl>
 </dd></dl>

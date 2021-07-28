@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
@@ -1120,7 +1120,6 @@
 <span class="sd">        :param set_val: if given, set the value.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: sometimes the keep tracking might go out of sync (and cause error in np.random.choice. Investigate this)</span>
         <span class="c1"># keep track how much energy this operation would modify,</span>
         <span class="c1"># so we can change the energy_sum accordingly</span>
         <span class="n">old_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -1138,22 +1137,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">confirm</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">new_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dir</span><span class="p">):</span>
-        <span class="c1"># Do nothing with new_pos for now as we confirm our final location via callback</span>
-        <span class="c1">#################################################################################</span>
-        <span class="c1"># new_dir is a scalar (for now TODO make it to general dimension later)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">provision_dir</span> <span class="o">=</span> <span class="nb">dir</span>
 
     <span class="k">def</span> <span class="nf">get_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span>
 
-    <span class="k">def</span> <span class="nf">get_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">direction</span>
-
     <span class="k">def</span> <span class="nf">get_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_energy_sum</span>
 
     <span class="k">def</span> <span class="nf">resync_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">:</span>
             <span class="c1"># particle_energy demonlished to 0...</span>
@@ -1162,7 +1154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cur_energy_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtrees_energy</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">new_pos_in_free_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a new position in free space.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">lsampler_restart_counter</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
 
@@ -1256,6 +1248,67 @@
     <span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
 
 
+<span class="k">def</span> <span class="nf">klampt_rrdt_planner_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">):</span>
+    <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">generate_random_colors</span><span class="p">():</span>
+        <span class="kn">import</span> <span class="nn">colorsys</span>
+        <span class="kn">import</span> <span class="nn">ghalton</span>
+
+        <span class="n">perms</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">EA_PERMS</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sequencer</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">GeneralizedHalton</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">sequencer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">HSV_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+            <span class="n">rgb_colour</span> <span class="o">=</span> <span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">HSV_tuple</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="o">*</span><span class="n">rgb_colour</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># add alpha channel</span>
+
+    <span class="n">color_gen</span> <span class="o">=</span> <span class="n">generate_random_colors</span><span class="p">()</span>
+
+    <span class="c1"># Draw disjointed trees</span>
+    <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">_disjointed_trees</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
+        <span class="c1"># draw nodes</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
+                <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span>
+            <span class="p">)</span>
+        <span class="c1"># draw edges</span>
+        <span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">validNodes</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">bfs</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
+            <span class="n">newnode</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">newnode</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+                <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">newnode</span><span class="p">,</span> <span class="n">e</span><span class="p">})</span>
+                <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
+                    <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
+
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+                        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                        <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                    <span class="p">)</span>
+    <span class="c1"># Draw root tree</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
+    <span class="c1"># override to red</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># draw nodes</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span>
+        <span class="p">)</span>
+    <span class="c1"># draw edges</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
+                <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
+                <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                <span class="p">)</span>
+
+
 <span class="c1"># start register</span>
 <span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;rrdt_sampler&quot;</span>
 
@@ -1270,6 +1323,7 @@
     <span class="s2">&quot;rrdt&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">RRdTPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_rrdt_planner_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_rrdt_planner_paint</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="n">sampler_id</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="c1"># finish register</span>

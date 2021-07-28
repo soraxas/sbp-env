@@ -92,13 +92,13 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Motion Planners</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#rrt">RRT*</a></li>
@@ -114,12 +114,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -239,7 +239,7 @@ has the least cost (toward the newly added node)</p>
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 <li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether use rtree to store tree or not
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]], <em>optional</em>) – list of configurations, with the same length as <code class="docutils literal notranslate"><span class="pre">nodes</span></code>
+<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]], <em>optional</em>) – list of configurations, with the same length as <code class="docutils literal notranslate"><span class="pre">nodes</span></code>
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -259,8 +259,8 @@ has the least cost (toward the newly added node)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the position to search against the array of positions</p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the array of positions</p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the position to search against the array of positions</p></li>
+<li><p><strong>poses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the array of positions</p></li>
 </ul>
 </dd>
 </dl>
@@ -273,8 +273,8 @@ has the least cost (toward the newly added node)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
+<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
+<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,7 +295,7 @@ has the least cost (toward the newly added node)</p>
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
 <li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – if we should use rtree as opposed to native numpy operations
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – an array of positions
+<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – an array of positions
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -323,6 +323,7 @@ corresponds to adding one new node to the tree)</p>
     <span class="s2">&quot;rrt&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">RRTPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_rrt_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_rrt_paint</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -352,8 +353,8 @@ trees, which is implemented in <a class="reference internal" href="samplers.html
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
+<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
+<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
 </ul>
 </dd>
 </dl>
@@ -380,6 +381,7 @@ corresponds to adding one new node to the tree)</p>
     <span class="s2">&quot;birrt&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">BiRRTPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_birrt_planner_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_birrt_paint</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="s2">&quot;birrt_sampler&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -553,6 +555,7 @@ corresponds to adding one new node to the tree)</p>
     <span class="s2">&quot;rrdt&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">RRdTPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_rrdt_planner_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_rrdt_planner_paint</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="n">sampler_id</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -647,8 +650,8 @@ to the given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
+<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
+<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
 </ul>
 </dd>
 </dl>
@@ -678,6 +681,8 @@ corresponds to adding one new node to the tree)</p>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">PRMPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_prm_planner_paint</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="o">=</span><span class="n">pygame_prm_planner_paint_when_terminate</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_prm_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_terminate</span><span class="o">=</span><span class="n">klampt_prm_planner_paint_when_terminate</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="n">prmSampler</span><span class="o">.</span><span class="n">sampler_id</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>

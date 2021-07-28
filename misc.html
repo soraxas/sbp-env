@@ -92,23 +92,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Misc Classes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#data-structure">Data structure</a></li>
@@ -231,7 +231,7 @@ the dimensionality of the C-space.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – Node to be added</p></li>
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -246,7 +246,7 @@ the dimensionality of the C-space.</p>
 <dd><p>Get the closest node</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
@@ -264,7 +264,7 @@ the dimensionality of the C-space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
 <li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Max number of results</p></li>
 </ul>
 </dd>
@@ -283,7 +283,7 @@ the dimensionality of the C-space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
 represents</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – a positive float that represents the cost of this node</p></li>
 <li><p><strong>parent</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – parent node</p></li>
@@ -293,7 +293,7 @@ represents</p></li>
 </ul>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
+<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
 </dd>
 </dl>
 </dd></dl>
@@ -419,7 +419,7 @@ and refill the bucket on-demand when it is exhausted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
 <li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the scale of the half normal
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 </ul>
@@ -434,7 +434,7 @@ and refill the bucket on-demand when it is exhausted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to
+<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to
 shift the number that this function returns</p></li>
 <li><p><strong>use_vonmises</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – use vom-Mises distribution
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
@@ -445,7 +445,7 @@ shift the number that this function returns</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,7 +457,7 @@ shift the number that this function returns</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
 <li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the scale of the half normal</p></li>
 </ul>
 </dd>
@@ -501,7 +501,7 @@ normal distribution</p>
 <p>The following function is used to register a new custom <em>planner</em>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.planner_registry.register_planner">
-<span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#register_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.register_planner" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#register_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.register_planner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a planner to make it available for planning.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -523,6 +523,20 @@ when terminating</p>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </div></blockquote>
 </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – <p>the paint function for klampt,
+during initialisation</p>
+<blockquote>
+<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</div></blockquote>
+</p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – <p>the paint function for klampt,
+when terminating</p>
+<blockquote>
+<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</div></blockquote>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -534,7 +548,7 @@ when terminating</p>
 <p>The following function is used to register a new custom <em>sampler</em>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.planner_registry.register_sampler">
-<span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#register_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.register_sampler" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#register_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.register_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a sampler to make it available for planning.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -555,6 +569,20 @@ when terminating</p>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </div></blockquote>
 </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – <p>the paint function for klampt,
+during initialisation</p>
+<blockquote>
+<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</div></blockquote>
+</p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – <p>the paint function for klampt,
+when terminating</p>
+<blockquote>
+<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
+</div></blockquote>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -567,7 +595,7 @@ when terminating</p>
 <h3>Registry data structure<a class="headerlink" href="#registry-data-structure" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.planner_registry.PlannerDataPack">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">PlannerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#PlannerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.PlannerDataPack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">PlannerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#PlannerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.PlannerDataPack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data pack to stores planner class and the sampler with <cite>sample_id</cite> to use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -576,6 +604,9 @@ when terminating</p>
 <li><p><strong>visualise_pygame_paint_init</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>visualise_pygame_paint</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>visualise_pygame_paint_terminate</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>planner_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="planners.html#planners.basePlanner.Planner" title="planners.basePlanner.Planner"><em>Planner</em></a><em>]</em>) – </p></li>
 <li><p><strong>sampler_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
@@ -606,7 +637,7 @@ when terminating</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.planner_registry.SamplerDataPack">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">SamplerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#SamplerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.SamplerDataPack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">SamplerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#SamplerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.SamplerDataPack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data pack to store sampler class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -615,6 +646,9 @@ when terminating</p>
 <li><p><strong>visualise_pygame_paint_init</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>visualise_pygame_paint</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>visualise_pygame_paint_terminate</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
 <li><p><strong>sampler_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="samplers.html#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><em>Sampler</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>

@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../support.html">Support</a></li>
@@ -320,6 +320,10 @@
 <span class="sd">        Forward the call to the :class:`Env` instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">terminates_hook</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">terminates_hook</span><span class="p">()</span>
 
 
 <span class="c1">############################################################</span>
@@ -598,13 +602,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">update_screen</span><span class="p">(</span><span class="n">update_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span></div>
 
-<div class="viewcode-block" id="PygameEnvVisualiser.process_pygame_event"><a class="viewcode-back" href="../visualisers.html#visualiser.PygameEnvVisualiser.process_pygame_event">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">process_pygame_event</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span> <span class="ow">or</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYUP</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_ESCAPE</span><span class="p">):</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Leaving.&quot;</span><span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">pygame_show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">no_display</span> <span class="o">=</span> <span class="kc">False</span>
@@ -833,298 +836,77 @@
 
 
 <span class="k">class</span> <span class="nc">KlamptPlannerVisualiser</span><span class="p">(</span><span class="n">BasePlannerVisualiser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Planner Visualiser with the Klampt engine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Planner</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">planner_instance</span><span class="p">:</span> <span class="n">Planner</span><span class="p">,</span>
+        <span class="n">planner_data_pack</span><span class="p">:</span> <span class="n">planner_registry</span><span class="o">.</span><span class="n">PlannerDataPack</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param self: Planner: </span>
-<span class="sd">        :param \**kwargs:</span>
-
+<span class="sd">        :param planner_instance: an instance of a planner</span>
+<span class="sd">        :param planner_data_pack: a planner data pack that stores the implemented</span>
+<span class="sd">            paint function or init function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span> <span class="o">=</span> <span class="n">planner_instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="o">=</span> <span class="n">planner_data_pack</span>
 
-    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Planner</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># retrieve function for painting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># paint function has not been provided. Do nothing in paint function</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">nothing_to_paint</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param self: Planner: </span>
-<span class="sd">        :param \**kwargs:</span>
-
+<span class="sd">        The delayed *initialisation* method for planner visualiser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">get_world_pos</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">            :param config: </span>
-
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">setConfig</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
-            <span class="n">pos</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">getWorldPosition</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">pos</span>
-
-        <span class="k">def</span> <span class="nf">nothing_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="k">pass</span>
-
-        <span class="k">def</span> <span class="nf">RRdTSampler_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-
-            <span class="c1"># return</span>
-            <span class="k">def</span> <span class="nf">get_color_transists</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">max_prob</span><span class="p">,</span> <span class="n">min_prob</span><span class="p">):</span>
-                <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">                :param value: </span>
-<span class="sd">                :param max_prob: </span>
-<span class="sd">                :param min_prob: </span>
-
-<span class="sd">                &quot;&quot;&quot;</span>
-                <span class="n">denominator</span> <span class="o">=</span> <span class="n">max_prob</span> <span class="o">-</span> <span class="n">min_prob</span>
-                <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># prevent division by zero</span>
-                <span class="k">return</span> <span class="mi">220</span> <span class="o">-</span> <span class="mi">180</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">min_prob</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span>
-
-            <span class="c1"># if self._last_prob is None:</span>
-            <span class="c1">#     return</span>
-            <span class="n">max_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_prob</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-            <span class="n">min_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_prob</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_manager</span><span class="o">.</span><span class="n">particles</span><span class="p">):</span>
-                <span class="c1"># get a transition from green to red</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">get_color_transists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_prob</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">max_num</span><span class="p">,</span> <span class="n">min_num</span><span class="p">)</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="mi">50</span><span class="p">)</span>
-                <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
-                    <span class="n">get_world_pos</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">id</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_init</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
                 <span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_helper_draw_nodes_edges</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">            :param nodes: </span>
-<span class="sd">            :param colour: </span>
-
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
-                    <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
-                        <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                            <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                            <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                            <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
-                        <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
-
-        <span class="k">def</span> <span class="nf">RRTPlanner_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="c1"># self.args.env.path_layers.fill(Colour.ALPHA_CK)</span>
-            <span class="n">_helper_draw_nodes_edges</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-        <span class="k">def</span> <span class="nf">BiRRTPlanner_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
-                <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_tree_nodes</span><span class="p">),</span>
-            <span class="p">):</span>
-                <span class="n">_helper_draw_nodes_edges</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">PRMPlanner_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="n">edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-            <span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
-                <span class="n">edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                    <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span>
-                <span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">RRdTPlanner_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="kn">from</span> <span class="nn">planners.rrdtPlanner</span> <span class="kn">import</span> <span class="n">BFS</span>
-
-            <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
-            <span class="k">def</span> <span class="nf">generate_random_colors</span><span class="p">():</span>
-                <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-                <span class="kn">import</span> <span class="nn">colorsys</span>
-                <span class="kn">import</span> <span class="nn">ghalton</span>
-
-                <span class="n">perms</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">EA_PERMS</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">sequencer</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">GeneralizedHalton</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>
-                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">sequencer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">HSV_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-                    <span class="n">HSV_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
-                    <span class="n">rgb_colour</span> <span class="o">=</span> <span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">HSV_tuple</span><span class="p">)</span>
-                    <span class="k">yield</span> <span class="p">(</span><span class="o">*</span><span class="n">rgb_colour</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># add alpha channel</span>
-
-            <span class="n">color_gen</span> <span class="o">=</span> <span class="n">generate_random_colors</span><span class="p">()</span>
-
-            <span class="c1"># Draw disjointed trees</span>
-            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disjointedTrees</span><span class="p">:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
-                <span class="c1"># draw nodes</span>
-                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
-                <span class="c1"># draw edges</span>
-                <span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">validNodes</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">bfs</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
-                    <span class="n">newnode</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">newnode</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
-                        <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">newnode</span><span class="p">,</span> <span class="n">e</span><span class="p">})</span>
-                        <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
-                            <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
-
-                            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-                            <span class="p">)</span>
-            <span class="c1"># Draw root tree</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
-            <span class="c1"># override to red</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="c1"># draw nodes</span>
-            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
-            <span class="c1"># draw edges</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
-                    <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
-                        <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                            <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span>
-                        <span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">RRFPlanner_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="kn">from</span> <span class="nn">planners.rrdtPlanner</span> <span class="kn">import</span> <span class="n">BFS</span>
-
-            <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
-            <span class="k">def</span> <span class="nf">generate_random_colors</span><span class="p">():</span>
-                <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-                <span class="kn">import</span> <span class="nn">colorsys</span>
-                <span class="kn">import</span> <span class="nn">ghalton</span>
-
-                <span class="n">perms</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">EA_PERMS</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">sequencer</span> <span class="o">=</span> <span class="n">ghalton</span><span class="o">.</span><span class="n">GeneralizedHalton</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>
-                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">sequencer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">HSV_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-                    <span class="n">HSV_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
-                    <span class="n">rgb_colour</span> <span class="o">=</span> <span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="o">*</span><span class="n">HSV_tuple</span><span class="p">)</span>
-                    <span class="k">yield</span> <span class="p">(</span><span class="o">*</span><span class="n">rgb_colour</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># add alpha channel</span>
-
-            <span class="n">color_gen</span> <span class="o">=</span> <span class="n">generate_random_colors</span><span class="p">()</span>
-
-            <span class="c1"># Draw disjointed trees</span>
-            <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">disjointedTrees</span><span class="p">:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
-                <span class="c1"># draw nodes</span>
-                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
-                <span class="c1"># draw edges</span>
-                <span class="n">bfs</span> <span class="o">=</span> <span class="n">BFS</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">validNodes</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">bfs</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
-                    <span class="n">newnode</span> <span class="o">=</span> <span class="n">bfs</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">newnode</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
-                        <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">newnode</span><span class="p">,</span> <span class="n">e</span><span class="p">})</span>
-                        <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
-                            <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
-
-                            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-                            <span class="p">)</span>
-            <span class="c1"># Draw root tree</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">color_gen</span><span class="p">)</span>
-            <span class="c1"># override to red</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="c1"># draw nodes</span>
-            <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_root</span><span class="p">),</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="p">):</span>
-                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span><span class="n">get_world_pos</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
-                <span class="c1"># draw edges</span>
-                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
-                        <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
-                            <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">get_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
-                                <span class="n">colour</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-                            <span class="p">)</span>
-
-            <span class="c1"># self.draw_solution_path()</span>
-
-        <span class="k">def</span> <span class="nf">default_paint</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.__class__.__name__}</span><span class="s2"> visualising &quot;</span> <span class="s2">&quot;is not not implemented!&quot;</span>
-            <span class="p">)</span>
-
-        <span class="n">implemented_classes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;RandomPolicySampler&quot;</span><span class="p">:</span> <span class="n">nothing_paint</span><span class="p">,</span>
-            <span class="s2">&quot;InformedRRTSampler&quot;</span><span class="p">:</span> <span class="n">InformedRRTSampler_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRdTSampler&quot;</span><span class="p">:</span> <span class="n">RRdTSampler_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRdTPlanner&quot;</span><span class="p">:</span> <span class="n">RRdTPlanner_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRFSampler&quot;</span><span class="p">:</span> <span class="n">RRdTSampler_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRFPlanner&quot;</span><span class="p">:</span> <span class="n">RRFPlanner_paint</span><span class="p">,</span>
-            <span class="s2">&quot;PRMSampler&quot;</span><span class="p">:</span> <span class="n">nothing_paint</span><span class="p">,</span>
-            <span class="s2">&quot;PRMPlanner&quot;</span><span class="p">:</span> <span class="n">PRMPlanner_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRTSampler&quot;</span><span class="p">:</span> <span class="n">nothing_paint</span><span class="p">,</span>
-            <span class="s2">&quot;RRTPlanner&quot;</span><span class="p">:</span> <span class="n">RRTPlanner_paint</span><span class="p">,</span>
-            <span class="s2">&quot;BiRRTSampler&quot;</span><span class="p">:</span> <span class="n">nothing_paint</span><span class="p">,</span>
-            <span class="s2">&quot;BiRRTPlanner&quot;</span><span class="p">:</span> <span class="n">BiRRTPlanner_paint</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="n">implemented_classes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">default_paint</span><span class="p">)()</span>
-
-    <span class="k">def</span> <span class="nf">draw_solution_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-        <span class="c1"># not implemented</span>
-        <span class="k">return</span>
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Paint method for planner visualiser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;PRMPlanner&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">build_graph</span><span class="p">()</span>
-            <span class="c1"># draw all edges</span>
-            <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">Colour</span><span class="o">.</span><span class="n">path_blue</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_solution</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">update_screen</span><span class="p">()</span>
-            <span class="kn">import</span> <span class="nn">time</span>
-
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Terminates hook for planner visualiser that is executed at the end of loop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
+                <span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">KlamptEnvVisualiser</span><span class="p">(</span><span class="n">BaseEnvVisualiser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Environment Visualiser with the Klampt engine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drawn_label</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">no_display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Delayed *initialisation* method for environment visualiser.</span>
 
-<span class="sd">        :param no_display:  (Default value = False)</span>
+<span class="sd">        :param no_display: Controls whether turn on the</span>
+<span class="sd">            visualisation or not, defaults to False. This option is deprecated,</span>
+<span class="sd">            and instead, the environment should derived directly from the base</span>
+<span class="sd">            visualisation to turn off visualisation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_display</span><span class="p">:</span>
@@ -1132,7 +914,6 @@
 
             <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">world</span><span class="p">)</span>
             <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1140,16 +921,12 @@
         <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;A function that query user for start/goal and set them accordingly.</span>
 
-<span class="sd">        :param start: </span>
-<span class="sd">        :param goal: </span>
+<span class="sd">        :param start: the start configuration of the motion planning problem</span>
+<span class="sd">        :param goal: the goal configuration of the motion planning problem</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">start</span><span class="p">:</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">goal</span><span class="p">:</span>
-            <span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">translate_to_klampt</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span>
         <span class="kn">from</span> <span class="nn">klampt.io</span> <span class="kn">import</span> <span class="n">resource</span>
 
         <span class="k">def</span> <span class="nf">user_set_config</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">type_str</span><span class="o">=</span><span class="s2">&quot;&lt;..&gt;&quot;</span><span class="p">):</span>
@@ -1161,7 +938,7 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">save</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># it&#39;s worthwhile to make sure that it&#39;s feasible</span>
-            <span class="k">while</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
+            <span class="k">while</span> <span class="n">q</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">type_str</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
@@ -1169,26 +946,22 @@
                 <span class="n">save</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span>
                     <span class="n">type_str</span> <span class="o">+</span> <span class="s2">&quot; config&quot;</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="s2">&quot;Config&quot;</span><span class="p">,</span> <span class="n">world</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">world</span>
                 <span class="p">)</span>
-                <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+
             <span class="k">return</span> <span class="n">save</span><span class="p">,</span> <span class="n">q</span>
 
-        <span class="c1"># start = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]</span>
-        <span class="c1"># goal = [0.0, -1.5800000000000005, 1.2, -0.37, -1.57, -1.57, -1.57, 0.0, 0.048, 0.048, -0.048, 0.048]</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="n">user_set_config</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;Start&quot;</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="n">user_set_config</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="s2">&quot;Goal&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">translate_from_klampt</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">goal</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span>
 
     <span class="k">def</span> <span class="nf">draw_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Draw a node in the klampt visualiser</span>
 
-<span class="sd">        :param pos: </span>
-<span class="sd">        :param colour:  (Default value = (1)</span>
-<span class="sd">        :param size:  (Default value = 15)</span>
-<span class="sd">        :param label:  (Default value = None)</span>
+<span class="sd">        :param pos: the position of the node</span>
+<span class="sd">        :param colour: the colour of the node</span>
+<span class="sd">        :param size: the size of the node</span>
+<span class="sd">        :param label: if given, add label to the node</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">klampt</span> <span class="kn">import</span> <span class="n">vis</span>
@@ -1202,11 +975,11 @@
         <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Draw a path (line) in the klampt visualiser</span>
 
-<span class="sd">        :param pos1: </span>
-<span class="sd">        :param pos2: </span>
-<span class="sd">        :param colour:  (Default value = None)</span>
+<span class="sd">        :param pos1: the position of the start of line</span>
+<span class="sd">        :param pos2: the position of the end of line</span>
+<span class="sd">        :param colour: the colour of the line</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">klampt</span> <span class="kn">import</span> <span class="n">vis</span>
@@ -1222,22 +995,11 @@
             <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
             <span class="c1"># self.drawn_label.add(label)</span>
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param pos: </span>
-<span class="sd">        :param colour: </span>
-<span class="sd">        :param radius: </span>
-<span class="sd">        :param layer: </span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">draw_pos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">)</span>
-        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">draw_pos</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">radius</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">))</span>
-
     <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Refresh the screen</span>
 
-<span class="sd">        :param update_all:  (Default value = False)</span>
+<span class="sd">        :param update_all: Force update the screen (as oppose to limit drawing to</span>
+<span class="sd">            speed up)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;refresh_cnt&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
@@ -1249,24 +1011,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cnt</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="c1">###################################################################################</span>
-        <span class="k">def</span> <span class="nf">draw_start_goal_pt</span><span class="p">():</span>
-            <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">start_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                    <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">red</span><span class="p">,</span>
-                    <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
-                    <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                    <span class="n">colour</span><span class="o">=</span><span class="n">Colour</span><span class="o">.</span><span class="n">green</span><span class="p">,</span>
-                    <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span><span class="p">,</span>
-                    <span class="n">layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path_layers</span><span class="p">,</span>
-                <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">60</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1284,26 +1028,12 @@
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">e</span>
-                <span class="c1"># print(e)</span>
-                <span class="k">pass</span>
-
-        <span class="c1"># # Sampled points</span>
-        <span class="c1"># if count % 4 == 0:</span>
-        <span class="c1">#     self.sampledPoint_screen.fill(Colour.ALPHA_CK)</span>
-        <span class="c1">#     # Draw sampled nodes</span>
-        <span class="c1">#     for sampledPos in self.env_instance.stats.sampledNodes:</span>
-        <span class="c1">#         self.draw_circle(</span>
-        <span class="c1">#             pos=sampledPos,</span>
-        <span class="c1">#             colour=Colour.red,</span>
-        <span class="c1">#             radius=2,</span>
-        <span class="c1">#             layer=self.sampledPoint_screen)</span>
-        <span class="c1">#     self.window.blit(self.sampledPoint_screen, (0, 0))</span>
-        <span class="c1">#     # remove them from list</span>
-        <span class="c1">#     del self.env_instance.stats.sampledNodes[:]</span>
 
 
 <span class="k">class</span> <span class="nc">KlamptSamplerVisualiser</span><span class="p">(</span><span class="n">BaseSamplerVisualiser</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualisation of the sampler with Klampt engine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1314,33 +1044,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="o">=</span> <span class="n">sampler_data_pack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># # sampler can be nested, so sampler_data_pack is optional</span>
-        <span class="c1"># if sampler_data_pack is not None:</span>
-        <span class="c1">#     # retrieve function for painting</span>
-        <span class="c1">#     self.paint_func = sampler_data_pack.visualise_pygame_paint</span>
-        <span class="c1">#</span>
-        <span class="c1"># if self.paint_func is None:</span>
-        <span class="c1">#     # paint function has not been provided. Do nothing in paint function</span>
-        <span class="c1">#     self.paint_func = nothing_to_paint</span>
+        <span class="c1"># sampler can be nested, so sampler_data_pack is optional</span>
+        <span class="k">if</span> <span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># retrieve function for painting</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># paint function has not been provided. Do nothing in paint function</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">nothing_to_paint</span>
 
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param \**kwargs:</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
-        <span class="c1"># if self.sampler_data_pack is not None:</span>
-        <span class="c1">#     if self.sampler_data_pack.visualise_pygame_paint_terminate is not None:</span>
-        <span class="c1">#         self.sampler_data_pack.visualise_pygame_paint_terminate(self)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">VisualiserSwitcher</span><span class="p">:</span>
@@ -1352,9 +1074,9 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">choose_visualiser</span><span class="p">(</span><span class="n">visualiser_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Select the visualiser to use</span>
 
-<span class="sd">        :param visualiser_type: str: </span>
+<span class="sd">        :param visualiser_type: the type of visualiser to use</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">visualiser_type</span> <span class="o">==</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span>

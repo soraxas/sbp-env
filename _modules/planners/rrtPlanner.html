@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
@@ -255,9 +255,7 @@
 <span class="sd">        This where the main bulk of actions happens, e.g., creating nodes or edges.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get an sample that is free (not in blocked space)</span>
-        <span class="n">rand_pos</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span>
-            <span class="s2">&quot;sampler&quot;</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
+        <span class="n">rand_pos</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
         <span class="c1"># Found a node that is not in X_obs</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_neighbour_idx</span><span class="p">(</span><span class="n">rand_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">poses</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)])</span>
         <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -522,11 +520,40 @@
         <span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
 
 
+<span class="k">def</span> <span class="nf">klampt_draw_nodes_paint_func</span><span class="p">(</span><span class="n">planner</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+    <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
+                <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
+                <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">klampt_rrt_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">:</span> <span class="n">Planner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Visualiser paint function for RRT</span>
+
+<span class="sd">    :param planner: the planner to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">klampt_draw_nodes_paint_func</span><span class="p">(</span><span class="n">planner</span><span class="p">,</span> <span class="n">planner</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+
+
 <span class="c1"># start register</span>
 <span class="n">planner_registry</span><span class="o">.</span><span class="n">register_planner</span><span class="p">(</span>
     <span class="s2">&quot;rrt&quot;</span><span class="p">,</span>
     <span class="n">planner_class</span><span class="o">=</span><span class="n">RRTPlanner</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_rrt_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_rrt_paint</span><span class="p">,</span>
     <span class="n">sampler_id</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="c1"># finish register</span>

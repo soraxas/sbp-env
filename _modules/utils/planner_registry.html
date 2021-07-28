@@ -90,23 +90,23 @@
               
             
             
-              <p class="caption"><span class="caption-text">Guide</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Implemented SBPs</span></p>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Planning environment</span></p>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Others</span></p>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
@@ -198,6 +198,9 @@
     <span class="n">visualise_pygame_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
     <span class="n">visualise_pygame_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
+    <span class="n">visualise_klampt_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
+    <span class="n">visualise_klampt_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
+    <span class="n">visualise_klampt_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="PlannerDataPack"><a class="viewcode-back" href="../../misc.html#utils.planner_registry.PlannerDataPack">[docs]</a><span class="nd">@dataclass</span>
@@ -235,6 +238,9 @@
     <span class="n">visualise_pygame_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Register a planner to make it available for planning.</span>
 
@@ -245,6 +251,11 @@
 <span class="sd">        during initialisation</span>
 <span class="sd">    :param visualise_pygame_paint: the paint function for pygame</span>
 <span class="sd">    :param visualise_pygame_paint_terminate: the paint function for pygame,</span>
+<span class="sd">        when terminating</span>
+<span class="sd">    :param visualise_klampt_paint_init: the paint function for klampt,</span>
+<span class="sd">        during initialisation</span>
+<span class="sd">    :param visualise_klampt_paint: the paint function for klampt</span>
+<span class="sd">    :param visualise_klampt_paint_terminate: the paint function for klampt,</span>
 <span class="sd">        when terminating</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -263,6 +274,9 @@
         <span class="n">visualise_pygame_paint_init</span><span class="o">=</span><span class="n">visualise_pygame_paint_init</span><span class="p">,</span>
         <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">visualise_pygame_paint</span><span class="p">,</span>
         <span class="n">visualise_pygame_paint_terminate</span><span class="o">=</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint_init</span><span class="o">=</span><span class="n">visualise_klampt_paint_init</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">visualise_klampt_paint</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint_terminate</span><span class="o">=</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">,</span>
         <span class="n">planner_class</span><span class="o">=</span><span class="n">planner_class</span><span class="p">,</span>
         <span class="n">sampler_id</span><span class="o">=</span><span class="n">sampler_id</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -274,6 +288,9 @@
     <span class="n">visualise_pygame_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visualise_pygame_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint_terminate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Register a sampler to make it available for planning.</span>
 
@@ -283,6 +300,11 @@
 <span class="sd">        during initialisation</span>
 <span class="sd">    :param visualise_pygame_paint: the paint function for pygame</span>
 <span class="sd">    :param visualise_pygame_paint_terminate: the paint function for pygame,</span>
+<span class="sd">        when terminating</span>
+<span class="sd">    :param visualise_klampt_paint_init: the paint function for klampt,</span>
+<span class="sd">        during initialisation</span>
+<span class="sd">    :param visualise_klampt_paint: the paint function for klampt</span>
+<span class="sd">    :param visualise_klampt_paint_terminate: the paint function for klampt,</span>
 <span class="sd">        when terminating</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -301,6 +323,9 @@
         <span class="n">visualise_pygame_paint_init</span><span class="o">=</span><span class="n">visualise_pygame_paint_init</span><span class="p">,</span>
         <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">visualise_pygame_paint</span><span class="p">,</span>
         <span class="n">visualise_pygame_paint_terminate</span><span class="o">=</span><span class="n">visualise_pygame_paint_terminate</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint_init</span><span class="o">=</span><span class="n">visualise_klampt_paint_init</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">visualise_klampt_paint</span><span class="p">,</span>
+        <span class="n">visualise_klampt_paint_terminate</span><span class="o">=</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">,</span>
         <span class="n">sampler_class</span><span class="o">=</span><span class="n">sampler_class</span><span class="p">,</span>
     <span class="p">)</span></div>
 </pre></div>
