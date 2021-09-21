@@ -102,7 +102,7 @@ the 3D space.
 
 .. sidebar:: :math:`n`-D Manipulator simulator
 
-    .. Figure:: ../images/klampt-simulator.png
+    .. Figure:: ../images/klampt-rrdt.gif
 
 In contrast to the former, this simulator not only check for point mass collisions,
 but performs forward kinematic with full body collision on the given joints

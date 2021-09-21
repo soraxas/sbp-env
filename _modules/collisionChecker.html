@@ -182,7 +182,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">Stats</span>
+<span class="kn">from</span> <span class="nn">utils.common</span> <span class="kn">import</span> <span class="n">Stats</span><span class="p">,</span> <span class="n">MagicDict</span>
 
 
 <span class="k">class</span> <span class="nc">CollisionChecker</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -232,11 +232,14 @@
 <span class="sd">    2D Image Space simulator engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">MagicDict</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param img: a file-like object (e.g. a filename) for the image as the</span>
 <span class="sd">            environment that the planning operates in</span>
 <span class="sd">        :param stats: the Stats object to keep track of stats</span>
+<span class="sd">        :param args: an instance of the input arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
         <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
@@ -368,10 +371,11 @@
 <div class="viewcode-block" id="KlamptCollisionChecker"><a class="viewcode-back" href="../engines.html#collisionChecker.KlamptCollisionChecker">[docs]</a><span class="k">class</span> <span class="nc">KlamptCollisionChecker</span><span class="p">(</span><span class="n">CollisionChecker</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A wrapper around Klampt&#39;s 3D simulator&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">MagicDict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param xml: the xml filename for Klampt to read the world settings</span>
 <span class="sd">        :param stats: the Stats object to keep track of stats</span>
+<span class="sd">        :param args: an instance of the input arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
         <span class="kn">import</span> <span class="nn">klampt</span>
@@ -455,8 +459,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">img</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">IO</span><span class="p">,</span>
         <span class="n">stats</span><span class="p">:</span> <span class="n">Stats</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">MagicDict</span><span class="p">,</span>
         <span class="n">map_mat</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">stick_robot_length_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+        <span class="n">stick_robot_length_config</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -464,6 +469,7 @@
 <span class="sd">            environment that the planning operates</span>
 <span class="sd">        :param map_mat: an image that, if given, will ignore the `img` argument and</span>
 <span class="sd">            uses `map_mat` directly as the map</span>
+<span class="sd">        :param args: an instance of the input arguments</span>
 <span class="sd">        :param stick_robot_length_config: a list of numbers that represents the</span>
 <span class="sd">            length of the stick robotic arm</span>
 <span class="sd">        :param stats: the Stats object to keep track of stats</span>
@@ -486,9 +492,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="p">(</span><span class="n">map_mat</span> <span class="o">/</span> <span class="n">map_mat</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">stick_robot_length_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span> <span class="o">=</span> <span class="n">stick_robot_length_config</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">rover_arm_robot_lengths</span>
+
         <span class="c1"># need to transpose because pygame has a difference coordinate system than matplotlib matrix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">T</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stick_robot_length_config</span> <span class="o">=</span> <span class="n">stick_robot_length_config</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

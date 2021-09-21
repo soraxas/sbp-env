@@ -94,7 +94,11 @@
             
               <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-other-simulator">Using other simulator</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="add-environment.html">Adding new environment to test</a></li>
 </ul>
@@ -181,8 +185,104 @@
             
   <div class="section" id="quick-start">
 <span id="id1"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Download the latest code and install required dependencies listed inside
+<cite>requirements.txt</cite> (recommend to always isolate your python workspace with virtual
+environment, e.g., conda/pyenv)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># get code from remote</span>
+git clone https://github.com/soraxas/sbp-env
+<span class="nb">cd</span> sbp-env
+
+<span class="c1"># optional, using virtual env</span>
+conda create --name my_ws <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+conda activate my_ws
+</pre></div>
+</div>
+<p>You would first need to install the dependencies with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install dependencies</span>
+pip3 install -r requirements.txt
+<span class="c1"># optional dependencies for manipulator simulator</span>
+pip3 install -r requirements_klampt.txt
+</pre></div>
+</div>
 <p>The quickest way to test out the capability of a planner is to experiment with a <em>2D
 Image Space</em> planner.</p>
+<div class="sidebar">
+<p class="sidebar-title">2D Image simulator</p>
+<div class="figure align-default">
+<img alt="_images/rrdt.gif" src="_images/rrdt.gif" />
+</div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt maps/room1.png
+</pre></div>
+</div>
+<p>The syntax always requires a positional argument which specify the planning
+environment. In the case of the 2D engine or 4D rover arm, it should be a path to an
+image file (png/jpg). For the case of the <span class="math">\(n\)</span>-D manipulator, it should be a path
+to an xml file as specified in <a class="reference external" href="https://github.com/krishauser/Klampt">Klampt</a>.</p>
+</div>
+<div class="section" id="using-other-simulator">
+<h2>Using other simulator<a class="headerlink" href="#using-other-simulator" title="Permalink to this headline">¶</a></h2>
+<p>The type of simulator can be set with the <code class="code docutils literal notranslate"><span class="pre">--engine</span></code> flag. For example, the 4D
+robot arm simulator can be used with the <code class="code docutils literal notranslate"><span class="pre">4d</span></code> value.</p>
+<div class="sidebar">
+<p class="sidebar-title">4D Robot Arm simulator</p>
+<div class="figure align-default">
+<img alt="_images/robot-arm4d.gif" src="_images/robot-arm4d.gif" />
+</div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt maps/4d.png --engine 4d
+</pre></div>
+</div>
+<p>You can also set the length of the rover arm (a list of two float that corresponds to
+the 2 sticks’ length) with the following.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt maps/room1.png --engine 4d --4d-robot-lengths <span class="m">15</span>,15
+</pre></div>
+</div>
+<p>Notice that the argument for <code class="code docutils literal notranslate"><span class="pre">--4d-robot-lengths</span></code> must be
+comma-separated numbers, each of the number represent the length of the rover arm.</p>
+<p>For the 4d rover arm simulator, <code class="code docutils literal notranslate"><span class="pre">sbp-env</span></code> will visualise each node with the
+actual arm that is currently used for collision-checking.
+The two arms are currently being displayed in orange and cyan colour for
+distinguishing them when the display is cluttered.
+The colour are currently non-configurable, and only matters to the visualisation of
+the planning horizon.</p>
+<div class="sidebar">
+<p class="sidebar-title"><span class="math">\(n\)</span>-D Manipulator simulator</p>
+<div class="figure align-default">
+<img alt="_images/klampt-rrdt.gif" src="_images/klampt-rrdt.gif" />
+</div>
+</div>
+<p>You can also launch the 3D simulator environment with the following command, given
+that you had already installed the optional <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> dependencies that was
+mentioned previously. Note that you will need to supply the environment file as
+specified in <a class="reference external" href="http://motion.cs.illinois.edu/software/klampt/latest/pyklampt_docs/Manual-FileTypes.html">klampt’s doc</a> as they are passed directly to the <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> simulator backend.</p>
+<p>We have included a complementary set of klampt data <a class="reference external" href="https://github.com/soraxas/sbp-env/releases/tag/klampt-data">here</a>, which is adapted
+from the official <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> <a class="reference external" href="https://github.com/krishauser/Klampt-examples">example repository</a>.</p>
+<p>You can use the following commands to quickly download the klampt data files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> sbp-env
+
+<span class="c1"># download klampt-data from remote</span>
+wget https://github.com/soraxas/sbp-env/releases/download/klampt-data/klampt_data.tar.gz
+<span class="c1"># extract</span>
+tar xzf klampt_data.tar.gz
+</pre></div>
+</div>
+<p>And last but not least, you can start the <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> simulator with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt klampt_data/tx90blocks.xml --engine klampt
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you don’t have <code class="code docutils literal notranslate"><span class="pre">OpenGL</span></code> installed, you might also need to install it for
+using the <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> simulator.
+If you are using pip, you can install it with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install pyopengl pyqt5
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
