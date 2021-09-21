@@ -4,7 +4,7 @@ import numpy as np
 
 from collisionChecker import ImgCollisionChecker
 from tests.common_vars import create_test_image, mock_image_as_np
-from utils.common import Stats
+from utils.common import Stats, MagicDict
 
 eps = 1e-5
 
@@ -24,7 +24,9 @@ def pts_pair(args1, args2):
 
 class TestImgCollisionChecker(TestCase):
     def setUp(self) -> None:
-        self.cc = ImgCollisionChecker(create_test_image(), stats=Stats())
+        self.cc = ImgCollisionChecker(
+            create_test_image(), stats=Stats(), args=MagicDict()
+        )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)
 

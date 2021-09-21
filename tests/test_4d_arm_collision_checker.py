@@ -8,13 +8,16 @@ from tests.test_image_space_collision_checker import (
     create_test_image,
     pt,
 )
-from utils.common import Stats
+from utils.common import Stats, MagicDict
 
 
 class TestRobotArm4dCollisionChecker(TestCase):
     def setUp(self) -> None:
         self.cc = RobotArm4dCollisionChecker(
-            create_test_image(), stick_robot_length_config=[0.1, 0.1], stats=Stats()
+            create_test_image(),
+            stick_robot_length_config=[0.1, 0.1],
+            stats=Stats(),
+            args=MagicDict(),
         )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)
