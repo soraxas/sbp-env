@@ -46,6 +46,13 @@ General Planner Options:
                          [default: 0.02]
   --skip-optimality      Skip optimality guarantee (i.e. skip performing rewiring)
 
+4D Simulaotr Options:
+  --4d-robot-lengths=LENGTH_1,LENGTH_2
+                         Set the lengths of the 4D rover arm manipulator. Should be
+                         a comma separated list of two numbers.
+                         [default: 30,30]
+
+
 Random Sampler Options:
   --random-method=METHOD
                         Set a random method used to generate the random
@@ -172,6 +179,13 @@ def generate_args(
             )
         LOGGER.info(_notice.format(args["--engine"], _file_extension))
 
+    args["--4d-robot-lengths"] = args["--4d-robot-lengths"].split(",")
+    if len(args["--4d-robot-lengths"]) != 2:
+        raise RuntimeError(
+            "The comma separated robot arm lengths must contains exactly 2 numbers."
+        )
+    args["--4d-robot-lengths"] = tuple(map(float, args["--4d-robot-lengths"]))
+
     ########################################
 
     if args["--verbose"] > 2:
@@ -236,6 +250,7 @@ def generate_args(
         engine=args["--engine"],
         start_pt=args["<start_x1,x2,..,xn>"],
         goal_pt=args["<goal_x1,x2,..,xn>"],
+        rover_arm_robot_lengths=args["--4d-robot-lengths"],
     )
 
     # reduce goal radius for klampt as it plans in radian

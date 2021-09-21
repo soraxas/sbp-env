@@ -39,7 +39,7 @@ class Env:
             "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
             "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
         }[self.args.engine]
-        self.cc = cc_type(self.args.image, stats=self.stats)
+        self.cc = cc_type(self.args.image, stats=self.stats, args=self.args)
 
         # setup visualiser
         if self.args.no_display:

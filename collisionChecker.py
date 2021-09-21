@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from utils.common import Stats
+from utils.common import Stats, MagicDict
 
 
 class CollisionChecker(ABC):
@@ -54,11 +54,14 @@ class ImgCollisionChecker(CollisionChecker):
     2D Image Space simulator engine
     """
 
-    def __init__(self, img: typing.IO, stats: Stats):
+    def __init__(
+        self, img: typing.IO, stats: Stats, args: MagicDict,
+    ):
         """
         :param img: a file-like object (e.g. a filename) for the image as the
             environment that the planning operates in
         :param stats: the Stats object to keep track of stats
+        :param args: an instance of the input arguments
         """
         super().__init__(stats)
         from PIL import Image
@@ -190,10 +193,11 @@ class ImgCollisionChecker(CollisionChecker):
 class KlamptCollisionChecker(CollisionChecker):
     """A wrapper around Klampt's 3D simulator"""
 
-    def __init__(self, xml: str, stats: Stats):
+    def __init__(self, xml: str, stats: Stats, args: MagicDict):
         """
         :param xml: the xml filename for Klampt to read the world settings
         :param stats: the Stats object to keep track of stats
+        :param args: an instance of the input arguments
         """
         super().__init__(stats)
         import klampt
@@ -277,8 +281,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         self,
         img: typing.IO,
         stats: Stats,
+        args: MagicDict,
         map_mat: typing.Optional[np.ndarray] = None,
-        stick_robot_length_config: typing.Sequence[float] = (35, 35),
+        stick_robot_length_config: typing.Optional[typing.Sequence[float]] = None,
     ):
         """
 
@@ -286,6 +291,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             environment that the planning operates
         :param map_mat: an image that, if given, will ignore the `img` argument and
             uses `map_mat` directly as the map
+        :param args: an instance of the input arguments
         :param stick_robot_length_config: a list of numbers that represents the
             length of the stick robotic arm
         :param stats: the Stats object to keep track of stats
@@ -308,9 +314,13 @@ class RobotArm4dCollisionChecker(CollisionChecker):
         else:
             self._img = (map_mat / map_mat.max()).astype(int)
 
+        if stick_robot_length_config is not None:
+            self.stick_robot_length_config = stick_robot_length_config
+        else:
+            self.stick_robot_length_config = args.rover_arm_robot_lengths
+
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self._img = self._img.T
-        self.stick_robot_length_config = stick_robot_length_config
 
     @property
     def image(self):
