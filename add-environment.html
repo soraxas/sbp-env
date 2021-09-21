@@ -181,6 +181,54 @@
             
   <div class="section" id="adding-new-environment-to-test">
 <h1>Adding new environment to test<a class="headerlink" href="#adding-new-environment-to-test" title="Permalink to this headline">¶</a></h1>
+<p>With <code class="code docutils literal notranslate"><span class="pre">sbp-env</span></code>, it is extremely easy to add a new environment and run the
+same set of planners on that new environment.
+You can add an environment by supplying an image or xml file format in the
+commandline via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt &lt;IMG_OR_XML&gt; --engine ENGINE
+</pre></div>
+</div>
+<p>and the required type depends on the simulator engine.
+Both the 2D and 4D simulator will requires an image format to be used as the obstacle
+space, while the <code class="code docutils literal notranslate"><span class="pre">klampt</span></code> simulator will requires xml format as specified in <a class="reference external" href="http://motion.cs.illinois.edu/software/klampt/latest/pyklampt_docs/Manual-FileTypes.html">klampt’s doc</a>.</p>
+<p>I recommend always using png as it is a lossless format, which is essential in for
+the framework as it does not introduce artificial ‘noise’ to the image.
+The framework uses the color of pixels to determine whether a given pixel is in
+free-space <span class="math">\(C_\text{free}\)</span> or inside obstacles <span class="math">\(C_\text{obs}\)</span>.</p>
+<p>Only white-pixels are considered as being in free-space. In other words, all
+non-white pixels are taken as being inside <span class="math">\(C_\text{obs}\)</span>.
+The image library used in Python take pixel as a value in-between 0-255 (or a tuple
+of 3 values for RGB image).
+We always ignore the alpha channel, and convert the given image to a gray-scale image.
+Therefore, any pixels that are not of the value of 255 (represents the color white)
+will be treated as obstacles.</p>
+<p>The following figures showcase some of the Image-Space map that comes with
+<code class="code docutils literal notranslate"><span class="pre">sbp-env</span></code>, and serve as examples of how regions within images are considered as
+free-space.</p>
+<div class="sidebar">
+<p class="sidebar-title">Room</p>
+<div class="figure align-default">
+<img alt="_images/room1.png" src="_images/room1.png" />
+</div>
+</div>
+<div class="sidebar">
+<p class="sidebar-title">Intel Lab</p>
+<div class="figure align-default">
+<img alt="_images/intel_lab.png" src="_images/intel_lab.png" />
+</div>
+</div>
+<div class="sidebar">
+<p class="sidebar-title">Random Obstacles</p>
+<div class="figure align-default">
+<img alt="_images/4d.png" src="_images/4d.png" />
+</div>
+</div>
+<div class="sidebar">
+<p class="sidebar-title">Maze</p>
+<div class="figure align-default">
+<img alt="_images/maze1.png" src="_images/maze1.png" />
+</div>
+</div>
 </div>
 
 
