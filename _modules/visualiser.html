@@ -835,7 +835,7 @@
 <span class="c1">############################################################</span>
 
 
-<span class="k">class</span> <span class="nc">KlamptPlannerVisualiser</span><span class="p">(</span><span class="n">BasePlannerVisualiser</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptPlannerVisualiser"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptPlannerVisualiser">[docs]</a><span class="k">class</span> <span class="nc">KlamptPlannerVisualiser</span><span class="p">(</span><span class="n">BasePlannerVisualiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Planner Visualiser with the Klampt engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -862,7 +862,7 @@
             <span class="c1"># paint function has not been provided. Do nothing in paint function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">nothing_to_paint</span>
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptPlannerVisualiser.init"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptPlannerVisualiser.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The delayed *initialisation* method for planner visualiser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -872,15 +872,15 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_init</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
-                <span class="p">)</span>
+                <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptPlannerVisualiser.paint"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptPlannerVisualiser.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Paint method for planner visualiser.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptPlannerVisualiser.terminates_hook"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptPlannerVisualiser.terminates_hook">[docs]</a>    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Terminates hook for planner visualiser that is executed at the end of loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -888,10 +888,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">planner_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">planner_instance</span>
-                <span class="p">)</span>
+                <span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">KlamptEnvVisualiser</span><span class="p">(</span><span class="n">BaseEnvVisualiser</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser">[docs]</a><span class="k">class</span> <span class="nc">KlamptEnvVisualiser</span><span class="p">(</span><span class="n">BaseEnvVisualiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Environment Visualiser with the Klampt engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -900,7 +900,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drawn_label</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">no_display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser.visualiser_init"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser.visualiser_init">[docs]</a>    <span class="k">def</span> <span class="nf">visualiser_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">no_display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delayed *initialisation* method for environment visualiser.</span>
 
 <span class="sd">        :param no_display: Controls whether turn on the</span>
@@ -913,9 +913,9 @@
             <span class="kn">from</span> <span class="nn">klampt</span> <span class="kn">import</span> <span class="n">vis</span>
 
             <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">world</span><span class="p">)</span>
-            <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser.set_start_goal_points"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser.set_start_goal_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_start_goal_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">goal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -953,9 +953,9 @@
         <span class="n">_</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="n">user_set_config</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;Start&quot;</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">goal</span> <span class="o">=</span> <span class="n">user_set_config</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="s2">&quot;Goal&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span>
+        <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">goal</span></div>
 
-    <span class="k">def</span> <span class="nf">draw_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser.draw_node"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser.draw_node">[docs]</a>    <span class="k">def</span> <span class="nf">draw_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Draw a node in the klampt visualiser</span>
 
 <span class="sd">        :param pos: the position of the node</span>
@@ -972,9 +972,9 @@
         <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">Point</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">keepAppearance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">vis</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="n">vis</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
-        <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser.draw_path"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser.draw_path">[docs]</a>    <span class="k">def</span> <span class="nf">draw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Draw a path (line) in the klampt visualiser</span>
 
 <span class="sd">        :param pos1: the position of the start of line</span>
@@ -992,10 +992,10 @@
             <span class="n">vis</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">milestones</span><span class="o">=</span><span class="p">[</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">]),</span> <span class="n">keepAppearance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">colour</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">vis</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
-            <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">vis</span><span class="o">.</span><span class="n">hideLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span></div>
             <span class="c1"># self.drawn_label.add(label)</span>
 
-    <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptEnvVisualiser.update_screen"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptEnvVisualiser.update_screen">[docs]</a>    <span class="k">def</span> <span class="nf">update_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Refresh the screen</span>
 
 <span class="sd">        :param update_all: Force update the screen (as oppose to limit drawing to</span>
@@ -1027,10 +1027,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">paint</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_instance</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">e</span>
+                    <span class="k">raise</span> <span class="n">e</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">KlamptSamplerVisualiser</span><span class="p">(</span><span class="n">BaseSamplerVisualiser</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptSamplerVisualiser"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptSamplerVisualiser">[docs]</a><span class="k">class</span> <span class="nc">KlamptSamplerVisualiser</span><span class="p">(</span><span class="n">BaseSamplerVisualiser</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualisation of the sampler with Klampt engine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1053,16 +1053,16 @@
             <span class="c1"># paint function has not been provided. Do nothing in paint function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span> <span class="o">=</span> <span class="n">nothing_to_paint</span>
 
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="viewcode-block" id="KlamptSamplerVisualiser.init"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptSamplerVisualiser.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<div class="viewcode-block" id="KlamptSamplerVisualiser.paint"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptSamplerVisualiser.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paint_func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="KlamptSamplerVisualiser.terminates_hook"><a class="viewcode-back" href="../visualisers.html#visualiser.KlamptSamplerVisualiser.terminates_hook">[docs]</a>    <span class="k">def</span> <span class="nf">terminates_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sampler_data_pack</span><span class="o">.</span><span class="n">visualise_klampt_paint_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">VisualiserSwitcher</span><span class="p">:</span>

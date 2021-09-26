@@ -409,9 +409,9 @@ the end of loop.</p>
 <div class="section" id="d-image-space-manipulator-visualiser">
 <h2>4D Image Space Manipulator Visualiser<a class="headerlink" href="#d-image-space-manipulator-visualiser" title="Permalink to this headline">¶</a></h2>
 <p>The 4D manipulator visualiser uses the same
-<a class="reference internal" href="#id0" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a>,
-<a class="reference internal" href="#id7" title="visualiser.PygamePlannerVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygamePlannerVisualiser</span></code></a> and
-<a class="reference internal" href="#id12" title="visualiser.PygameSamplerVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameSamplerVisualiser</span></code></a> as the <a class="reference internal" href="#d-image-space-visualiser">2D Image Space Visualiser</a>
+<a class="reference internal" href="#visualiser.PygameEnvVisualiser" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a>,
+<a class="reference internal" href="#visualiser.PygamePlannerVisualiser" title="visualiser.PygamePlannerVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygamePlannerVisualiser</span></code></a> and
+<a class="reference internal" href="#visualiser.PygameSamplerVisualiser" title="visualiser.PygameSamplerVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameSamplerVisualiser</span></code></a> as the <a class="reference internal" href="#d-image-space-visualiser">2D Image Space Visualiser</a>
 to visualise the planning scene. However, it performs the necessary kinematics transformations to translates configurations <span class="math">\(q \in C\)</span> to worldspace <span class="math">\(x \in \mathcal{W}\)</span>
 with the help of the collision checker <a class="reference internal" href="engines.html#collisionChecker.RobotArm4dCollisionChecker" title="collisionChecker.RobotArm4dCollisionChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.RobotArm4dCollisionChecker</span></code></a>.</p>
 <div class="admonition warning">
@@ -424,40 +424,23 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 <div class="section" id="d-object-based-visualiser">
 <h2>3D Object-based Visualiser<a class="headerlink" href="#d-object-based-visualiser" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseEnvVisualiser</span></code></p>
-<p>Environment Visualiser with the Pygame engine</p>
+<p>Environment Visualiser with the Klampt engine</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">draw_circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.draw_circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a circle (e.g. to represent a node)</p>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.draw_node">
+<span class="sig-name descname"><span class="pre">draw_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser.draw_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser.draw_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a node in the klampt visualiser</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> – the origin position of the circle</p></li>
-<li><p><strong>colour</strong> – the color of the circle</p></li>
-<li><p><strong>radius</strong> – the radius of the circle</p></li>
-<li><p><strong>layer</strong> – the layer to draw the circle</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">draw_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(26,</span> <span class="pre">128,</span> <span class="pre">178)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_modifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.draw_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a path that represents an edge</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node1</strong> – the starting node of the edge</p></li>
-<li><p><strong>node2</strong> – the ending node of the edge</p></li>
-<li><p><strong>colour</strong> (<em>optional</em>) – the color of the edge
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">(26,</span> <span class="pre">128,</span> <span class="pre">178)</span></code></p></li>
-<li><p><strong>line_modifier</strong> (<em>optional</em>) – modify the weight of the edge to be drawn
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
-<li><p><strong>layer</strong> (<em>optional</em>) – the layer to draw th edge
+<li><p><strong>pos</strong> – the position of the node</p></li>
+<li><p><strong>colour</strong> (<em>optional</em>) – the colour of the node
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></code></p></li>
+<li><p><strong>size</strong> (<em>optional</em>) – the size of the node
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">15</span></code></p></li>
+<li><p><strong>label</strong> (<em>optional</em>) – if given, add label to the node
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -465,20 +448,15 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">draw_stick_robot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[255,</span> <span class="pre">160,</span> <span class="pre">16,</span> <span class="pre">128]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[20,</span> <span class="pre">200,</span> <span class="pre">200,</span> <span class="pre">128]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_modifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.draw_stick_robot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a 4D stick robotic arm</p>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.draw_path">
+<span class="sig-name descname"><span class="pre">draw_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser.draw_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser.draw_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a path (line) in the klampt visualiser</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> – the origin of the robot arm</p></li>
-<li><p><strong>colour1</strong> (<em>optional</em>) – the colour of the first link
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">[255,</span> <span class="pre">160,</span> <span class="pre">16,</span> <span class="pre">128]</span></code></p></li>
-<li><p><strong>colour2</strong> (<em>optional</em>) – the colour of the second link
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">[20,</span> <span class="pre">200,</span> <span class="pre">200,</span> <span class="pre">128]</span></code></p></li>
-<li><p><strong>line_modifier</strong> (<em>optional</em>) – modify the weight of the link to be drawn
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">2.5</span></code></p></li>
-<li><p><strong>layer</strong> (<em>optional</em>) – the layer to draw the arm
+<li><p><strong>pos1</strong> – the position of the start of line</p></li>
+<li><p><strong>pos2</strong> – the position of the end of line</p></li>
+<li><p><strong>colour</strong> (<em>optional</em>) – the colour of the line
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -486,8 +464,8 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">set_start_goal_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.set_start_goal_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.set_start_goal_points">
+<span class="sig-name descname"><span class="pre">set_start_goal_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser.set_start_goal_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser.set_start_goal_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function that query user for start/goal and set them accordingly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -502,8 +480,8 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">update_screen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.update_screen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.update_screen">
+<span class="sig-name descname"><span class="pre">update_screen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser.update_screen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser.update_screen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Refresh the screen</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -518,12 +496,12 @@ speed up)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">visualiser_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_display</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser.visualiser_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.visualiser_init">
+<span class="sig-name descname"><span class="pre">visualiser_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_display</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser.visualiser_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser.visualiser_init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delayed <em>initialisation</em> method for environment visualiser.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>no_display</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – <p>Controls whether turn on the
+<dd class="field-odd"><p><strong>no_display</strong> (<em>optional</em>) – <p>Controls whether turn on the
 visualisation or not, defaults to False. This option is deprecated,
 and instead, the environment should derived directly from the base
 visualisation to turn off visualisation.</p>
@@ -538,10 +516,10 @@ visualisation to turn off visualisation.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id7">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygamePlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptPlannerVisualiser">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptPlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BasePlannerVisualiser</span></code></p>
-<p>Planner Visualiser with the Pygame engine</p>
+<p>Planner Visualiser with the Klampt engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -552,64 +530,50 @@ paint function or init function.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">draw_solution_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser.draw_solution_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to draw solution path for planner visualiser.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptPlannerVisualiser.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>The delayed <em>initialisation</em> method for planner visualiser.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">paint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser.paint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptPlannerVisualiser.paint">
+<span class="sig-name descname"><span class="pre">paint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser.paint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser.paint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Paint method for planner visualiser.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id11">
-<span class="sig-name descname"><span class="pre">terminates_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser.terminates_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptPlannerVisualiser.terminates_hook">
+<span class="sig-name descname"><span class="pre">terminates_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser.terminates_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser.terminates_hook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminates hook for planner visualiser that is executed at the end of loop.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="id12">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptSamplerVisualiser">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseSamplerVisualiser</span></code></p>
-<p>Visualisation of the sampler with Pygame engine</p>
+<p>Visualisation of the sampler with Klampt engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sampler_instance</strong> (<a class="reference internal" href="samplers.html#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><em>Sampler</em></a>) – an instance of a sampler</p></li>
-<li><p><strong>sampler_data_pack</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="misc.html#utils.planner_registry.SamplerDataPack" title="utils.planner_registry.SamplerDataPack"><em>planner_registry.SamplerDataPack</em></a><em>]</em><em>, </em><em>optional</em>) – <p>a sampler data pack that stores the implemented
-paint function or init function.</p>
-<blockquote>
-<div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
-</div></blockquote>
-</p></li>
-</ul>
+<dd class="field-odd"><p><strong>sampler_data_pack</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="misc.html#utils.planner_registry.SamplerDataPack" title="utils.planner_registry.SamplerDataPack"><em>planner_registry.SamplerDataPack</em></a><em>]</em>) – </p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="id13">
-<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptSamplerVisualiser.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract method, delayed <em>initialisation</em> method for sampler visualiser.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id14">
-<span class="sig-name descname"><span class="pre">paint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser.paint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id14" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptSamplerVisualiser.paint">
+<span class="sig-name descname"><span class="pre">paint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser.paint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser.paint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract method, paint method for sampler visualiser.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="id15">
-<span class="sig-name descname"><span class="pre">terminates_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser.terminates_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id15" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="visualiser.KlamptSamplerVisualiser.terminates_hook">
+<span class="sig-name descname"><span class="pre">terminates_hook</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser.terminates_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser.terminates_hook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract method, terminates hook for sampler visualiser that is executed at
 the end of loop.</p>
 </dd></dl>
@@ -619,7 +583,7 @@ the end of loop.</p>
 <p>Currently there are three engines used in <code class="docutils literal notranslate"><span class="pre">sbp-env</span></code> that are used to simulate collisions and the planning environment.</p>
 <p>The first one is a <strong>2D</strong>  engine with the configuration space (<em>C-Space</em>) as <span class="math">\(C \subseteq \mathbb{R}^2\)</span>.
 This engine is very easy to use and very easy to add new environments.
-This uses a the <a class="reference internal" href="engines.html#collisionChecker.ImgCollisionChecker" title="collisionChecker.ImgCollisionChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code></a> for environment simulation and with the <a class="reference internal" href="#id0" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a> to visualise the planning scene.</p>
+This uses a the <a class="reference internal" href="engines.html#collisionChecker.ImgCollisionChecker" title="collisionChecker.ImgCollisionChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code></a> for environment simulation and with the <a class="reference internal" href="#visualiser.PygameEnvVisualiser" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a> to visualise the planning scene.</p>
 </div>
 </div>
 

@@ -73,19 +73,19 @@ with the help of the collision checker :class:`collisionChecker.RobotArm4dCollis
 --------------------------
 
 
-.. autoclass:: visualiser.PygameEnvVisualiser
+.. autoclass:: visualiser.KlamptEnvVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.PygamePlannerVisualiser
+.. autoclass:: visualiser.KlamptPlannerVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.PygameSamplerVisualiser
+.. autoclass:: visualiser.KlamptSamplerVisualiser
   :members:
   :private-members:
   :show-inheritance:
