@@ -186,11 +186,6 @@ class Env:
 
                 pbar.set_postfix(
                     {
-                        # 'i.con' : self.stats.invalid_samples_connections,
-                        # 'i.obs' : self.stats.invalid_samples_obstacles,
-                        # 'su' : self.stats.sampler_success,
-                        # 'sua' : self.stats.sampler_success_all,
-                        # 'sf' : self.stats.sampler_fail,
                         "cc_fe": self.stats.feasible_cnt,
                         "cc_vi": self.stats.visible_cnt,
                         "fe": self.stats.invalid_samples_obstacles,

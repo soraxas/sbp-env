@@ -46,7 +46,6 @@ class BiRRTPlanner(RRTPlanner):
         # check two tree join together
 
         ###################################################################
-        ###################################################################
         # Get an sample that is free (not in blocked space)
         rand_pos, report_success, report_fail = self.args.sampler.get_valid_next_pos()
         # Found a node that is not in X_obs
@@ -63,7 +62,6 @@ class BiRRTPlanner(RRTPlanner):
             newnode = Node(newpos)
             self.args.env.stats.add_free()
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
-            ######################
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=nodes)
             poses[len(nodes)] = newnode.pos
 

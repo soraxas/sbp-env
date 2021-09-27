@@ -109,7 +109,6 @@ class ImgCollisionChecker(CollisionChecker):
         self.stats.visible_cnt += 1
         try:
             # get list of pixel between node A and B
-            # pixels = lineGenerationAlgorithm(pos1, pos2)
             pixels = self.get_line(pos1, pos2)
             # check that all pixel are white (free space)
             for p in pixels:
@@ -373,7 +372,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
     def visible(self, pos1, pos2):
         # get list of pixel between node A and B
-        # pixels = lineGenerationAlgorithm(pos1, pos2)
         self.stats.visible_cnt += 1
         for p in self._interpolate_configs(pos1, pos2):
             if not self.feasible(p, save_stats=False):

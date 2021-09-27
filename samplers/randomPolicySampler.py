@@ -62,22 +62,8 @@ class RandomPolicySampler(Sampler):
 
         if self.args.engine == "klampt":
             self.low, self.high = (
-                [
-                    -3.12413936106985,
-                    -2.5743606466916362,
-                    -2.530727415391778,
-                    -3.12413936106985,
-                    -2.443460952792061,
-                    -3.12413936106985,
-                ],
-                [
-                    3.12413936106985,
-                    2.2689280275926285,
-                    2.530727415391778,
-                    3.12413936106985,
-                    2.007128639793479,
-                    3.12413936106985,
-                ],
+                [-np.pi] * kwargs["num_dim"],
+                [np.pi] * kwargs["num_dim"],
             )
         elif self.args.engine == "4d":
             self.low, self.high = [

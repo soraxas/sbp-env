@@ -802,8 +802,6 @@ class RRdTPlanner(RRTPlanner):
         if tree1_node in tree2.nodes or tree2_node in tree1.nodes:
             # swap to correct position
             tree1_node, tree2_node = tree2_node, tree1_node
-        # assert tree1_node in tree1.nodes, "Given nodes does not belong to the two given corresponding trees"
-        # assert tree2_node in tree2.nodes, "Given nodes does not belong to the two given corresponding trees"
 
         if tree1 is self.root:
             # find which middle_node belongs to the disjointed tree
@@ -814,12 +812,6 @@ class RRdTPlanner(RRTPlanner):
             tree1.extend_tree(tree2)
         del tree2.nodes
         del tree2.poses
-
-        # remove any particles that contains the tree that is being discarded
-        # self.args.sampler.p_manager.particles = [
-        #     p for p in self.args.sampler.p_manager.particles if hasattr(p.tree, "poses")
-        # ]
-        # self.disjointedTrees.remove(tree2)
 
         # remove the tree from the list of trees first, so that when the particle is
         # restarting it wont try to connects back to the, now non-existence, tree.

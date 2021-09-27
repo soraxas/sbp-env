@@ -94,14 +94,9 @@ class RRTPlanner(Planner):
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=self.nodes)
-            # newnode, nn, nodes=self.nodes, skip_optimality=True)
             self.add_newnode(newnode)
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, self.nodes)
-            # self.rewire(newnode, self.nodes, skip_optimality=True)
-
-            # newnode.parent = nn
-            # newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
 
             if self.args.env.cc.visible(newnode.pos, self.goal_pt.pos):
                 if (
@@ -109,10 +104,8 @@ class RRTPlanner(Planner):
                     < self.args.goal_radius
                 ):
                     if newnode.cost < self.c_max:
-                        # print('finished at ', self.args.env.stats.valid_sample)
                         self.c_max = newnode.cost
                         self.goal_pt.parent = newnode
-                        # newnode.children.append(self.goal_pt.parent)
                         self.visualiser.draw_solution_path()
 
     def add_newnode(self, node: Node):
@@ -121,8 +114,6 @@ class RRTPlanner(Planner):
         :param node: node to be added
 
         """
-        # self.tree.add_vertex(node, pos=node.pos)
-
         self.poses[len(self.nodes)] = node.pos
         self.nodes.append(node)
 
@@ -150,8 +141,6 @@ class RRTPlanner(Planner):
         """
         skip_optimality = False
         use_rtree = False
-        # if nn is not None:
-        #     skip_optimality = True
 
         if skip_optimality:
             if nn is None:
@@ -160,7 +149,6 @@ class RRTPlanner(Planner):
             newnode.parent = nn
             newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
             return newnode, nn
-        ########################################################
 
         if use_rtree or poses is not None:
             nn2 = None
@@ -184,7 +172,6 @@ class RRTPlanner(Planner):
                 nn2 = nn
             newnode.cost = nn2.cost + self.args.env.dist(nn2.pos, newnode.pos)
             newnode.parent = nn2
-            # nn2.children.append(newnode)
 
             return newnode, nn2
 
@@ -210,7 +197,6 @@ class RRTPlanner(Planner):
         newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
         assert newnode is not nn
         newnode.parent = nn
-        # nn.children.append(newnode)
 
         return newnode, nn
 
@@ -233,12 +219,7 @@ class RRTPlanner(Planner):
         :param poses: an array of positions
 
         """
-        skip_optimality = False
-        use_rtree = False
-        # skip_optimality = True
-        if skip_optimality:
-            return
-        if len(nodes) < 1:
+        if skip_optimality or len(nodes) < 1:
             return
 
         if use_rtree or poses is not None:
@@ -264,23 +245,12 @@ class RRTPlanner(Planner):
                     and newnode.cost + _newnode_to_n_cost < n.cost
                 ):
                     # draw over the old wire
-                    # reconsider = (n.parent, *n.children)
                     reconsider = n.children
-                    # n.parent.children.remove(n)
                     n.parent = newnode
-                    # newnode.children.append(n)
                     n.cost = newnode.cost + _newnode_to_n_cost
                     already_rewired.add(n)
                     self.rewire(n, reconsider, already_rewired=already_rewired)
             return
-
-            #     if n != newnode.parent and self.args.env.dist(newnode.pos, n.pos) <= self.args[
-            #         'radius'] and self.args.env.cc.visible(newnode.pos, n.pos):
-            #         nn2 = n
-            #         break
-            # if nn2 is None:
-            #     nn2 = nn
-            # return nn2
 
         if already_rewired is None:
             already_rewired = {newnode}
@@ -297,12 +267,8 @@ class RRTPlanner(Planner):
             ):
                 # draw over the old wire
                 reconsider = (n.parent, *n.children)
-                # n.parent.children.remove(n)
                 n.parent = newnode
-                # newnode.children.append(n)
                 n.cost = newnode.cost + _newnode_to_n_cost
-                # already_rewired.add(n)
-                # self.rewire(n, reconsider, already_rewired=already_rewired)
 
     @staticmethod
     def find_nearest_neighbour_idx(pos: np.ndarray, poses: np.ndarray):
@@ -318,7 +284,6 @@ class RRTPlanner(Planner):
         return np.argmin(distances)
 
 
-########################################
 # Methods for visualisation
 
 

@@ -53,14 +53,9 @@ class PRMPlanner(RRTPlanner):
         self.args.env.stats.invalid_samples_connections = "-- "
 
         self.d_threshold = self.args.epsilon
-        ###############################################################
         self.gamma = (
             1 + np.power(2, kwargs["num_dim"]) * (1 + 1.0 / kwargs["num_dim"]) * 10000
         )
-        # self.gamma = 2 * np.power(
-        #     (1 + 1 / self.args.num_dim), 1 / self.args.num_dim) * np.power(
-        #         (self.get_free_area() / volume_of_unit_ball[self.args.num_dim]),
-        #         1 / self.args.num_dim)
 
         self.graph = nx.DiGraph()
         self.graph.add_node(self.args.env.start_pt)
