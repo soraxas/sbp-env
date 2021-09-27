@@ -239,24 +239,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">use_original_method</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;klampt&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="o">-</span><span class="mf">3.12413936106985</span><span class="p">,</span>
-                    <span class="o">-</span><span class="mf">2.5743606466916362</span><span class="p">,</span>
-                    <span class="o">-</span><span class="mf">2.530727415391778</span><span class="p">,</span>
-                    <span class="o">-</span><span class="mf">3.12413936106985</span><span class="p">,</span>
-                    <span class="o">-</span><span class="mf">2.443460952792061</span><span class="p">,</span>
-                    <span class="o">-</span><span class="mf">3.12413936106985</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="p">[</span>
-                    <span class="mf">3.12413936106985</span><span class="p">,</span>
-                    <span class="mf">2.2689280275926285</span><span class="p">,</span>
-                    <span class="mf">2.530727415391778</span><span class="p">,</span>
-                    <span class="mf">3.12413936106985</span><span class="p">,</span>
-                    <span class="mf">2.007128639793479</span><span class="p">,</span>
-                    <span class="mf">3.12413936106985</span><span class="p">,</span>
-                <span class="p">],</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">=</span> <span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">*</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">*</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;4d&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">],</span>

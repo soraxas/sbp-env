@@ -231,14 +231,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">invalid_samples_connections</span> <span class="o">=</span> <span class="s2">&quot;-- &quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">d_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">epsilon</span>
-        <span class="c1">###############################################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">10000</span>
+            <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;num_dim&quot;</span><span class="p">])</span>
         <span class="p">)</span>
-        <span class="c1"># self.gamma = 2 * np.power(</span>
-        <span class="c1">#     (1 + 1 / self.args.num_dim), 1 / self.args.num_dim) * np.power(</span>
-        <span class="c1">#         (self.get_free_area() / volume_of_unit_ball[self.args.num_dim]),</span>
-        <span class="c1">#         1 / self.args.num_dim)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">start_pt</span><span class="p">)</span>

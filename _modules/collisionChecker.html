@@ -287,7 +287,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># get list of pixel between node A and B</span>
-            <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
             <span class="n">pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
             <span class="c1"># check that all pixel are white (free space)</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
@@ -551,7 +550,6 @@
 
 <div class="viewcode-block" id="RobotArm4dCollisionChecker.visible"><a class="viewcode-back" href="../engines.html#collisionChecker.RobotArm4dCollisionChecker.visible">[docs]</a>    <span class="k">def</span> <span class="nf">visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
         <span class="c1"># get list of pixel between node A and B</span>
-        <span class="c1"># pixels = lineGenerationAlgorithm(pos1, pos2)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_configs</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">save_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

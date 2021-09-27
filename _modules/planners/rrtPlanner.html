@@ -272,14 +272,9 @@
             <span class="n">report_success</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">rand_pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">)</span>
             <span class="c1">######################</span>
             <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_least_cost_parent</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
-            <span class="c1"># newnode, nn, nodes=self.nodes, skip_optimality=True)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_newnode</span><span class="p">(</span><span class="n">newnode</span><span class="p">)</span>
             <span class="c1"># rewire to see what the newly added node can do for us</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rewire</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
-            <span class="c1"># self.rewire(newnode, self.nodes, skip_optimality=True)</span>
-
-            <span class="c1"># newnode.parent = nn</span>
-            <span class="c1"># newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">(</span>
@@ -287,10 +282,8 @@
                     <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span>
                 <span class="p">):</span>
                     <span class="k">if</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span><span class="p">:</span>
-                        <span class="c1"># print(&#39;finished at &#39;, self.args.env.stats.valid_sample)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
-                        <span class="c1"># newnode.children.append(self.goal_pt.parent)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="RRTPlanner.add_newnode"><a class="viewcode-back" href="../../planners.html#planners.rrtPlanner.RRTPlanner.add_newnode">[docs]</a>    <span class="k">def</span> <span class="nf">add_newnode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
@@ -299,8 +292,6 @@
 <span class="sd">        :param node: node to be added</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># self.tree.add_vertex(node, pos=node.pos)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">poses</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">pos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
@@ -328,8 +319,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">skip_optimality</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">use_rtree</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1"># if nn is not None:</span>
-        <span class="c1">#     skip_optimality = True</span>
 
         <span class="k">if</span> <span class="n">skip_optimality</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -338,7 +327,6 @@
             <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span>
-        <span class="c1">########################################################</span>
 
         <span class="k">if</span> <span class="n">use_rtree</span> <span class="ow">or</span> <span class="n">poses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nn2</span> <span class="o">=</span> <span class="kc">None</span>
@@ -362,7 +350,6 @@
                 <span class="n">nn2</span> <span class="o">=</span> <span class="n">nn</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn2</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn2</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
             <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn2</span>
-            <span class="c1"># nn2.children.append(newnode)</span>
 
             <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn2</span>
 
@@ -388,7 +375,6 @@
         <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">newnode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">nn</span>
         <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn</span>
-        <span class="c1"># nn.children.append(newnode)</span>
 
         <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span></div>
 
@@ -411,12 +397,7 @@
 <span class="sd">        :param poses: an array of positions</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">skip_optimality</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">use_rtree</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1"># skip_optimality = True</span>
-        <span class="k">if</span> <span class="n">skip_optimality</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">skip_optimality</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">use_rtree</span> <span class="ow">or</span> <span class="n">poses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -442,23 +423,12 @@
                     <span class="ow">and</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">.</span><span class="n">cost</span>
                 <span class="p">):</span>
                     <span class="c1"># draw over the old wire</span>
-                    <span class="c1"># reconsider = (n.parent, *n.children)</span>
                     <span class="n">reconsider</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">children</span>
-                    <span class="c1"># n.parent.children.remove(n)</span>
                     <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
-                    <span class="c1"># newnode.children.append(n)</span>
                     <span class="n">n</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span>
                     <span class="n">already_rewired</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">rewire</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">reconsider</span><span class="p">,</span> <span class="n">already_rewired</span><span class="o">=</span><span class="n">already_rewired</span><span class="p">)</span>
             <span class="k">return</span>
-
-            <span class="c1">#     if n != newnode.parent and self.args.env.dist(newnode.pos, n.pos) &lt;= self.args[</span>
-            <span class="c1">#         &#39;radius&#39;] and self.args.env.cc.visible(newnode.pos, n.pos):</span>
-            <span class="c1">#         nn2 = n</span>
-            <span class="c1">#         break</span>
-            <span class="c1"># if nn2 is None:</span>
-            <span class="c1">#     nn2 = nn</span>
-            <span class="c1"># return nn2</span>
 
         <span class="k">if</span> <span class="n">already_rewired</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">already_rewired</span> <span class="o">=</span> <span class="p">{</span><span class="n">newnode</span><span class="p">}</span>
@@ -475,12 +445,8 @@
             <span class="p">):</span>
                 <span class="c1"># draw over the old wire</span>
                 <span class="n">reconsider</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">n</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
-                <span class="c1"># n.parent.children.remove(n)</span>
                 <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
-                <span class="c1"># newnode.children.append(n)</span>
                 <span class="n">n</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span></div>
-                <span class="c1"># already_rewired.add(n)</span>
-                <span class="c1"># self.rewire(n, reconsider, already_rewired=already_rewired)</span>
 
 <div class="viewcode-block" id="RRTPlanner.find_nearest_neighbour_idx"><a class="viewcode-back" href="../../planners.html#planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">find_nearest_neighbour_idx</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">poses</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -496,9 +462,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span></div></div>
 
 
-<span class="c1">########################################</span>
 <span class="c1"># Methods for visualisation</span>
-
 
 <span class="k">def</span> <span class="nf">pygame_rrt_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">:</span> <span class="n">Planner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Visualiser paint function for RRT</span>

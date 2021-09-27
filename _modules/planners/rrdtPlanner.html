@@ -980,8 +980,6 @@
         <span class="k">if</span> <span class="n">tree1_node</span> <span class="ow">in</span> <span class="n">tree2</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">or</span> <span class="n">tree2_node</span> <span class="ow">in</span> <span class="n">tree1</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
             <span class="c1"># swap to correct position</span>
             <span class="n">tree1_node</span><span class="p">,</span> <span class="n">tree2_node</span> <span class="o">=</span> <span class="n">tree2_node</span><span class="p">,</span> <span class="n">tree1_node</span>
-        <span class="c1"># assert tree1_node in tree1.nodes, &quot;Given nodes does not belong to the two given corresponding trees&quot;</span>
-        <span class="c1"># assert tree2_node in tree2.nodes, &quot;Given nodes does not belong to the two given corresponding trees&quot;</span>
 
         <span class="k">if</span> <span class="n">tree1</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
             <span class="c1"># find which middle_node belongs to the disjointed tree</span>
@@ -992,12 +990,6 @@
             <span class="n">tree1</span><span class="o">.</span><span class="n">extend_tree</span><span class="p">(</span><span class="n">tree2</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">nodes</span>
         <span class="k">del</span> <span class="n">tree2</span><span class="o">.</span><span class="n">poses</span>
-
-        <span class="c1"># remove any particles that contains the tree that is being discarded</span>
-        <span class="c1"># self.args.sampler.p_manager.particles = [</span>
-        <span class="c1">#     p for p in self.args.sampler.p_manager.particles if hasattr(p.tree, &quot;poses&quot;)</span>
-        <span class="c1"># ]</span>
-        <span class="c1"># self.disjointedTrees.remove(tree2)</span>
 
         <span class="c1"># remove the tree from the list of trees first, so that when the particle is</span>
         <span class="c1"># restarting it wont try to connects back to the, now non-existence, tree.</span>

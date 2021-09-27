@@ -224,7 +224,6 @@
         <span class="c1"># check two tree join together</span>
 
         <span class="c1">###################################################################</span>
-        <span class="c1">###################################################################</span>
         <span class="c1"># Get an sample that is free (not in blocked space)</span>
         <span class="n">rand_pos</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
         <span class="c1"># Found a node that is not in X_obs</span>
@@ -241,7 +240,6 @@
             <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">newpos</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">add_free</span><span class="p">()</span>
             <span class="n">report_success</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">rand_pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">)</span>
-            <span class="c1">######################</span>
             <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_least_cost_parent</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">)</span>
             <span class="n">poses</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span>
 
