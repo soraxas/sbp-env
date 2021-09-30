@@ -754,7 +754,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         def user_set_config(q, type_str="<..>"):
             """
 
-            :param q: 
+            :param q:
             :param type_str:  (Default value = "<..>")
 
             """

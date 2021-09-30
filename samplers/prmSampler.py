@@ -16,9 +16,7 @@ class PRMSampler(RandomPolicySampler):
 
     @overrides
     def init(self, **kwargs):
-        """The delayed **initialisation** method
-
-        """
+        """The delayed **initialisation** method"""
         kwargs["goalBias"] = 0
         super().init(**kwargs)
 
@@ -27,6 +25,7 @@ class PRMSampler(RandomPolicySampler):
 sampler_id = "prm_sampler"
 
 planner_registry.register_sampler(
-    sampler_id, sampler_class=PRMSampler,
+    sampler_id,
+    sampler_class=PRMSampler,
 )
 # finish register

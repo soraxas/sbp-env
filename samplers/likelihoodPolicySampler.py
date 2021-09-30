@@ -57,9 +57,7 @@ class LikelihoodPolicySampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
-        """The delayed **initialisation** method
-
-        """
+        """The delayed **initialisation** method"""
         super().init(**kwargs)
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -261,7 +259,7 @@ def pygame_likelihood_sampler_paint(sampler):
     def get_vector_alpha_parameters(vector):
         """
 
-        :param vector: 
+        :param vector:
 
         """
         _max_prob = vector.max()

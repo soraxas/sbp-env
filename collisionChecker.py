@@ -55,7 +55,10 @@ class ImgCollisionChecker(CollisionChecker):
     """
 
     def __init__(
-        self, img: typing.IO, stats: Stats, args: MagicDict,
+        self,
+        img: typing.IO,
+        stats: Stats,
+        args: MagicDict,
     ):
         """
         :param img: a file-like object (e.g. a filename) for the image as the

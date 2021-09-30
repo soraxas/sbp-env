@@ -38,7 +38,9 @@ class TestLikelihoodPolicySampler(TestCase):
 
         for i in range(20):
             report_success(
-                pos=target_pt, nn=nn, rand_pos=rand_pos,
+                pos=target_pt,
+                nn=nn,
+                rand_pos=rand_pos,
             )
 
             # val_1 comes from the target point (probability should increases)

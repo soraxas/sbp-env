@@ -74,7 +74,8 @@ class TestRRdTPlanner(TestRRTPlanner):
         self.sampler.get_next_pos.assert_called_once_with()
         mocked_report_fail.assert_not_called()
         mocked_report_success.assert_called_once_with(
-            pos=MockNumpyEquality(pos1), newnode=ANY,
+            pos=MockNumpyEquality(pos1),
+            newnode=ANY,
         )
         self.assertTrue(any(np.isclose(pos1, n.pos).all() for n in self.planner.nodes))
 

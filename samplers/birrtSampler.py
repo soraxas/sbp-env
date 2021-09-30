@@ -48,9 +48,7 @@ class BiRRTSampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
-        """The delayed **initialisation** method
-
-        """
+        """The delayed **initialisation** method"""
         super().init(**kwargs)
         self.randomSampler = RandomPolicySampler(random_method=self.random_method)
         self.randomSampler.init(use_radian=self.use_radian, **kwargs)
@@ -67,9 +65,7 @@ class BiRRTSampler(Sampler):
 
     @overrides
     def get_next_pos(self) -> Sampler.GetNextPosReturnType:
-        """Get next sampled position
-
-        """
+        """Get next sampled position"""
         # Random path
         while True:
             if random.random() < self.args.goalBias:
@@ -85,6 +81,7 @@ class BiRRTSampler(Sampler):
 
 # start register
 planner_registry.register_sampler(
-    "birrt_sampler", sampler_class=BiRRTSampler,
+    "birrt_sampler",
+    sampler_class=BiRRTSampler,
 )
 # finish register

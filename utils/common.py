@@ -156,7 +156,7 @@ class Stats:
     def add_invalid(self, obs):
         """
 
-        :param obs: 
+        :param obs:
 
         """
         if obs:

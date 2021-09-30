@@ -55,6 +55,7 @@ class MouseSampler(Sampler):
 sampler_id = "mouse"
 
 planner_registry.register_sampler(
-    sampler_id, sampler_class=MouseSampler,
+    sampler_id,
+    sampler_class=MouseSampler,
 )
 # finish register

@@ -170,7 +170,10 @@ def generate_args(
         _file_extension = args["<MAP>"].split(".")[-1]
         if _file_extension in ("xml",):
             args["--engine"] = "klampt"
-        elif _file_extension in ("jpg", "png",):
+        elif _file_extension in (
+            "jpg",
+            "png",
+        ):
             args["--engine"] = "image"
         else:
             raise RuntimeError(

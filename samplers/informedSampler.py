@@ -58,9 +58,7 @@ class InformedSampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
-        """The delayed **initialisation** method
-
-        """
+        """The delayed **initialisation** method"""
         super().init(**kwargs)
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -103,9 +101,7 @@ class InformedSampler(Sampler):
 
     @overrides
     def get_next_pos(self):
-        """Retrieve next sampled position
-
-        """
+        """Retrieve next sampled position"""
         if self.args.engine == "klampt":
             # not possible with radian space
             p = self.random_sampler.get_next_pos()[0]

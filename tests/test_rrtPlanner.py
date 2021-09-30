@@ -124,7 +124,10 @@ class TestRRTPlanner(TestCase):
         poses = np.array([node1.pos, node2.pos, node3.pos, node4.pos])
 
         newnode, nn = self.planner.choose_least_cost_parent(
-            node4, node1, nodes=self.planner.nodes, poses=poses,
+            node4,
+            node1,
+            nodes=self.planner.nodes,
+            poses=poses,
         )
         # newnode, nn, nodes=self.nodes, skip_optimality=True)
         self.planner.add_newnode(node1)

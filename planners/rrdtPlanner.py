@@ -108,7 +108,9 @@ class DisjointTreeParticle:
         self.failed_reset = 0
 
     def restart(
-        self, pos: Optional[np.ndarray] = None, restart_when_merge: bool = True,
+        self,
+        pos: Optional[np.ndarray] = None,
+        restart_when_merge: bool = True,
     ):
         merged_tree = None
         if pos is None:
@@ -755,12 +757,16 @@ class RRdTPlanner(RRTPlanner):
         #     progress, total_num)
 
     def join_trees(
-        self, tree1: DTreeType, tree2: DTreeType, tree1_node: Node, tree2_node: Node,
+        self,
+        tree1: DTreeType,
+        tree2: DTreeType,
+        tree1_node: Node,
+        tree2_node: Node,
     ):
         r"""Join the two given tree together (along with their nodes).
         It will delete the particle reference from the second tree.
         It will use RRT* method to add all nodes if one of the tree is the ROOT.
-        
+
         tree1_node & 2 represent the nodes that join the two tree together.
         It only matters currently to joining root tree to disjointed tree itself.
 
@@ -1010,9 +1016,9 @@ def pygame_rrdt_sampler_paint(sampler):
     def get_color_transists(value, max_prob, min_prob):
         """
 
-        :param value: 
-        :param max_prob: 
-        :param min_prob: 
+        :param value:
+        :param max_prob:
+        :param min_prob:
 
         """
         denominator = max_prob - min_prob
