@@ -235,9 +235,7 @@
 
 <div class="viewcode-block" id="LikelihoodPolicySampler.init"><a class="viewcode-back" href="../../samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler.init">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span> <span class="o">=</span> <span class="n">RandomPolicySampler</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -439,7 +437,7 @@
     <span class="k">def</span> <span class="nf">get_vector_alpha_parameters</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param vector: </span>
+<span class="sd">        :param vector:</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_max_prob</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>

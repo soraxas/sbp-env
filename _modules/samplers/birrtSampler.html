@@ -226,9 +226,7 @@
 
 <div class="viewcode-block" id="BiRRTSampler.init"><a class="viewcode-back" href="../../samplers.html#samplers.birrtSampler.BiRRTSampler.init">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">randomSampler</span> <span class="o">=</span> <span class="n">RandomPolicySampler</span><span class="p">(</span><span class="n">random_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_method</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">randomSampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">use_radian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_radian</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -245,9 +243,7 @@
 
 <div class="viewcode-block" id="BiRRTSampler.get_next_pos"><a class="viewcode-back" href="../../samplers.html#samplers.birrtSampler.BiRRTSampler.get_next_pos">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">get_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">GetNextPosReturnType</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get next sampled position</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get next sampled position&quot;&quot;&quot;</span>
         <span class="c1"># Random path</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goalBias</span><span class="p">:</span>
@@ -263,7 +259,8 @@
 
 <span class="c1"># start register</span>
 <span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span>
-    <span class="s2">&quot;birrt_sampler&quot;</span><span class="p">,</span> <span class="n">sampler_class</span><span class="o">=</span><span class="n">BiRRTSampler</span><span class="p">,</span>
+    <span class="s2">&quot;birrt_sampler&quot;</span><span class="p">,</span>
+    <span class="n">sampler_class</span><span class="o">=</span><span class="n">BiRRTSampler</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="c1"># finish register</span>
 </pre></div>

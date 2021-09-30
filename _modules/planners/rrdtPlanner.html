@@ -286,7 +286,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">failed_reset</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">restart_when_merge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">restart_when_merge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">merged_tree</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -933,12 +935,16 @@
         <span class="c1">#     progress, total_num)</span>
 
 <div class="viewcode-block" id="RRdTPlanner.join_trees"><a class="viewcode-back" href="../../planners.html#planners.rrdtPlanner.RRdTPlanner.join_trees">[docs]</a>    <span class="k">def</span> <span class="nf">join_trees</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">tree1</span><span class="p">:</span> <span class="n">DTreeType</span><span class="p">,</span> <span class="n">tree2</span><span class="p">:</span> <span class="n">DTreeType</span><span class="p">,</span> <span class="n">tree1_node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">tree2_node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tree1</span><span class="p">:</span> <span class="n">DTreeType</span><span class="p">,</span>
+        <span class="n">tree2</span><span class="p">:</span> <span class="n">DTreeType</span><span class="p">,</span>
+        <span class="n">tree1_node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+        <span class="n">tree2_node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Join the two given tree together (along with their nodes).</span>
 <span class="sd">        It will delete the particle reference from the second tree.</span>
 <span class="sd">        It will use RRT* method to add all nodes if one of the tree is the ROOT.</span>
-<span class="sd">        </span>
+
 <span class="sd">        tree1_node &amp; 2 represent the nodes that join the two tree together.</span>
 <span class="sd">        It only matters currently to joining root tree to disjointed tree itself.</span>
 
@@ -1188,9 +1194,9 @@
     <span class="k">def</span> <span class="nf">get_color_transists</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">max_prob</span><span class="p">,</span> <span class="n">min_prob</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param value: </span>
-<span class="sd">        :param max_prob: </span>
-<span class="sd">        :param min_prob: </span>
+<span class="sd">        :param value:</span>
+<span class="sd">        :param max_prob:</span>
+<span class="sd">        :param min_prob:</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">denominator</span> <span class="o">=</span> <span class="n">max_prob</span> <span class="o">-</span> <span class="n">min_prob</span>
