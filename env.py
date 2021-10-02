@@ -125,6 +125,11 @@ class Env:
         """
         return object.__getattribute__(self.visualiser, attr)
 
+    @property
+    def sampler(self):
+        """Pass through attribute access to sampler."""
+        return self.args.sampler
+
     @staticmethod
     def radian_dist(p1: np.ndarray, p2: np.ndarray):
         """Return the (possibly wrapped) distance between two vector of angles in
