@@ -134,7 +134,9 @@ class BaseEnvVisualiser(ABC):
         Ask the visualiser to query both start and goal configuration from the user.
         """
         if start is None or goal is None:
-            raise RuntimeError("start/goal have not been set.\n  Consider passing the start/goal with \n  $ python main.py <PLANNER> <MAP> start <start_x1,x2,..,xn> goal <goal_x1,x2,..,xn>")
+            raise RuntimeError(
+                "start/goal have not been set.\n  Consider passing the start/goal with \n  $ python main.py <PLANNER> <MAP> start <start_x1,x2,..,xn> goal <goal_x1,x2,..,xn>"
+            )
         return start, goal
 
     def __getattr__(self, attr):
