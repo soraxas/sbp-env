@@ -196,122 +196,6 @@
 <div class="section" id="rrt">
 <h2>RRT*<a class="headerlink" href="#rrt" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/rrt.gif" src="_images/rrt.gif" />
-<dl class="py class">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.rrtPlanner.</span></span><span class="sig-name descname"><span class="pre">RRTPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#planners.basePlanner.Planner" title="planners.basePlanner.Planner"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.basePlanner.Planner</span></code></a></p>
-<p>The Rapidly-exploring random tree.</p>
-<p>Rapidly-exploring Random Tree* (RRT*) is an anytime, asymptotic optimal sampling-based
-motion planner that continuously updates its solution within the given budget.
-The planner itself is implemented in <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRTPlanner</span></code></a>, while
-the default sampling
-policy is implemented in <a class="reference internal" href="samplers.html#samplers.randomPolicySampler.RandomPolicySampler" title="samplers.randomPolicySampler.RandomPolicySampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPolicySampler</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.add_newnode">
-<span class="sig-name descname"><span class="pre">add_newnode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.add_newnode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.add_newnode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a new node to the tree</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – node to be added</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.choose_least_cost_parent">
-<span class="sig-name descname"><span class="pre">choose_least_cost_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_optimality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rtree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.choose_least_cost_parent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.choose_least_cost_parent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a new node, a node from root, return a node from root that
-has the least cost (toward the newly added node)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>newnode</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the newly created node that we want to search for a new parent</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>], <em>optional</em>) – the current closest node, optional.
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]], <em>optional</em>) – the list of node to search against
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip searching for optimality (i.e. non-asymptomatic)
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether use rtree to store tree or not
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]], <em>optional</em>) – list of configurations, with the same length as <code class="docutils literal notranslate"><span class="pre">nodes</span></code>
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the node with the lowest cost</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">find_nearest_neighbour_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.find_nearest_neighbour_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the nearest neighbour from the list of nodes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the position to search against the array of positions</p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the array of positions</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.init">
-<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>The delayed <strong>initialisation</strong> function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.rewire">
-<span class="sig-name descname"><span class="pre">rewire</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">already_rewired</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_optimality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_rtree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.rewire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.rewire" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rewire the given new node</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>newnode</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the newly created node that we want to rewires</p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of node to search against</p></li>
-<li><p><strong>already_rewired</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>], <em>optional</em>) – if the node had already been rewired previously
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip optimality to speed up (reduce to RRT as opposed to RRT*)
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – if we should use rtree as opposed to native numpy operations
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – an array of positions
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrtPlanner.RRTPlanner.run_once">
-<span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrtPlanner.html#RRTPlanner.run_once"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrtPlanner.RRTPlanner.run_once" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute the main planning procedure once (mostly of the time this
-corresponds to adding one new node to the tree)</p>
-<p>This where the main bulk of actions happens, e.g., creating nodes or edges.</p>
-</dd></dl>
-
-</dd></dl>
-
 <p>The sampler is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
 
@@ -332,44 +216,6 @@ corresponds to adding one new node to the tree)</p>
 <div class="section" id="bi-rrt">
 <h2>Bi-RRT*<a class="headerlink" href="#bi-rrt" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/birrt.gif" src="_images/birrt.gif" />
-<dl class="py class">
-<dt class="sig sig-object py" id="planners.birrtPlanner.BiRRTPlanner">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.birrtPlanner.</span></span><span class="sig-name descname"><span class="pre">BiRRTPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/birrtPlanner.html#BiRRTPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.birrtPlanner.BiRRTPlanner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrtPlanner.RRTPlanner</span></code></a></p>
-<p>The bidrectional RRT* planner, or sometimes it’s also referred to as the
-<em>RRT-Connect*</em>.</p>
-<p>The class <a class="reference internal" href="#planners.birrtPlanner.BiRRTPlanner" title="planners.birrtPlanner.BiRRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">BiRRTPlanner</span></code></a> uses an adopted version of
-random policy sampler that makes it suitable for using in both the start and goal
-trees, which is implemented in <a class="reference internal" href="samplers.html#samplers.birrtSampler.BiRRTSampler" title="samplers.birrtSampler.BiRRTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">BiRRTSampler</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.birrtPlanner.BiRRTPlanner.init">
-<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/birrtPlanner.html#BiRRTPlanner.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.birrtPlanner.BiRRTPlanner.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>The delayed <strong>initialisation</strong> function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.birrtPlanner.BiRRTPlanner.run_once">
-<span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/birrtPlanner.html#BiRRTPlanner.run_once"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.birrtPlanner.BiRRTPlanner.run_once" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute the main planning procedure once (mostly of the time this
-corresponds to adding one new node to the tree)</p>
-<p>This where the main bulk of actions happens, e.g., creating nodes or edges.</p>
-</dd></dl>
-
-</dd></dl>
-
 <p>The sampler is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span>
     <span class="s2">&quot;birrt_sampler&quot;</span><span class="p">,</span>
@@ -391,157 +237,6 @@ corresponds to adding one new node to the tree)</p>
 <div class="section" id="rrdt">
 <h2>RRdT*<a class="headerlink" href="#rrdt" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/rrdt.gif" src="_images/rrdt.gif" />
-<dl class="py class">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.rrdtPlanner.</span></span><span class="sig-name descname"><span class="pre">RRdTPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrtPlanner.RRTPlanner</span></code></a></p>
-<p>The Rapidly-exploring Random disjointed-Trees.
-The RRdT* planner is implemented based on Lai <em>et. al.</em>’s <a class="footnote-reference brackets" href="#lai" id="id1">1</a> work.
-The main idea is that the planner keeps a pool of disjointed trees</p>
-<div class="math">
-\[\mathbb{T}=\{\mathcal{T}_\text{root}, \mathcal{T}_1, \ldots, \mathcal{T}_k\}
-
-\]</div>
-<p>where it consists of a rooted tree that connects to the <span class="math">\(q_\text{start}\)</span>
-starting configuration, and <span class="math">\(k\)</span> many disjointed trees that randomly explores
-<em>C-Space</em>.
-Each disjointed tree is modelled as an arm in the Multi-Armed Bandit problem,
-i.e. each <span class="math">\(\mathcal{T}_i\)</span> has an arm <span class="math">\(a_i\)</span>, where the probability to
-draw each arm is dependent on its previous success as given by</p>
-<div class="math">
-\[\mathbb{P}(a_{i,t} \mid a_{i,t-1}, o_{t-1})\,\forall_{i\in\{1,...,k\}}
-
-\]</div>
-<p>with <span class="math">\(o_{t-1}\)</span> as the arm <span class="math">\(a_i\)</span>’s previous observation.</p>
-<dl class="footnote brackets">
-<dt class="label" id="lai"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>Lai, Tin, Fabio Ramos, and Gilad Francis. “Balancing global
-exploration and local-connectivity exploitation with rapidly-exploring random
-disjointed-trees.” 2019 International Conference on Robotics and Automation (
-ICRA). IEEE, 2019.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.add_pos_to_existing_tree">
-<span class="sig-name descname"><span class="pre">add_pos_to_existing_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_tree</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.add_pos_to_existing_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.add_pos_to_existing_tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to add pos to existing tree. If success, return True.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
-<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]) – the tree to add the node</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.connect_two_nodes">
-<span class="sig-name descname"><span class="pre">connect_two_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.connect_two_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.connect_two_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add node to disjoint tree OR root tree.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the new node to connects</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>]) – a node from the existing tree to be connected</p></li>
-<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>], <em>optional</em>) – if given, add newnode to this tree
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.find_nearest_node_from_neighbour">
-<span class="sig-name descname"><span class="pre">find_nearest_node_from_neighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.find_nearest_node_from_neighbour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.find_nearest_node_from_neighbour" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a tree, a node within that tree, and radius
-Return a list of cloest nodes (and its corresponding tree) within the radius (that’s from other neighbourhood trees)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
-<li><p><strong>parent_tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – the tree to add the given node</p></li>
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the maximum radius to add the given node</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>a list of potential nodes</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.join_tree_to_root">
-<span class="sig-name descname"><span class="pre">join_tree_to_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_tree_node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.join_tree_to_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.join_tree_to_root" title="Permalink to this definition">¶</a></dt>
-<dd><p>It will join the given tree to the root</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – the disjointed tree to be added to root tree</p></li>
-<li><p><strong>middle_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the middle node that connects the disjointed tree and the
-root tree</p></li>
-<li><p><strong>root_tree_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from the root tree</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.join_trees">
-<span class="sig-name descname"><span class="pre">join_trees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree1_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree2_node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.join_trees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.join_trees" title="Permalink to this definition">¶</a></dt>
-<dd><p>Join the two given tree together (along with their nodes).
-It will delete the particle reference from the second tree.
-It will use RRT* method to add all nodes if one of the tree is the ROOT.</p>
-<p>tree1_node &amp; 2 represent the nodes that join the two tree together.
-It only matters currently to joining root tree to disjointed tree itself.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tree1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – disjointed tree 1 <span class="math">\(\mathcal{T}_1\)</span></p></li>
-<li><p><strong>tree2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – disjointed tree 2 <span class="math">\(\mathcal{T}_2\)</span></p></li>
-<li><p><strong>tree1_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from tree 1 <span class="math">\(v_1 \in \mathcal{T}_1\)</span></p></li>
-<li><p><strong>tree2_node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – a node from tree 2 <span class="math">\(v_2 \in \mathcal{T}_2\)</span></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.rrt_star_add_node">
-<span class="sig-name descname"><span class="pre">rrt_star_add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newnode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.rrt_star_add_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.rrt_star_add_node" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function perform finding optimal parent, and rewiring.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to add to the tree</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>], <em>optional</em>) – an approximate of nearest node
-<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.rrdtPlanner.RRdTPlanner.run_once">
-<span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/rrdtPlanner.html#RRdTPlanner.run_once"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.rrdtPlanner.RRdTPlanner.run_once" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute the main planning procedure once (mostly of the time this
-corresponds to adding one new node to the tree)</p>
-<p>This where the main bulk of actions happens, e.g., creating nodes or edges.</p>
-</dd></dl>
-
-</dd></dl>
-
 <p>The sampler and planner is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;rrdt_sampler&quot;</span>
 
@@ -572,7 +267,7 @@ up convergence rate of the resulting solution.</p>
 <p>The bulk of the implementation occurs in
 <code class="xref py py-class docutils literal notranslate"><span class="pre">InformedRRTSampler</span></code>.
 The Informed-RRT* is implemented by directly deriving the base motion planner as
-<a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRTPlanner</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">RRTPlanner</span></code>,
 and registering its sampler as the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">InformedRRTSampler</span></code>.</p>
 <p>The sampler is registered as follows</p>
@@ -597,77 +292,6 @@ and registering its sampler as the
 </div>
 <div class="section" id="prm">
 <h2>PRM*<a class="headerlink" href="#prm" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.prmPlanner.</span></span><span class="sig-name descname"><span class="pre">PRMPlanner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrtPlanner.RRTPlanner</span></code></a></p>
-<p>Probabilistic Roadmap motion planner, the multi-query sampling-based planner.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.build_graph">
-<span class="sig-name descname"><span class="pre">build_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.build_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.build_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs the graph building process where</p>
-<div class="math">
-\[G = (V, E).
-
-\]</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.clear_graph">
-<span class="sig-name descname"><span class="pre">clear_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.clear_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.clear_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear the current roadmap graph</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.get_nearest_free">
-<span class="sig-name descname"><span class="pre">get_nearest_free</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbours</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.get_nearest_free"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.get_nearest_free" title="Permalink to this definition">¶</a></dt>
-<dd><p>Internal method to get the closest existing node that is free to connects
-to the given node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the node of interest</p></li>
-<li><p><strong>neighbours</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of nodes to search against</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.get_solution">
-<span class="sig-name descname"><span class="pre">get_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.get_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.get_solution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the solution path</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.init">
-<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>The delayed <strong>initialisation</strong> function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the start configuration</p></li>
-<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – the goal configuration</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="planners.prmPlanner.PRMPlanner.run_once">
-<span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/prmPlanner.html#PRMPlanner.run_once"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.prmPlanner.PRMPlanner.run_once" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute the main planning procedure once (mostly of the time this
-corresponds to adding one new node to the tree)</p>
-<p>This where the main bulk of actions happens, e.g., creating nodes or edges.</p>
-</dd></dl>
-
-</dd></dl>
-
 <p>The sampler is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;prm_sampler&quot;</span>
 
@@ -694,7 +318,7 @@ corresponds to adding one new node to the tree)</p>
 <h2>Likelihood Planner<a class="headerlink" href="#likelihood-planner" title="Permalink to this headline">¶</a></h2>
 <p>Refers to <a class="reference internal" href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler" title="samplers.likelihoodPolicySampler.LikelihoodPolicySampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">samplers.likelihoodPolicySampler.LikelihoodPolicySampler</span></code></a> for details.</p>
 <p>The bulk of the implementation occurs in <a class="reference internal" href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler" title="samplers.likelihoodPolicySampler.LikelihoodPolicySampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LikelihoodPolicySampler</span></code></a>.
-The Informed-RRT* is implemented by directly deriving the base motion planner as <a class="reference internal" href="#planners.rrtPlanner.RRTPlanner" title="planners.rrtPlanner.RRTPlanner"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRTPlanner</span></code></a>,
+The Informed-RRT* is implemented by directly deriving the base motion planner as <code class="xref py py-class docutils literal notranslate"><span class="pre">RRTPlanner</span></code>,
 and registering its sampler as the <a class="reference internal" href="samplers.html#samplers.likelihoodPolicySampler.LikelihoodPolicySampler" title="samplers.likelihoodPolicySampler.LikelihoodPolicySampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LikelihoodPolicySampler</span></code></a>.</p>
 <p>The sampler is registered as follows</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;likelihood_sampler&quot;</span>
