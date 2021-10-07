@@ -107,3 +107,4 @@ venv.bak/
 .vscode
 docs/source/_build/
 docs/build/
+runs/
