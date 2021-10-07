@@ -231,7 +231,7 @@ The alpha channel would not be considered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
+<li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
 environment that the planning operates in</p></li>
 <li><p><strong>stats</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code>) – the Stats object to keep track of stats</p></li>
 <li><p><strong>args</strong> (<a class="reference internal" href="misc.html#utils.common.MagicDict" title="utils.common.MagicDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagicDict</span></code></a>) – an instance of the input arguments</p></li>
@@ -386,16 +386,16 @@ The body points obtained by the forward kinematic on <span class="math">\(r_0, r
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
+<li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
 environment that the planning operates</p></li>
-<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
+<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
 uses <cite>map_mat</cite> directly as the map</p>
 <blockquote>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
 </div></blockquote>
 </p></li>
 <li><p><strong>args</strong> (<a class="reference internal" href="misc.html#utils.common.MagicDict" title="utils.common.MagicDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagicDict</span></code></a>) – an instance of the input arguments</p></li>
-<li><p><strong>stick_robot_length_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]], <em>optional</em>) – <p>a list of numbers that represents the
+<li><p><strong>stick_robot_length_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]], <em>optional</em>) – <p>a list of numbers that represents the
 length of the stick robotic arm</p>
 <blockquote>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
@@ -464,8 +464,8 @@ Produces a list of tuples from start and end</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of starting values</p></li>
 <li><p><strong>stop</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of stopping values</p></li>
-<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the size of linspace</p></li>
-<li><p><strong>endpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether to include end point or not
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the size of linspace</p></li>
+<li><p><strong>endpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether to include end point or not
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
 </dd>
@@ -582,7 +582,7 @@ might update its api without notice. The current implementation is based on
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>xml</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the xml filename for Klampt to read the world settings</p></li>
+<li><p><strong>xml</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the xml filename for Klampt to read the world settings</p></li>
 <li><p><strong>stats</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code>) – the Stats object to keep track of stats</p></li>
 <li><p><strong>args</strong> (<a class="reference internal" href="misc.html#utils.common.MagicDict" title="utils.common.MagicDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">MagicDict</span></code></a>) – an instance of the input arguments</p></li>
 </ul>

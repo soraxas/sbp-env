@@ -208,7 +208,7 @@ the default sampling
 policy is implemented in <a class="reference internal" href="samplers.html#samplers.randomPolicySampler.RandomPolicySampler" title="samplers.randomPolicySampler.RandomPolicySampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPolicySampler</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
+<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -231,15 +231,15 @@ has the least cost (toward the newly added node)</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the newly created node that we want to search for a new parent</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>], <em>optional</em>) – the current closest node, optional.
+<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>], <em>optional</em>) – the current closest node, optional.
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]], <em>optional</em>) – the list of node to search against
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]], <em>optional</em>) – the list of node to search against
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip searching for optimality (i.e. non-asymptomatic)
+<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip searching for optimality (i.e. non-asymptomatic)
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether use rtree to store tree or not
+<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether use rtree to store tree or not
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]], <em>optional</em>) – list of configurations, with the same length as <code class="docutils literal notranslate"><span class="pre">nodes</span></code>
+<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]], <em>optional</em>) – list of configurations, with the same length as <code class="docutils literal notranslate"><span class="pre">nodes</span></code>
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -288,14 +288,14 @@ has the least cost (toward the newly added node)</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the newly created node that we want to rewires</p></li>
-<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of node to search against</p></li>
-<li><p><strong>already_rewired</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>], <em>optional</em>) – if the node had already been rewired previously
+<li><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of node to search against</p></li>
+<li><p><strong>already_rewired</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>], <em>optional</em>) – if the node had already been rewired previously
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip optimality to speed up (reduce to RRT as opposed to RRT*)
+<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – skip optimality to speed up (reduce to RRT as opposed to RRT*)
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – if we should use rtree as opposed to native numpy operations
+<li><p><strong>use_rtree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – if we should use rtree as opposed to native numpy operations
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – an array of positions
+<li><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – an array of positions
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -343,7 +343,7 @@ random policy sampler that makes it suitable for using in both the start and goa
 trees, which is implemented in <a class="reference internal" href="samplers.html#samplers.birrtSampler.BiRRTSampler" title="samplers.birrtSampler.BiRRTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">BiRRTSampler</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
+<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -423,7 +423,7 @@ ICRA). IEEE, 2019.</p>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
+<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -434,11 +434,11 @@ ICRA). IEEE, 2019.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
-<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]) – the tree to add the node</p></li>
+<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]) – the tree to add the node</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -451,8 +451,8 @@ ICRA). IEEE, 2019.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the new node to connects</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>]) – a node from the existing tree to be connected</p></li>
-<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>], <em>optional</em>) – if given, add newnode to this tree
+<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>]) – a node from the existing tree to be connected</p></li>
+<li><p><strong>parent_tree</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>], <em>optional</em>) – if given, add newnode to this tree
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -469,11 +469,11 @@ Return a list of cloest nodes (and its corresponding tree) within the radius (th
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to be added</p></li>
 <li><p><strong>parent_tree</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>) – the tree to add the given node</p></li>
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the maximum radius to add the given node</p></li>
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the maximum radius to add the given node</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DTreeType</span></code>]]</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>a list of potential nodes</p>
@@ -525,7 +525,7 @@ It only matters currently to joining root tree to disjointed tree itself.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>newnode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>) – the node to add to the tree</p></li>
-<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>], <em>optional</em>) – an approximate of nearest node
+<li><p><strong>nn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>], <em>optional</em>) – an approximate of nearest node
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -604,7 +604,7 @@ and registering its sampler as the
 <p>Probabilistic Roadmap motion planner, the multi-query sampling-based planner.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
+<dd class="field-odd"><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of dimensionality <span class="math">\(d\)</span></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -632,7 +632,7 @@ to the given node.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – the node of interest</p></li>
-<li><p><strong>neighbours</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of nodes to search against</p></li>
+<li><p><strong>neighbours</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="misc.html#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]) – the list of nodes to search against</p></li>
 </ul>
 </dd>
 </dl>
@@ -769,7 +769,7 @@ and registering its sampler as the <a class="reference internal" href="samplers.
 <dl class="py class">
 <dt class="sig sig-object py" id="planners.basePlanner.Planner">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">planners.basePlanner.</span></span><span class="sig-name descname"><span class="pre">Planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planners/basePlanner.html#Planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planners.basePlanner.Planner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Abstract base planner that does nothing by itself.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="planners.basePlanner.Planner.get_solution_path">
