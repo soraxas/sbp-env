@@ -26,6 +26,10 @@ Environment Options:
                          "4d" engine uses an image as the map and an 4d robot arm.
                          "klampt" engine is a multi-dof engine that is more
                            features rich.
+  -o --output-dir=STATS_DIR
+                         Specify the output folder [default: runs]
+  --save-output          When set, the planning stats will be saved under the
+                         'STATS_DIR' folder
 
 Display Options:
   --always-refresh       Set if the display should refresh on every ticks.
@@ -254,6 +258,8 @@ def generate_args(
         start_pt=args["<start_x1,x2,..,xn>"],
         goal_pt=args["<goal_x1,x2,..,xn>"],
         rover_arm_robot_lengths=args["--4d-robot-lengths"],
+        output_dir=args["--output-dir"],
+        save_output=args["--save-output"],
     )
 
     # reduce goal radius for klampt as it plans in radian

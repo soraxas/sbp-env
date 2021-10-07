@@ -2,12 +2,14 @@
 import logging
 import math
 import random
+import time
 
 import numpy as np
 from tqdm import tqdm
 
 import collisionChecker
 from utils.common import Node, MagicDict, Stats
+from utils.csv_stats_logger import setup_csv_stats_logger, get_non_existing_filename
 from visualiser import VisualiserSwitcher
 
 LOGGER = logging.getLogger(__name__)
@@ -180,6 +182,22 @@ class Env:
         """Run until we reached the specified max nodes"""
         self.started = True
 
+        if self.args.save_output:
+            setup_csv_stats_logger(get_non_existing_filename())
+            csv_logger = logging.getLogger("CSV_STATS")
+            csv_logger.info(
+                [
+                    "nodes",
+                    "time",
+                    "cc_feasibility",
+                    "cc_visibility",
+                    "invalid_feasibility",
+                    "invalid_visibility",
+                    "c_max",
+                ]
+            )
+            start_time = time.time()
+
         with tqdm(
             total=self.args.max_number_nodes, desc=self.args.sampler.name
         ) as pbar:
@@ -198,6 +216,19 @@ class Env:
                         "c_max": self.planner.c_max,
                     }
                 )
+                if self.args.save_output:
+                    csv_logger = logging.getLogger("CSV_STATS")
+                    csv_logger.info(
+                        [
+                            self.stats.valid_sample,
+                            time.time() - start_time,
+                            self.stats.feasible_cnt,
+                            self.stats.visible_cnt,
+                            self.stats.invalid_samples_obstacles,
+                            self.stats.invalid_samples_connections,
+                            self.planner.c_max,
+                        ]
+                    )
                 pbar.refresh()
 
         self.visualiser.terminates_hook()
