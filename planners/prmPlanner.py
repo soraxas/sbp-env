@@ -3,6 +3,7 @@ from typing import List
 import networkx as nx
 import numpy as np
 from overrides import overrides
+import tqdm
 
 from env import Node
 from planners.rrtPlanner import RRTPlanner
@@ -79,13 +80,10 @@ class PRMPlanner(RRTPlanner):
         .. math::
             G = (V, E).
         """
-        for v in self.nodes:
+        n = len(self.nodes)
+        radius = self.gamma * np.power(np.log(n + 1) / (n + 1), 1 / self.args.num_dim)
 
-            n = len(self.nodes)
-            radius = self.gamma * np.power(
-                np.log(n + 1) / (n + 1), 1 / self.args.num_dim
-            )
-
+        for v in tqdm.tqdm(self.nodes, desc="Building graph"):
             m_near = nearest_neighbours(self.nodes, self.poses, v.pos, radius)
             for m_g in m_near:
                 if m_g is v:
