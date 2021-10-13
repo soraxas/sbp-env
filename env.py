@@ -185,7 +185,7 @@ class Env:
         if self.args.save_output:
             setup_csv_stats_logger(
                 get_non_existing_filename(
-                    self.args.output_dir + "/%Y-%m-%d_%H:%M{}.csv"
+                    self.args.output_dir + "/%Y-%m-%d_%H-%M{}.csv"
                 )
             )
             csv_logger = logging.getLogger("CSV_STATS")

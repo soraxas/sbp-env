@@ -22,7 +22,7 @@ class CsvFormatter(logging.Formatter):
         return data.strip()
 
 
-def get_non_existing_filename(fname_template="runs/%Y-%m-%d_%H:%M{}.csv"):
+def get_non_existing_filename(fname_template="runs/%Y-%m-%d_%H-%M{}.csv"):
     """Return a string that represent a path to file that does not exists.
     The filename is the current timestamp."""
     suffix_num = 0
