@@ -122,3 +122,31 @@ And last but not least, you can start the :code:`klampt` simulator with
     .. code-block:: bash
 
         pip3 install pyopengl pyqt5
+
+
+Saving the planner statistics
+------------------------------
+
+During the planning episode, :code:`sbp-env` will keep track of various statistics which
+are beneficial to compare the performance between planner. The statistics will always
+be displayed as part of the :code:`tqdm` progress bar.
+
+You can save the statistics to a :code:`.csv` file with the :code:`--save-output` flag,
+e.g.
+
+.. code-block:: bash
+
+    python main.py rrt maps/room1.png start 100,100 goal 350,350 --save-output
+
+which would save the output to a timestamped :code:`.csv` file under the :code:`runs/`
+folder by default. You can also customise the output folder with
+:code:`--output-dir=MY_FOLDER`.
+
+The recorded statistics have the following meanings:
+    - :code:`nodes`: The number of nodes
+    - :code:`time`: Timestamp
+    - :code:`cc_feasibility`: The number of collision-checks for feasibility (node)
+    - :code:`cc_visibility`: The number of collision-checks for visibility (edge)
+    - :code:`invalid_feasibility`: The number of invalid feasibility checks
+    - :code:`invalid_visibility`: The number of invalid visibility checks
+    - :code:`c_max`: The current cost of the solution trajectory
