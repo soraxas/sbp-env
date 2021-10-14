@@ -97,6 +97,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-other-simulator">Using other simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-the-planner-statistics">Saving the planner statistics</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Commandline Interface</a></li>
@@ -282,6 +283,32 @@ If you are using pip, you can install it with</p>
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="saving-the-planner-statistics">
+<h2>Saving the planner statistics<a class="headerlink" href="#saving-the-planner-statistics" title="Permalink to this headline">¶</a></h2>
+<p>During the planning episode, <code class="code docutils literal notranslate"><span class="pre">sbp-env</span></code> will keep track of various statistics which
+are beneficial to compare the performance between planner. The statistics will always
+be displayed as part of the <code class="code docutils literal notranslate"><span class="pre">tqdm</span></code> progress bar.</p>
+<p>You can save the statistics to a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file with the <code class="code docutils literal notranslate"><span class="pre">--save-output</span></code> flag,
+e.g.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python main.py rrt maps/room1.png start <span class="m">100</span>,100 goal <span class="m">350</span>,350 --save-output
+</pre></div>
+</div>
+<p>which would save the output to a timestamped <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file under the <code class="code docutils literal notranslate"><span class="pre">runs/</span></code>
+folder by default. You can also customise the output folder with
+<code class="code docutils literal notranslate"><span class="pre">--output-dir=MY_FOLDER</span></code>.</p>
+<dl class="simple">
+<dt>The recorded statistics have the following meanings:</dt><dd><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">nodes</span></code>: The number of nodes</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">time</span></code>: Timestamp</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cc_feasibility</span></code>: The number of collision-checks for feasibility (node)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cc_visibility</span></code>: The number of collision-checks for visibility (edge)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">invalid_feasibility</span></code>: The number of invalid feasibility checks</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">invalid_visibility</span></code>: The number of invalid visibility checks</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">c_max</span></code>: The current cost of the solution trajectory</p></li>
+</ul>
+</dd>
+</dl>
 </div>
 </div>
 
