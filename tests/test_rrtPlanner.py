@@ -48,7 +48,7 @@ class TestRRTPlanner(TestCase):
             self.assertEqual(self.planner.nodes[-1], node)
 
     def test_run_once_success(self):
-        pos1 = np.array([4, 2])
+        pos1 = np.array([101, 102])
         self.planner.args.env.cc.visible = MagicMock(return_value=True)
 
         mocked_report_success = MagicMock()
@@ -68,7 +68,7 @@ class TestRRTPlanner(TestCase):
         self.assertEqual(MockNumpyEquality(pos1), self.planner.nodes[-1].pos)
 
     def test_run_once_failed(self):
-        pos1 = np.array([4, 2])
+        pos1 = np.array([101, 102])
         self.planner.args.env.cc.visible = MagicMock(return_value=False)
 
         mocked_report_success = MagicMock()

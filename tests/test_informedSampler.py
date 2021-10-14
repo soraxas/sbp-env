@@ -35,7 +35,9 @@ class TestInformedSampler(TestCase):
             pts_before_sol.append(self.sampler.get_next_pos()[0])
         pts_before_sol = np.array(pts_before_sol)
 
-        self.sampler.args.planner.c_max = 80
+        self.sampler.args.planner.c_max = (
+            np.linalg.norm(self.env.start_pt.pos - self.env.goal_pt.pos) + 1
+        )
 
         pts_after_sol = []
         for i in range(100):

@@ -87,6 +87,10 @@ class Env:
         start_pt, goal_pt = self.visualiser.set_start_goal_points(
             start=self.args["start_pt"], goal=self.args["goal_pt"]
         )
+        if not self.cc.feasible(start_pt):
+            raise ValueError(f"The given start conf. is not feasible {start_pt}.")
+        if not self.cc.feasible(goal_pt):
+            raise ValueError(f"The given goal conf. is not feasible {goal_pt}.")
 
         self.start_pt = self.goal_pt = None
         if start_pt is not None:
