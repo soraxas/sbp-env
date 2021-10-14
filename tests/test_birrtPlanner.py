@@ -33,7 +33,7 @@ class TestBiRRTPlanner(TestRRTPlanner):
         self.planner.args.env.cc.visible = MagicMock(return_value=True)
 
     def test_run_once_success(self):
-        pos1 = np.array([4, 2])
+        pos1 = np.array([101, 102])
         pos2 = np.array([40, 20])
         self.planner.args.env.cc.visible = MagicMock(return_value=True)
 
@@ -70,7 +70,7 @@ class TestBiRRTPlanner(TestRRTPlanner):
         )
 
     def test_run_once_failed(self):
-        pos1 = np.array([4, 2])
+        pos1 = np.array([101, 102])
         self.planner.args.env.cc.visible = MagicMock(return_value=False)
 
         mocked_report_success = MagicMock()

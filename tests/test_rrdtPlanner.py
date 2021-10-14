@@ -50,7 +50,7 @@ class TestRRdTPlanner(TestRRTPlanner):
         sampler.restart_when_merge = True
 
     def test_run_once_success(self):
-        pos1 = np.random.rand(2)
+        pos1 = np.array([345, 345])
         self.planner.args.env.cc.visible = MagicMock(return_value=True)
 
         mocked_report_success = MagicMock()
