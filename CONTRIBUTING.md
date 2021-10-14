@@ -38,6 +38,14 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 - What you expected would happen
 - What actually happens
 
+## Testing the contributing code
+
+You can check for all test cases with
+```sh
+pytest tests
+```
+in the root of the repository.
+
 ## Use a Consistent Coding Style
 
 We use [Python Black](https://github.com/psf/black) for code formatting.
