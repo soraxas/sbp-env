@@ -3,9 +3,9 @@
 [![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://cs.tinyiu.com/sbp-env)
 [![CI](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml/badge.svg)](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml)
 [![Build docs](https://github.com/soraxas/sbp-env/actions/workflows/sphinx.yaml/badge.svg)](https://cs.tinyiu.com/sbp-env)
-[![Master Update](https://img.shields.io/github/last-commit/soraxas/sbp-env/master.svg)](https://github.com/soraxas/sbp-env/commits/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License](https://img.shields.io/github/license/soraxas/sbp-env.svg)](https://github.com/soraxas/sbp-env/blob/master/LICENSE)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.03782/status.svg)](https://doi.org/10.21105/joss.03782)
 
 Sampling-based motion planners' testing environment (`sbp-env`) is a full feature framework to quickly test different sampling-based algorithms for motion planning. `sbp-env` focuses on the flexibility of tinkering with different aspects of the framework, and had divided the main planning components into two categories (i) **samplers** and (ii) **planners**.
 
@@ -112,3 +112,21 @@ The red ellipse shown is the dynamic sampling area for Informed RRT*
 ### Others
 
 There are also some other planners included in this repository. Some are preliminary planner that inspired RRdT*, some are planners with preliminary ideas, and some are useful for debugging.
+
+## Reference to this repository
+
+You can use the following citation if you use this repository for your research
+```bibtex
+@article{lai2021SbpEnv,
+  doi = {10.21105/joss.03782},
+  url = {https://doi.org/10.21105/joss.03782},
+  year = {2021},
+  publisher = {The Open Journal},
+  volume = {6},
+  number = {66},
+  pages = {3782},
+  author = {Tin Lai},
+  title = {sbp-env: A Python Package for Sampling-based Motion Planner and Samplers},
+  journal = {Journal of Open Source Software}
+}
+```
