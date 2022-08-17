@@ -36,6 +36,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
@@ -301,7 +302,7 @@
         <span class="n">nn</span><span class="p">:</span> <span class="n">Node</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_optimality</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">use_rtree</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_rtree</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">poses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -317,8 +318,6 @@
 
 <span class="sd">        :return: the node with the lowest cost</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">skip_optimality</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">use_rtree</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">skip_optimality</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

@@ -36,6 +36,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
@@ -394,7 +395,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="p">)</span>
                 <span class="c1"># if self.prob_vector[x][y] &lt; 5:</span>
                 <span class="c1"># self.prob_vector[copy(self.prob_vector)</span>
-                <span class="n">tree_vector_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree_vector</span> <span class="o">**</span> <span class="mf">1.1</span><span class="p">)</span>
+                <span class="n">tree_vector_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree_vector</span><span class="o">**</span><span class="mf">1.1</span><span class="p">)</span>
                 <span class="n">tree_vector_normalized</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span>
                     <span class="n">tree_vector_normalized</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
                 <span class="p">)</span>

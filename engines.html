@@ -36,6 +36,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
@@ -185,10 +186,10 @@
            <div itemprop="articleBody">
             
   <div class="section" id="simulator-engine">
-<h1>Simulator Engine<a class="headerlink" href="#simulator-engine" title="Permalink to this headline">¶</a></h1>
+<h1>Simulator Engine<a class="headerlink" href="#simulator-engine" title="Permalink to this heading">¶</a></h1>
 <p>Currently there are three engines used in <code class="docutils literal notranslate"><span class="pre">sbp-env</span></code> that are used to simulate collisions and the planning environment.</p>
 <div class="section" id="d-image-space">
-<h2>2D Image Space<a class="headerlink" href="#d-image-space" title="Permalink to this headline">¶</a></h2>
+<h2>2D Image Space<a class="headerlink" href="#d-image-space" title="Permalink to this heading">¶</a></h2>
 <p>The first one is a <strong>2D</strong> image space engine with the configuration space (<em>C-Space</em>) as <span class="math">\(C \subseteq \mathbb{R}^2\)</span>.
 This engine is very easy to use and very easy to add new environments.
 This uses the <a class="reference internal" href="#collisionChecker.ImgCollisionChecker" title="collisionChecker.ImgCollisionChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code></a> for environment simulation and with the <a class="reference internal" href="visualisers.html#visualiser.PygameEnvVisualiser" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a> to visualise the planning scene.</p>
@@ -225,8 +226,8 @@ The alpha channel would not be considered.</p>
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="collisionChecker.ImgCollisionChecker">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">ImgCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.CollisionChecker</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">ImgCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CollisionChecker</span></code></p>
 <p>2D Image Space simulator engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,7 +290,7 @@ Return None if this is not applicable to the current space</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.ImgCollisionChecker.get_line">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker.get_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.get_line" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#ImgCollisionChecker.get_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.get_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bresenham’s Line Algorithm
 Produces a list of tuples from start and end</p>
 <dl class="field-list simple">
@@ -314,11 +315,11 @@ Produces a list of tuples from start and end</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="collisionChecker.ImgCollisionChecker.image">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><span class="pre">numpy.ndarray</span></a></em><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.image" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#collisionChecker.ImgCollisionChecker.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>The image that represents the planning problem</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the input image</p>
@@ -345,7 +346,7 @@ Produces a list of tuples from start and end</p>
 
 </div>
 <div class="section" id="d-robot-arm">
-<h2>4D Robot Arm<a class="headerlink" href="#d-robot-arm" title="Permalink to this headline">¶</a></h2>
+<h2>4D Robot Arm<a class="headerlink" href="#d-robot-arm" title="Permalink to this heading">¶</a></h2>
 <p>This simulator internally depends on <a class="reference internal" href="#collisionChecker.ImgCollisionChecker" title="collisionChecker.ImgCollisionChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.ImgCollisionChecker</span></code></a> to check for collision in the image space.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python main.py rrt maps/4d.png -s .5 --engine 4d</span>
 </pre></div></div><div class="sidebar">
@@ -380,15 +381,15 @@ The body points obtained by the forward kinematic on <span class="math">\(r_0, r
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="collisionChecker.RobotArm4dCollisionChecker">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">RobotArm4dCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_mat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stick_robot_length_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.CollisionChecker</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">RobotArm4dCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_mat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stick_robot_length_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CollisionChecker</span></code></p>
 <p>4D robot arm simulator engine that operates in the Image Space</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>img</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a>) – a file-like object (e.g. a filename) for the image as the
 environment that the planning operates</p></li>
-<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
+<li><p><strong>map_mat</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – <p>an image that, if given, will ignore the <cite>img</cite> argument and
 uses <cite>map_mat</cite> directly as the map</p>
 <blockquote>
 <div><p><div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
@@ -407,7 +408,7 @@ length of the stick robotic arm</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.RobotArm4dCollisionChecker._get_line">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">_get_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker._get_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker._get_line" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker._get_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker._get_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bresenham’s Line Algorithm
 Produces a list of tuples from start and end</p>
 <dl class="field-list simple">
@@ -457,13 +458,13 @@ Produces a list of tuples from start and end</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.RobotArm4dCollisionChecker.create_ranges">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">create_ranges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.create_ranges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.create_ranges" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_ranges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.create_ranges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.create_ranges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a batch of linspace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of starting values</p></li>
-<li><p><strong>stop</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of stopping values</p></li>
+<li><p><strong>start</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of starting values</p></li>
+<li><p><strong>stop</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – an array of stopping values</p></li>
 <li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the size of linspace</p></li>
 <li><p><strong>endpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – whether to include end point or not
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
@@ -509,7 +510,7 @@ Return None if this is not applicable to the current space</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="collisionChecker.RobotArm4dCollisionChecker.get_pt_from_angle_and_length">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_pt_from_angle_and_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pt1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.get_pt_from_angle_and_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.get_pt_from_angle_and_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pt_from_angle_and_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pt1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#RobotArm4dCollisionChecker.get_pt_from_angle_and_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.RobotArm4dCollisionChecker.get_pt_from_angle_and_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain point 2 based of the given settings</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -541,7 +542,7 @@ Return None if this is not applicable to the current space</p>
 
 </div>
 <div class="section" id="n-d-manipulator">
-<h2><span class="math">\(n\)</span>-D Manipulator<a class="headerlink" href="#n-d-manipulator" title="Permalink to this headline">¶</a></h2>
+<h2><span class="math">\(n\)</span>-D Manipulator<a class="headerlink" href="#n-d-manipulator" title="Permalink to this heading">¶</a></h2>
 <p>This simulator internally depends on <cite>klampt</cite> package to check for collision in the
 the 3D space.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python main.py rrt klampt_data/tx90blocks.xml --engine klampt</span>
@@ -576,8 +577,8 @@ might update its api without notice. The current implementation is based on
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="collisionChecker.KlamptCollisionChecker">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">KlamptCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#KlamptCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.KlamptCollisionChecker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collisionChecker.CollisionChecker</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">collisionChecker.</span></span><span class="sig-name descname"><span class="pre">KlamptCollisionChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/collisionChecker.html#KlamptCollisionChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#collisionChecker.KlamptCollisionChecker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CollisionChecker</span></code></p>
 <p>A wrapper around Klampt’s 3D simulator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -36,6 +36,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
@@ -192,13 +193,13 @@
            <div itemprop="articleBody">
             
   <div class="section" id="misc-classes">
-<h1>Misc Classes<a class="headerlink" href="#misc-classes" title="Permalink to this headline">¶</a></h1>
+<h1>Misc Classes<a class="headerlink" href="#misc-classes" title="Permalink to this heading">¶</a></h1>
 <p>The following are classes and functions of which the details is not essential to use <cite>sbp-env</cite>.</p>
 <div class="section" id="data-structure">
-<h2>Data structure<a class="headerlink" href="#data-structure" title="Permalink to this headline">¶</a></h2>
+<h2>Data structure<a class="headerlink" href="#data-structure" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.common.Tree">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>A tree representation that stores nodes and edges.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -231,7 +232,7 @@ the dimensionality of the C-space.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – Node to be added</p></li>
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -246,7 +247,7 @@ the dimensionality of the C-space.</p>
 <dd><p>Get the closest node</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
@@ -264,7 +265,7 @@ the dimensionality of the C-space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
 <li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Max number of results</p></li>
 </ul>
 </dd>
@@ -278,12 +279,12 @@ the dimensionality of the C-space.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.common.Node">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Node" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/common.html#Node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.Node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a node inside a tree.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
 represents</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – a positive float that represents the cost of this node</p></li>
 <li><p><strong>parent</strong> (<a class="reference internal" href="#utils.common.Node" title="utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – parent node</p></li>
@@ -293,14 +294,14 @@ represents</p></li>
 </ul>
 </dd>
 <dt class="field-even">Parameters</dt>
-<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
+<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.common.MagicDict">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">MagicDict</span></span><a class="reference internal" href="_modules/utils/common.html#MagicDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.MagicDict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.common.</span></span><span class="sig-name descname"><span class="pre">MagicDict</span></span><a class="reference internal" href="_modules/utils/common.html#MagicDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.common.MagicDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 <p>Dictionary, but content is accessible like property.</p>
 <dl class="py method">
@@ -321,11 +322,11 @@ represents</p></li>
 
 </div>
 <div class="section" id="randomness">
-<h2>Randomness<a class="headerlink" href="#randomness" title="Permalink to this headline">¶</a></h2>
+<h2>Randomness<a class="headerlink" href="#randomness" title="Permalink to this heading">¶</a></h2>
 <p>The following are the random methods supported in <cite>sbp-env</cite>.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="randomness.SUPPORTED_RANDOM_METHODS">
-<span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_RANDOM_METHODS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">('pseudo_random',</span> <span class="pre">'sobol_sequence',</span> <span class="pre">'saltelli',</span> <span class="pre">'latin_hypercube',</span> <span class="pre">'finite_differences',</span> <span class="pre">'fast')</span></em><a class="headerlink" href="#randomness.SUPPORTED_RANDOM_METHODS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_RANDOM_METHODS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('pseudo_random',</span> <span class="pre">'sobol_sequence',</span> <span class="pre">'saltelli',</span> <span class="pre">'latin_hypercube',</span> <span class="pre">'finite_differences',</span> <span class="pre">'fast')</span></em><a class="headerlink" href="#randomness.SUPPORTED_RANDOM_METHODS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supported methods to draw random numbers in samplers. Supported random methods are 
 as follows:</p>
 <ul class="simple">
@@ -363,11 +364,11 @@ as follows:</p>
 </dd></dl>
 
 <div class="section" id="drawing-random-samplings">
-<h3>Drawing random samplings<a class="headerlink" href="#drawing-random-samplings" title="Permalink to this headline">¶</a></h3>
+<h3>Drawing random samplings<a class="headerlink" href="#drawing-random-samplings" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">randomness.RandomnessManager:</span></code> is used by most samplers to draw random numbers.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="randomness.RandomnessManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.RandomnessManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>A random number manager that draw a buckets of random numbers at a number and
 redraw when the bucket is exhausted.</p>
 <dl class="field-list simple">
@@ -405,11 +406,11 @@ the choice in <a class="reference internal" href="#randomness.SUPPORTED_RANDOM_M
 
 </div>
 <div class="section" id="drawing-normally-distributed-samplings">
-<h3>Drawing normally distributed samplings<a class="headerlink" href="#drawing-normally-distributed-samplings" title="Permalink to this headline">¶</a></h3>
+<h3>Drawing normally distributed samplings<a class="headerlink" href="#drawing-normally-distributed-samplings" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">randomness.NormalRandomnessManager:</span></code> is used by <a class="reference internal" href="samplers.html#planners.rrdtPlanner.RRdTSampler" title="planners.rrdtPlanner.RRdTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrdtPlanner.RRdTSampler</span></code></a> to draw from a von Mises distribution.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="randomness.NormalRandomnessManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">NormalRandomnessManager</span></span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">randomness.</span></span><span class="sig-name descname"><span class="pre">NormalRandomnessManager</span></span><a class="reference internal" href="_modules/randomness.html#NormalRandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#randomness.NormalRandomnessManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomness Manager that draw a bucket of <strong>normally distributed</strong> random numbers
 and refill the bucket on-demand when it is exhausted.</p>
 <dl class="py method">
@@ -419,7 +420,7 @@ and refill the bucket on-demand when it is exhausted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
 <li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the scale of the half normal
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
 </ul>
@@ -434,7 +435,7 @@ and refill the bucket on-demand when it is exhausted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to
+<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to
 shift the number that this function returns</p></li>
 <li><p><strong>use_vonmises</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – use vom-Mises distribution
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
@@ -445,7 +446,7 @@ shift the number that this function returns</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,7 +458,7 @@ shift the number that this function returns</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
 <li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the scale of the half normal</p></li>
 </ul>
 </dd>
@@ -497,7 +498,7 @@ normal distribution</p>
 </div>
 </div>
 <div class="section" id="planners-and-samplers-registry">
-<h2>Planners and Samplers Registry<a class="headerlink" href="#planners-and-samplers-registry" title="Permalink to this headline">¶</a></h2>
+<h2>Planners and Samplers Registry<a class="headerlink" href="#planners-and-samplers-registry" title="Permalink to this heading">¶</a></h2>
 <p>The following function is used to register a new custom <em>planner</em>.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.planner_registry.register_planner">
@@ -592,10 +593,10 @@ when terminating</p>
 </dd></dl>
 
 <div class="section" id="registry-data-structure">
-<h3>Registry data structure<a class="headerlink" href="#registry-data-structure" title="Permalink to this headline">¶</a></h3>
+<h3>Registry data structure<a class="headerlink" href="#registry-data-structure" title="Permalink to this heading">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.planner_registry.PlannerDataPack">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">PlannerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#PlannerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.PlannerDataPack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">PlannerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#PlannerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.PlannerDataPack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data pack to stores planner class and the sampler with <cite>sample_id</cite> to use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -611,25 +612,22 @@ when terminating</p>
 <li><p><strong>sampler_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)">None</a></p>
-</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.planner_registry.PlannerDataPack.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.name" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>an unique id to identify this data-pack</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.planner_registry.PlannerDataPack.planner_class">
-<span class="sig-name descname"><span class="pre">planner_class</span></span><em class="property"><span class="pre">:</span> <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Planner</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.planner_class" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">planner_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="planners.html#planners.basePlanner.Planner" title="planners.basePlanner.Planner"><span class="pre">Planner</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.planner_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>the class to construct the planner</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.planner_registry.PlannerDataPack.sampler_id">
-<span class="sig-name descname"><span class="pre">sampler_id</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.sampler_id" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sampler_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.PlannerDataPack.sampler_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>the sampler id to associate to this planner</p>
 </dd></dl>
 
@@ -637,7 +635,7 @@ when terminating</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.planner_registry.SamplerDataPack">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">SamplerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#SamplerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.SamplerDataPack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">SamplerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils/planner_registry.html#SamplerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.planner_registry.SamplerDataPack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data pack to store sampler class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -652,19 +650,16 @@ when terminating</p>
 <li><p><strong>sampler_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="samplers.html#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><em>Sampler</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)">None</a></p>
-</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.planner_registry.SamplerDataPack.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.SamplerDataPack.name" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#utils.planner_registry.SamplerDataPack.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>an unique id to identify this data-pack</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.planner_registry.SamplerDataPack.sampler_class">
-<span class="sig-name descname"><span class="pre">sampler_class</span></span><em class="property"><span class="pre">:</span> <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Sampler</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#utils.planner_registry.SamplerDataPack.sampler_class" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sampler_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="samplers.html#samplers.baseSampler.Sampler" title="samplers.baseSampler.Sampler"><span class="pre">Sampler</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#utils.planner_registry.SamplerDataPack.sampler_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>the class to construct the sampler</p>
 </dd></dl>
 

@@ -36,6 +36,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
@@ -185,7 +186,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="planning-scene-visualisers">
-<h1>Planning Scene Visualisers<a class="headerlink" href="#planning-scene-visualisers" title="Permalink to this headline">¶</a></h1>
+<h1>Planning Scene Visualisers<a class="headerlink" href="#planning-scene-visualisers" title="Permalink to this heading">¶</a></h1>
 <p>Each simulator engines would needs a corresponding visualiser for the framework to
 know what to display. The simulator and visualiser are decoupled, for the purpose of
 benchmarking. During benchmark, one would want to disable the visualisation because
@@ -211,11 +212,11 @@ to directly supply the starting and target configurations.</p>
 </div>
 <p>The following sections showcase the different classes of visualiser.</p>
 <div class="section" id="d-image-space-visualiser">
-<h2>2D Image Space Visualiser<a class="headerlink" href="#d-image-space-visualiser" title="Permalink to this headline">¶</a></h2>
+<h2>2D Image Space Visualiser<a class="headerlink" href="#d-image-space-visualiser" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.PygameEnvVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygameEnvVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseEnvVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygameEnvVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEnvVisualiser</span></code></p>
 <p>Environment Visualiser with the Pygame engine</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="visualiser.PygameEnvVisualiser.draw_circle">
@@ -281,9 +282,9 @@ to directly supply the starting and target configurations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the start configuration of the motion planning problem
+<li><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the start configuration of the motion planning problem
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the goal configuration of the motion planning problem
+<li><p><strong>goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the goal configuration of the motion planning problem
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -328,8 +329,8 @@ visualisation to turn off visualisation.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.PygamePlannerVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygamePlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygamePlannerVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BasePlannerVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygamePlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygamePlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygamePlannerVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlannerVisualiser</span></code></p>
 <p>Planner Visualiser with the Pygame engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -368,8 +369,8 @@ paint function or init function.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.PygameSamplerVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygameSamplerVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseSamplerVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">PygameSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#PygameSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.PygameSamplerVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSamplerVisualiser</span></code></p>
 <p>Visualisation of the sampler with Pygame engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -407,7 +408,7 @@ the end of loop.</p>
 
 </div>
 <div class="section" id="d-image-space-manipulator-visualiser">
-<h2>4D Image Space Manipulator Visualiser<a class="headerlink" href="#d-image-space-manipulator-visualiser" title="Permalink to this headline">¶</a></h2>
+<h2>4D Image Space Manipulator Visualiser<a class="headerlink" href="#d-image-space-manipulator-visualiser" title="Permalink to this heading">¶</a></h2>
 <p>The 4D manipulator visualiser uses the same
 <a class="reference internal" href="#visualiser.PygameEnvVisualiser" title="visualiser.PygameEnvVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygameEnvVisualiser</span></code></a>,
 <a class="reference internal" href="#visualiser.PygamePlannerVisualiser" title="visualiser.PygamePlannerVisualiser"><code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.PygamePlannerVisualiser</span></code></a> and
@@ -422,11 +423,11 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 </div>
 </div>
 <div class="section" id="d-object-based-visualiser">
-<h2>3D Object-based Visualiser<a class="headerlink" href="#d-object-based-visualiser" title="Permalink to this headline">¶</a></h2>
+<h2>3D Object-based Visualiser<a class="headerlink" href="#d-object-based-visualiser" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseEnvVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptEnvVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptEnvVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptEnvVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEnvVisualiser</span></code></p>
 <p>Environment Visualiser with the Klampt engine</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="visualiser.KlamptEnvVisualiser.draw_node">
@@ -470,9 +471,9 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the start configuration of the motion planning problem
+<li><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the start configuration of the motion planning problem
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
-<li><p><strong>goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the goal configuration of the motion planning problem
+<li><p><strong>goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>], <em>optional</em>) – the goal configuration of the motion planning problem
 <div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
 </ul>
 </dd>
@@ -517,8 +518,8 @@ visualisation to turn off visualisation.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.KlamptPlannerVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptPlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BasePlannerVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptPlannerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptPlannerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptPlannerVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlannerVisualiser</span></code></p>
 <p>Planner Visualiser with the Klampt engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -551,8 +552,8 @@ paint function or init function.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="visualiser.KlamptSamplerVisualiser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">visualiser.BaseSamplerVisualiser</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">visualiser.</span></span><span class="sig-name descname"><span class="pre">KlamptSamplerVisualiser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualiser.html#KlamptSamplerVisualiser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#visualiser.KlamptSamplerVisualiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSamplerVisualiser</span></code></p>
 <p>Visualisation of the sampler with Klampt engine</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
