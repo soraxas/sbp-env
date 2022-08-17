@@ -22,7 +22,7 @@ class TestRRdTPlanner(TestRRTPlanner):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["sampler"] = RRdTSampler()
+        args["sampler_data_pack"].sampler_class = RRdTSampler
 
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["rrdt"]

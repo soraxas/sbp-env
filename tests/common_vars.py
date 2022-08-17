@@ -6,7 +6,7 @@ from PIL import Image
 from planners.basePlanner import Planner
 from samplers.baseSampler import Sampler
 from utils.common import MagicDict
-from utils.planner_registry import PlannerDataPack
+from utils.planner_registry import PlannerDataPack, SamplerDataPack
 from visualiser import VisualiserSwitcher
 
 mock_image_as_np = np.array(
@@ -64,10 +64,19 @@ template_args = MagicDict(
         visualise_klampt_paint=None,
         visualise_klampt_paint_terminate=None,
     ),
+    sampler_data_pack=SamplerDataPack(
+        name="my_sampler_id",
+        sampler_class=DummySamplerClass,
+        visualise_pygame_paint_init=None,
+        visualise_pygame_paint=None,
+        visualise_pygame_paint_terminate=None,
+        visualise_klampt_paint_init=None,
+        visualise_klampt_paint=None,
+        visualise_klampt_paint_terminate=None,
+    ),
     planner_type=DummyPlannerClass,
     radius=12.0,
     rrdt_proposal_distribution="dynamic-vonmises",
-    sampler=DummySamplerClass(),
     scaling=1.5,
     showSampledPoint=False,
     skip_optimality=False,

@@ -18,7 +18,7 @@ class PRMPlanner(TestRRTPlanner):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["sampler"] = PRMSampler(prob_block_size=10)
+        args["sampler_data_pack"].sampler_class = PRMSampler
 
         # use some suitable planner
         args["planner_data_pack"] = planner_registry.PLANNERS["prm"]
