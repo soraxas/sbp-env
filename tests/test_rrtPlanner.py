@@ -129,7 +129,6 @@ class TestRRTPlanner(TestCase):
             nodes=self.planner.nodes,
             poses=poses,
         )
-        # newnode, nn, nodes=self.nodes, skip_optimality=True)
         self.planner.add_newnode(node1)
         # rewire to see what the newly added node can do for us
         self.planner.rewire(node1, self.planner.nodes, poses=poses)

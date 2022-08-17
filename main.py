@@ -97,7 +97,6 @@ Likelihood/Nearby Sampler Options:
 """
 
 import logging
-import re
 import sys
 from typing import Optional, Union
 
@@ -224,11 +223,6 @@ def generate_args(
     planner_data_pack = planner_registry.PLANNERS[planner_to_use]
 
     sampler_data_pack = planner_registry.SAMPLERS[planner_data_pack.sampler_id]
-    sampler = sampler_data_pack.sampler_class(
-        sampler_data_pack=sampler_data_pack,
-        # sanitise keyword arguments by removing prefix -- and replacing - as _
-        **{re.sub(r"^--", "", k).replace("-", "_"): v for (k, v) in args.items()},
-    )
 
     # setup defaults
     if args["--engine"] == "klampt":
@@ -251,7 +245,7 @@ def generate_args(
         goal_radius=2 / 3 * float(args["--radius"]),
         ignore_step_size=args["--ignore-step-size"],
         always_refresh=args["--always-refresh"],
-        sampler=sampler,
+        sampler_data_pack=sampler_data_pack,
         rrdt_proposal_distribution=args["--proposal-dist"],
         no_display=args["--no-display"],
         engine=args["--engine"],

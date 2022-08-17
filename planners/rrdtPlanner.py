@@ -38,9 +38,9 @@ def kernel(
     :param length_scale: lambda for the kernel
 
     """
-    return sigma ** 2 * np.exp(
+    return sigma**2 * np.exp(
         -(2 * np.sin((np.linalg.norm(x - xprime[:, None], axis=0)) / 2) ** 2)
-        / (length_scale ** 2)
+        / (length_scale**2)
     )
 
 

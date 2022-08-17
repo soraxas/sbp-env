@@ -111,8 +111,8 @@ class InformedSampler(Sampler):
         if self.cBest < float("inf"):
             r = [
                 self.cBest / 2.0,
-                math.sqrt(self.cBest ** 2 - self.cMin ** 2) / 2.0,
-                math.sqrt(self.cBest ** 2 - self.cMin ** 2) / 2.0,
+                math.sqrt(self.cBest**2 - self.cMin**2) / 2.0,
+                math.sqrt(self.cBest**2 - self.cMin**2) / 2.0,
             ]
             L = np.diag(r)
             xBall = self.sample_unit_ball()
@@ -152,7 +152,7 @@ def pygame_informed_sampler_paint(sampler: Sampler) -> None:
     if sampler.cBest < float("inf"):
         cBest = sampler.cBest * sampler.args.scaling
         cMin = sampler.cMin * sampler.args.scaling
-        a = math.sqrt(cBest ** 2 - cMin ** 2)  # height
+        a = math.sqrt(cBest**2 - cMin**2)  # height
         b = cBest  # width
         # rectangle that represent the ellipse
         r = pygame.Rect(0, 0, b, a)
@@ -173,8 +173,8 @@ def pygame_informed_sampler_paint(sampler: Sampler) -> None:
         )
         # we need to offset the blitz based on the surface ceenter
         rcx, rcy = ellipse_surface.get_rect().center
-        ellipse_x = sampler.xCenter[0] * sampler.args.scaling - rcx
-        ellipse_y = sampler.xCenter[1] * sampler.args.scaling - rcy
+        ellipse_x = sampler.xCenter[0][0] * sampler.args.scaling - rcx
+        ellipse_y = sampler.xCenter[1][0] * sampler.args.scaling - rcy
         sampler.args.env.window.blit(ellipse_surface, (ellipse_x, ellipse_y))
 
 

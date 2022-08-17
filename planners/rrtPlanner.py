@@ -123,7 +123,7 @@ class RRTPlanner(Planner):
         nn: Node = None,
         nodes: List[Node] = None,
         skip_optimality: bool = False,
-        use_rtree: bool = True,
+        use_rtree: bool = False,
         poses: List[np.ndarray] = None,
     ) -> Node:
         """
@@ -139,8 +139,6 @@ class RRTPlanner(Planner):
 
         :return: the node with the lowest cost
         """
-        skip_optimality = False
-        use_rtree = False
 
         if skip_optimality:
             if nn is None:

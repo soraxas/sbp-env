@@ -3,6 +3,7 @@ import logging
 import math
 import random
 import time
+import re
 
 import numpy as np
 from tqdm import tqdm
@@ -58,6 +59,11 @@ class Env:
         self.args["image_shape"] = self.cc.get_image_shape()
         self.dim = self.args["image_shape"]
         self.args["cc"] = self.cc
+
+        args["sampler"] = args.sampler_data_pack.sampler_class(
+            # sanitise keyword arguments by removing prefix -- and replacing - as _
+            **{re.sub(r"^--", "", k).replace("-", "_"): v for (k, v) in args.items()},
+        )
 
         def parse_input_pt(pt_as_str):
             if pt_as_str is None:
