@@ -4,6 +4,7 @@ from overrides import overrides
 from ..env import Node
 from ..planners.rrtPlanner import RRTPlanner
 from ..utils import planner_registry
+from ..utils.common import Colour
 
 
 # noinspection PyAttributeOutsideInit
@@ -23,7 +24,7 @@ class BiRRTPlanner(RRTPlanner):
         self.goal_tree_poses = np.empty(
             (
                 self.args.max_number_nodes * 2 + 50,  # +50 to prevent over flow
-                kwargs["num_dim"],
+                self.args.engine.get_dimension(),
             )
         )
         self.goal_tree_nodes.append(self.args.env.goal_pt)
@@ -55,12 +56,12 @@ class BiRRTPlanner(RRTPlanner):
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
-        if not self.args.env.cc.visible(nn.pos, newpos):
-            self.args.env.stats.add_invalid(obs=False)
+        if not self.args.engine.cc.visible(nn.pos, newpos):
+            self.args.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
-            self.args.env.stats.add_free()
+            self.args.stats.add_free()
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=nodes)
             poses[len(nodes)] = newnode.pos
@@ -83,7 +84,7 @@ class BiRRTPlanner(RRTPlanner):
                 )
                 if min(distances) < self.args.epsilon:
                     idx = np.argmin(distances)
-                    if self.args.env.cc.visible(other_poses[idx], newpos):
+                    if self.args.engine.cc.visible(other_poses[idx], newpos):
 
                         self.found_solution = True
                         # get the two closest nodes
@@ -129,8 +130,6 @@ def pygame_birrt_planner_paint(planner):
     :param planner: planner to be visualised
 
     """
-    from utils.common import Colour
-
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     drawn_nodes_pairs = set()
     for nodes in (planner.nodes, planner.goal_tree_nodes):

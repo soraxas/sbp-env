@@ -29,8 +29,8 @@ class TestRRTPlanner(TestCase):
 
         self.planner.args.radius = 1000
         # make it always be visible for testing
-        self.planner.args.env.cc.feasible = MagicMock(return_value=True)
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.feasible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
     def test_add_newnode(self):
         # repeat the testing multiple times
@@ -49,7 +49,7 @@ class TestRRTPlanner(TestCase):
 
     def test_run_once_success(self):
         pos1 = np.array([101, 102])
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -69,7 +69,7 @@ class TestRRTPlanner(TestCase):
 
     def test_run_once_failed(self):
         pos1 = np.array([101, 102])
-        self.planner.args.env.cc.visible = MagicMock(return_value=False)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=False)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()

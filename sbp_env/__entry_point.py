@@ -104,9 +104,9 @@ from typing import Optional, Union, List, Any
 import numpy as np
 from docopt import docopt
 
-from . import env, planners
+from . import planners, engine
 from .utils import planner_registry
-from .utils.common import MagicDict
+from .utils.common import MagicDict, Stats
 
 assert planners
 
@@ -271,7 +271,7 @@ def generate_args_main(
         sampler_data_pack=sampler_data_pack,
         rrdt_proposal_distribution=args["--proposal-dist"],
         no_display=args["--no-display"],
-        engine=args["--engine"],
+        # engine=args["--engine"],
         start_pt=args["<start_x1,x2,..,xn>"],
         goal_pt=args["<goal_x1,x2,..,xn>"],
         rover_arm_robot_lengths=args["--4d-robot-lengths"],
@@ -281,7 +281,7 @@ def generate_args_main(
     )
 
     # reduce goal radius for klampt as it plans in radian
-    if planning_option.engine == "klampt":
+    if args["--engine"] == "klampt":
         planning_option["goal_radius"] = 0.001
 
     # add the keys which will be added by the env later
@@ -289,10 +289,14 @@ def generate_args_main(
         dict(
             planner=None,
             sampler=None,
-            num_dim=None,
-            cc=None,
+            stats=Stats(),
         )
     )
+    planning_option.engine = {
+        "image": engine.ImageEngine,
+        "4d": engine.RobotArmEngine,
+        "klampt": engine.KlamptEngine,
+    }[args["--engine"]](planning_option)
 
     planning_option.freeze()
     return planning_option

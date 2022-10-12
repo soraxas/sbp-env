@@ -34,8 +34,8 @@ class TestRRdTPlanner(TestRRTPlanner):
         self.planner.args.radius = 1000
         self.planner.args.epsilon = 1000
         # make it always be visible for testing
-        self.planner.args.env.cc.feasible = MagicMock(return_value=True)
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.feasible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
     @staticmethod
     def flush_rrdt_sampler_pending_restarts(sampler):
@@ -51,7 +51,7 @@ class TestRRdTPlanner(TestRRTPlanner):
 
     def test_run_once_success(self):
         pos1 = np.array([345, 345])
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -81,7 +81,7 @@ class TestRRdTPlanner(TestRRTPlanner):
 
     def test_run_once_failed(self):
         pos1 = np.random.rand(2) * 10
-        self.planner.args.env.cc.visible = MagicMock(return_value=False)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=False)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -106,8 +106,8 @@ class TestRRdTPlanner(TestRRTPlanner):
     def test_run_once_return_None(self):
         # check that if get_next_pos returned None, the planner will assume that
         # the sampler itself had added node while restarting the particles
-        self.planner.args.env.cc.visible = MagicMock()
-        self.planner.args.env.cc.feasible = MagicMock()
+        self.planner.args.engine.cc.visible = MagicMock()
+        self.planner.args.engine.cc.feasible = MagicMock()
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -119,5 +119,5 @@ class TestRRdTPlanner(TestRRTPlanner):
         self.sampler.get_next_pos.assert_called_once_with()
         mocked_report_fail.assert_not_called()
         mocked_report_success.assert_not_called()
-        self.planner.args.env.cc.visible.assert_not_called()
-        self.planner.args.env.cc.feasible.assert_not_called()
+        self.planner.args.engine.cc.visible.assert_not_called()
+        self.planner.args.engine.cc.feasible.assert_not_called()

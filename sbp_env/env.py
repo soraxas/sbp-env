@@ -37,29 +37,24 @@ class Env:
 
         # initialize and prepare screen
         self.args = args
-        self.stats = Stats(showSampledPoint=self.args.showSampledPoint)
+        self.args.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
-        cc_type, self.dist = {
-            "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
-            "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
-            "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
-        }[self.args.engine]
-        self.cc = cc_type(self.args.image, stats=self.stats, args=self.args)
+        # cc_type, self.dist = {
+        #     "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
+        #     "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
+        #     "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
+        # }[self.args.engine]
+        # self.cc = cc_type(self.args.image, stats=self.args.stats, args=self.args)
+        from . import engine
 
         # setup visualiser
         if self.args.no_display:
             # use pass-through visualiser
             VisualiserSwitcher.choose_visualiser("base")
-        else:
-            if self.args.engine in ("image", "4d"):
-                # use pygame visualiser
-                VisualiserSwitcher.choose_visualiser("pygame")
-            elif self.args.engine == "klampt":
-                VisualiserSwitcher.choose_visualiser("klampt")
 
-        self.args["num_dim"] = self.cc.get_dimension()
-        self.dim = self.cc.get_image_shape()
-        self.args["cc"] = self.cc
+        # self.args.engine.get_dimension() = self.cc.get_dimension()
+        # self.dim = self.cc.get_image_shape()
+        # self.args["cc"] = self.cc
 
         args["sampler"] = args.sampler_data_pack.sampler_class(
             # sanitise keyword arguments by removing prefix -- and replacing - as _
@@ -70,9 +65,9 @@ class Env:
             if pt_as_str is None:
                 return None
             pt = pt_as_str.split(",")
-            if len(pt) != self.args["num_dim"]:
+            if len(pt) != self.args.engine.get_dimension():
                 raise RuntimeError(
-                    f"Expected to have number of dimension = {self.args['num_dim']}, "
+                    f"Expected to have number of dimension = {self.args.engine.get_dimension()}, "
                     f"but "
                     f"was n={len(pt)} from input '{pt_as_str}'"
                 )
@@ -94,9 +89,9 @@ class Env:
         start_pt, goal_pt = self.visualiser.set_start_goal_points(
             start=self.args["start_pt"], goal=self.args["goal_pt"]
         )
-        if not self.cc.feasible(start_pt):
+        if not self.args.engine.cc.feasible(start_pt):
             raise ValueError(f"The given start conf. is not feasible {start_pt}.")
-        if not self.cc.feasible(goal_pt):
+        if not self.args.engine.cc.feasible(goal_pt):
             raise ValueError(f"The given goal conf. is not feasible {goal_pt}.")
 
         self.start_pt = self.goal_pt = None
@@ -113,7 +108,7 @@ class Env:
         self.args["goal_pt"] = self.goal_pt
 
         self.planner.init(env=self, **self.args)
-        if self.args["engine"] == "klampt":
+        if isinstance(self.args.engine, engine.KlamptEngine):
             self.args.sampler.set_use_radian(True)
             if self.args["epsilon"] > 1:
                 import warnings
@@ -157,20 +152,6 @@ class Env:
         diff = np.where(diff < -np.pi, diff + (2 * np.pi), diff)
         return np.linalg.norm(diff)
 
-    @staticmethod
-    def euclidean_dist(p1: np.ndarray, p2: np.ndarray):
-        """Return the Euclidean distance between p1 and p2
-
-        :param p1: first configuration :math:`q_1`
-        :param p2: second configuration :math:`q_2`
-
-        """
-        # THIS IS MUCH SLOWER for small array
-        # return np.linalg.norm(p1 - p2)
-
-        p = p1 - p2
-        return math.sqrt(p[0] ** 2 + p[1] ** 2)
-
     def step_from_to(self, p1: np.ndarray, p2: np.ndarray):
         """Get a new point from p1 to p2, according to step size.
 
@@ -185,7 +166,7 @@ class Env:
             return p2
         unit_vector = p2 - p1
         unit_vector = unit_vector / np.linalg.norm(unit_vector)
-        step_size = self.dist(p1, p2)
+        step_size = self.args.engine.dist(p1, p2)
         step_size = min(step_size, self.args.epsilon)
         return p1 + step_size * unit_vector
 
@@ -216,18 +197,18 @@ class Env:
         with tqdm(
             total=self.args.max_number_nodes, desc=self.args.sampler.name
         ) as pbar:
-            while self.stats.valid_sample < self.args.max_number_nodes:
+            while self.args.stats.valid_sample < self.args.max_number_nodes:
                 self.visualiser.update_screen()
                 self.planner.run_once()
 
-                pbar.n = self.stats.valid_sample
+                pbar.n = self.args.stats.valid_sample
 
                 pbar.set_postfix(
                     {
-                        "cc_fe": self.stats.feasible_cnt,
-                        "cc_vi": self.stats.visible_cnt,
-                        "fe": self.stats.invalid_samples_obstacles,
-                        "vi": self.stats.invalid_samples_connections,
+                        "cc_fe": self.args.stats.feasible_cnt,
+                        "cc_vi": self.args.stats.visible_cnt,
+                        "fe": self.args.stats.invalid_samples_obstacles,
+                        "vi": self.args.stats.invalid_samples_connections,
                         "c_max": self.planner.c_max,
                     }
                 )
@@ -235,12 +216,12 @@ class Env:
                     csv_logger = logging.getLogger("CSV_STATS")
                     csv_logger.info(
                         [
-                            self.stats.valid_sample,
+                            self.args.stats.valid_sample,
                             time.time() - start_time,
-                            self.stats.feasible_cnt,
-                            self.stats.visible_cnt,
-                            self.stats.invalid_samples_obstacles,
-                            self.stats.invalid_samples_connections,
+                            self.args.stats.feasible_cnt,
+                            self.args.stats.visible_cnt,
+                            self.args.stats.invalid_samples_obstacles,
+                            self.args.stats.invalid_samples_connections,
                             self.planner.c_max,
                         ]
                     )

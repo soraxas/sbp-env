@@ -59,11 +59,11 @@ class Sampler(ABC):
         """Loop until we find a valid next node. Uses ``get_next_pos`` internally."""
         while True:
             coordinate, report_success, report_fail = self.get_next_pos()
-            self.args.env.stats.add_sampled_node(coordinate)
-            if self.args.env.cc.feasible(coordinate):
+            self.args.stats.add_sampled_node(coordinate)
+            if self.args.engine.cc.feasible(coordinate):
                 return coordinate, report_success, report_fail
             report_fail(pos=coordinate, obstacle=True)
-            self.args.env.stats.add_invalid(obs=True)
+            self.args.stats.add_invalid(obs=True)
 
     def set_use_radian(self, value: bool = True):
         """Set this sampler to use radian or not

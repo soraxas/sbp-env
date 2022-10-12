@@ -27,5 +27,5 @@ class TestNearbyPolicyPlanner(TestRRTPlanner):
 
         self.planner.args.radius = 1000
         # make it always be visible for testing
-        self.planner.args.env.cc.feasible = MagicMock(return_value=True)
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.feasible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)

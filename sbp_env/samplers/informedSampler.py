@@ -8,6 +8,7 @@ from overrides import overrides
 from ..samplers.baseSampler import Sampler
 from ..samplers.randomPolicySampler import RandomPolicySampler
 from ..utils import planner_registry
+from ..utils.common import Colour
 
 
 # noinspection PyAttributeOutsideInit
@@ -69,7 +70,7 @@ class InformedSampler(Sampler):
 
         # Computing the sampling space
         self.cMin = (
-            self.args.env.dist(self.start_pos, self.goal_pos) - self.args.goal_radius
+            self.args.engine.dist(self.start_pos, self.goal_pos) - self.args.goal_radius
         )
         self.xCenter = np.array(
             [
@@ -146,7 +147,6 @@ def pygame_informed_sampler_paint(sampler: Sampler) -> None:
 
     """
     import pygame
-    from utils.common import Colour
 
     # draw the ellipse
     if sampler.cBest < float("inf"):

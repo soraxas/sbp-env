@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 from rtree import index
+import copy
 
 
 class MagicDict(dict):
@@ -13,8 +14,6 @@ class MagicDict(dict):
         super().__setattr__("__frozen", False)
 
     def __deepcopy__(self, memo):
-        import copy
-
         cls = self.__class__
         result = cls.__new__(cls)
         super(MagicDict, result).__setattr__(

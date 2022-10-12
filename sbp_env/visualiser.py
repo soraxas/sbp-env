@@ -161,7 +161,7 @@ class BaseEnvVisualiser(ABC):
 
 class PygamePlannerVisualiser(BasePlannerVisualiser):
     """
-    Planner Visualiser with the Pygame engine
+    Planner Visualiser with the Pygame engine.py
     """
 
     def __init__(
@@ -243,7 +243,7 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
 
 class PygameSamplerVisualiser(BaseSamplerVisualiser):
     """
-    Visualisation of the sampler with Pygame engine
+    Visualisation of the sampler with Pygame engine.py
     """
 
     def __init__(
@@ -294,17 +294,14 @@ class PygameSamplerVisualiser(BaseSamplerVisualiser):
 # noinspection PyAttributeOutsideInit
 class PygameEnvVisualiser(BaseEnvVisualiser):
     """
-    Environment Visualiser with the Pygame engine
+    Environment Visualiser with the Pygame engine.py
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.extra = 25
         self.img = pygame.image.load(self.args.image)
-
-    @property
-    def dim(self):
-        return self.env_instance.dim
+        self.dim = self.args.engine.upper
 
     def visualiser_init(self, no_display: bool = False):
         """Delayed *initialisation* method for environment visualiser.
@@ -408,11 +405,11 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 if e.type == MOUSEBUTTONDOWN:
                     mouse_pos = np.array(e.pos) / self.args.scaling
 
-                    if type(self.cc) == RobotArm4dCollisionChecker:
+                    if type(self.args.engine.cc) == RobotArm4dCollisionChecker:
                         mouse_pos = np.array(
                             [*mouse_pos, *np.random.uniform(-np.pi, np.pi, 2)]
                         )
-                    if not self.cc.feasible(mouse_pos):
+                    if not self.args.engine.cc.feasible(mouse_pos):
                         # failed to pass collision check
                         mouse_pos = None
                     elif e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
@@ -466,11 +463,11 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
         # draw config for node 1
         pt1 = node.pos[:2]
-        pt2 = self.cc.get_pt_from_angle_and_length(
-            pt1, node.pos[2], self.cc.stick_robot_length_config[0]
+        pt2 = self.args.engine.cc.get_pt_from_angle_and_length(
+            pt1, node.pos[2], self.args.engine.cc.stick_robot_length_config[0]
         )
-        pt3 = self.cc.get_pt_from_angle_and_length(
-            pt2, node.pos[3], self.cc.stick_robot_length_config[1]
+        pt3 = self.args.engine.cc.get_pt_from_angle_and_length(
+            pt2, node.pos[3], self.args.engine.cc.stick_robot_length_config[1]
         )
 
         pt2 = np.array(pt2)
@@ -530,7 +527,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         # for n in nodes_to_draw:
         #     self.args.env.draw_stick_robot(n, layer=self.args.env.path_layers)
 
-        if type(self.cc) == collisionChecker.RobotArm4dCollisionChecker:
+        if type(self.args.engine.cc) == collisionChecker.RobotArm4dCollisionChecker:
             self.draw_stick_robot(node1, layer=self.path_layers)
         else:
             pygame.draw.line(
@@ -626,7 +623,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         if count % 4 == 0:
             self.sampledPoint_screen.fill(Colour.ALPHA_CK)
             # Draw sampled nodes
-            for sampledPos in self.env_instance.stats.sampledNodes:
+            for sampledPos in self.args.stats.sampledNodes:
                 self.draw_circle(
                     pos=sampledPos,
                     colour=Colour.red,
@@ -635,7 +632,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 )
             self.window.blit(self.sampledPoint_screen, (0, 0))
             # remove them from list
-            del self.env_instance.stats.sampledNodes[:]
+            del self.args.stats.sampledNodes[:]
 
         # Texts
         if count % 10 == 0:
@@ -646,8 +643,8 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             )
             text = "Cost: {} | Inv.Samples: {}(con) {}(obs)".format(
                 _cost,
-                self.env_instance.stats.invalid_samples_connections,
-                self.env_instance.stats.invalid_samples_obstacles,
+                self.args.stats.invalid_samples_connections,
+                self.args.stats.invalid_samples_obstacles,
             )
             self.window.blit(
                 self.myfont.render(text, False, Colour.white, Colour.black),
@@ -664,7 +661,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
 
 class KlamptPlannerVisualiser(BasePlannerVisualiser):
     """
-    Planner Visualiser with the Klampt engine
+    Planner Visualiser with the Klampt engine.py
     """
 
     def __init__(
@@ -720,7 +717,7 @@ class KlamptPlannerVisualiser(BasePlannerVisualiser):
 
 class KlamptEnvVisualiser(BaseEnvVisualiser):
     """
-    Environment Visualiser with the Klampt engine
+    Environment Visualiser with the Klampt engine.py
     """
 
     def __init__(self, **kwargs):
@@ -739,7 +736,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
         if not no_display:
             from klampt import vis
 
-            vis.add("world", self.args.cc.world)
+            vis.add("world", self.args.engine.cc.world)
             vis.show()
 
     def set_start_goal_points(
@@ -765,15 +762,15 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
             """
             save = None
             # it's worthwhile to make sure that it's feasible
-            while q is None or not self.cc.feasible(q):
+            while q is None or not self.args.engine.cc.feasible(q):
                 print("=" * 20)
                 print("=" * 20)
                 print(type_str, q)
                 print(type_str + " configuration isn't feasible")
                 save, q = resource.edit(
-                    type_str + " config", q, "Config", world=self.cc.world
+                    type_str + " config", q, "Config", world=self.args.engine.cc.world
                 )
-                q = self.cc.translate_from_klampt(q)
+                q = self.args.engine.cc.translate_from_klampt(q)
 
             return save, q
 
@@ -859,7 +856,7 @@ class KlamptEnvVisualiser(BaseEnvVisualiser):
 
 class KlamptSamplerVisualiser(BaseSamplerVisualiser):
     """
-    Visualisation of the sampler with Klampt engine
+    Visualisation of the sampler with Klampt engine.py
     """
 
     def __init__(

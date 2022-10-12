@@ -63,8 +63,8 @@ class LikelihoodPolicySampler(Sampler):
         self.random_sampler.init(**kwargs)
 
         self.shape = (
-            int(self.args.env.dim[0] / self.PROB_BLOCK_SIZE) + 1,
-            int(self.args.env.dim[1] / self.PROB_BLOCK_SIZE) + 1,
+            int(self.args.engine.upper[0] / self.PROB_BLOCK_SIZE) + 1,
+            int(self.args.engine.upper[1] / self.PROB_BLOCK_SIZE) + 1,
         )
         self.prob_vector = np.ones(self.shape)
         self.prob_vector *= 1  # IMPORTANT because we are using log2
@@ -138,7 +138,7 @@ class LikelihoodPolicySampler(Sampler):
         """
         x, y = kwargs["pos"]
         # add all in between point of nearest node of the random pt as valid
-        x1, y1 = self.args.env.cc.get_coor_before_collision(
+        x1, y1 = self.args.engine.cc.get_coor_before_collision(
             kwargs["nn"].pos, kwargs["rand_pos"]
         )
         self.add_sample_line(x, y, x1, y1)

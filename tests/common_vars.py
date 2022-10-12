@@ -3,9 +3,10 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 
+from sbp_env import engine
 from sbp_env.planners.basePlanner import Planner
 from sbp_env.samplers.baseSampler import Sampler
-from sbp_env.utils.common import MagicDict
+from sbp_env.utils.common import MagicDict, Stats
 from sbp_env.utils.planner_registry import PlannerDataPack, SamplerDataPack
 from sbp_env.visualiser import VisualiserSwitcher
 
@@ -42,12 +43,10 @@ VisualiserSwitcher.choose_visualiser("base")
 # common args
 template_args = MagicDict(
     always_refresh=False,
-    engine="image",
     epsilon=10.0,
     goalBias=0.02,
     start_pt="100,100",
     goal_pt="350,350",
-    num_dim=2,
     goal_radius=8.0,
     ignore_step_size=False,
     image="maps/room1.png",
@@ -80,7 +79,9 @@ template_args = MagicDict(
     scaling=1.5,
     showSampledPoint=False,
     skip_optimality=False,
+    stats=Stats(),
 )
+template_args["engine"] = engine.ImageEngine(template_args)
 
 
 # helper class to test equality for numpy array

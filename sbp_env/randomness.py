@@ -159,9 +159,9 @@ class RandomnessManager:
             "bounds": [[0, 1]] * self.num_dim,
         }
         if random_method == "pseudo_random":
-            seq = np.random.random((self.bucket_size, 2))
+            seq = np.random.random((self.bucket_size, self.num_dim))
         elif random_method == "sobol_sequence":
-            seq = sobol_sequence.sample(self.bucket_size, 2)
+            seq = sobol_sequence.sample(self.bucket_size, self.num_dim)
         elif random_method == "saltelli":
             seq = saltelli.sample(problem, self.bucket_size, calc_second_order=False)
         elif random_method == "latin_hypercube":

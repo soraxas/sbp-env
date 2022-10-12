@@ -9,6 +9,7 @@ from ..utils.common import Node
 from ..planners.rrtPlanner import RRTPlanner
 from ..samplers import prmSampler
 from ..utils import planner_registry
+from ..utils.common import Colour
 
 volume_of_unit_ball = {
     1: 2,
@@ -51,11 +52,14 @@ class PRMPlanner(RRTPlanner):
     @overrides
     def init(self, *argv, **kwargs):
         super().init(*argv, **kwargs)
-        self.args.env.stats.invalid_samples_connections = "-- "
+        self.args.stats.invalid_samples_connections = "-- "
 
         self.d_threshold = self.args.epsilon
         self.gamma = (
-            1 + np.power(2, kwargs["num_dim"]) * (1 + 1.0 / kwargs["num_dim"]) * 10000
+            1
+            + np.power(2, self.args.engine.get_dimension())
+            * (1 + 1.0 / self.args.engine.get_dimension())
+            * 10000
         )
 
         self.graph = nx.DiGraph()
@@ -65,7 +69,7 @@ class PRMPlanner(RRTPlanner):
     @overrides
     def run_once(self):
         rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
-        self.args.env.stats.add_free()
+        self.args.stats.add_free()
         self.add_newnode(Node(rand_pos))
 
     def clear_graph(self):
@@ -81,7 +85,9 @@ class PRMPlanner(RRTPlanner):
             G = (V, E).
         """
         n = len(self.nodes)
-        radius = self.gamma * np.power(np.log(n + 1) / (n + 1), 1 / self.args.num_dim)
+        radius = self.gamma * np.power(
+            np.log(n + 1) / (n + 1), 1 / self.args.engine.get_dimension()
+        )
 
         for v in tqdm.tqdm(self.nodes, desc="Building graph"):
             m_near = nearest_neighbours(self.nodes, self.poses, v.pos, radius)
@@ -89,10 +95,10 @@ class PRMPlanner(RRTPlanner):
                 if m_g is v:
                     continue
                 # check if path between(m_g,m_new) defined by motion-model is collision free
-                if not self.args.env.cc.visible(m_g.pos, v.pos):
+                if not self.args.engine.cc.visible(m_g.pos, v.pos):
                     continue
                 self.graph.add_weighted_edges_from(
-                    [(m_g, v, self.args.env.dist(m_g.pos, v.pos))]
+                    [(m_g, v, self.args.engine.dist(m_g.pos, v.pos))]
                 )
 
     def get_nearest_free(self, node: Node, neighbours: List[Node]):
@@ -108,13 +114,13 @@ class PRMPlanner(RRTPlanner):
         for n in neighbours:
             if n is self.args.env.start_pt or n is self.args.env.goal_pt or n is node:
                 continue
-            if not self.args.env.cc.visible(node.pos, n.pos):
+            if not self.args.engine.cc.visible(node.pos, n.pos):
                 continue
             if nn is None:
                 nn = n
-                min_cost = self.args.env.dist(node.pos, n.pos)
+                min_cost = self.args.engine.dist(node.pos, n.pos)
             else:
-                _cost = self.args.env.dist(node.pos, n.pos)
+                _cost = self.args.engine.dist(node.pos, n.pos)
                 if _cost < min_cost:
                     min_cost = _cost
                     nn = n
@@ -136,10 +142,10 @@ class PRMPlanner(RRTPlanner):
             return float("inf")
 
         solution_path = nx.shortest_path(self.graph, start, goal)
-        solution_path[0].cost = self.args.env.dist(solution_path[0].pos, start.pos)
+        solution_path[0].cost = self.args.engine.dist(solution_path[0].pos, start.pos)
         for i in range(1, len(solution_path)):
             solution_path[i].parent = solution_path[i - 1]
-            solution_path[i].cost = solution_path[i - 1].cost + self.args.env.dist(
+            solution_path[i].cost = solution_path[i - 1].cost + self.args.engine.dist(
                 solution_path[i].pos, solution_path[i - 1].pos
             )
         self.c_max = goal.cost
@@ -170,7 +176,6 @@ def pygame_prm_planner_paint_when_terminate(planner):
     :param planner: the planner to visualise
 
     """
-    from utils.common import Colour
 
     planner.build_graph()
     # draw all edges
@@ -192,13 +197,13 @@ def klampt_prm_paint(planner) -> None:
     colour = (1, 0, 0, 1)
     for n in planner.nodes:
         planner.args.env.draw_node(
-            planner.args.env.cc.get_eef_world_pos(n.pos), colour=colour
+            planner.args.engine.cc.get_eef_world_pos(n.pos), colour=colour
         )
     for edge in planner.graph.edges:
         edge = np.array(edge).transpose()
         planner.args.env.draw_path(
-            planner.args.env.cc.get_eef_world_pos(n.pos),
-            planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+            planner.args.engine.cc.get_eef_world_pos(n.pos),
+            planner.args.engine.cc.get_eef_world_pos(n.parent.pos),
             colour=colour,
         )
 
@@ -209,8 +214,6 @@ def klampt_prm_planner_paint_when_terminate(planner):
     :param planner: the planner to visualise
 
     """
-    from utils.common import Colour
-
     planner.build_graph()
     # draw all edges
     for n1, n2 in planner.tree.edges():

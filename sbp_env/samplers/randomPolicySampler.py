@@ -50,28 +50,11 @@ class RandomPolicySampler(Sampler):
 
     @overrides
     def init(self, **kwargs):
-        """The delayed **initialisation** method
-
-        :param num_dim: the number of dimensions
-
-        """
+        """The delayed **initialisation** method"""
         super().init(**kwargs)
-        self.random = RandomnessManager(num_dim=kwargs["num_dim"])
+        self.random = RandomnessManager(num_dim=kwargs["engine"].get_dimension())
 
         self.use_original_method = False
-
-        if self.args.engine == "klampt":
-            self.low, self.high = (
-                [-np.pi] * kwargs["num_dim"],
-                [np.pi] * kwargs["num_dim"],
-            )
-        elif self.args.engine == "4d":
-            self.low, self.high = [
-                [0, 0, -np.pi, -np.pi],
-                [self.args.env.dim[0], self.args.env.dim[1], np.pi, np.pi],
-            ]
-        else:
-            self.use_original_method = True
 
     @overrides
     def get_next_pos(self) -> Sampler.GetNextPosReturnType:
@@ -80,11 +63,8 @@ class RandomPolicySampler(Sampler):
             # goal bias
             p = self.goal_pos
         else:
-            if self.use_original_method:
-                p = self.random.get_random(self.random_method)
-                p *= self.args.env.dim
-            else:
-                p = np.random.uniform(self.low, self.high)
+            p = self.random.get_random(self.random_method)
+            p = self.args.engine.transform(p)
 
         return p, self.report_success, self.report_fail
 

@@ -13,7 +13,7 @@ from ..planners.rrtPlanner import RRTPlanner
 from ..samplers.baseSampler import Sampler
 from ..samplers.randomPolicySampler import RandomPolicySampler
 from ..utils import planner_registry
-from ..utils.common import BFS, MagicDict
+from ..utils.common import BFS, MagicDict, Colour
 
 LOGGER = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ class DisjointTreeParticle:
             merged_tree.particle_handlers.append(self)
         else:
             # spawn a new tree
-            self.tree = TreeDisjoint(dim=self.p_manager.args.num_dim)
+            self.tree = TreeDisjoint(dim=self.p_manager.args.engine.get_dimension())
             self.register_tree(self.tree)
             self.tree.add_newnode(Node(pos))
             self.planner.add_tree(self.tree)
@@ -185,13 +185,17 @@ class DisjointTreeParticle:
 
             if self.last_origin is None:
                 # first time
-                mu = np.random.standard_normal((1, self.p_manager.args.num_dim))
+                mu = np.random.standard_normal(
+                    (1, self.p_manager.args.engine.get_dimension())
+                )
                 mu = mu / np.linalg.norm(mu, axis=1)[:, None]
                 self.provision_dir = mu[0]
                 return self.provision_dir
             elif self.A is None:
                 self.x, self.y = self.generate_pmf(
-                    num_dims=self.p_manager.args.num_dim, mu=self.last_origin, kappa=2
+                    num_dims=self.p_manager.args.engine.get_dimension(),
+                    mu=self.last_origin,
+                    kappa=2,
                 )
 
                 self.A = self.y.copy()
@@ -261,8 +265,8 @@ class RRdTSampler(Sampler):
     def init(self, **kwargs):
         super().init(**kwargs)
         # For benchmark stats tracking
-        self.args.env.stats.lsampler_restart_counter = 0
-        self.args.env.stats.lsampler_randomwalk_counter = 0
+        self.args.stats.lsampler_restart_counter = 0
+        self.args.stats.lsampler_randomwalk_counter = 0
 
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -288,7 +292,7 @@ class RRdTSampler(Sampler):
         goal_dt_p.tree.add_newnode(self.args.env.goal_pt)
 
         # spawn one that comes from the root
-        self.args.planner.root = TreeRoot(dim=self.args.num_dim)
+        self.args.planner.root = TreeRoot(dim=self.args.engine.get_dimension())
         root_particle = self._add_particle(
             pos=self.start_pos, isroot=self.args.planner.root
         )
@@ -411,8 +415,8 @@ class RRdTSampler(Sampler):
         p_idx = None
         for i in range(len(self.p_manager.particles)):
             p = self.p_manager.particles[i]
-            if _dist is None or _dist > self.args.env.dist(pos, p.pos):
-                _dist = self.args.env.dist(pos, p.pos)
+            if _dist is None or _dist > self.args.engine.dist(pos, p.pos):
+                _dist = self.args.engine.dist(pos, p.pos)
                 p_idx = i
         LOGGER.debug("num of tree: {}".format(len(self.args.planner._disjointed_trees)))
         self.p_manager.new_pos(idx=p_idx, pos=pos, dir=0)
@@ -424,7 +428,7 @@ class RRdTSampler(Sampler):
         :param idx: the index of the particle
 
         """
-        self.args.env.stats.lsampler_randomwalk_counter += 1
+        self.args.stats.lsampler_randomwalk_counter += 1
         # Randomly bias toward goal direction
         if False and random.random() < self.args.goalBias:
             dx = self.goal_pos[0] - self.p_manager.get_pos(idx)[0]
@@ -543,16 +547,16 @@ class RRdTPlanner(RRTPlanner):
                 # Skip remaining steps and iterate to next loop
                 break
             rand_pos = _tmp[0]
-            self.args.env.stats.add_sampled_node(rand_pos)
-            if self.args.env.cc.feasible(rand_pos):
-                self.args.env.stats.sampler_success += 1
+            self.args.stats.add_sampled_node(rand_pos)
+            if self.args.engine.cc.feasible(rand_pos):
+                self.args.stats.sampler_success += 1
                 break
             report_fail = _tmp[-1]
             report_fail(pos=rand_pos, obstacle=True)
-            self.args.env.stats.add_invalid(obs=True)
-            self.args.env.stats.sampler_fail += 1
+            self.args.stats.add_invalid(obs=True)
+            self.args.stats.sampler_fail += 1
 
-        self.args.env.stats.sampler_success_all += 1
+        self.args.stats.sampler_success_all += 1
 
         if _tmp is None:
             # we have added a new samples when respawning a local sampler
@@ -571,13 +575,13 @@ class RRdTPlanner(RRTPlanner):
             # get an intermediate node according to step-size
             newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it is free or not
-        if not self.args.env.cc.visible(nn.pos, newpos):
-            self.args.env.stats.add_invalid(obs=False)
+        if not self.args.engine.cc.visible(nn.pos, newpos):
+            self.args.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
 
-            self.args.env.stats.add_free()
+            self.args.stats.add_free()
             self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(newnode=newnode, pos=newnode.pos)
             ######################
@@ -601,8 +605,8 @@ class RRdTPlanner(RRTPlanner):
         # newnode.parent = nn
 
         # check for goal condition
-        if self.args.env.dist(newnode.pos, self.goal_pt.pos) < self.args.goal_radius:
-            if self.args.env.cc.visible(newnode.pos, self.goal_pt.pos):
+        if self.args.engine.dist(newnode.pos, self.goal_pt.pos) < self.args.goal_radius:
+            if self.args.engine.cc.visible(newnode.pos, self.goal_pt.pos):
                 if newnode.cost < self.c_max:
                     self.c_max = newnode.cost
                     self.goal_pt.parent = newnode
@@ -650,7 +654,7 @@ class RRdTPlanner(RRTPlanner):
         cnt = 0
         for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
             # for nearest_neighbour_node, nearest_neighbour_tree in nearest_nodes:
-            if self.args.env.cc.visible(newnode.pos, nearest_neighbour_node.pos):
+            if self.args.engine.cc.visible(newnode.pos, nearest_neighbour_node.pos):
                 if parent_tree is None:
                     ### joining ORPHAN NODE to a tree
                     self.connect_two_nodes(
@@ -706,7 +710,7 @@ class RRdTPlanner(RRTPlanner):
                 node.pos, tree.poses[: len(tree.nodes)]
             )
             nn = tree.nodes[idx]
-            if self.args.env.dist(nn.pos, node.pos) < radius:
+            if self.args.engine.dist(nn.pos, node.pos) < radius:
                 nearest_nodes[tree] = nn
         # construct list of the found solution.
         # And root at last (or else the result won't be stable)
@@ -975,16 +979,16 @@ class MABScheduler:
 
     def new_pos_in_free_space(self):
         """Return a new position in free space."""
-        self.args.env.stats.lsampler_restart_counter += 1
+        self.args.stats.lsampler_restart_counter += 1
         while True:
 
             new_p = self.random_sampler.get_next_pos()[0]
 
-            self.args.env.stats.add_sampled_node(new_p)
-            if not self.args.env.cc.feasible(new_p):
-                self.args.env.stats.add_invalid(obs=True)
+            self.args.stats.add_sampled_node(new_p)
+            if not self.args.engine.cc.feasible(new_p):
+                self.args.stats.add_invalid(obs=True)
             else:
-                self.args.env.stats.add_free()
+                self.args.stats.add_free()
                 break
         return new_p
 
@@ -999,8 +1003,8 @@ def pygame_rrdt_sampler_paint_init(sampler):
 
     sampler.particles_layer = pygame.Surface(
         (
-            sampler.args.env.dim[0] * sampler.args.scaling,
-            sampler.args.env.dim[1] * sampler.args.scaling,
+            sampler.args.engine.upper[0] * sampler.args.scaling,
+            sampler.args.engine.upper[1] * sampler.args.scaling,
         ),
         pygame.SRCALPHA,
     )
@@ -1043,8 +1047,6 @@ def pygame_rrdt_sampler_paint(sampler):
 
 
 def pygame_rrdt_planner_paint(planner):
-    from utils.common import Colour
-
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
 
     drawn_nodes_pairs = set()
@@ -1091,7 +1093,7 @@ def klampt_rrdt_planner_paint(planner):
         # draw nodes
         for node in tree.nodes:
             planner.args.env.draw_node(
-                planner.args.env.cc.get_eef_world_pos(node.pos), colour=c
+                planner.args.engine.cc.get_eef_world_pos(node.pos), colour=c
             )
         # draw edges
         bfs = BFS(tree.nodes[0], validNodes=tree.nodes)
@@ -1103,8 +1105,8 @@ def klampt_rrdt_planner_paint(planner):
                     drawn_nodes_pairs.add(new_set)
 
                     planner.args.env.draw_path(
-                        planner.args.env.cc.get_eef_world_pos(newnode.pos),
-                        planner.args.env.cc.get_eef_world_pos(e.pos),
+                        planner.args.engine.cc.get_eef_world_pos(newnode.pos),
+                        planner.args.engine.cc.get_eef_world_pos(e.pos),
                         colour=c,
                     )
     # Draw root tree
@@ -1114,7 +1116,7 @@ def klampt_rrdt_planner_paint(planner):
     # draw nodes
     for node in planner.root.nodes:
         planner.args.env.draw_node(
-            planner.args.env.cc.get_eef_world_pos(node.pos), colour=c
+            planner.args.engine.cc.get_eef_world_pos(node.pos), colour=c
         )
     # draw edges
     for n in planner.root.nodes:
@@ -1123,8 +1125,8 @@ def klampt_rrdt_planner_paint(planner):
             if new_set not in drawn_nodes_pairs:
                 drawn_nodes_pairs.add(new_set)
                 planner.args.env.draw_path(
-                    planner.args.env.cc.get_eef_world_pos(n.pos),
-                    planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+                    planner.args.engine.cc.get_eef_world_pos(n.pos),
+                    planner.args.engine.cc.get_eef_world_pos(n.parent.pos),
                     colour=c,
                 )
 

@@ -38,7 +38,7 @@ class CollisionChecker(ABC):
         :param p: configuration to check
 
         """
-        pass
+        raise NotImplementedError("Must derive from this class")
 
     def get_image_shape(self):
         """Get the image shape of the planning problem.
@@ -51,7 +51,7 @@ class CollisionChecker(ABC):
 
 class ImgCollisionChecker(CollisionChecker):
     """
-    2D Image Space simulator engine
+    2D Image Space simulator engine.py
     """
 
     def __init__(
@@ -276,7 +276,7 @@ class KlamptCollisionChecker(CollisionChecker):
 
 class RobotArm4dCollisionChecker(CollisionChecker):
     """
-    4D robot arm simulator engine that operates in the Image Space
+    4D robot arm simulator engine.py that operates in the Image Space
     """
 
     def __init__(

@@ -29,14 +29,14 @@ class PRMPlanner(TestRRTPlanner):
 
         self.planner.args.radius = 1000
         # make it always be visible for testing
-        self.planner.args.env.cc.feasible = MagicMock(return_value=True)
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.feasible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
     def test_run_once_success(self):
         # PRM won't knows whether the sampled point is connectable or not before
         # graph construction
         pos1 = np.array([4, 2])
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -56,7 +56,7 @@ class PRMPlanner(TestRRTPlanner):
         # PRM won't knows whether the sampled point is connectable or not before
         # graph construction
         pos1 = np.array([4, 2])
-        self.planner.args.env.cc.visible = MagicMock(return_value=False)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=False)
 
         mocked_report_success = MagicMock()
         mocked_report_fail = MagicMock()
@@ -73,7 +73,7 @@ class PRMPlanner(TestRRTPlanner):
         self.assertEqual(MockNumpyEquality(pos1), self.planner.nodes[-1].pos)
 
     def test_build_graph(self):
-        self.planner.args.env.cc.visible = MagicMock(return_value=True)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=True)
         self.planner.args.epsilon = 10000
 
         for i in range(10):
@@ -86,7 +86,7 @@ class PRMPlanner(TestRRTPlanner):
         self.assertTrue(self.planner.get_solution() < float("inf"))
 
     def test_build_graph_failed(self):
-        self.planner.args.env.cc.visible = MagicMock(return_value=False)
+        self.planner.args.engine.cc.visible = MagicMock(return_value=False)
         self.planner.args.epsilon = 10000
 
         for i in range(10):

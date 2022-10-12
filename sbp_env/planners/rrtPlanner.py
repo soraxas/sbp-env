@@ -6,7 +6,7 @@ import numpy as np
 
 from ..planners.basePlanner import Planner
 from ..utils import planner_registry
-from ..utils.common import Node, Tree
+from ..utils.common import Node, Tree, Colour
 
 
 class RRTPlanner(Planner):
@@ -20,14 +20,9 @@ class RRTPlanner(Planner):
     """
 
     def __init__(self, **kwargs):
-        """
-        :param num_dim: the number of dimensionality :math:`d`
-
-        :type num_dim: int
-        """
         super().__init__(**kwargs)
         self.poses = np.empty(
-            (self.args.max_number_nodes * 2 + 50, kwargs["num_dim"])
+            (self.args.max_number_nodes * 2 + 50, kwargs["engine"].get_dimension())
         )  # +50 to prevent over flow
         self.c_max = float("inf")
         # this dict is to temporarily store distance of a new node to all others
@@ -37,7 +32,7 @@ class RRTPlanner(Planner):
         self._new_node_dist_to_all_others = {}
         self.nodes = []
         self.args.env = None  # will be set by env itself
-        self.tree = Tree(kwargs["num_dim"])
+        self.tree = Tree(kwargs["engine"].get_dimension())
         self.found_solution = True
 
         if self.args["skip_optimality"]:
@@ -47,7 +42,7 @@ class RRTPlanner(Planner):
                 if nn is None:
                     raise RuntimeError("Not enough information")
                 newnode.parent = nn
-                newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+                newnode.cost = nn.cost + self.args.engine.dist(nn.pos, newnode.pos)
                 return newnode, nn
 
             def no_opt_rewire(*_, **__):
@@ -84,12 +79,12 @@ class RRTPlanner(Planner):
         # get an intermediate node according to step-size
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
-        if not self.args.env.cc.visible(nn.pos, newpos):
-            self.args.env.stats.add_invalid(obs=False)
+        if not self.args.engine.cc.visible(nn.pos, newpos):
+            self.args.stats.add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
-            self.args.env.stats.add_free()
+            self.args.stats.add_free()
             self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################
@@ -98,9 +93,9 @@ class RRTPlanner(Planner):
             # rewire to see what the newly added node can do for us
             self.rewire(newnode, self.nodes)
 
-            if self.args.env.cc.visible(newnode.pos, self.goal_pt.pos):
+            if self.args.engine.cc.visible(newnode.pos, self.goal_pt.pos):
                 if (
-                    self.args.env.dist(newnode.pos, self.goal_pt.pos)
+                    self.args.engine.dist(newnode.pos, self.goal_pt.pos)
                     < self.args.goal_radius
                 ):
                     if newnode.cost < self.c_max:
@@ -145,7 +140,7 @@ class RRTPlanner(Planner):
                 raise RuntimeError("Not enough information")
 
             newnode.parent = nn
-            newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+            newnode.cost = nn.cost + self.args.engine.dist(nn.pos, newnode.pos)
             return newnode, nn
 
         if use_rtree or poses is not None:
@@ -159,27 +154,29 @@ class RRTPlanner(Planner):
             canidates.sort(key=operator.attrgetter("cost"))
 
             for n in canidates:
-                if self.args.env.dist(
+                if self.args.engine.dist(
                     newnode.pos, n.pos
-                ) <= self.args.radius and self.args.env.cc.visible(newnode.pos, n.pos):
+                ) <= self.args.radius and self.args.engine.cc.visible(
+                    newnode.pos, n.pos
+                ):
                     nn2 = n
                     break
             if nn2 is None:
                 if nn is None:
                     raise RuntimeError("Unable to find nn that is connectable")
                 nn2 = nn
-            newnode.cost = nn2.cost + self.args.env.dist(nn2.pos, newnode.pos)
+            newnode.cost = nn2.cost + self.args.engine.dist(nn2.pos, newnode.pos)
             newnode.parent = nn2
 
             return newnode, nn2
 
         if nn is not None:
-            _newnode_to_nn_cost = self.args.env.dist(newnode.pos, nn.pos)
+            _newnode_to_nn_cost = self.args.engine.dist(newnode.pos, nn.pos)
         self._new_node_dist_to_all_others = {}
         for p in nodes:
-            _newnode_to_p_cost = self.args.env.dist(newnode.pos, p.pos)
+            _newnode_to_p_cost = self.args.engine.dist(newnode.pos, p.pos)
             self._new_node_dist_to_all_others[(newnode, p)] = _newnode_to_p_cost
-            if _newnode_to_p_cost <= self.args.radius and self.args.env.cc.visible(
+            if _newnode_to_p_cost <= self.args.radius and self.args.engine.cc.visible(
                 newnode.pos, p.pos
             ):
                 # This is another valid parent. Check if it's better than our current one.
@@ -192,7 +189,7 @@ class RRTPlanner(Planner):
             raise LookupError(
                 "ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?"
             )
-        newnode.cost = nn.cost + self.args.env.dist(nn.pos, newnode.pos)
+        newnode.cost = nn.cost + self.args.engine.dist(nn.pos, newnode.pos)
         assert newnode is not nn
         newnode.parent = nn
 
@@ -235,11 +232,11 @@ class RRTPlanner(Planner):
                 if n in already_rewired:
                     continue
 
-                _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
+                _newnode_to_n_cost = self.args.engine.dist(newnode.pos, n.pos)
                 if (
                     n != newnode.parent
                     and _newnode_to_n_cost <= self.args.radius
-                    and self.args.env.cc.visible(n.pos, newnode.pos)
+                    and self.args.engine.cc.visible(n.pos, newnode.pos)
                     and newnode.cost + _newnode_to_n_cost < n.cost
                 ):
                     # draw over the old wire
@@ -256,11 +253,11 @@ class RRTPlanner(Planner):
             if len(already_rewired) <= 1:
                 _newnode_to_n_cost = self._new_node_dist_to_all_others[newnode, n]
             else:
-                _newnode_to_n_cost = self.args.env.dist(newnode.pos, n.pos)
+                _newnode_to_n_cost = self.args.engine.dist(newnode.pos, n.pos)
             if (
                 n != newnode.parent
                 and _newnode_to_n_cost <= self.args.radius
-                and self.args.env.cc.visible(n.pos, newnode.pos)
+                and self.args.engine.cc.visible(n.pos, newnode.pos)
                 and newnode.cost + _newnode_to_n_cost < n.cost
             ):
                 # draw over the old wire
@@ -291,8 +288,6 @@ def pygame_rrt_paint(planner: Planner) -> None:
     :param planner: the planner to be visualised
 
     """
-    from ..utils.common import Colour
-
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     drawn_nodes_pairs = set()
     for n in planner.nodes:
@@ -309,15 +304,15 @@ def klampt_draw_nodes_paint_func(planner, nodes, colour):
     drawn_nodes_pairs = set()
     for n in nodes:
         planner.args.env.draw_node(
-            planner.args.env.cc.get_eef_world_pos(n.pos), colour=colour
+            planner.args.engine.cc.get_eef_world_pos(n.pos), colour=colour
         )
         if n.parent is not None:
             new_set = frozenset({n, n.parent})
             if new_set not in drawn_nodes_pairs:
                 drawn_nodes_pairs.add(new_set)
                 planner.args.env.draw_path(
-                    planner.args.env.cc.get_eef_world_pos(n.pos),
-                    planner.args.env.cc.get_eef_world_pos(n.parent.pos),
+                    planner.args.engine.cc.get_eef_world_pos(n.pos),
+                    planner.args.engine.cc.get_eef_world_pos(n.parent.pos),
                     colour=colour,
                 )
 

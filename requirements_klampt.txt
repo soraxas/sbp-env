@@ -1,2 +1,2 @@
-klampt==0.8.7
+klampt>=0.8.7
 ghalton

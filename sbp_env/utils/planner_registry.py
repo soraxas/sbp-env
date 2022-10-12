@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Optional, Callable, Dict, Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from planners.basePlanner import Planner
-    from samplers.baseSampler import Sampler
+    from ..planners.basePlanner import Planner
+    from ..samplers.baseSampler import Sampler
 
 
 @dataclass

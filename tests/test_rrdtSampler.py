@@ -26,8 +26,8 @@ class TestRRdTSampler(TestCase):
         self.sampler = self.env.args.sampler
         # self.env.args.planner.run_once()
 
-        self.env.cc.feasible = MagicMock(return_value=True)
-        self.env.cc.visible = MagicMock(return_value=True)
+        self.env.args.engine.cc.feasible = MagicMock(return_value=True)
+        self.env.args.engine.cc.visible = MagicMock(return_value=True)
 
     def test_get_next_pos(self):
         self.env.args.epsilon = 10000
@@ -52,7 +52,7 @@ class TestRRdTSampler(TestCase):
 
     def test_random_walk(self):
         for i in range(self.sampler.num_dtrees):
-            desire_direction = np.random.rand(self.sampler.args.num_dim)
+            desire_direction = np.random.rand(self.sampler.args.engine.get_dimension())
             desire_direction /= np.linalg.norm(desire_direction)
             self.sampler.p_manager.particles[i].draw_sample = MagicMock(
                 return_value=desire_direction
