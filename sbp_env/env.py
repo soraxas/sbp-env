@@ -255,7 +255,7 @@ class Env:
     ) -> Optional[Union[np.ndarray, List[Node]]]:
         if self.planner.c_max >= float("inf"):
             return None
-        nn = self.planner.goal_pt.parent
+        nn = self.planner.goal_pt
         path = []
         while True:
             path.append(nn)
