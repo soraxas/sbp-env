@@ -3,9 +3,9 @@ import random
 import numpy as np
 from overrides import overrides
 
-from randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
-from samplers.baseSampler import Sampler
-from utils import planner_registry
+from ..randomness import SUPPORTED_RANDOM_METHODS, RandomnessManager
+from ..samplers.baseSampler import Sampler
+from ..utils import planner_registry
 
 
 class RandomPolicySampler(Sampler):

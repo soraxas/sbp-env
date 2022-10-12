@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, ANY
 import numpy as np
 from tqdm import tqdm
 
-import visualiser
-from env import Env
-from planners.rrdtPlanner import RRdTSampler
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.planners.rrdtPlanner import RRdTSampler
+from sbp_env.utils import planner_registry
 from tests.common_vars import template_args, MockNumpyEquality
 from tests.test_rrtPlanner import TestRRTPlanner
-from utils import planner_registry
 
 # the following disable printing from tqdm module during testing
 tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)

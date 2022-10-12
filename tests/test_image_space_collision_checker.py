@@ -2,9 +2,9 @@ from unittest import TestCase
 
 import numpy as np
 
-from collisionChecker import ImgCollisionChecker
+from sbp_env.collisionChecker import ImgCollisionChecker
+from sbp_env.utils.common import Stats, MagicDict
 from tests.common_vars import create_test_image, mock_image_as_np
-from utils.common import Stats, MagicDict
 
 eps = 1e-5
 

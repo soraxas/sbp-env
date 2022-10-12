@@ -3,8 +3,8 @@ from typing import Tuple, Callable
 
 import numpy as np
 
-from utils.common import MagicDict
-from visualiser import VisualiserSwitcher, BaseSamplerVisualiser
+from ..utils.common import MagicDict
+from ..visualiser import VisualiserSwitcher, BaseSamplerVisualiser
 
 
 # noinspection PyAttributeOutsideInit

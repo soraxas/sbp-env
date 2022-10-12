@@ -1,6 +1,6 @@
-from planners import rrtPlanner
-from samplers import nearbyPolicySampler
-from utils import planner_registry
+from ..planners import rrtPlanner
+from ..samplers import nearbyPolicySampler
+from ..utils import planner_registry
 
 # start register
 planner_registry.register_planner(

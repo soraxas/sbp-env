@@ -1,7 +1,7 @@
 from overrides import overrides
 
-from samplers.randomPolicySampler import RandomPolicySampler
-from utils import planner_registry
+from ..samplers.randomPolicySampler import RandomPolicySampler
+from ..utils import planner_registry
 
 
 class PRMSampler(RandomPolicySampler):

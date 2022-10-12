@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, ANY
 
 import numpy as np
 
-import visualiser
-from env import Env
-from samplers.randomPolicySampler import RandomPolicySampler
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.samplers.randomPolicySampler import RandomPolicySampler
+from sbp_env.utils import planner_registry
+from sbp_env.utils.common import Node
 from tests.common_vars import template_args, MockNumpyEquality
-from utils import planner_registry
-from utils.common import Node
 
 
 class TestRRTPlanner(TestCase):

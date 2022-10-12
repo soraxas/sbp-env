@@ -8,11 +8,18 @@ from rtree import index
 class MagicDict(dict):
     """Dictionary, but content is accessible like property."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        super().__setattr__("__frozen", False)
+
     def __deepcopy__(self, memo):
         import copy
 
         cls = self.__class__
         result = cls.__new__(cls)
+        super(MagicDict, result).__setattr__(
+            "__frozen", self.__getattribute__("__frozen")
+        )
         memo[id(self)] = result
         for k, v in self.items():
             result[k] = copy.deepcopy(v, memo)
@@ -34,6 +41,20 @@ class MagicDict(dict):
         :return: self[attr]
         """
         self[name] = value
+
+    def __setitem__(self, key, value):
+        if super().__getattribute__("__frozen") and key not in self:
+            raise ValueError(
+                f"{self.__class__.__name__} is frozen but attempting to add new key "
+                f"'{key}' to the dictionary."
+            )
+        super().__setitem__(key, value)
+
+    def freeze(self):
+        super().__setattr__("__frozen", True)
+
+    def unfreeze(self):
+        super().__setattr__("__frozen", False)
 
 
 class Colour:

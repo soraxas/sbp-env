@@ -1,9 +1,9 @@
 import numpy as np
 from overrides import overrides
 
-from env import Node
-from planners.rrtPlanner import RRTPlanner
-from utils import planner_registry
+from ..env import Node
+from ..planners.rrtPlanner import RRTPlanner
+from ..utils import planner_registry
 
 
 # noinspection PyAttributeOutsideInit
@@ -144,7 +144,7 @@ def pygame_birrt_planner_paint(planner):
         planner.visualiser.draw_solution_path()
 
 
-from planners.rrtPlanner import klampt_draw_nodes_paint_func
+from ..planners.rrtPlanner import klampt_draw_nodes_paint_func
 
 
 def klampt_birrt_paint(planner):

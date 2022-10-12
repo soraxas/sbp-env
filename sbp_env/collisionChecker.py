@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from utils.common import Stats, MagicDict
+from .utils.common import Stats, MagicDict
 
 
 class CollisionChecker(ABC):

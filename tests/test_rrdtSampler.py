@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-import visualiser
-from env import Env
-from planners.rrdtPlanner import RRdTSampler, Node
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.planners.rrdtPlanner import RRdTSampler, Node
+from sbp_env.utils import planner_registry
 from tests.common_vars import template_args, MockNumpyEquality
-from utils import planner_registry
 
 
 class TestRRdTSampler(TestCase):

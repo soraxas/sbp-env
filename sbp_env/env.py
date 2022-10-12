@@ -4,14 +4,16 @@ import math
 import random
 import time
 import re
+from typing import Optional, List
 
 import numpy as np
 from tqdm import tqdm
 
-import collisionChecker
-from utils.common import Node, MagicDict, Stats
-from utils.csv_stats_logger import setup_csv_stats_logger, get_non_existing_filename
-from visualiser import VisualiserSwitcher
+from .utils.common import Node, MagicDict, Stats
+from .utils.csv_stats_logger import setup_csv_stats_logger, get_non_existing_filename
+from .visualiser import VisualiserSwitcher
+
+from . import collisionChecker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,8 +58,7 @@ class Env:
                 VisualiserSwitcher.choose_visualiser("klampt")
 
         self.args["num_dim"] = self.cc.get_dimension()
-        self.args["image_shape"] = self.cc.get_image_shape()
-        self.dim = self.args["image_shape"]
+        self.dim = self.cc.get_image_shape()
         self.args["cc"] = self.cc
 
         args["sampler"] = args.sampler_data_pack.sampler_class(
@@ -244,5 +245,19 @@ class Env:
                         ]
                     )
                 pbar.refresh()
+                if self.args.first_solution and self.planner.c_max < float("inf"):
+                    break
 
         self.visualiser.terminates_hook()
+
+    def get_solution_path(self) -> Optional[List[Node]]:
+        if self.planner.c_max >= float("inf"):
+            return None
+        nn = self.planner.goal_pt.parent
+        path = []
+        while True:
+            path.append(nn)
+            if nn.is_start:
+                break
+            nn = nn.parent
+        return list(reversed(path))

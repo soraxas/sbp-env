@@ -4,9 +4,9 @@ from typing import List
 
 import numpy as np
 
-from planners.basePlanner import Planner
-from utils import planner_registry
-from utils.common import Node, Tree
+from ..planners.basePlanner import Planner
+from ..utils import planner_registry
+from ..utils.common import Node, Tree
 
 
 class RRTPlanner(Planner):
@@ -291,7 +291,7 @@ def pygame_rrt_paint(planner: Planner) -> None:
     :param planner: the planner to be visualised
 
     """
-    from utils.common import Colour
+    from ..utils.common import Colour
 
     planner.args.env.path_layers.fill(Colour.ALPHA_CK)
     drawn_nodes_pairs = set()

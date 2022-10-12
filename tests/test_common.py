@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from planners.rrdtPlanner import Node as NodeWithEdge
-from utils.common import MagicDict, BFS, Tree, Node
+from sbp_env.planners.rrdtPlanner import Node as NodeWithEdge
+from sbp_env.utils.common import MagicDict, BFS, Tree, Node
 
 
 class TestNode(TestCase):

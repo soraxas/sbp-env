@@ -2,8 +2,8 @@ import time
 
 from overrides import overrides
 
-from samplers.baseSampler import Sampler
-from utils import planner_registry
+from ..samplers.baseSampler import Sampler
+from ..utils import planner_registry
 
 """
 For demo / testing only. This policy wait for user mouse input for next sampling node.

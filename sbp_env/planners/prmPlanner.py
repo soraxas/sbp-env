@@ -5,10 +5,10 @@ import numpy as np
 from overrides import overrides
 import tqdm
 
-from env import Node
-from planners.rrtPlanner import RRTPlanner
-from samplers import prmSampler
-from utils import planner_registry
+from ..utils.common import Node
+from ..planners.rrtPlanner import RRTPlanner
+from ..samplers import prmSampler
+from ..utils import planner_registry
 
 volume_of_unit_ball = {
     1: 2,

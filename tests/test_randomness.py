@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from randomness import (
+from sbp_env.randomness import (
     RandomnessManager,
     SUPPORTED_RANDOM_METHODS,
     NormalRandomnessManager,

@@ -1,7 +1,7 @@
 """Represent a planner."""
-from planners import rrtPlanner
-from samplers import informedSampler
-from utils import planner_registry
+from ..planners import rrtPlanner
+from ..samplers import informedSampler
+from ..utils import planner_registry
 
 # start register
 planner_registry.register_planner(

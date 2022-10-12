@@ -2,13 +2,12 @@ from unittest import TestCase
 
 import numpy as np
 
-import env
-import visualiser
-from planners.basePlanner import Planner
-from samplers.baseSampler import Sampler
-from main import generate_args
+from sbp_env import env, visualiser
+from sbp_env.planners.basePlanner import Planner
+from sbp_env.samplers.baseSampler import Sampler
+from sbp_env import generate_args
+from sbp_env.utils import planner_registry
 from tests.common_vars import DummyPlannerClass
-from utils import planner_registry
 
 
 class TestGenerateArgs(TestCase):

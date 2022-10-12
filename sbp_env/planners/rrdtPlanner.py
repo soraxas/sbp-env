@@ -9,11 +9,11 @@ import numpy as np
 from overrides import overrides
 from tqdm import tqdm
 
-from planners.rrtPlanner import RRTPlanner
-from samplers.baseSampler import Sampler
-from samplers.randomPolicySampler import RandomPolicySampler
-from utils import planner_registry
-from utils.common import BFS, MagicDict
+from ..planners.rrtPlanner import RRTPlanner
+from ..samplers.baseSampler import Sampler
+from ..samplers.randomPolicySampler import RandomPolicySampler
+from ..utils import planner_registry
+from ..utils.common import BFS, MagicDict
 
 LOGGER = logging.getLogger(__name__)
 

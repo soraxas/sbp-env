@@ -3,11 +3,11 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 
-from planners.basePlanner import Planner
-from samplers.baseSampler import Sampler
-from utils.common import MagicDict
-from utils.planner_registry import PlannerDataPack, SamplerDataPack
-from visualiser import VisualiserSwitcher
+from sbp_env.planners.basePlanner import Planner
+from sbp_env.samplers.baseSampler import Sampler
+from sbp_env.utils.common import MagicDict
+from sbp_env.utils.planner_registry import PlannerDataPack, SamplerDataPack
+from sbp_env.visualiser import VisualiserSwitcher
 
 mock_image_as_np = np.array(
     [

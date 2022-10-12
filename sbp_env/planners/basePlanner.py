@@ -2,8 +2,8 @@ from abc import ABC
 
 import numpy as np
 
-from utils.common import MagicDict
-from visualiser import VisualiserSwitcher
+from ..utils.common import MagicDict
+from ..visualiser import VisualiserSwitcher
 
 
 class Planner(ABC):

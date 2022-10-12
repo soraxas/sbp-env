@@ -1,12 +1,12 @@
 from copy import deepcopy
 from unittest.mock import MagicMock
 
-import visualiser
-from env import Env
-from samplers.nearbyPolicySampler import NearbyPolicySampler
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.samplers.nearbyPolicySampler import NearbyPolicySampler
+from sbp_env.utils import planner_registry
 from tests.common_vars import template_args
 from tests.test_rrtPlanner import TestRRTPlanner
-from utils import planner_registry
 
 
 # reuse some of the test from RRTPlanner

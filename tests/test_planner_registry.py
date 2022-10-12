@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from planners.basePlanner import Planner
-from samplers.baseSampler import Sampler
-from utils.planner_registry import register_planner, register_sampler
+from sbp_env.planners.basePlanner import Planner
+from sbp_env.samplers.baseSampler import Sampler
+from sbp_env.utils.planner_registry import register_planner, register_sampler
 
 
 class DummyClass:

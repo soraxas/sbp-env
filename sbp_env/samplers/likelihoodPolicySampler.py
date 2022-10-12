@@ -6,10 +6,10 @@ import scipy as sp
 import scipy.ndimage
 from overrides import overrides
 
-from collisionChecker import ImgCollisionChecker
-from samplers.baseSampler import Sampler
-from samplers.randomPolicySampler import RandomPolicySampler
-from utils import planner_registry
+from ..collisionChecker import ImgCollisionChecker
+from ..samplers.baseSampler import Sampler
+from ..samplers.randomPolicySampler import RandomPolicySampler
+from ..utils import planner_registry
 
 LOGGER = logging.getLogger(__name__)
 

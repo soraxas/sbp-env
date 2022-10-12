@@ -3,12 +3,12 @@ from unittest import TestCase
 
 import numpy as np
 
-import visualiser
-from env import Env
-from planners.rrdtPlanner import Node
-from samplers.nearbyPolicySampler import NearbyPolicySampler
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.planners.rrdtPlanner import Node
+from sbp_env.samplers.nearbyPolicySampler import NearbyPolicySampler
+from sbp_env.utils import planner_registry
 from tests.common_vars import template_args
-from utils import planner_registry
 
 
 class TestNearbyPolicySampler(TestCase):

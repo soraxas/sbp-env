@@ -81,7 +81,7 @@ def register_planner(
         when terminating
 
     """
-    from planners.basePlanner import Planner
+    from ..planners.basePlanner import Planner
 
     if planner_id in PLANNERS:
         raise ValueError(f"A planner with name '{planner_id}' already exists!")
@@ -130,7 +130,7 @@ def register_sampler(
         when terminating
 
     """
-    from samplers.baseSampler import Sampler
+    from ..samplers.baseSampler import Sampler
 
     if sampler_id in SAMPLERS:
         raise ValueError(f"A sampler with name '{sampler_id}' already exists!")

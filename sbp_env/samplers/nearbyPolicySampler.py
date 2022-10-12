@@ -3,8 +3,8 @@ import scipy as sp
 import scipy.ndimage
 from overrides import overrides
 
-from samplers import likelihoodPolicySampler
-from utils import planner_registry
+from ..samplers import likelihoodPolicySampler
+from ..utils import planner_registry
 
 
 # noinspection PyAttributeOutsideInit

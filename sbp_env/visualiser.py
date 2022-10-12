@@ -9,7 +9,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from utils.common import Colour
+from .utils.common import Colour
+from .utils.common import Node
+
+from . import collisionChecker
+from .collisionChecker import RobotArm4dCollisionChecker
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"  # disable pygame prompt
 
@@ -17,10 +21,10 @@ import pygame
 from pygame.locals import *
 
 if TYPE_CHECKING:
-    from utils import planner_registry
-    from env import Env
-    from planners.basePlanner import Planner
-    from samplers.baseSampler import Sampler
+    from .utils import planner_registry
+    from .env import Env
+    from .planners.basePlanner import Planner
+    from .samplers.baseSampler import Sampler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -204,21 +208,21 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
         """
         Method to draw solution path for planner visualiser.
         """
-        if self.planner_instance.c_max == float("inf"):
+        solution_path = self.planner_instance.args.env.get_solution_path()
+        if solution_path is None:
             return
         # redraw new path
         self.planner_instance.args.env.solution_path_screen.fill(Colour.ALPHA_CK)
-        nn = self.planner_instance.goal_pt.parent
-        self.planner_instance.c_max = nn.cost
-        while not nn.is_start:
+        last_parent = solution_path[0]
+        for node in solution_path[1:]:
             self.planner_instance.args.env.draw_path(
-                nn,
-                nn.parent,
+                last_parent,
+                node,
                 colour=Colour.blue,
                 line_modifier=5,
                 layer=self.planner_instance.args.env.solution_path_screen,
             )
-            nn = nn.parent
+            last_parent = node
         self.planner_instance.args.env.window.blit(
             self.planner_instance.args.env.path_layers, (0, 0)
         )
@@ -297,7 +301,10 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         super().__init__(**kwargs)
         self.extra = 25
         self.img = pygame.image.load(self.args.image)
-        self.dim = self.args["image_shape"]
+
+    @property
+    def dim(self):
+        return self.env_instance.dim
 
     def visualiser_init(self, no_display: bool = False):
         """Delayed *initialisation* method for environment visualiser.
@@ -387,7 +394,6 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         :param goal: the goal configuration of the motion planning problem
 
         """
-        from utils.common import Node
 
         ##################################################
         # Get starting and ending point
@@ -401,7 +407,6 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             for e in pygame.event.get():
                 if e.type == MOUSEBUTTONDOWN:
                     mouse_pos = np.array(e.pos) / self.args.scaling
-                    from collisionChecker import RobotArm4dCollisionChecker
 
                     if type(self.cc) == RobotArm4dCollisionChecker:
                         mouse_pos = np.array(
@@ -524,8 +529,6 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         #
         # for n in nodes_to_draw:
         #     self.args.env.draw_stick_robot(n, layer=self.args.env.path_layers)
-
-        import collisionChecker
 
         if type(self.cc) == collisionChecker.RobotArm4dCollisionChecker:
             self.draw_stick_robot(node1, layer=self.path_layers)

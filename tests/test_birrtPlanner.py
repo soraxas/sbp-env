@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, ANY
 
 import numpy as np
 
-import visualiser
-from env import Env
-from samplers.birrtSampler import BiRRTSampler
+from sbp_env import visualiser
+from sbp_env.env import Env
+from sbp_env.samplers.birrtSampler import BiRRTSampler
+from sbp_env.utils import planner_registry
 from tests.common_vars import template_args, MockNumpyEquality
 from tests.test_rrtPlanner import TestRRTPlanner
-from utils import planner_registry
 
 
 # reuse some of the test from RRTPlanner

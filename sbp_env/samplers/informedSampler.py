@@ -5,9 +5,9 @@ import random
 import numpy as np
 from overrides import overrides
 
-from samplers.baseSampler import Sampler
-from samplers.randomPolicySampler import RandomPolicySampler
-from utils import planner_registry
+from ..samplers.baseSampler import Sampler
+from ..samplers.randomPolicySampler import RandomPolicySampler
+from ..utils import planner_registry
 
 
 # noinspection PyAttributeOutsideInit
