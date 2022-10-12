@@ -4,7 +4,7 @@ import math
 import random
 import time
 import re
-from typing import Optional, List
+from typing import Optional, List, Union
 
 import numpy as np
 from tqdm import tqdm
@@ -250,7 +250,9 @@ class Env:
 
         self.visualiser.terminates_hook()
 
-    def get_solution_path(self) -> Optional[List[Node]]:
+    def get_solution_path(
+        self, as_array: bool = False
+    ) -> Optional[Union[np.ndarray, List[Node]]]:
         if self.planner.c_max >= float("inf"):
             return None
         nn = self.planner.goal_pt.parent
@@ -260,4 +262,9 @@ class Env:
             if nn.is_start:
                 break
             nn = nn.parent
-        return list(reversed(path))
+        path = reversed(path)
+        if as_array:
+            path = np.array([n.pos for n in path])
+        else:
+            path = list(path)
+        return path
