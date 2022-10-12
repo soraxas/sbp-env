@@ -38,6 +38,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
         <script src="_static/katex_autorenderer.js"></script>
@@ -196,144 +197,7 @@ If you just want to quickly test different planners in a newly created environme
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>The full commandline interface is docunmented below:</p>
 <hr class="docutils" />
-<span class="target" id="module-main"></span><p>SBP-Env</p>
-<dl>
-<dt>Usage:</dt><dd><dl class="simple">
-<dt>main.py (rrt|rrdt|prm|nearby|mouse|likelihood|informedrrt|birrt) &lt;MAP&gt;</dt><dd><p>[options] [-v|-vv|-vvv]</p>
-</dd>
-<dt>main.py (rrt|rrdt|prm|nearby|mouse|likelihood|informedrrt|birrt) &lt;MAP&gt;</dt><dd><p>start [–] &lt;start_x1,x2,..,xn&gt; goal &lt;goal_x1,x2,..,xn&gt;
-[options] [-v|-vv|-vvv]</p>
-</dd>
-</dl>
-<p>main.py (-h | –help)
-main.py –version</p>
-</dd>
-<dt>Arguments:</dt><dd><p>(rrt|…|…)          Set the sampler to be used by the RRT*.
-&lt;MAP&gt;                  An image/xml file that represent the map.</p>
-</dd>
-<dt>General Options:</dt><dd><p>-h –help              Show this screen.
-–version              Show version.
--v –verbose           Display debug message.</p>
-</dd>
-<dt>Environment Options:</dt><dd><dl>
-<dt>-e –engine=ENGINE     Environment engine to use.</dt><dd><p>Could be either “image”, “klampt” or “4d”.
-“image” engine uses an image as the map.
-“4d” engine uses an image as the map and an 4d robot arm.
-“klampt” engine is a multi-dof engine that is more</p>
-<blockquote>
-<div><p>features rich.</p>
-</div></blockquote>
-</dd>
-<dt>-o –output-dir=STATS_DIR</dt><dd><p>Specify the output folder [default: runs]</p>
-</dd>
-</dl>
-<dl class="option-list">
-<dt><kbd><span class="option">--save-output</span></kbd></dt>
-<dd><p>When set, the planning stats will be saved under the
-‘STATS_DIR’ folder</p>
-</dd>
-</dl>
-</dd>
-<dt>Display Options:</dt><dd><dl class="option-list">
-<dt><kbd><span class="option">--always-refresh</span></kbd></dt>
-<dd><p>Set if the display should refresh on every ticks.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>-s –scaling=SCALING   Set scaling for display (ratio will be maintained).</dt><dd><p>[default: 1.5]</p>
-</dd>
-</dl>
-<dl class="option-list">
-<dt><kbd><span class="option">--hide-sampled-points</span></kbd></dt>
-<dd><p>Do not display sampled point as red dot on screen.</p>
-</dd>
-<dt><kbd><span class="option">--no-display</span></kbd></dt>
-<dd><p>Disable visualisation.</p>
-</dd>
-</dl>
-</dd>
-<dt>General Planner Options:</dt><dd><dl class="option-list">
-<dt><kbd><span class="option">--radius=<var>RADIUS</var></span></kbd></dt>
-<dd><p>Set radius for node connections.</p>
-</dd>
-<dt><kbd><span class="option">--epsilon=<var>EPSILON</var></span></kbd></dt>
-<dd><p>Set epsilon value.
-[default: 10.0]</p>
-</dd>
-<dt><kbd><span class="option">--max-number-nodes=<var>MAX_NODES</var></span></kbd></dt>
-<dd><p>Set maximum number of nodes
-[default: 10000]</p>
-</dd>
-<dt><kbd><span class="option">--ignore-step-size</span></kbd></dt>
-<dd><p>Ignore step size (i.e. epsilon) when sampling.</p>
-</dd>
-<dt><kbd><span class="option">--goal-bias=<var>BIAS</var></span></kbd></dt>
-<dd><p>Probability of biasing goal position.
-[default: 0.02]</p>
-</dd>
-<dt><kbd><span class="option">--skip-optimality</span></kbd></dt>
-<dd><p>Skip optimality guarantee (i.e. skip performing rewiring)</p>
-</dd>
-</dl>
-</dd>
-<dt>4D Simulaotr Options:</dt><dd><dl class="simple">
-<dt>–4d-robot-lengths=LENGTH_1,LENGTH_2</dt><dd><p>Set the lengths of the 4D rover arm manipulator. Should be
-a comma separated list of two numbers.
-[default: 30,30]</p>
-</dd>
-</dl>
-</dd>
-<dt>Random Sampler Options:</dt><dd><dl class="option-list">
-<dt><kbd><span class="option">--random-method=<var>METHOD</var></span></kbd></dt>
-<dd><p>Set a random method used to generate the random
-numbers. This enables the use of different
-quasi-random generators.
-Supported methods are:
-- pseudo_random (random from numpy)
-- saltelli (Saltelli’s extension of Sobol sequence)
-- sobol_sequence (Sobol sequence generator)
-- latin_hypercube (Latin hypercube sampling)
-- finite_differences (Derivative-based global</p>
-<blockquote>
-<div><p>sensitivity measure)</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>fast (Fourier Amplitude Sensitivity Test)</p></li>
-</ul>
-<p>[default: pseudo_random]</p>
-</dd>
-</dl>
-</dd>
-<dt>Disjoint Sampler Options:</dt><dd><dl class="option-list">
-<dt><kbd><span class="option">--proposal-dist=<var>METHOD</var></span></kbd></dt>
-<dd><p>Set the proposal distribution to use in the MCMC random
-walk.
-Supported methods are:
-- original (from the original RRdT paper)
-- dynamic-vonmises
-- ray-casting
-[default: dynamic-vonmises]</p>
-</dd>
-<dt><kbd><span class="option">--no-restart-when-merge</span></kbd></dt>
-<dd><p>This flag denotes if the local sampler from disjoint-
-tree sampler should restart at a new location when
-the disjointed tree branches jointed to an existing
-one. The default behaviour is restart as soon as merged
-to another existing tree (to encourage exploration).
-When this flag is set, it will remain until its energy
-is exhausted.</p>
-</dd>
-</dl>
-</dd>
-<dt>Likelihood/Nearby Sampler Options:</dt><dd><dl class="option-list">
-<dt><kbd><span class="option">--prob-block-size=<var>SIZE</var></span></kbd></dt>
-<dd><p>Set the dimension of the discretized block.
-[default: 5]</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div>
+<span class="target" id="module-main"></span></div>
 </div>
 
 
