@@ -25,19 +25,14 @@ def pts_pair(args1, args2):
 class TestImgCollisionChecker(TestCase):
     def setUp(self) -> None:
         self.cc = ImgCollisionChecker(
-            create_test_image(), stats=Stats(), args=MagicDict()
+            create_test_image(),
+            stats=Stats(),
         )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)
 
     def test_conversion(self):
         self.assertTrue(np.isclose(self.cc.image, self.target).all())
-
-    def test_get_image_shape(self):
-        self.assertEqual(self.cc.get_image_shape(), self.target.T.shape)
-
-    def test_get_dimension(self):
-        self.assertEqual(self.cc.get_dimension(), 2)
 
     def test_get_coor_before_collision(self):
         self.assertEqual(

@@ -13,14 +13,6 @@ class CollisionChecker(ABC):
     def __init__(self, stats: Stats):
         self.stats = stats
 
-    @abstractmethod
-    def get_dimension(self) -> int:
-        """Get the current dimensionality of this space
-
-        :return: the dimensionality
-        """
-        raise NotImplementedError("Must derive from this class")
-
     def visible(self, pos1: np.ndarray, pos2: np.ndarray):
         r"""Check if the straight line connection between pos1 and pos2 is in
         :math:`C_\text{free}`. Internally it might calls :meth:`feasible`.
@@ -40,13 +32,42 @@ class CollisionChecker(ABC):
         """
         raise NotImplementedError("Must derive from this class")
 
-    def get_image_shape(self):
-        """Get the image shape of the planning problem.
-        Return None if this is not applicable to the current space
 
-        :return: the shape of the planning problem
+class BlackBoxCollisionChecker(CollisionChecker):
+    """Abstract collision checker"""
+
+    CCType = typing.Callable[[np.ndarray], bool]
+
+    def __init__(
+        self, collision_checking_functor: CCType, cc_epsilon: float, stats: Stats
+    ):
+        super().__init__(stats)
+        self.__cc_functor = collision_checking_functor
+        self.__cc_epsilon = cc_epsilon
+
+    def visible(self, pos1: np.ndarray, pos2: np.ndarray):
+        r"""Check if the straight line connection between pos1 and pos2 is in
+        :math:`C_\text{free}`. Internally it might calls :meth:`feasible`.
+
+        :param pos1: the starting configuration of the line
+        :param pos2: the target configuration of th eline
+
         """
-        return None
+        return all(
+            self.feasible(pos1 + t)
+            for t in np.arange(
+                0, np.linalg.norm(pos2 - pos1), self.__cc_epsilon, dtype=float
+            )
+        )
+
+    def feasible(self, p: np.ndarray):
+        r"""Check if the configuration is in free-space, i.e.,
+        :math:`q \in C_\text{free}`
+
+        :param p: configuration to check
+
+        """
+        return self.__cc_functor(p)
 
 
 class ImgCollisionChecker(CollisionChecker):
@@ -56,19 +77,18 @@ class ImgCollisionChecker(CollisionChecker):
 
     def __init__(
         self,
-        img: typing.IO,
+        img: str,
         stats: Stats,
-        args: MagicDict,
     ):
         """
         :param img: a file-like object (e.g. a filename) for the image as the
             environment that the planning operates in
         :param stats: the Stats object to keep track of stats
-        :param args: an instance of the input arguments
         """
         super().__init__(stats)
         from PIL import Image
 
+        self.image_fname = img
         image = Image.open(img).convert("L")
         image = np.array(image)
         image = image / 255
@@ -85,12 +105,6 @@ class ImgCollisionChecker(CollisionChecker):
         :return: the input image
         """
         return self._img.T
-
-    def get_image_shape(self):
-        return self._img.shape
-
-    def get_dimension(self):
-        return 2
 
     def get_coor_before_collision(self, pos1, pos2):
         """Get the list of coordinate before the collision
@@ -195,11 +209,10 @@ class ImgCollisionChecker(CollisionChecker):
 class KlamptCollisionChecker(CollisionChecker):
     """A wrapper around Klampt's 3D simulator"""
 
-    def __init__(self, xml: str, stats: Stats, args: MagicDict):
+    def __init__(self, xml: str, stats: Stats):
         """
         :param xml: the xml filename for Klampt to read the world settings
         :param stats: the Stats object to keep track of stats
-        :param args: an instance of the input arguments
         """
         super().__init__(stats)
         import klampt
@@ -222,9 +235,6 @@ class KlamptCollisionChecker(CollisionChecker):
         self.template_pos = copy.copy(robot.getConfig())
         self.template_pos[1:7] = [0] * 6
 
-    def get_dimension(self):
-        return 6
-
     def get_dimension_limits(self):
         return self.space.bound
 
@@ -234,7 +244,7 @@ class KlamptCollisionChecker(CollisionChecker):
         :param p: configuration to translate
 
         """
-        assert len(p) == self.get_dimension(), p
+        # assert len(p) == self.get_dimension(), p
         # add a dummy end configuration that denotes the gripper's angle
         return list(p) + [0]
 
@@ -281,9 +291,8 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
     def __init__(
         self,
-        img: typing.IO,
+        img: str,
         stats: Stats,
-        args: MagicDict,
         map_mat: typing.Optional[np.ndarray] = None,
         stick_robot_length_config: typing.Optional[typing.Sequence[float]] = None,
     ):
@@ -293,12 +302,12 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             environment that the planning operates
         :param map_mat: an image that, if given, will ignore the `img` argument and
             uses `map_mat` directly as the map
-        :param args: an instance of the input arguments
         :param stick_robot_length_config: a list of numbers that represents the
             length of the stick robotic arm
         :param stats: the Stats object to keep track of stats
         """
         super().__init__(stats)
+        self.image_fname = img
         if map_mat is None:
             from PIL import Image
 
@@ -318,8 +327,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
 
         if stick_robot_length_config is not None:
             self.stick_robot_length_config = stick_robot_length_config
-        else:
-            self.stick_robot_length_config = args.rover_arm_robot_lengths
 
         # need to transpose because pygame has a difference coordinate system than matplotlib matrix
         self._img = self._img.T
@@ -327,12 +334,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     @property
     def image(self):
         return self._img.T
-
-    def get_image_shape(self):
-        return self._img.shape
-
-    def get_dimension(self):
-        return 4
 
     @staticmethod
     def create_ranges(

@@ -44,17 +44,12 @@ class Env:
         #     "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
         #     "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
         # }[self.args.engine]
-        # self.cc = cc_type(self.args.image, stats=self.args.stats, args=self.args)
         from . import engine
 
         # setup visualiser
         if self.args.no_display:
             # use pass-through visualiser
             VisualiserSwitcher.choose_visualiser("base")
-
-        # self.args.engine.get_dimension() = self.cc.get_dimension()
-        # self.dim = self.cc.get_image_shape()
-        # self.args["cc"] = self.cc
 
         args["sampler"] = args.sampler_data_pack.sampler_class(
             # sanitise keyword arguments by removing prefix -- and replacing - as _

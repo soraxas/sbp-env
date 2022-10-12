@@ -1,5 +1,7 @@
-from abc import ABC
+import typing
+from abc import ABC, abstractmethod
 from functools import cached_property
+from typing import Callable, Optional
 
 import numpy as np
 import math
@@ -56,12 +58,21 @@ class Engine(ABC):
         """
         return qs * (self.upper - self.lower) + self.lower
 
+    @abstractmethod
+    def get_dimension(self) -> int:
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
+        raise NotImplementedError("Must derive from this class")
+
 
 class ImageEngine(Engine):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, args: MagicDict, image: str):
+        super().__init__(args)
         self.cc = collisionChecker.ImgCollisionChecker(
-            self.args.image, stats=self.args.stats, args=self.args
+            image,
+            stats=self.args.stats,
         )
         VisualiserSwitcher.choose_visualiser("pygame")
 
@@ -71,17 +82,29 @@ class ImageEngine(Engine):
 
     @cached_property
     def upper(self) -> np.ndarray:
-        return np.array(self.cc.get_image_shape())
+        """Get the image shape of the planning problem.
+
+        :return: the shape of the planning problem
+        """
+        return np.array(self.cc._img.shape)
+
+    def get_dimension(self) -> int:
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
+        return 2
 
 
 class RobotArmEngine(Engine):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, args: MagicDict, image: str):
+        super().__init__(args)
         self.cc = collisionChecker.RobotArm4dCollisionChecker(
-            self.args.image, stats=self.args.stats, args=self.args
+            image,
+            stats=self.args.stats,
+            stick_robot_length_config=args.rover_arm_robot_lengths,
         )
         VisualiserSwitcher.choose_visualiser("pygame")
-        self.image_shape = self.cc.get_image_shape()
 
     @cached_property
     def lower(self) -> np.ndarray:
@@ -89,14 +112,22 @@ class RobotArmEngine(Engine):
 
     @cached_property
     def upper(self) -> np.ndarray:
-        return np.array([self.image_shape[0], self.image_shape[1], np.pi, np.pi])
+        return np.array([self.cc._img.shape[0], self.cc._img.shape[1], np.pi, np.pi])
+
+    def get_dimension(self) -> int:
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
+        return 4
 
 
 class KlamptEngine(Engine):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, args: MagicDict, xml_file: str):
+        super().__init__(args)
         self.cc = collisionChecker.KlamptCollisionChecker(
-            self.args.image, stats=self.args.stats, args=self.args
+            xml_file,
+            stats=self.args.stats,
         )
         VisualiserSwitcher.choose_visualiser("klampt")
 
@@ -107,3 +138,53 @@ class KlamptEngine(Engine):
     @cached_property
     def upper(self) -> np.ndarray:
         return np.array([np.pi] * self.get_dimension())
+
+    def get_dimension(self) -> int:
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
+        return 6
+
+
+class BlackBoxEngine(Engine):
+    def __init__(
+        self,
+        args: MagicDict,
+        collision_checking_functor: collisionChecker.BlackBoxCollisionChecker.CCType,
+        lower_limits: np.ndarray,
+        upper_limits: np.ndarray,
+        dist_functor: Optional[Callable[[np.ndarray, np.ndarray], float]] = None,
+        cc_epsilon: float = 0.1,
+    ):
+        super().__init__(args)
+        lower_limits = np.array(lower_limits)
+        upper_limits = np.array(upper_limits)
+        print(lower_limits.shape)
+        if lower_limits.shape[0] != upper_limits.shape[0]:
+            raise ValueError("Lower and upper limit mismatch!")
+        self.__dim = lower_limits.shape[0]
+        self.__lower_limits = lower_limits
+        self.__upper_limits = upper_limits
+        self.cc = collisionChecker.BlackBoxCollisionChecker(
+            collision_checking_functor=collision_checking_functor,
+            cc_epsilon=cc_epsilon,
+            stats=self.args.stats,
+        )
+        if dist_functor:
+            self.dist = dist_functor
+
+    @cached_property
+    def lower(self) -> np.ndarray:
+        return self.__lower_limits
+
+    @cached_property
+    def upper(self) -> np.ndarray:
+        return self.__upper_limits
+
+    def get_dimension(self) -> int:
+        """Get the current dimensionality of this space
+
+        :return: the dimensionality
+        """
+        return self.__dim

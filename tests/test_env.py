@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import numpy as np
+from docopt import DocoptExit
 
 from sbp_env import env, visualiser
 from sbp_env.planners.basePlanner import Planner
@@ -17,14 +18,14 @@ class TestGenerateArgs(TestCase):
         with self.assertRaises(TypeError):
             generate_args(planner_id="rrt")
         with self.assertRaises(TypeError):
-            generate_args(map_fname="maps/4d.png")
+            generate_args(input_fname="maps/4d.png")
 
         # should not raise error
-        generate_args(planner_id="rrt", map_fname="maps/4d.png")
+        generate_args(planner_id="rrt", input_fname="maps/4d.png")
 
         # test error if the planner id has not been registered yet
-        with self.assertRaises(ValueError):
-            generate_args(planner_id="my_planner_id", map_fname="maps/4d.png")
+        with self.assertRaises(DocoptExit):
+            generate_args(planner_id="my_planner_id", input_fname="maps/4d.png")
 
         # test that after the planner id is registered, it will work.
         planner_registry.register_planner(
@@ -32,13 +33,13 @@ class TestGenerateArgs(TestCase):
             planner_class=DummyPlannerClass,
             sampler_id="random",
         )
-        generate_args(planner_id="my_planner_id", map_fname="maps/4d.png")
+        generate_args(planner_id="my_planner_id", input_fname="maps/4d.png")
 
     def test_actual_planning(self):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
         args = generate_args(
             planner_id="rrt",
-            map_fname="maps/test.png",
+            input_fname="maps/test.png",
             start_pt=np.array([25, 123]),
             goal_pt=np.array([225, 42]),
         )
@@ -67,7 +68,7 @@ class TestGenerateArgs(TestCase):
         visualiser.VisualiserSwitcher.choose_visualiser("pygame")
         args = generate_args(
             planner_id="rrt",
-            map_fname="maps/test.png",
+            input_fname="maps/test.png",
             start_pt=np.array([25, 123]),
             goal_pt=np.array([225, 42]),
         )

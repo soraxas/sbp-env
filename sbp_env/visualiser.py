@@ -300,7 +300,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.extra = 25
-        self.img = pygame.image.load(self.args.image)
+        self.img = pygame.image.load(self.args.engine.cc.image_fname)
         self.dim = self.args.engine.upper
 
     def visualiser_init(self, no_display: bool = False):

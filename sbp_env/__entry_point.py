@@ -117,7 +117,8 @@ RAW_DOC_STRING = __doc__
 
 def generate_args(
     planner_id: str,
-    map_fname: str,
+    input_fname: Optional[str],
+    engine: Optional[engine.Engine] = None,
     start_pt: Union[np.ndarray, str] = None,
     goal_pt: Union[np.ndarray, str] = None,
     **kwargs,
@@ -130,15 +131,18 @@ def generate_args(
             kwargs[k] = v
 
     argv = []
-    if planner_id is not None:
-        if map_fname is None:
-            raise ValueError(
-                "Both `map_fname` and `planner_id` must be provided to " "generate args"
-            )
+    if all(x is None for x in (input_fname, engine)) or all(
+        x is not None for x in (input_fname, engine)
+    ):
+        raise ValueError(
+            "Either an input file `input_fname` or a custom Engine `engine` must be "
+            "provided to generate args, and they are mutually exclusive."
+        )
+    if input_fname is None:
         if planner_id not in planner_registry.PLANNERS:
             raise ValueError(f"The given planner id '{planner_id}' does not exists.")
-        # inject the inputs for docopt to parse
-        argv[1:] = [planner_id, map_fname]
+    # inject the inputs for docopt to parse
+    argv[1:] = [planner_id, input_fname]
     args = generate_args_main(start_pt=start_pt, goal_pt=goal_pt, argv=argv)
 
     args.update(**kwargs)
@@ -261,7 +265,7 @@ def generate_args_main(
         showSampledPoint=not args["--hide-sampled-points"],
         scaling=float(args["--scaling"]),
         goalBias=float(args["--goal-bias"]),
-        image=args["<MAP>"],
+        # image=args["<MAP>"],
         epsilon=float(args["--epsilon"]),
         max_number_nodes=int(args["--max-number-nodes"]),
         radius=float(args["--radius"]),
@@ -296,7 +300,7 @@ def generate_args_main(
         "image": engine.ImageEngine,
         "4d": engine.RobotArmEngine,
         "klampt": engine.KlamptEngine,
-    }[args["--engine"]](planning_option)
+    }[args["--engine"]](planning_option, args["<MAP>"])
 
     planning_option.freeze()
     return planning_option

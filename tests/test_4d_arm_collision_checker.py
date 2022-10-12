@@ -17,16 +17,9 @@ class TestRobotArm4dCollisionChecker(TestCase):
             create_test_image(),
             stick_robot_length_config=[0.1, 0.1],
             stats=Stats(),
-            args=MagicDict(),
         )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)
-
-    def test_get_image_shape(self):
-        self.assertEqual(self.cc.get_image_shape(), self.target.T.shape)
-
-    def test_get_dimension(self):
-        self.assertEqual(self.cc.get_dimension(), 4)
 
     def test_create_ranges(self):
         starts = np.array([1, 5, 3, 19])

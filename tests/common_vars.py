@@ -49,7 +49,6 @@ template_args = MagicDict(
     goal_pt="350,350",
     goal_radius=8.0,
     ignore_step_size=False,
-    image="maps/room1.png",
     max_number_nodes=10000,
     no_display=True,
     planner_data_pack=PlannerDataPack(
@@ -81,7 +80,7 @@ template_args = MagicDict(
     skip_optimality=False,
     stats=Stats(),
 )
-template_args["engine"] = engine.ImageEngine(template_args)
+template_args["engine"] = engine.ImageEngine(template_args, "maps/room1.png")
 
 
 # helper class to test equality for numpy array
