@@ -18,7 +18,7 @@ Have a look at the [documentations](https://cs.tinyiu.com/sbp-env) for more deta
 ```python
 import sbp_env
 
-from math import exp
+from math import exp, sin, cos
 
 for functor in [
     # simple inequality
@@ -30,6 +30,8 @@ for functor in [
         - 10 * (x[0] / 5 - x[0] ** 3 - x[1] ** 5) * exp(-x[0] ** 2 - x[1] ** 2)
         - 1 / 3 * exp(-((x[0] + 1) ** 2) - x[1] ** 2)
     ),
+    lambda x: -0.22 < (cos(x[0]) * sin(x[1])),
+    lambda x: 0.05 < (cos(x[0] ** 2 + x[1] ** 2)),
 ]:
     engine = sbp_env.engine.BlackBoxEngine(
         collision_checking_functor=functor,
@@ -42,7 +44,7 @@ for functor in [
         engine=engine,
         start_pt=[-3, -3],
         goal_pt=[4, 4],
-        first_solution=True,
+        first_solution=True,  # return first solution
         display=True,
     )
 
@@ -54,6 +56,8 @@ for functor in [
 <p align="center">
   <img src="docs/images/functor-engine1.png" width="400" />
   <img src="docs/images/functor-engine2.png" width="400" />
+  <img src="docs/images/functor-engine3.png" width="400" />
+  <img src="docs/images/functor-engine4.png" width="400" />
 </p>
 
 ## Installation

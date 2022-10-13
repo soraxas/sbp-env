@@ -898,7 +898,15 @@ class BlackBoxEnvVisualiser(BaseEnvVisualiser):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def terminates_hook(self):
+    # def update_screen(self, **kwargs):
+    #     import matplotlib.pyplot as plt
+    #
+    #     # self.paint_func(self)
+    #     self.__plot()
+    #     plt.legend()
+    #     plt.show()
+
+    def __plot(self):
         import matplotlib.pyplot as plt
 
         from .randomness import RandomnessManager
@@ -916,8 +924,14 @@ class BlackBoxEnvVisualiser(BaseEnvVisualiser):
         plt.scatter(*self.env_instance.start_pt, c="green", label="start")
         plt.scatter(*self.env_instance.goal_pt, c="red", label="goal")
         plt.scatter(*np.array(obs_pts).T, c="black", label="infeasible")
-        plt.plot(*self.get_solution_path(as_array=True).T, label="solution path")
+        sol = self.get_solution_path(as_array=True)
+        if sol is not None:
+            plt.plot(*sol.T, label="solution path")
 
+    def terminates_hook(self):
+        import matplotlib.pyplot as plt
+
+        self.__plot()
         self.env_instance.planner.visualiser.terminates_hook()
         self.env_instance.sampler.visualiser.terminates_hook()
         plt.legend()
