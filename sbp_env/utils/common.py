@@ -3,9 +3,8 @@ from typing import List
 
 import numpy as np
 from rtree import index
-import copy
 
-from dataclasses import dataclass, asdict, fields
+from dataclasses import dataclass, fields
 
 from typing import TYPE_CHECKING
 

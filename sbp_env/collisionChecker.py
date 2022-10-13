@@ -307,12 +307,9 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     ):
         """
 
-        :param img: a file-like object (e.g. a filename) for the image as the
-            environment that the planning operates
-        :param map_mat: an image that, if given, will ignore the `img` argument and
-            uses `map_mat` directly as the map
-        :param stick_robot_length_config: a list of numbers that represents the
-            length of the stick robotic arm
+        :param img: a file-like object (e.g. a filename) for the image as the environment that the planning operates
+        :param map_mat: an image that, if given, will ignore the `img` argument and uses `map_mat` directly as the map
+        :param stick_robot_length_config: a list of numbers that represents the length of the stick robotic arm
         :param stats: the Stats object to keep track of stats
         """
         super().__init__()

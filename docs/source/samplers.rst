@@ -9,18 +9,18 @@ The following are samplers that generates sampled configurations :math:`q \in C`
 Random Policy Sampler
 ---------------------
 
-.. autoclass:: samplers.randomPolicySampler.RandomPolicySampler
+.. autoclass:: sbp_env.samplers.randomPolicySampler.RandomPolicySampler
   :members:
   :private-members:
   :show-inheritance:
 
-.. autodata:: randomness.SUPPORTED_RANDOM_METHODS
+.. autodata:: sbp_env.randomness.SUPPORTED_RANDOM_METHODS
     :noindex:
 
 Bidirectional Random Sampler
 ----------------------------
 
-.. autoclass:: samplers.birrtSampler.BiRRTSampler
+.. autoclass:: sbp_env.samplers.birrtSampler.BiRRTSampler
   :members:
   :private-members:
   :show-inheritance:
@@ -29,7 +29,7 @@ Bidirectional Random Sampler
 Informed Sampler
 ---------------------
 
-.. autoclass:: samplers.informedSampler.InformedSampler
+.. autoclass:: sbp_env.samplers.informedSampler.InformedSampler
   :members:
   :private-members:
   :show-inheritance:
@@ -38,7 +38,7 @@ Informed Sampler
 RRdT Particle Sampler
 ---------------------
 
-.. autoclass:: planners.rrdtPlanner.RRdTSampler
+.. autoclass:: sbp_env.planners.rrdtPlanner.RRdTSampler
   :members:
   :private-members:
   :show-inheritance:
@@ -47,7 +47,7 @@ RRdT Particle Sampler
 PRM Sampler
 ---------------------
 
-.. autoclass:: samplers.prmSampler.PRMSampler
+.. autoclass:: sbp_env.samplers.prmSampler.PRMSampler
   :members:
   :private-members:
   :show-inheritance:
@@ -55,7 +55,7 @@ PRM Sampler
 Likelihood Sampler
 ---------------------
 
-.. autoclass:: samplers.likelihoodPolicySampler.LikelihoodPolicySampler
+.. autoclass:: sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler
   :members:
   :private-members:
   :show-inheritance:
@@ -63,7 +63,7 @@ Likelihood Sampler
 Nearby Sampler
 ---------------------
 
-.. autoclass:: samplers.nearbyPolicySampler.NearbyPolicySampler
+.. autoclass:: sbp_env.samplers.nearbyPolicySampler.NearbyPolicySampler
   :members:
   :private-members:
   :show-inheritance:
@@ -71,7 +71,7 @@ Nearby Sampler
 Mouse Sampler
 ---------------------
 
-.. autoclass:: samplers.mouseSampler.MouseSampler
+.. autoclass:: sbp_env.samplers.mouseSampler.MouseSampler
   :members:
   :private-members:
   :show-inheritance:
@@ -81,5 +81,5 @@ Abstract Base Sampler
 
 There is also a special base Sampler that all motion planner should be derived from.
 
-.. autoclass:: samplers.baseSampler.Sampler
+.. autoclass:: sbp_env.samplers.baseSampler.Sampler
   :members:

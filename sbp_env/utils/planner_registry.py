@@ -69,16 +69,12 @@ def register_planner(
     :param planner_id: the unique planner id for this registering planner
     :param planner_class: the planner class
     :param sampler_id: sampler id to construct
-    :param visualise_pygame_paint_init: the paint function for pygame,
-        during initialisation
+    :param visualise_pygame_paint_init: the paint function for pygame, during initialisation
     :param visualise_pygame_paint: the paint function for pygame
-    :param visualise_pygame_paint_terminate: the paint function for pygame,
-        when terminating
-    :param visualise_klampt_paint_init: the paint function for klampt,
-        during initialisation
+    :param visualise_pygame_paint_terminate: the paint function for pygame, when terminating
+    :param visualise_klampt_paint_init: the paint function for klampt, during initialisation
     :param visualise_klampt_paint: the paint function for klampt
-    :param visualise_klampt_paint_terminate: the paint function for klampt,
-        when terminating
+    :param visualise_klampt_paint_terminate: the paint function for klampt, when terminating
 
     """
     from ..planners.basePlanner import Planner
@@ -118,16 +114,12 @@ def register_sampler(
 
     :param sampler_id: the unique id for this sampler
     :param sampler_class: the class to construct this sampler
-    :param visualise_pygame_paint_init: the paint function for pygame,
-        during initialisation
+    :param visualise_pygame_paint_init: the paint function for pygame, during initialisation
     :param visualise_pygame_paint: the paint function for pygame
-    :param visualise_pygame_paint_terminate: the paint function for pygame,
-        when terminating
-    :param visualise_klampt_paint_init: the paint function for klampt,
-        during initialisation
+    :param visualise_pygame_paint_terminate: the paint function for pygame, when terminating
+    :param visualise_klampt_paint_init: the paint function for klampt, during initialisation
     :param visualise_klampt_paint: the paint function for klampt
-    :param visualise_klampt_paint_terminate: the paint function for klampt,
-        when terminating
+    :param visualise_klampt_paint_terminate: the paint function for klampt, when terminating
 
     """
     from ..samplers.baseSampler import Sampler

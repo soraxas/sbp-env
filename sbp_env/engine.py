@@ -151,9 +151,20 @@ class BlackBoxEngine(Engine):
         collision_checking_functor: collisionChecker.BlackBoxCollisionChecker.CCType,
         lower_limits: np.ndarray,
         upper_limits: np.ndarray,
-        dist_functor: Optional[Callable[[np.ndarray, np.ndarray], float]] = None,
+        dist_functor: Optional[
+            Callable[[np.ndarray, np.ndarray], float]
+        ] = euclidean_dist,
         cc_epsilon: float = 0.1,
     ):
+        """Arbitrary black box engine
+
+        :param collision_checking_functor: functor that return True if the given configuration is feasible
+        :param lower_limits: an array of the lower bounds of the C-Space
+        :param upper_limits: an array of the lower bounds of the C-Space
+        :param dist_functor: an optional functor that computes the distance between two configurations
+        :param cc_epsilon: the norm in-between each collision check
+
+        """
         super().__init__(
             collisionChecker.BlackBoxCollisionChecker(
                 collision_checking_functor=collision_checking_functor,
@@ -167,8 +178,7 @@ class BlackBoxEngine(Engine):
         self.__dim = lower_limits.shape[0]
         self.__lower_limits = lower_limits
         self.__upper_limits = upper_limits
-        if dist_functor:
-            self.dist = dist_functor
+        self.dist = dist_functor
 
         if self.__dim == 2:
             VisualiserSwitcher.choose_visualiser("blackbox")
