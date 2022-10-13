@@ -1,5 +1,6 @@
 # Sampling-Based Motion Planners' Testing Environment
 
+[![pypi](https://img.shields.io/pypi/v/sbp-env)](https://pypi.org/project/sbp-env/)
 [![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue.svg)](https://cs.tinyiu.com/sbp-env)
 [![CI](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml/badge.svg)](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml)
 [![Build docs](https://github.com/soraxas/sbp-env/actions/workflows/sphinx.yaml/badge.svg)](https://cs.tinyiu.com/sbp-env)
