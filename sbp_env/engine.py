@@ -1,13 +1,12 @@
-import typing
 from abc import ABC, abstractmethod
-from functools import cached_property
+
 from typing import Callable, Optional
 
 import numpy as np
 import math
 
 from . import collisionChecker
-from .utils.common import PlanningOptions
+from .utils.common import PlanningOptions, cached_property
 from .visualiser import VisualiserSwitcher
 
 
