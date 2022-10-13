@@ -257,6 +257,8 @@ class Stats:
         self.sampler_fail = 0
         self.visible_cnt = 0
         self.feasible_cnt = 0
+        self.lsampler_restart_counter = 0
+        self.lsampler_randomwalk_counter = 0
 
     def add_invalid(self, obs):
         """
