@@ -1,6 +1,6 @@
 # Sampling-Based Motion Planners' Testing Environment
 
-[![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://cs.tinyiu.com/sbp-env)
+[![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue.svg)](https://cs.tinyiu.com/sbp-env)
 [![CI](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml/badge.svg)](https://github.com/soraxas/sbp-env/actions/workflows/ci.yaml)
 [![Build docs](https://github.com/soraxas/sbp-env/actions/workflows/sphinx.yaml/badge.svg)](https://cs.tinyiu.com/sbp-env)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -13,7 +13,11 @@ The focus of *motion planning research* had been mainly on (i) improving the sam
 
 Have a look at the [documentations](https://cs.tinyiu.com/sbp-env) for more detail information. If you are looking for the previous code for the RRdT* paper it is now archived at [soraxas/rrdt](https://github.com/soraxas/rrdt).
 
-## Quick start with a custom arbitrary environment
+## Quick start with custom arbitrary environments
+
+```sh
+pip install sbp-env
+```
 
 ```python
 import sbp_env
@@ -50,10 +54,10 @@ for functor in [
 ```
 
 <p align="center">
-  <img src="docs/images/functor-engine1.png" width="400" />
-  <img src="docs/images/functor-engine2.png" width="400" />
-  <img src="docs/images/functor-engine3.png" width="400" />
-  <img src="docs/images/functor-engine4.png" width="400" />
+  <img src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/functor-engine1.png" width="400" />
+  <img src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/functor-engine2.png" width="400" />
+  <img src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/functor-engine3.png" width="400" />
+  <img src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/functor-engine4.png" width="400" />
 </p>
 
 ## Installation
@@ -78,7 +82,7 @@ pip install -r requirements.txt
 
 There is also an optional dependency on [`klampt`](https://github.com/krishauser/Klampt) if you want to use the 3D simulator. Refer to its [installation guide](https://github.com/krishauser/Klampt#installation) for details.
 
-<img align="right" width="300" height="auto" src="docs/images/klampt-simulator.png" />
+<img align="right" width="300" height="auto" src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/klampt-simulator.png" />
 
 ## Quick Guide
 
@@ -117,7 +121,7 @@ python main.py rrdt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="docs/images/rrdt.gif" alt="RRdT* Planner" />
+    <img width="600" height="auto" src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/rrdt.gif" alt="RRdT* Planner" />
 </p>
 
 ### RRT*
@@ -127,7 +131,7 @@ python main.py rrt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="docs/images/rrt.gif" alt="RRT* Planner" />
+    <img width="600" height="auto" src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/rrt.gif" alt="RRT* Planner" />
 </p>
 
 ### Bi-RRT*
@@ -137,7 +141,7 @@ python main.py birrt maps/room1.png -vv
 ```
 
 <p align="center">
-    <img width="600" height="auto" src="docs/images/birrt.gif" alt="Bi-RRT* Planner" />
+    <img width="600" height="auto" src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/birrt.gif" alt="Bi-RRT* Planner" />
 </p>
 
 ### Informed RRT*
@@ -147,7 +151,7 @@ python main.py informedrrt maps/room1.png -vv
 ```
 
 <p align="center">
-<img width="600" height="auto" src="docs/images/informedrrt.gif" alt="Informed RRT* Planner" />
+<img width="600" height="auto" src="https://raw.githubusercontent.com/soraxas/sbp-env/master/docs/images/informedrrt.gif" alt="Informed RRT* Planner" />
 </p>
 
 The red ellipse shown is the dynamic sampling area for Informed RRT*
