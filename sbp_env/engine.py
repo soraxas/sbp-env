@@ -26,9 +26,8 @@ def euclidean_dist(p1: np.ndarray, p2: np.ndarray):
 
 
 class Engine(ABC):
-    def __init__(self, args: MagicDict):
-        self.args = args
-        self.cc = None
+    def __init__(self, cc: collisionChecker.CollisionChecker):
+        self.cc = cc
 
     def get_dimension(self):
         return self.cc.get_dimension()
@@ -69,10 +68,10 @@ class Engine(ABC):
 
 class ImageEngine(Engine):
     def __init__(self, args: MagicDict, image: str):
-        super().__init__(args)
-        self.cc = collisionChecker.ImgCollisionChecker(
-            image,
-            stats=self.args.stats,
+        super().__init__(
+            collisionChecker.ImgCollisionChecker(
+                image,
+            )
         )
         VisualiserSwitcher.choose_visualiser("pygame")
 
@@ -98,11 +97,11 @@ class ImageEngine(Engine):
 
 class RobotArmEngine(Engine):
     def __init__(self, args: MagicDict, image: str):
-        super().__init__(args)
-        self.cc = collisionChecker.RobotArm4dCollisionChecker(
-            image,
-            stats=self.args.stats,
-            stick_robot_length_config=args.rover_arm_robot_lengths,
+        super().__init__(
+            collisionChecker.RobotArm4dCollisionChecker(
+                image,
+                stick_robot_length_config=args.rover_arm_robot_lengths,
+            )
         )
         VisualiserSwitcher.choose_visualiser("pygame")
 
@@ -124,10 +123,10 @@ class RobotArmEngine(Engine):
 
 class KlamptEngine(Engine):
     def __init__(self, args: MagicDict, xml_file: str):
-        super().__init__(args)
-        self.cc = collisionChecker.KlamptCollisionChecker(
-            xml_file,
-            stats=self.args.stats,
+        super().__init__(
+            collisionChecker.KlamptCollisionChecker(
+                xml_file,
+            )
         )
         VisualiserSwitcher.choose_visualiser("klampt")
 
@@ -150,14 +149,18 @@ class KlamptEngine(Engine):
 class BlackBoxEngine(Engine):
     def __init__(
         self,
-        args: MagicDict,
         collision_checking_functor: collisionChecker.BlackBoxCollisionChecker.CCType,
         lower_limits: np.ndarray,
         upper_limits: np.ndarray,
         dist_functor: Optional[Callable[[np.ndarray, np.ndarray], float]] = None,
         cc_epsilon: float = 0.1,
     ):
-        super().__init__(args)
+        super().__init__(
+            collisionChecker.BlackBoxCollisionChecker(
+                collision_checking_functor=collision_checking_functor,
+                cc_epsilon=cc_epsilon,
+            )
+        )
         lower_limits = np.array(lower_limits)
         upper_limits = np.array(upper_limits)
         print(lower_limits.shape)
@@ -166,13 +169,11 @@ class BlackBoxEngine(Engine):
         self.__dim = lower_limits.shape[0]
         self.__lower_limits = lower_limits
         self.__upper_limits = upper_limits
-        self.cc = collisionChecker.BlackBoxCollisionChecker(
-            collision_checking_functor=collision_checking_functor,
-            cc_epsilon=cc_epsilon,
-            stats=self.args.stats,
-        )
         if dist_functor:
             self.dist = dist_functor
+
+        if self.__dim == 2:
+            VisualiserSwitcher.choose_visualiser("blackbox")
 
     @cached_property
     def lower(self) -> np.ndarray:

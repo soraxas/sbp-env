@@ -9,7 +9,7 @@ from ..utils.common import Node
 from ..planners.rrtPlanner import RRTPlanner
 from ..samplers import prmSampler
 from ..utils import planner_registry
-from ..utils.common import Colour
+from ..utils.common import Colour, Stats
 
 volume_of_unit_ball = {
     1: 2,
@@ -52,7 +52,6 @@ class PRMPlanner(RRTPlanner):
     @overrides
     def init(self, *argv, **kwargs):
         super().init(*argv, **kwargs)
-        self.args.stats.invalid_samples_connections = "-- "
 
         self.d_threshold = self.args.epsilon
         self.gamma = (
@@ -69,7 +68,7 @@ class PRMPlanner(RRTPlanner):
     @overrides
     def run_once(self):
         rand_pos, _, _ = self.args.sampler.get_valid_next_pos()
-        self.args.stats.add_free()
+        Stats.get_instance().add_free()
         self.add_newnode(Node(rand_pos))
 
     def clear_graph(self):

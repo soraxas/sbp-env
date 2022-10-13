@@ -160,6 +160,31 @@ class Stats:
     :type visible_cnt: int
     :type feasible_cnt: int
     """
+    __global_stats_instance = None
+
+    @classmethod
+    def has_instance(cls) -> bool:
+        return cls.__global_stats_instance is not None
+
+    @classmethod
+    def build_instance(cls, **kwargs) -> "Stats":
+        if cls.__global_stats_instance is not None:
+            raise ValueError(
+                f"There are already an existing instance of Stats! "
+                f"{cls.get_instance()}"
+            )
+        cls.__global_stats_instance = Stats(**kwargs)
+        return cls.__global_stats_instance
+
+    @classmethod
+    def get_instance(cls) -> "Stats":
+        if cls.__global_stats_instance is None:
+            raise ValueError("Stats instance had not been built yet!")
+        return cls.__global_stats_instance
+
+    @classmethod
+    def clear_instance(cls) -> None:
+        cls.__global_stats_instance = None
 
     def __init__(self, showSampledPoint=True):
         self.invalid_samples_connections = 0

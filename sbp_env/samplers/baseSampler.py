@@ -3,7 +3,7 @@ from typing import Tuple, Callable
 
 import numpy as np
 
-from ..utils.common import MagicDict
+from ..utils.common import MagicDict, Stats
 from ..visualiser import VisualiserSwitcher, BaseSamplerVisualiser
 
 
@@ -59,11 +59,11 @@ class Sampler(ABC):
         """Loop until we find a valid next node. Uses ``get_next_pos`` internally."""
         while True:
             coordinate, report_success, report_fail = self.get_next_pos()
-            self.args.stats.add_sampled_node(coordinate)
+            Stats.get_instance().add_sampled_node(coordinate)
             if self.args.engine.cc.feasible(coordinate):
                 return coordinate, report_success, report_fail
             report_fail(pos=coordinate, obstacle=True)
-            self.args.stats.add_invalid(obs=True)
+            Stats.get_instance().add_invalid(obs=True)
 
     def set_use_radian(self, value: bool = True):
         """Set this sampler to use radian or not

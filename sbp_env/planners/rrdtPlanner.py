@@ -13,7 +13,7 @@ from ..planners.rrtPlanner import RRTPlanner
 from ..samplers.baseSampler import Sampler
 from ..samplers.randomPolicySampler import RandomPolicySampler
 from ..utils import planner_registry
-from ..utils.common import BFS, MagicDict, Colour
+from ..utils.common import BFS, MagicDict, Colour, Stats
 
 LOGGER = logging.getLogger(__name__)
 
@@ -265,8 +265,8 @@ class RRdTSampler(Sampler):
     def init(self, **kwargs):
         super().init(**kwargs)
         # For benchmark stats tracking
-        self.args.stats.lsampler_restart_counter = 0
-        self.args.stats.lsampler_randomwalk_counter = 0
+        Stats.get_instance().lsampler_restart_counter = 0
+        Stats.get_instance().lsampler_randomwalk_counter = 0
 
         self.random_sampler = RandomPolicySampler()
         self.random_sampler.init(**kwargs)
@@ -428,7 +428,7 @@ class RRdTSampler(Sampler):
         :param idx: the index of the particle
 
         """
-        self.args.stats.lsampler_randomwalk_counter += 1
+        Stats.get_instance().lsampler_randomwalk_counter += 1
         # Randomly bias toward goal direction
         if False and random.random() < self.args.goalBias:
             dx = self.goal_pos[0] - self.p_manager.get_pos(idx)[0]
@@ -547,16 +547,16 @@ class RRdTPlanner(RRTPlanner):
                 # Skip remaining steps and iterate to next loop
                 break
             rand_pos = _tmp[0]
-            self.args.stats.add_sampled_node(rand_pos)
+            Stats.get_instance().add_sampled_node(rand_pos)
             if self.args.engine.cc.feasible(rand_pos):
-                self.args.stats.sampler_success += 1
+                Stats.get_instance().sampler_success += 1
                 break
             report_fail = _tmp[-1]
             report_fail(pos=rand_pos, obstacle=True)
-            self.args.stats.add_invalid(obs=True)
-            self.args.stats.sampler_fail += 1
+            Stats.get_instance().add_invalid(obs=True)
+            Stats.get_instance().sampler_fail += 1
 
-        self.args.stats.sampler_success_all += 1
+        Stats.get_instance().sampler_success_all += 1
 
         if _tmp is None:
             # we have added a new samples when respawning a local sampler
@@ -576,12 +576,12 @@ class RRdTPlanner(RRTPlanner):
             newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it is free or not
         if not self.args.engine.cc.visible(nn.pos, newpos):
-            self.args.stats.add_invalid(obs=False)
+            Stats.get_instance().add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
 
-            self.args.stats.add_free()
+            Stats.get_instance().add_free()
             self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(newnode=newnode, pos=newnode.pos)
             ######################
@@ -979,16 +979,16 @@ class MABScheduler:
 
     def new_pos_in_free_space(self):
         """Return a new position in free space."""
-        self.args.stats.lsampler_restart_counter += 1
+        Stats.get_instance().lsampler_restart_counter += 1
         while True:
 
             new_p = self.random_sampler.get_next_pos()[0]
 
-            self.args.stats.add_sampled_node(new_p)
+            Stats.get_instance().add_sampled_node(new_p)
             if not self.args.engine.cc.feasible(new_p):
-                self.args.stats.add_invalid(obs=True)
+                Stats.get_instance().add_invalid(obs=True)
             else:
-                self.args.stats.add_free()
+                Stats.get_instance().add_free()
                 break
         return new_p
 

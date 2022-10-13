@@ -37,7 +37,6 @@ class Env:
 
         # initialize and prepare screen
         self.args = args
-        self.args.stats = Stats(showSampledPoint=self.args.showSampledPoint)
 
         # cc_type, self.dist = {
         #     "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
@@ -168,6 +167,8 @@ class Env:
     def run(self):
         """Run until we reached the specified max nodes"""
         self.started = True
+        Stats.clear_instance()
+        stats = Stats.build_instance(showSampledPoint=self.args.showSampledPoint)
 
         if self.args.save_output:
             setup_csv_stats_logger(
@@ -192,18 +193,18 @@ class Env:
         with tqdm(
             total=self.args.max_number_nodes, desc=self.args.sampler.name
         ) as pbar:
-            while self.args.stats.valid_sample < self.args.max_number_nodes:
+            while stats.valid_sample < self.args.max_number_nodes:
                 self.visualiser.update_screen()
                 self.planner.run_once()
 
-                pbar.n = self.args.stats.valid_sample
+                pbar.n = stats.valid_sample
 
                 pbar.set_postfix(
                     {
-                        "cc_fe": self.args.stats.feasible_cnt,
-                        "cc_vi": self.args.stats.visible_cnt,
-                        "fe": self.args.stats.invalid_samples_obstacles,
-                        "vi": self.args.stats.invalid_samples_connections,
+                        "cc_fe": stats.feasible_cnt,
+                        "cc_vi": stats.visible_cnt,
+                        "fe": stats.invalid_samples_obstacles,
+                        "vi": stats.invalid_samples_connections,
                         "c_max": self.planner.c_max,
                     }
                 )
@@ -211,12 +212,12 @@ class Env:
                     csv_logger = logging.getLogger("CSV_STATS")
                     csv_logger.info(
                         [
-                            self.args.stats.valid_sample,
+                            stats.valid_sample,
                             time.time() - start_time,
-                            self.args.stats.feasible_cnt,
-                            self.args.stats.visible_cnt,
-                            self.args.stats.invalid_samples_obstacles,
-                            self.args.stats.invalid_samples_connections,
+                            stats.feasible_cnt,
+                            stats.visible_cnt,
+                            stats.invalid_samples_obstacles,
+                            stats.invalid_samples_connections,
                             self.planner.c_max,
                         ]
                     )

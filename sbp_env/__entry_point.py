@@ -104,7 +104,8 @@ from typing import Optional, Union, List, Any
 import numpy as np
 from docopt import docopt
 
-from . import planners, engine
+from . import planners
+from .engine import Engine, ImageEngine, RobotArmEngine, KlamptEngine
 from .utils import planner_registry
 from .utils.common import MagicDict, Stats
 
@@ -117,14 +118,15 @@ RAW_DOC_STRING = __doc__
 
 def generate_args(
     planner_id: str,
-    input_fname: Optional[str],
-    engine: Optional[engine.Engine] = None,
+    input_fname: Optional[str] = None,
+    engine: Optional[Engine] = None,
     start_pt: Union[np.ndarray, str] = None,
     goal_pt: Union[np.ndarray, str] = None,
+    display: bool = False,
     **kwargs,
 ) -> MagicDict:
     default_args = dict(
-        no_display=True,
+        no_display=not display,
     )
     for k, v in default_args.items():
         if k not in kwargs:
@@ -138,12 +140,13 @@ def generate_args(
             "Either an input file `input_fname` or a custom Engine `engine` must be "
             "provided to generate args, and they are mutually exclusive."
         )
-    if input_fname is None:
-        if planner_id not in planner_registry.PLANNERS:
-            raise ValueError(f"The given planner id '{planner_id}' does not exists.")
+    if planner_id not in planner_registry.PLANNERS:
+        raise ValueError(f"The given planner id '{planner_id}' does not exists.")
     # inject the inputs for docopt to parse
-    argv[1:] = [planner_id, input_fname]
-    args = generate_args_main(start_pt=start_pt, goal_pt=goal_pt, argv=argv)
+    argv[1:] = [planner_id, str(input_fname)]
+    args = generate_args_main(
+        start_pt=start_pt, goal_pt=goal_pt, argv=argv, engine=engine
+    )
 
     args.update(**kwargs)
     return args
@@ -152,6 +155,7 @@ def generate_args(
 def generate_args_main(
     start_pt: Optional[Union[np.ndarray, str]] = None,
     goal_pt: Optional[Union[np.ndarray, str]] = None,
+    engine: Optional[Engine] = None,
     argv: Optional[List[Any]] = None,
 ) -> MagicDict:
     """Get the default set of arguments
@@ -160,6 +164,7 @@ def generate_args_main(
     :param map_fname: the filename of the map to use in the planning environment
     :param start_pt: overrides the starting configuration
     :param goal_pt: overrides the goal configuration
+    :param engine: a custom engine
     :param argv: a custom argv list
 
     :return: the default dictionary of arguments to config the planning problem
@@ -186,7 +191,7 @@ def generate_args_main(
         raise RuntimeError(
             f"Unrecognised value '{args['--engine']}' for engine option!"
         )
-    if args["--engine"] == "":
+    if engine is None and args["--engine"] == "":
         # try to infer engine based on file extension
         _notice = (
             "NOTE: no --engine option given. Inferring as --engine={} based "
@@ -275,7 +280,6 @@ def generate_args_main(
         sampler_data_pack=sampler_data_pack,
         rrdt_proposal_distribution=args["--proposal-dist"],
         no_display=args["--no-display"],
-        # engine=args["--engine"],
         start_pt=args["<start_x1,x2,..,xn>"],
         goal_pt=args["<goal_x1,x2,..,xn>"],
         rover_arm_robot_lengths=args["--4d-robot-lengths"],
@@ -293,14 +297,13 @@ def generate_args_main(
         dict(
             planner=None,
             sampler=None,
-            stats=Stats(),
         )
     )
-    planning_option.engine = {
-        "image": engine.ImageEngine,
-        "4d": engine.RobotArmEngine,
-        "klampt": engine.KlamptEngine,
-    }[args["--engine"]](planning_option, args["<MAP>"])
+    if engine is None:
+        engine = {"image": ImageEngine, "4d": RobotArmEngine, "klampt": KlamptEngine,}[
+            args["--engine"]
+        ](planning_option, args["<MAP>"])
+    planning_option.engine = engine
 
     planning_option.freeze()
     return planning_option

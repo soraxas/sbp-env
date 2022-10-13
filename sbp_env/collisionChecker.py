@@ -10,8 +10,10 @@ from .utils.common import Stats, MagicDict
 class CollisionChecker(ABC):
     """Abstract collision checker"""
 
-    def __init__(self, stats: Stats):
-        self.stats = stats
+    def __init__(self):
+        if not Stats.has_instance():
+            Stats.build_instance()
+        self.stats = Stats.get_instance()
 
     def visible(self, pos1: np.ndarray, pos2: np.ndarray):
         r"""Check if the straight line connection between pos1 and pos2 is in
@@ -39,9 +41,11 @@ class BlackBoxCollisionChecker(CollisionChecker):
     CCType = typing.Callable[[np.ndarray], bool]
 
     def __init__(
-        self, collision_checking_functor: CCType, cc_epsilon: float, stats: Stats
+        self,
+        collision_checking_functor: CCType,
+        cc_epsilon: float,
     ):
-        super().__init__(stats)
+        super().__init__()
         self.__cc_functor = collision_checking_functor
         self.__cc_epsilon = cc_epsilon
 
@@ -78,14 +82,13 @@ class ImgCollisionChecker(CollisionChecker):
     def __init__(
         self,
         img: str,
-        stats: Stats,
     ):
         """
         :param img: a file-like object (e.g. a filename) for the image as the
             environment that the planning operates in
         :param stats: the Stats object to keep track of stats
         """
-        super().__init__(stats)
+        super().__init__()
         from PIL import Image
 
         self.image_fname = img
@@ -209,12 +212,15 @@ class ImgCollisionChecker(CollisionChecker):
 class KlamptCollisionChecker(CollisionChecker):
     """A wrapper around Klampt's 3D simulator"""
 
-    def __init__(self, xml: str, stats: Stats):
+    def __init__(
+        self,
+        xml: str,
+    ):
         """
         :param xml: the xml filename for Klampt to read the world settings
         :param stats: the Stats object to keep track of stats
         """
-        super().__init__(stats)
+        super().__init__()
         import klampt
         from klampt.plan import robotplanning
 
@@ -292,7 +298,6 @@ class RobotArm4dCollisionChecker(CollisionChecker):
     def __init__(
         self,
         img: str,
-        stats: Stats,
         map_mat: typing.Optional[np.ndarray] = None,
         stick_robot_length_config: typing.Optional[typing.Sequence[float]] = None,
     ):
@@ -306,7 +311,7 @@ class RobotArm4dCollisionChecker(CollisionChecker):
             length of the stick robotic arm
         :param stats: the Stats object to keep track of stats
         """
-        super().__init__(stats)
+        super().__init__()
         self.image_fname = img
         if map_mat is None:
             from PIL import Image

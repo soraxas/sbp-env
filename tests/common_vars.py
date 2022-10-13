@@ -78,7 +78,6 @@ template_args = MagicDict(
     scaling=1.5,
     showSampledPoint=False,
     skip_optimality=False,
-    stats=Stats(),
 )
 template_args["engine"] = engine.ImageEngine(template_args, "maps/room1.png")
 

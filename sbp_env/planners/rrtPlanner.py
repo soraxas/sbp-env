@@ -6,7 +6,7 @@ import numpy as np
 
 from ..planners.basePlanner import Planner
 from ..utils import planner_registry
-from ..utils.common import Node, Tree, Colour
+from ..utils.common import Node, Tree, Colour, Stats
 
 
 class RRTPlanner(Planner):
@@ -80,11 +80,11 @@ class RRTPlanner(Planner):
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
         if not self.args.engine.cc.visible(nn.pos, newpos):
-            self.args.stats.add_invalid(obs=False)
+            Stats.get_instance().add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
-            self.args.stats.add_free()
+            Stats.get_instance().add_free()
             self.args.sampler.add_tree_node(pos=newnode.pos)
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             ######################

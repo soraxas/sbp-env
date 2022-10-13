@@ -26,7 +26,6 @@ class TestImgCollisionChecker(TestCase):
     def setUp(self) -> None:
         self.cc = ImgCollisionChecker(
             create_test_image(),
-            stats=Stats(),
         )
         self.target = mock_image_as_np == 255
         self.target = self.target.astype(self.cc.image.dtype)

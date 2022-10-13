@@ -4,7 +4,7 @@ from overrides import overrides
 from ..env import Node
 from ..planners.rrtPlanner import RRTPlanner
 from ..utils import planner_registry
-from ..utils.common import Colour
+from ..utils.common import Colour, Stats
 
 
 # noinspection PyAttributeOutsideInit
@@ -57,11 +57,11 @@ class BiRRTPlanner(RRTPlanner):
         newpos = self.args.env.step_from_to(nn.pos, rand_pos)
         # check if it has a free path to nn or not
         if not self.args.engine.cc.visible(nn.pos, newpos):
-            self.args.stats.add_invalid(obs=False)
+            Stats.get_instance().add_invalid(obs=False)
             report_fail(pos=rand_pos, free=False)
         else:
             newnode = Node(newpos)
-            self.args.stats.add_free()
+            Stats.get_instance().add_free()
             report_success(pos=newnode.pos, nn=nn, rand_pos=rand_pos)
             newnode, nn = self.choose_least_cost_parent(newnode, nn, nodes=nodes)
             poses[len(nodes)] = newnode.pos

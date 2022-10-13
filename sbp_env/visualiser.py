@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .utils.common import Colour
+from .utils.common import Colour, Stats
 from .utils.common import Node
 
 from . import collisionChecker
@@ -623,7 +623,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
         if count % 4 == 0:
             self.sampledPoint_screen.fill(Colour.ALPHA_CK)
             # Draw sampled nodes
-            for sampledPos in self.args.stats.sampledNodes:
+            for sampledPos in Stats.get_instance().sampledNodes:
                 self.draw_circle(
                     pos=sampledPos,
                     colour=Colour.red,
@@ -632,7 +632,7 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
                 )
             self.window.blit(self.sampledPoint_screen, (0, 0))
             # remove them from list
-            del self.args.stats.sampledNodes[:]
+            del Stats.get_instance().sampledNodes[:]
 
         # Texts
         if count % 10 == 0:
@@ -643,8 +643,8 @@ class PygameEnvVisualiser(BaseEnvVisualiser):
             )
             text = "Cost: {} | Inv.Samples: {}(con) {}(obs)".format(
                 _cost,
-                self.args.stats.invalid_samples_connections,
-                self.args.stats.invalid_samples_obstacles,
+                Stats.get_instance().invalid_samples_connections,
+                Stats.get_instance().invalid_samples_obstacles,
             )
             self.window.blit(
                 self.myfont.render(text, False, Colour.white, Colour.black),
@@ -889,6 +889,41 @@ class KlamptSamplerVisualiser(BaseSamplerVisualiser):
                 self.sampler_data_pack.visualise_klampt_paint_terminate(self)
 
 
+# noinspection PyAttributeOutsideInit
+class BlackBoxEnvVisualiser(BaseEnvVisualiser):
+    """
+    Environment Visualiser with the Pygame engine.py
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def terminates_hook(self):
+        import matplotlib.pyplot as plt
+
+        from .randomness import RandomnessManager
+
+        randomness = RandomnessManager(self.env_instance.args.engine.get_dimension())
+
+        pts = self.env_instance.args.engine.transform(
+            np.array([randomness.get_random("sobol_sequence") for _ in range(10000)])
+        )
+        # TODO: stop cc from collecting stats
+        obs_pts = [
+            pt for pt in pts if not self.env_instance.args.engine.cc.feasible(pt)
+        ]
+
+        plt.scatter(*self.env_instance.start_pt, c="green", label="start")
+        plt.scatter(*self.env_instance.goal_pt, c="red", label="goal")
+        plt.scatter(*np.array(obs_pts).T, c="black", label="infeasible")
+        plt.plot(*self.get_solution_path(as_array=True).T, label="solution path")
+
+        self.env_instance.planner.visualiser.terminates_hook()
+        self.env_instance.sampler.visualiser.terminates_hook()
+        plt.legend()
+        plt.show()
+
+
 class VisualiserSwitcher:
     """Default to Pygame visualiser"""
 
@@ -915,5 +950,7 @@ class VisualiserSwitcher:
             VisualiserSwitcher.env_clname = KlamptEnvVisualiser
             VisualiserSwitcher.planner_clname = KlamptPlannerVisualiser
             VisualiserSwitcher.sampler_clname = KlamptSamplerVisualiser
+        elif visualiser_type == "blackbox":
+            VisualiserSwitcher.env_clname = BlackBoxEnvVisualiser
         else:
             raise ValueError(f"Unknown visualiser_type {visualiser_type}")

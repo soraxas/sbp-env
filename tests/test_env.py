@@ -15,7 +15,7 @@ class TestGenerateArgs(TestCase):
     def test_missing_argunment(self):
         with self.assertRaises(TypeError):
             generate_args()
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             generate_args(planner_id="rrt")
         with self.assertRaises(TypeError):
             generate_args(input_fname="maps/4d.png")
@@ -24,7 +24,7 @@ class TestGenerateArgs(TestCase):
         generate_args(planner_id="rrt", input_fname="maps/4d.png")
 
         # test error if the planner id has not been registered yet
-        with self.assertRaises(DocoptExit):
+        with self.assertRaises(ValueError):
             generate_args(planner_id="my_planner_id", input_fname="maps/4d.png")
 
         # test that after the planner id is registered, it will work.
