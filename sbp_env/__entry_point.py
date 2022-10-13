@@ -104,7 +104,7 @@ from typing import Optional, Union, List, Any
 import numpy as np
 from docopt import docopt
 
-from . import planners
+from . import planners, _version
 from .engine import Engine, ImageEngine, RobotArmEngine, KlamptEngine, BlackBoxEngine
 from .utils import planner_registry
 from .utils.common import PlanningOptions, Stats
@@ -180,7 +180,7 @@ def generate_args_main(
     args = docopt(
         doc=format_doc_with_registered_planners(RAW_DOC_STRING),
         argv=argv,
-        version="SBP-Env Research v2.0",
+        version=_version.__version__,
     )
 
     # allow the map filename, start and goal point to be override.

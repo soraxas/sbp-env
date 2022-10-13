@@ -39,13 +39,6 @@ class Env:
         # initialize and prepare screen
         self.args = args
 
-        # cc_type, self.dist = {
-        #     "image": (collisionChecker.ImgCollisionChecker, self.euclidean_dist),
-        #     "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
-        #     "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
-        # }[self.args.engine]
-        print(args)
-
         # setup visualiser
         if self.args.no_display:
             # use pass-through visualiser

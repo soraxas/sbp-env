@@ -6,4 +6,4 @@ networkx~=2.5
 pillow
 
 tqdm~=4.56.0
-rtree~=0.9.4
+rtree>=0.9.4
