@@ -36,16 +36,12 @@ for functor in [
     engine = sbp_env.engine.BlackBoxEngine(
         collision_checking_functor=functor,
         lower_limits=[-5, -5], upper_limits=[5, 5],
-        cc_epsilon=0.1,
+        cc_epsilon=0.1,  # collision check resolution
     )
-    # The entry point of the planning scene module from the cli
     planning_args = sbp_env.generate_args(
-        planner_id="rrt",
-        engine=engine,
-        start_pt=[-3, -3],
-        goal_pt=[4, 4],
-        first_solution=True,  # return first solution
-        display=True,
+        planner_id="rrt", engine=engine,
+        start_pt=[-3, -3], goal_pt=[3, 3],
+        display=True, first_solution=True,
     )
 
     env = sbp_env.env.Env(args=planning_args)
