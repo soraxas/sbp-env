@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sbp_env.engine &mdash; sbp-env 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/katex.min.js"></script>
+        <script src="../../_static/auto-render.min.js"></script>
+        <script src="../../_static/katex_autorenderer.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> sbp-env
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../samplers.html">C-space Samplers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support.html">Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">sbp-env</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>sbp_env.engine</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sbp_env.engine</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">collisionChecker</span>
+<span class="kn">from</span> <span class="nn">.utils.common</span> <span class="kn">import</span> <span class="n">PlanningOptions</span><span class="p">,</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">.visualiser</span> <span class="kn">import</span> <span class="n">VisualiserSwitcher</span>
+
+
+<span class="k">def</span> <span class="nf">euclidean_dist</span><span class="p">(</span><span class="n">p1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the Euclidean distance between p1 and p2</span>
+
+<span class="sd">    :param p1: first configuration :math:`q_1`</span>
+<span class="sd">    :param p2: second configuration :math:`q_2`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># THIS IS MUCH SLOWER for small array</span>
+    <span class="c1"># return np.linalg.norm(p1 - p2)</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Engine</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cc</span><span class="p">:</span> <span class="n">collisionChecker</span><span class="o">.</span><span class="n">CollisionChecker</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="n">cc</span>
+
+    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">euclidean_dist</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># @cached_property</span>
+    <span class="c1"># def dim(self) -&gt; int:</span>
+    <span class="c1">#     raise NotImplementedError()</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given qs within the range of 0 to 1, project it to the full range of the bounds.</span>
+
+<span class="sd">        :param qs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">qs</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Must derive from this class&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ImageEngine"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.ImageEngine">[docs]</a><span class="k">class</span> <span class="nc">ImageEngine</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">PlanningOptions</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">collisionChecker</span><span class="o">.</span><span class="n">ImgCollisionChecker</span><span class="p">(</span>
+                <span class="n">image</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">choose_visualiser</span><span class="p">(</span><span class="s2">&quot;pygame&quot;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the image shape of the planning problem.</span>
+
+<span class="sd">        :return: the shape of the planning problem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageEngine.get_dimension"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.ImageEngine.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span></div></div>
+
+
+<div class="viewcode-block" id="RobotArmEngine"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.RobotArmEngine">[docs]</a><span class="k">class</span> <span class="nc">RobotArmEngine</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">PlanningOptions</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">collisionChecker</span><span class="o">.</span><span class="n">RobotArm4dCollisionChecker</span><span class="p">(</span>
+                <span class="n">image</span><span class="p">,</span>
+                <span class="n">stick_robot_length_config</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">rover_arm_robot_lengths</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">choose_visualiser</span><span class="p">(</span><span class="s2">&quot;pygame&quot;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+
+<div class="viewcode-block" id="RobotArmEngine.get_dimension"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.RobotArmEngine.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">4</span></div></div>
+
+
+<div class="viewcode-block" id="KlamptEngine"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.KlamptEngine">[docs]</a><span class="k">class</span> <span class="nc">KlamptEngine</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">PlanningOptions</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">collisionChecker</span><span class="o">.</span><span class="n">KlamptCollisionChecker</span><span class="p">(</span>
+                <span class="n">xml_file</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">choose_visualiser</span><span class="p">(</span><span class="s2">&quot;klampt&quot;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">())</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">())</span>
+
+<div class="viewcode-block" id="KlamptEngine.get_dimension"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.KlamptEngine.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">6</span></div></div>
+
+
+<div class="viewcode-block" id="BlackBoxEngine"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.BlackBoxEngine">[docs]</a><span class="k">class</span> <span class="nc">BlackBoxEngine</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">collision_checking_functor</span><span class="p">:</span> <span class="n">collisionChecker</span><span class="o">.</span><span class="n">BlackBoxCollisionChecker</span><span class="o">.</span><span class="n">CCType</span><span class="p">,</span>
+        <span class="n">lower_limits</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">upper_limits</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">dist_functor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">euclidean_dist</span><span class="p">,</span>
+        <span class="n">cc_epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Arbitrary black box engine</span>
+
+<span class="sd">        :param collision_checking_functor: functor that return True if the given configuration is feasible</span>
+<span class="sd">        :param lower_limits: an array of the lower bounds of the C-Space</span>
+<span class="sd">        :param upper_limits: an array of the lower bounds of the C-Space</span>
+<span class="sd">        :param dist_functor: an optional functor that computes the distance between two configurations</span>
+<span class="sd">        :param cc_epsilon: the norm in-between each collision check</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">collisionChecker</span><span class="o">.</span><span class="n">BlackBoxCollisionChecker</span><span class="p">(</span>
+                <span class="n">collision_checking_functor</span><span class="o">=</span><span class="n">collision_checking_functor</span><span class="p">,</span>
+                <span class="n">cc_epsilon</span><span class="o">=</span><span class="n">cc_epsilon</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">lower_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lower_limits</span><span class="p">)</span>
+        <span class="n">upper_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">upper_limits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lower_limits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">upper_limits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Lower and upper limit mismatch!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dim</span> <span class="o">=</span> <span class="n">lower_limits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__lower_limits</span> <span class="o">=</span> <span class="n">lower_limits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__upper_limits</span> <span class="o">=</span> <span class="n">upper_limits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist_functor</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">choose_visualiser</span><span class="p">(</span><span class="s2">&quot;blackbox&quot;</span><span class="p">)</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_limits</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__upper_limits</span>
+
+<div class="viewcode-block" id="BlackBoxEngine.get_dimension"><a class="viewcode-back" href="../../engines.html#sbp_env.engine.BlackBoxEngine.get_dimension">[docs]</a>    <span class="k">def</span> <span class="nf">get_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the current dimensionality of this space</span>
+
+<span class="sd">        :return: the dimensionality</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dim</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin Lai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

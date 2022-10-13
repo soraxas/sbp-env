@@ -28,24 +28,24 @@ For example:
     any GUI for user to select the start/goal pair. Therefore, it is necessary for user
     to directly supply the starting and target configurations.
 
-The following sections showcase the different classes of visualiser.
+The following sections showcase the different classes of sbp_env.visualiser.
 
 2D Image Space Visualiser
 -------------------------
 
-.. autoclass:: visualiser.PygameEnvVisualiser
+.. autoclass:: sbp_env.visualiser.PygameEnvVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.PygamePlannerVisualiser
+.. autoclass:: sbp_env.visualiser.PygamePlannerVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.PygameSamplerVisualiser
+.. autoclass:: sbp_env.visualiser.PygameSamplerVisualiser
   :members:
   :private-members:
   :show-inheritance:
@@ -55,11 +55,11 @@ The following sections showcase the different classes of visualiser.
 -------------------------------------
 
 The 4D manipulator visualiser uses the same
-:class:`visualiser.PygameEnvVisualiser`,
-:class:`visualiser.PygamePlannerVisualiser` and
-:class:`visualiser.PygameSamplerVisualiser` as the `2D Image Space Visualiser`_
+:class:`sbp_env.visualiser.PygameEnvVisualiser`,
+:class:`sbp_env.visualiser.PygamePlannerVisualiser` and
+:class:`sbp_env.visualiser.PygameSamplerVisualiser` as the `2D Image Space Visualiser`_
 to visualise the planning scene. However, it performs the necessary kinematics transformations to translates configurations :math:`q \in C` to worldspace :math:`x \in \mathcal{W}`
-with the help of the collision checker :class:`collisionChecker.RobotArm4dCollisionChecker`.
+with the help of the collision checker :class:`sbp_env.collisionChecker.RobotArm4dCollisionChecker`.
 
 .. warning::
 
@@ -73,28 +73,28 @@ with the help of the collision checker :class:`collisionChecker.RobotArm4dCollis
 --------------------------
 
 
-.. autoclass:: visualiser.KlamptEnvVisualiser
+.. autoclass:: sbp_env.visualiser.KlamptEnvVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.KlamptPlannerVisualiser
+.. autoclass:: sbp_env.visualiser.KlamptPlannerVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
-.. autoclass:: visualiser.KlamptSamplerVisualiser
+.. autoclass:: sbp_env.visualiser.KlamptSamplerVisualiser
   :members:
   :private-members:
   :show-inheritance:
 
 
+Black Box Engine Visualiser
+---------------------------
 
-
-Currently there are three engines used in ``sbp-env`` that are used to simulate collisions and the planning environment.
-
-The first one is a **2D**  engine with the configuration space (*C-Space*) as :math:`C \subseteq \mathbb{R}^2`.
-This engine is very easy to use and very easy to add new environments.
-This uses a the :class:`collisionChecker.ImgCollisionChecker` for environment simulation and with the :class:`visualiser.PygameEnvVisualiser` to visualise the planning scene.
+.. autoclass:: sbp_env.visualiser.BlackBoxEnvVisualiser
+  :members:
+  :private-members:
+  :show-inheritance:

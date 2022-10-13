@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sbp_env.planners.rrtPlanner &mdash; sbp-env 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/katex.min.js"></script>
+        <script src="../../../_static/auto-render.min.js"></script>
+        <script src="../../../_static/katex_autorenderer.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> sbp-env
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samplers.html">C-space Samplers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sbp-env</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>sbp_env.planners.rrtPlanner</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sbp_env.planners.rrtPlanner</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Represent a planner.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..planners.basePlanner</span> <span class="kn">import</span> <span class="n">Planner</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">planner_registry</span>
+<span class="kn">from</span> <span class="nn">..utils.common</span> <span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Tree</span><span class="p">,</span> <span class="n">Colour</span><span class="p">,</span> <span class="n">Stats</span><span class="p">,</span> <span class="n">PlanningOptions</span>
+
+
+<div class="viewcode-block" id="RRTPlanner"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner">[docs]</a><span class="k">class</span> <span class="nc">RRTPlanner</span><span class="p">(</span><span class="n">Planner</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The Rapidly-exploring random tree.</span>
+
+<span class="sd">    Rapidly-exploring Random Tree* (RRT*) is an anytime, asymptotic optimal sampling-based</span>
+<span class="sd">    motion planner that continuously updates its solution within the given budget.</span>
+<span class="sd">    The planner itself is implemented in :class:`~planners.rrtPlanner.RRTPlanner`, while</span>
+<span class="sd">    the default sampling</span>
+<span class="sd">    policy is implemented in :class:`~samplers.randomPolicySampler.RandomPolicySampler`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">PlanningOptions</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_number_nodes</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">())</span>
+        <span class="p">)</span>  <span class="c1"># +50 to prevent over flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="c1"># this dict is to temporarily store distance of a new node to all others</span>
+        <span class="c1"># so that in the next run other functions</span>
+        <span class="c1"># (eg choose_least_cost_parent and rwire)</span>
+        <span class="c1"># and take advantage to the already computed values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_node_dist_to_all_others</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># self.args.env = None  # will be set by env itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_dimension</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">found_solution</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">skip_optimality</span><span class="p">:</span>
+            <span class="c1"># respect option of skip planning for optimality</span>
+            <span class="c1"># (i.e. reduce RRT* to RRT with the benefit of increased performance)</span>
+            <span class="k">def</span> <span class="nf">no_opt_choose_least_cost_parent</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not enough information&quot;</span><span class="p">)</span>
+                <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn</span>
+                <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span>
+
+            <span class="k">def</span> <span class="nf">no_opt_rewire</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">choose_least_cost_parent</span> <span class="o">=</span> <span class="n">no_opt_choose_least_cost_parent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rewire</span> <span class="o">=</span> <span class="n">no_opt_rewire</span>
+
+<div class="viewcode-block" id="RRTPlanner.init"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** function</span>
+
+<span class="sd">        :param start_pt: the start configuration</span>
+<span class="sd">        :param goal_pt: the goal configuration</span>
+
+<span class="sd">        :type start_pt: numpy.ndarray</span>
+<span class="sd">        :type goal_pt: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># self.args.env = kwargs[&#39;RRT&#39;]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">start_pt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_pt</span></div>
+
+<div class="viewcode-block" id="RRTPlanner.run_once"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.run_once">[docs]</a>    <span class="k">def</span> <span class="nf">run_once</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute the main planning procedure once (mostly of the time this</span>
+<span class="sd">        corresponds to adding one new node to the tree)</span>
+
+<span class="sd">        This where the main bulk of actions happens, e.g., creating nodes or edges.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get an sample that is free (not in blocked space)</span>
+        <span class="n">rand_pos</span><span class="p">,</span> <span class="n">report_success</span><span class="p">,</span> <span class="n">report_fail</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">get_valid_next_pos</span><span class="p">()</span>
+        <span class="c1"># Found a node that is not in X_obs</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_nearest_neighbour_idx</span><span class="p">(</span><span class="n">rand_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">poses</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)])</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="c1"># get an intermediate node according to step-size</span>
+        <span class="n">newpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step_from_to</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">rand_pos</span><span class="p">)</span>
+        <span class="c1"># check if it has a free path to nn or not</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newpos</span><span class="p">):</span>
+            <span class="n">Stats</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">add_invalid</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">report_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">,</span> <span class="n">free</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newnode</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">newpos</span><span class="p">)</span>
+            <span class="n">Stats</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">add_free</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">add_tree_node</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="n">report_success</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">rand_pos</span><span class="o">=</span><span class="n">rand_pos</span><span class="p">)</span>
+            <span class="c1">######################</span>
+            <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_least_cost_parent</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_newnode</span><span class="p">(</span><span class="n">newnode</span><span class="p">)</span>
+            <span class="c1"># rewire to see what the newly added node can do for us</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rewire</span><span class="p">(</span><span class="n">newnode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                    <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">c_max</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RRTPlanner.add_newnode"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.add_newnode">[docs]</a>    <span class="k">def</span> <span class="nf">add_newnode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new node to the tree</span>
+
+<span class="sd">        :param node: node to be added</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poses</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RRTPlanner.choose_least_cost_parent"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.choose_least_cost_parent">[docs]</a>    <span class="k">def</span> <span class="nf">choose_least_cost_parent</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">newnode</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+        <span class="n">nn</span><span class="p">:</span> <span class="n">Node</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skip_optimality</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_rtree</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">poses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a new node, a node from root, return a node from root that</span>
+<span class="sd">        has the least cost (toward the newly added node)</span>
+
+<span class="sd">        :param newnode: the newly created node that we want to search for a new parent</span>
+<span class="sd">        :param nn: the current closest node, optional.</span>
+<span class="sd">        :param nodes: the list of node to search against</span>
+<span class="sd">        :param skip_optimality: skip searching for optimality (i.e. non-asymptomatic)</span>
+<span class="sd">        :param use_rtree: whether use rtree to store tree or not</span>
+<span class="sd">        :param poses: list of configurations, with the same length as ``nodes``</span>
+
+<span class="sd">        :return: the node with the lowest cost</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">skip_optimality</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not enough information&quot;</span><span class="p">)</span>
+
+            <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn</span>
+            <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span>
+
+        <span class="k">if</span> <span class="n">use_rtree</span> <span class="ow">or</span> <span class="n">poses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn2</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">use_rtree</span><span class="p">:</span>
+                <span class="n">canidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nearby</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">poses</span> <span class="o">-</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">canidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">distances</span><span class="p">)[:</span><span class="mi">20</span><span class="p">]]</span>
+
+            <span class="n">canidates</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s2">&quot;cost&quot;</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">canidates</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span>
+                    <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">pos</span>
+                <span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">radius</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span>
+                    <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">pos</span>
+                <span class="p">):</span>
+                    <span class="n">nn2</span> <span class="o">=</span> <span class="n">n</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">nn2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to find nn that is connectable&quot;</span><span class="p">)</span>
+                <span class="n">nn2</span> <span class="o">=</span> <span class="n">nn</span>
+            <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn2</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn2</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn2</span>
+
+            <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn2</span>
+
+        <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_newnode_to_nn_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_node_dist_to_all_others</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="n">_newnode_to_p_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_new_node_dist_to_all_others</span><span class="p">[(</span><span class="n">newnode</span><span class="p">,</span> <span class="n">p</span><span class="p">)]</span> <span class="o">=</span> <span class="n">_newnode_to_p_cost</span>
+            <span class="k">if</span> <span class="n">_newnode_to_p_cost</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">radius</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span>
+                <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">pos</span>
+            <span class="p">):</span>
+                <span class="c1"># This is another valid parent. Check if it&#39;s better than our current one.</span>
+                <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">p</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_p_cost</span> <span class="o">&lt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_nn_cost</span>
+                <span class="p">):</span>
+                    <span class="n">nn</span> <span class="o">=</span> <span class="n">p</span>
+                    <span class="n">_newnode_to_nn_cost</span> <span class="o">=</span> <span class="n">_newnode_to_p_cost</span>
+        <span class="k">if</span> <span class="n">nn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
+                <span class="s2">&quot;ERROR: Provided nn=None, and cannot find any valid nn by this function. This newnode is not close to the root tree...?&quot;</span>
+            <span class="p">)</span>
+        <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">newnode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">nn</span>
+        <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">nn</span>
+
+        <span class="k">return</span> <span class="n">newnode</span><span class="p">,</span> <span class="n">nn</span></div>
+
+<div class="viewcode-block" id="RRTPlanner.rewire"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.rewire">[docs]</a>    <span class="k">def</span> <span class="nf">rewire</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">newnode</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+        <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Node</span><span class="p">],</span>
+        <span class="n">already_rewired</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skip_optimality</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_rtree</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">poses</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rewire the given new node</span>
+
+<span class="sd">        :param newnode: the newly created node that we want to rewires</span>
+<span class="sd">        :param nodes: the list of node to search against</span>
+<span class="sd">        :param already_rewired: if the node had already been rewired previously</span>
+<span class="sd">        :param skip_optimality: skip optimality to speed up (reduce to RRT as opposed to RRT*)</span>
+<span class="sd">        :param use_rtree: if we should use rtree as opposed to native numpy operations</span>
+<span class="sd">        :param poses: an array of positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">skip_optimality</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">use_rtree</span> <span class="ow">or</span> <span class="n">poses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">already_rewired</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">already_rewired</span> <span class="o">=</span> <span class="p">{</span><span class="n">newnode</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">use_rtree</span><span class="p">:</span>
+                <span class="n">canidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nearby</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">poses</span> <span class="o">-</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">canidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">distances</span><span class="p">)[:</span><span class="mi">20</span><span class="p">]]</span>
+
+            <span class="n">canidates</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s2">&quot;cost&quot;</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">canidates</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">already_rewired</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">_newnode_to_n_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">n</span> <span class="o">!=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span>
+                    <span class="ow">and</span> <span class="n">_newnode_to_n_cost</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">radius</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">.</span><span class="n">cost</span>
+                <span class="p">):</span>
+                    <span class="c1"># draw over the old wire</span>
+                    <span class="n">reconsider</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">children</span>
+                    <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
+                    <span class="n">n</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span>
+                    <span class="n">already_rewired</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rewire</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">reconsider</span><span class="p">,</span> <span class="n">already_rewired</span><span class="o">=</span><span class="n">already_rewired</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">already_rewired</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">already_rewired</span> <span class="o">=</span> <span class="p">{</span><span class="n">newnode</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">already_rewired</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">already_rewired</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_newnode_to_n_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_node_dist_to_all_others</span><span class="p">[</span><span class="n">newnode</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_newnode_to_n_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">n</span> <span class="o">!=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">parent</span>
+                <span class="ow">and</span> <span class="n">_newnode_to_n_cost</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">radius</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">visible</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">newnode</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">.</span><span class="n">cost</span>
+            <span class="p">):</span>
+                <span class="c1"># draw over the old wire</span>
+                <span class="n">reconsider</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="o">*</span><span class="n">n</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">newnode</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">newnode</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="n">_newnode_to_n_cost</span></div>
+
+<div class="viewcode-block" id="RRTPlanner.find_nearest_neighbour_idx"><a class="viewcode-back" href="../../../planners.html#sbp_env.planners.rrtPlanner.RRTPlanner.find_nearest_neighbour_idx">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_nearest_neighbour_idx</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">poses</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the nearest neighbour from the list of nodes</span>
+
+<span class="sd">        :param pos: the position to search against the array of positions</span>
+<span class="sd">        :param poses: the array of positions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make use of numpy fast parallel operation to find</span>
+        <span class="c1"># all distance with one operation.</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">poses</span> <span class="o">-</span> <span class="n">pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Methods for visualisation</span>
+
+
+<span class="k">def</span> <span class="nf">pygame_rrt_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">:</span> <span class="n">Planner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Visualiser paint function for RRT</span>
+
+<span class="sd">    :param planner: the planner to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">path_layers</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">Colour</span><span class="o">.</span><span class="n">ALPHA_CK</span><span class="p">)</span>
+    <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">planner</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
+                <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
+                <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">planner</span><span class="o">.</span><span class="n">goal_pt</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">visualiser</span><span class="o">.</span><span class="n">draw_solution_path</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">klampt_draw_nodes_paint_func</span><span class="p">(</span><span class="n">planner</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+    <span class="n">drawn_nodes_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_node</span><span class="p">(</span>
+            <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">colour</span><span class="o">=</span><span class="n">colour</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">new_set</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">drawn_nodes_pairs</span><span class="p">:</span>
+                <span class="n">drawn_nodes_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_set</span><span class="p">)</span>
+                <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">draw_path</span><span class="p">(</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">planner</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_eef_world_pos</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span>
+                    <span class="n">colour</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span>
+                <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">klampt_rrt_paint</span><span class="p">(</span><span class="n">planner</span><span class="p">:</span> <span class="n">Planner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Visualiser paint function for RRT</span>
+
+<span class="sd">    :param planner: the planner to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">klampt_draw_nodes_paint_func</span><span class="p">(</span><span class="n">planner</span><span class="p">,</span> <span class="n">planner</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+
+
+<span class="c1"># start register</span>
+<span class="n">planner_registry</span><span class="o">.</span><span class="n">register_planner</span><span class="p">(</span>
+    <span class="s2">&quot;rrt&quot;</span><span class="p">,</span>
+    <span class="n">planner_class</span><span class="o">=</span><span class="n">RRTPlanner</span><span class="p">,</span>
+    <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_rrt_paint</span><span class="p">,</span>
+    <span class="n">visualise_klampt_paint</span><span class="o">=</span><span class="n">klampt_rrt_paint</span><span class="p">,</span>
+    <span class="n">sampler_id</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># finish register</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin Lai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

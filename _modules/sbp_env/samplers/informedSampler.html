@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sbp_env.samplers.informedSampler &mdash; sbp-env 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/katex.min.js"></script>
+        <script src="../../../_static/auto-render.min.js"></script>
+        <script src="../../../_static/katex_autorenderer.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> sbp-env
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samplers.html">C-space Samplers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sbp-env</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>sbp_env.samplers.informedSampler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sbp_env.samplers.informedSampler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Represent a planner.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">..samplers.baseSampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">from</span> <span class="nn">..samplers.randomPolicySampler</span> <span class="kn">import</span> <span class="n">RandomPolicySampler</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">planner_registry</span>
+<span class="kn">from</span> <span class="nn">..utils.common</span> <span class="kn">import</span> <span class="n">Colour</span>
+
+
+<span class="c1"># noinspection PyAttributeOutsideInit</span>
+<div class="viewcode-block" id="InformedSampler"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.informedSampler.InformedSampler">[docs]</a><span class="k">class</span> <span class="nc">InformedSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The informed sampler is largely similar to</span>
+<span class="sd">    :class:`~samplers.randomPolicySampler.RandomPolicySampler`, excepts when an</span>
+<span class="sd">    initial solution is found (i.e. when the current maximum cost :math:`\mathcal{</span>
+<span class="sd">    L}_\text{max} &lt; \infty`), the</span>
+<span class="sd">    sampler will uses ellipsoidal heuristic to speed up convergence of solution cost.</span>
+
+<span class="sd">    The sampled configuratioin :math:`q_\text{new}` is given by</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        q_\text{new} =</span>
+<span class="sd">        \begin{cases}</span>
+<span class="sd">            \mathbf{C}\,\mathbf{L}\,q_\text{ball} + q_\text{center} &amp; \text{if }</span>
+<span class="sd">            \mathcal{L}_\text{</span>
+<span class="sd">            max} &lt;</span>
+<span class="sd">            \infty\\</span>
+<span class="sd">            q \sim \mathcal{U}(0,1)^d  &amp; \text{otherwise,}</span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    where :math:`q_\text{ball} \sim \mathcal{U}(\mathcal{Q}_\text{ball})` is a</span>
+<span class="sd">    uniform sample drawn from a unit :math:`n`-ball, :math:`q_\text{center} = \frac{</span>
+<span class="sd">    q_\text{start} + q_\text{start}}{2}` is the center location in-between the start</span>
+<span class="sd">    and goal configuration, :math:`\mathbf{C} \in SO(d)` is the rotational matrix to</span>
+<span class="sd">    transforms from the hyperellipsoid frame to the world frame,</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathbf{L} = \operatorname{diag}\left\{</span>
+<span class="sd">            \frac{\mathcal{L}_\text{max}}{2},</span>
+<span class="sd">            \frac{\sqrt{\mathcal{L}^2_\text{max} -\mathcal{L}^2_\text{min}}}{2},</span>
+<span class="sd">            \ldots,</span>
+<span class="sd">            \frac{\sqrt{\mathcal{L}^2_\text{max} -\mathcal{L}^2_\text{min}}}{2}</span>
+<span class="sd">        \right\}</span>
+
+<span class="sd">    is the diagonal transformation matrix to maintain uniform distribution in the</span>
+<span class="sd">    ellipse space, and the minimum cost is given by</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathcal{L}_\text{min} =</span>
+<span class="sd">            \lVert q_\text{start} -q_\text{target}\rVert_2 .</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="InformedSampler.init"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.informedSampler.InformedSampler.init">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span> <span class="o">=</span> <span class="n">RandomPolicySampler</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># max length we expect to find in our &#39;informed&#39; sample space,</span>
+        <span class="c1"># starts as infinite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cBest</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Computing the sampling space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cMin</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">goal_radius</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xCenter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">],</span>
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cMin</span><span class="p">],</span>
+                <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cMin</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">etheta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># first column of identity matrix transposed</span>
+        <span class="n">id1_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">@</span> <span class="n">id1_t</span>
+        <span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">Vh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+                <span class="n">U</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">U</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Vh</span><span class="p">))]),</span>
+            <span class="p">),</span>
+            <span class="n">Vh</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="InformedSampler.get_next_pos"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.informedSampler.InformedSampler.get_next_pos">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve next sampled position&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;klampt&quot;</span><span class="p">:</span>
+            <span class="c1"># not possible with radian space</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">get_next_pos</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_success</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_fail</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cBest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">c_max</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cBest</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cBest</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cBest</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cMin</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cBest</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cMin</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">xBall</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_unit_ball</span><span class="p">()</span>
+            <span class="n">rnd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="n">L</span><span class="p">),</span> <span class="n">xBall</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCenter</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">rnd</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">rnd</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;4d&quot;</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">get_next_pos</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_success</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_fail</span></div>
+
+<div class="viewcode-block" id="InformedSampler.sample_unit_ball"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.informedSampler.InformedSampler.sample_unit_ball">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sample_unit_ball</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Samples a unit :math:`n`-ball</span>
+
+<span class="sd">        :return: a random samples from a unit :math:`n`-ball</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">:</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span>
+
+        <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span> <span class="n">b</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]])</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">pygame_informed_sampler_paint</span><span class="p">(</span><span class="n">sampler</span><span class="p">:</span> <span class="n">Sampler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Visualiser paint function for informed sampler</span>
+
+<span class="sd">    :param sampler: the sampler to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pygame</span>
+
+    <span class="c1"># draw the ellipse</span>
+    <span class="k">if</span> <span class="n">sampler</span><span class="o">.</span><span class="n">cBest</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">):</span>
+        <span class="n">cBest</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">cBest</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span>
+        <span class="n">cMin</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">cMin</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cBest</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">cMin</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># height</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">cBest</span>  <span class="c1"># width</span>
+        <span class="c1"># rectangle that represent the ellipse</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">etheta</span>
+        <span class="c1"># rotate via surface</span>
+        <span class="n">ellipse_surface</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">pygame</span><span class="o">.</span><span class="n">SRCALPHA</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span><span class="o">.</span><span class="n">convert_alpha</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">ellipse</span><span class="p">(</span><span class="n">ellipse_surface</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="n">r</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">ellipse</span><span class="p">(</span>
+                <span class="n">ellipse_surface</span><span class="p">,</span> <span class="n">Colour</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># sometime it will fail to draw due to ellipse being too narrow</span>
+            <span class="k">pass</span>
+        <span class="c1"># rotate</span>
+        <span class="n">ellipse_surface</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span>
+            <span class="n">ellipse_surface</span><span class="p">,</span> <span class="o">-</span><span class="n">angle</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+        <span class="p">)</span>
+        <span class="c1"># we need to offset the blitz based on the surface ceenter</span>
+        <span class="n">rcx</span><span class="p">,</span> <span class="n">rcy</span> <span class="o">=</span> <span class="n">ellipse_surface</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span><span class="o">.</span><span class="n">center</span>
+        <span class="n">ellipse_x</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">xCenter</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span> <span class="o">-</span> <span class="n">rcx</span>
+        <span class="n">ellipse_y</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">xCenter</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span> <span class="o">-</span> <span class="n">rcy</span>
+        <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">ellipse_surface</span><span class="p">,</span> <span class="p">(</span><span class="n">ellipse_x</span><span class="p">,</span> <span class="n">ellipse_y</span><span class="p">))</span>
+
+
+<span class="c1"># start register</span>
+<span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;informed_sampler&quot;</span>
+
+<span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span>
+    <span class="n">sampler_id</span><span class="p">,</span>
+    <span class="n">sampler_class</span><span class="o">=</span><span class="n">InformedSampler</span><span class="p">,</span>
+    <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_informed_sampler_paint</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># finish register</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin Lai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

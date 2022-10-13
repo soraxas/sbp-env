@@ -6,6 +6,14 @@ Quick Start
 Installation
 ----------------------
 
+Using pip
+
+.. code-block:: bash
+
+    pip install sbp-env
+
+Or manually:
+
 Download the latest code and install required dependencies listed inside
 `requirements.txt` (recommend to always isolate your python workspace with virtual
 environment, e.g., conda/pyenv)

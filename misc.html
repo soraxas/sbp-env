@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Misc Classes &mdash; sbp-env 1.0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
+        <script src="_static/katex.min.js"></script>
+        <script src="_static/auto-render.min.js"></script>
         <script src="_static/katex_autorenderer.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Support" href="support.html" />
     <link rel="prev" title="Planning Scene Visualisers" href="visualisers.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> sbp-env
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,18 +42,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start</a></li>
@@ -113,14 +62,38 @@
 <p class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Misc Classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#data-structure">Data structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-structure">Data structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.utils.common.Tree"><code class="docutils literal notranslate"><span class="pre">Tree</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.common.Tree.add_edge"><code class="docutils literal notranslate"><span class="pre">Tree.add_edge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.common.Tree.add_vertex"><code class="docutils literal notranslate"><span class="pre">Tree.add_vertex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.common.Tree.get_nearest"><code class="docutils literal notranslate"><span class="pre">Tree.get_nearest()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.common.Tree.nearby"><code class="docutils literal notranslate"><span class="pre">Tree.nearby()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.utils.common.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.utils.common.PlanningOptions"><code class="docutils literal notranslate"><span class="pre">PlanningOptions</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#randomness">Randomness</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#drawing-random-samplings">Drawing random samplings</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#drawing-normally-distributed-samplings">Drawing normally distributed samplings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.randomness.SUPPORTED_RANDOM_METHODS"><code class="docutils literal notranslate"><span class="pre">SUPPORTED_RANDOM_METHODS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drawing-random-samplings">Drawing random samplings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.randomness.RandomnessManager"><code class="docutils literal notranslate"><span class="pre">RandomnessManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#drawing-normally-distributed-samplings">Drawing normally distributed samplings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.randomness.NormalRandomnessManager"><code class="docutils literal notranslate"><span class="pre">NormalRandomnessManager</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#planners-and-samplers-registry">Planners and Samplers Registry</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#registry-data-structure">Registry data structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.utils.planner_registry.register_planner"><code class="docutils literal notranslate"><span class="pre">register_planner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sbp_env.utils.planner_registry.register_sampler"><code class="docutils literal notranslate"><span class="pre">register_sampler()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#registry-data-structure">Registry data structure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.planner_registry.PlannerDataPack"><code class="docutils literal notranslate"><span class="pre">PlannerDataPack</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sbp_env.utils.planner_registry.SamplerDataPack"><code class="docutils literal notranslate"><span class="pre">SamplerDataPack</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -128,145 +101,518 @@
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">sbp-env</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Misc Classes</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/misc.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="misc-classes">
-<h1>Misc Classes<a class="headerlink" href="#misc-classes" title="Permalink to this heading">¶</a></h1>
+<h1>Misc Classes<a class="headerlink" href="#misc-classes" title="Permalink to this heading"></a></h1>
 <p>The following are classes and functions of which the details is not essential to use <cite>sbp-env</cite>.</p>
 <div class="section" id="data-structure">
-<h2>Data structure<a class="headerlink" href="#data-structure" title="Permalink to this heading">¶</a></h2>
+<h2>Data structure<a class="headerlink" href="#data-structure" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Tree">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.utils.common.</span></span><span class="sig-name descname"><span class="pre">Tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Tree" title="Permalink to this definition"></a></dt>
+<dd><p>A tree representation that stores nodes and edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – A positive integer that represents <span class="math">\(d\)</span>,
+the dimensionality of the C-space.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Tree.add_edge">
+<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Tree.add_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Tree.add_edge" title="Permalink to this definition"></a></dt>
+<dd><p>Add a new edge to this tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>child</strong> (<a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – The child node of the edge</p></li>
+<li><p><strong>parent</strong> (<a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – The parent node of the edge</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Tree.add_vertex">
+<span class="sig-name descname"><span class="pre">add_vertex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Tree.add_vertex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Tree.add_vertex" title="Permalink to this definition"></a></dt>
+<dd><p>Add a new vertex to this tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – Node to be added</p></li>
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – The configuration <span class="math">\(q\)</span> that corresponds to the node <code class="docutils literal notranslate"><span class="pre">v</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Tree.get_nearest">
+<span class="sig-name descname"><span class="pre">get_nearest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Tree.get_nearest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Tree.get_nearest" title="Permalink to this definition"></a></dt>
+<dd><p>Get the closest node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the closest node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Tree.nearby">
+<span class="sig-name descname"><span class="pre">nearby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Tree.nearby"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Tree.nearby" title="Permalink to this definition"></a></dt>
+<dd><p>Find <code class="docutils literal notranslate"><span class="pre">n</span></code> many nearby nodes that are closest to a given position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Position</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Max number of results</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.utils.common.Node">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.utils.common.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#Node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.Node" title="Permalink to this definition"></a></dt>
+<dd><p>Represents a node inside a tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – position, a.k.a., the configuration <span class="math">\(q \in C\)</span> that this node
+represents</p></li>
+<li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – a positive float that represents the cost of this node</p></li>
+<li><p><strong>parent</strong> (<a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – parent node</p></li>
+<li><p><strong>children</strong> (a list of <a class="reference internal" href="#sbp_env.utils.common.Node" title="sbp_env.utils.common.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a>) – children nodes</p></li>
+<li><p><strong>is_start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – a flag to indicate this is the start node</p></li>
+<li><p><strong>is_goal</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – a flag to indicate this is the goal node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>pos</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – configuration of this node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.utils.common.PlanningOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.utils.common.</span></span><span class="sig-name descname"><span class="pre">PlanningOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_data_pack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_data_pack</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_optimality</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showSampledPoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goalBias</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_number_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_step_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always_refresh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rrdt_proposal_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_display</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_solution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rover_arm_robot_lengths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/common.html#PlanningOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.common.PlanningOptions" title="Permalink to this definition"></a></dt>
+<dd><p>Former: MagicDict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>planner_data_pack</strong> (<a class="reference internal" href="#sbp_env.utils.planner_registry.PlannerDataPack" title="sbp_env.utils.planner_registry.PlannerDataPack"><em>PlannerDataPack</em></a>) – </p></li>
+<li><p><strong>sampler_data_pack</strong> (<a class="reference internal" href="#sbp_env.utils.planner_registry.SamplerDataPack" title="sbp_env.utils.planner_registry.SamplerDataPack"><em>SamplerDataPack</em></a>) – </p></li>
+<li><p><strong>skip_optimality</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>showSampledPoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>goalBias</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>max_number_nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>ignore_step_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>always_refresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>rrdt_proposal_distribution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>start_pt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>goal_pt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>goal_radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – </p></li>
+<li><p><strong>no_display</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>first_solution</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – </p></li>
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>save_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>rover_arm_robot_lengths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>sampler</strong> (<a class="reference internal" href="samplers.html#sbp_env.samplers.baseSampler.Sampler" title="sbp_env.samplers.baseSampler.Sampler"><em>Sampler</em></a>) – </p></li>
+<li><p><strong>planner</strong> (<a class="reference internal" href="planners.html#sbp_env.planners.basePlanner.Planner" title="sbp_env.planners.basePlanner.Planner"><em>Planner</em></a>) – </p></li>
+<li><p><strong>engine</strong> (<em>Engine</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="randomness">
-<h2>Randomness<a class="headerlink" href="#randomness" title="Permalink to this heading">¶</a></h2>
+<h2>Randomness<a class="headerlink" href="#randomness" title="Permalink to this heading"></a></h2>
 <p>The following are the random methods supported in <cite>sbp-env</cite>.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="sbp_env.randomness.SUPPORTED_RANDOM_METHODS">
+<span class="sig-prename descclassname"><span class="pre">sbp_env.randomness.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_RANDOM_METHODS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('pseudo_random',</span> <span class="pre">'sobol_sequence',</span> <span class="pre">'saltelli',</span> <span class="pre">'latin_hypercube',</span> <span class="pre">'finite_differences',</span> <span class="pre">'fast')</span></em><a class="headerlink" href="#sbp_env.randomness.SUPPORTED_RANDOM_METHODS" title="Permalink to this definition"></a></dt>
+<dd><p>Supported methods to draw random numbers in samplers. Supported random methods are 
+as follows:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">pseudo_random</span></code> from numpy</dt><dd><p><strong>Pseudo Random</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">sobol_sequence</span></code> from <em>SALib</em></dt><dd><p><strong>Sobol sequence</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">saltelli</span></code> from <em>SALib</em></dt><dd><p><strong>Saltelli’s extension of Sobol sequence</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">latin_hypercube</span></code> from <em>SALib</em></dt><dd><p><strong>Latin hypercube</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">finite_differences</span></code> from <em>SALib</em></dt><dd><p><strong>Finite differences</strong></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fast</span></code> from <em>SALib</em></dt><dd><p><strong>Fourier Amplitude Sensitivity Test (FAST)</strong></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
 <div class="section" id="drawing-random-samplings">
-<h3>Drawing random samplings<a class="headerlink" href="#drawing-random-samplings" title="Permalink to this heading">¶</a></h3>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">randomness.RandomnessManager:</span></code> is used by most samplers to draw random numbers.</p>
+<h3>Drawing random samplings<a class="headerlink" href="#drawing-random-samplings" title="Permalink to this heading"></a></h3>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">sbp_env.randomness.RandomnessManager:</span></code> is used by most samplers to draw random numbers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.randomness.RandomnessManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.randomness.</span></span><span class="sig-name descname"><span class="pre">RandomnessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#RandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.RandomnessManager" title="Permalink to this definition"></a></dt>
+<dd><p>A random number manager that draw a buckets of random numbers at a number and
+redraw when the bucket is exhausted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the number of dimension</p></li>
+<li><p><strong>bucket_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.RandomnessManager.get_random">
+<span class="sig-name descname"><span class="pre">get_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#RandomnessManager.get_random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.RandomnessManager.get_random" title="Permalink to this definition"></a></dt>
+<dd><p>Get one sample of random number <span class="math">\(r\)</span> where <span class="math">\(0 \le r \le 1\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>random_method</strong> – The kind of random number method to use, must be one of
+the choice in <a class="reference internal" href="#sbp_env.randomness.SUPPORTED_RANDOM_METHODS" title="sbp_env.randomness.SUPPORTED_RANDOM_METHODS"><code class="xref py py-data docutils literal notranslate"><span class="pre">SUPPORTED_RANDOM_METHODS</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.RandomnessManager.redraw">
+<span class="sig-name descname"><span class="pre">redraw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#RandomnessManager.redraw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.RandomnessManager.redraw" title="Permalink to this definition"></a></dt>
+<dd><p>Redraw the random number with the given method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>random_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the random method to use</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="drawing-normally-distributed-samplings">
-<h3>Drawing normally distributed samplings<a class="headerlink" href="#drawing-normally-distributed-samplings" title="Permalink to this heading">¶</a></h3>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">randomness.NormalRandomnessManager:</span></code> is used by <code class="xref py py-class docutils literal notranslate"><span class="pre">planners.rrdtPlanner.RRdTSampler</span></code> to draw from a von Mises distribution.</p>
+<h3>Drawing normally distributed samplings<a class="headerlink" href="#drawing-normally-distributed-samplings" title="Permalink to this heading"></a></h3>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">sbp_env.randomness.NormalRandomnessManager:</span></code> is used by <a class="reference internal" href="samplers.html#sbp_env.planners.rrdtPlanner.RRdTSampler" title="sbp_env.planners.rrdtPlanner.RRdTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">sbp_env.planners.rrdtPlanner.RRdTSampler</span></code></a> to draw from a von Mises distribution.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.randomness.NormalRandomnessManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.randomness.</span></span><span class="sig-name descname"><span class="pre">NormalRandomnessManager</span></span><a class="reference internal" href="_modules/sbp_env/randomness.html#NormalRandomnessManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.NormalRandomnessManager" title="Permalink to this definition"></a></dt>
+<dd><p>Randomness Manager that draw a bucket of <strong>normally distributed</strong> random numbers
+and refill the bucket on-demand when it is exhausted.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.NormalRandomnessManager.draw_half_normal">
+<span class="sig-name descname"><span class="pre">draw_half_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#NormalRandomnessManager.draw_half_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.NormalRandomnessManager.draw_half_normal" title="Permalink to this definition"></a></dt>
+<dd><p>Draw from a half normal distribution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the scale of the half normal
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.NormalRandomnessManager.draw_normal">
+<span class="sig-name descname"><span class="pre">draw_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vonmises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7853981633974483</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#NormalRandomnessManager.draw_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.NormalRandomnessManager.draw_normal" title="Permalink to this definition"></a></dt>
+<dd><p>Draw from the normal distribution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin (mean) for the random number, which will be used to
+shift the number that this function returns</p></li>
+<li><p><strong>use_vonmises</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – use vom-Mises distribution
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the <span class="math">\(\kappa\)</span> value
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – the <span class="math">\(\sigma\)</span> value
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">0.7853981633974483</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.NormalRandomnessManager.redraw_half_normal">
+<span class="sig-name descname"><span class="pre">redraw_half_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_at</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#NormalRandomnessManager.redraw_half_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.NormalRandomnessManager.redraw_half_normal" title="Permalink to this definition"></a></dt>
+<dd><p>Re-draw from a half normal distribution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_at</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – the origin</p></li>
+<li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the scale of the half normal</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sbp_env.randomness.NormalRandomnessManager.redraw_normal">
+<span class="sig-name descname"><span class="pre">redraw_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_vonmises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/randomness.html#NormalRandomnessManager.redraw_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.randomness.NormalRandomnessManager.redraw_normal" title="Permalink to this definition"></a></dt>
+<dd><p>Redraw the bucket of normally distributed random numbers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kappa</strong> – <p>the kappa <span class="math">\(\kappa\)</span> parameter to be used to draw from a
+von Mises distribution</p>
+<div class="math">
+\[x \sim f_\text{VonMises}( x | \mu, \kappa)
+
+\]</div>
+</p></li>
+<li><p><strong>sigma</strong> – <p>the sigma <span class="math">\(\sigma\)</span> parameter to be used to draw from a
+normal distribution</p>
+<div class="math">
+\[x \sim \mathcal{N}( x | \mu, \sigma^2)
+
+\]</div>
+</p></li>
+<li><p><strong>use_vonmises</strong> (<em>optional</em>) – (Default value = True)
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="planners-and-samplers-registry">
-<h2>Planners and Samplers Registry<a class="headerlink" href="#planners-and-samplers-registry" title="Permalink to this heading">¶</a></h2>
+<h2>Planners and Samplers Registry<a class="headerlink" href="#planners-and-samplers-registry" title="Permalink to this heading"></a></h2>
 <p>The following function is used to register a new custom <em>planner</em>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.register_planner">
+<span class="sig-prename descclassname"><span class="pre">sbp_env.utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_planner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planner_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/planner_registry.html#register_planner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.planner_registry.register_planner" title="Permalink to this definition"></a></dt>
+<dd><p>Register a planner to make it available for planning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>planner_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the unique planner id for this registering planner</p></li>
+<li><p><strong>planner_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a>[Planner]) – the planner class</p></li>
+<li><p><strong>sampler_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – sampler id to construct</p></li>
+<li><p><strong>visualise_pygame_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame, during initialisation
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_pygame_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_pygame_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame, when terminating
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt, during initialisation
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt, when terminating
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <p>The following function is used to register a new custom <em>sampler</em>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.register_sampler">
+<span class="sig-prename descclassname"><span class="pre">sbp_env.utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">register_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/planner_registry.html#register_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.planner_registry.register_sampler" title="Permalink to this definition"></a></dt>
+<dd><p>Register a sampler to make it available for planning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sampler_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the unique id for this sampler</p></li>
+<li><p><strong>sampler_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a>[Sampler]) – the class to construct this sampler</p></li>
+<li><p><strong>visualise_pygame_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame, during initialisation
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_pygame_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_pygame_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for pygame, when terminating
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt, during initialisation
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>], <em>optional</em>) – the paint function for klampt, when terminating
+<div class="default-value-section"> <span class="default-value-label">Default:</span> <code class="code docutils literal notranslate"><span class="pre">None</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <div class="section" id="registry-data-structure">
-<h3>Registry data structure<a class="headerlink" href="#registry-data-structure" title="Permalink to this heading">¶</a></h3>
+<h3>Registry data structure<a class="headerlink" href="#registry-data-structure" title="Permalink to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.PlannerDataPack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">PlannerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planner_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/planner_registry.html#PlannerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.planner_registry.PlannerDataPack" title="Permalink to this definition"></a></dt>
+<dd><p>Data pack to stores planner class and the sampler with <cite>sample_id</cite> to use</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>visualise_pygame_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_pygame_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_pygame_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>planner_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><em>Type</em></a><em>[</em><a class="reference internal" href="planners.html#sbp_env.planners.basePlanner.Planner" title="sbp_env.planners.basePlanner.Planner"><em>Planner</em></a><em>]</em>) – </p></li>
+<li><p><strong>sampler_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.PlannerDataPack.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#sbp_env.utils.planner_registry.PlannerDataPack.name" title="Permalink to this definition"></a></dt>
+<dd><p>an unique id to identify this data-pack</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.PlannerDataPack.planner_class">
+<span class="sig-name descname"><span class="pre">planner_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="planners.html#sbp_env.planners.basePlanner.Planner" title="sbp_env.planners.basePlanner.Planner"><span class="pre">Planner</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sbp_env.utils.planner_registry.PlannerDataPack.planner_class" title="Permalink to this definition"></a></dt>
+<dd><p>the class to construct the planner</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.PlannerDataPack.sampler_id">
+<span class="sig-name descname"><span class="pre">sampler_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#sbp_env.utils.planner_registry.PlannerDataPack.sampler_id" title="Permalink to this definition"></a></dt>
+<dd><p>the sampler id to associate to this planner</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.SamplerDataPack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sbp_env.utils.planner_registry.</span></span><span class="sig-name descname"><span class="pre">SamplerDataPack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_pygame_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_klampt_paint_terminate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sbp_env/utils/planner_registry.html#SamplerDataPack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sbp_env.utils.planner_registry.SamplerDataPack" title="Permalink to this definition"></a></dt>
+<dd><p>Data pack to store sampler class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – </p></li>
+<li><p><strong>visualise_pygame_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_pygame_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_pygame_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_init</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>visualise_klampt_paint_terminate</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><em>Optional</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.10)"><em>Callable</em></a><em>]</em>) – </p></li>
+<li><p><strong>sampler_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><em>Type</em></a><em>[</em><a class="reference internal" href="samplers.html#sbp_env.samplers.baseSampler.Sampler" title="sbp_env.samplers.baseSampler.Sampler"><em>Sampler</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.SamplerDataPack.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#sbp_env.utils.planner_registry.SamplerDataPack.name" title="Permalink to this definition"></a></dt>
+<dd><p>an unique id to identify this data-pack</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sbp_env.utils.planner_registry.SamplerDataPack.sampler_class">
+<span class="sig-name descname"><span class="pre">sampler_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.10)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="samplers.html#sbp_env.samplers.baseSampler.Sampler" title="sbp_env.samplers.baseSampler.Sampler"><span class="pre">Sampler</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sbp_env.utils.planner_registry.SamplerDataPack.sampler_class" title="Permalink to this definition"></a></dt>
+<dd><p>the class to construct the sampler</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 </div>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="support.html" class="btn btn-neutral float-right" title="Support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="visualisers.html" class="btn btn-neutral float-left" title="Planning Scene Visualisers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="support.html" class="btn btn-neutral float-right" title="Support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Tin Lai.
-
-    </p>
+    <p>&#169; Copyright 2021, Tin Lai.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

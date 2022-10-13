@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sbp_env.samplers.likelihoodPolicySampler &mdash; sbp-env 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/katex.min.js"></script>
+        <script src="../../../_static/auto-render.min.js"></script>
+        <script src="../../../_static/katex_autorenderer.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> sbp-env
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Commandline Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../add-environment.html">Adding new environment to test</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Implemented SBPs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../planners.html">Motion Planners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../samplers.html">C-space Samplers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Planning environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../engines.html">Simulator Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../visualisers.html">Planning Scene Visualisers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Others</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc.html">Misc Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sbp-env</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>sbp_env.samplers.likelihoodPolicySampler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sbp_env.samplers.likelihoodPolicySampler</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">..collisionChecker</span> <span class="kn">import</span> <span class="n">ImgCollisionChecker</span>
+<span class="kn">from</span> <span class="nn">..samplers.baseSampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">from</span> <span class="nn">..samplers.randomPolicySampler</span> <span class="kn">import</span> <span class="n">RandomPolicySampler</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">planner_registry</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">experimental_sampler_note</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;only_work_with_2d_image&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;This sampler currently only works with **2D Image </span>
+<span class="s2">        Space** as it&#39;s hard-coded to sub-divide the space into grid cells. However, </span>
+<span class="s2">        the idea is generic and should be applicable for :math:`d &gt; 2`.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;currently_expr_for_research&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;This sampler is experimental for research </span>
+<span class="s2">        purpose, and is currently incomplete.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># noinspection PyAttributeOutsideInit</span>
+<div class="viewcode-block" id="LikelihoodPolicySampler"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler">[docs]</a><span class="k">class</span> <span class="nc">LikelihoodPolicySampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+    <span class="vm">__doc__</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;This sampler discretise *C-Space* into equal cells, then each cells is</span>
+<span class="s2">    consists of a probability value :math:`p` that stores a likelihood value.</span>
+
+<span class="s2">    The probability :math:`p` of a cell will be increased if</span>
+<span class="s2">    :math:`q \in C_\text</span><span class="si">{free}</span><span class="s2">` is reported but the tree extension is failed due to visibility test</span>
+<span class="s2">    (intermediate obstacles). The probability :math:`p` will be dropped depending on</span>
+<span class="s2">    its proximity to an existing tree node.</span>
+<span class="s2">    &quot;&quot;&quot;</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    .. note::</span>
+<span class="s2">        </span><span class="si">{only_work_with_2d_image}</span><span class="s2"></span>
+
+<span class="s2">    .. note::</span>
+<span class="s2">        </span><span class="si">{currently_expr_for_research}</span><span class="s2"></span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">experimental_sampler_note</span>
+    <span class="p">)</span>
+
+    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">prob_block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">suppress_visited_area</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param prob_block_size: the unit size for one probability block</span>
+<span class="sd">        :param suppress_visited_area: reduce the probability :math:`p` if it is close</span>
+<span class="sd">            to an existing tree node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">prob_block_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suppress_visited_area</span> <span class="o">=</span> <span class="n">suppress_visited_area</span>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.init"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.init">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The delayed **initialisation** method&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span> <span class="o">=</span> <span class="n">RandomPolicySampler</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">upper</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span> <span class="o">*=</span> <span class="mi">1</span>  <span class="c1"># IMPORTANT because we are using log2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obst_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># self.prob_vector *= 20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampleCount</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.get_next_pos"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.get_next_pos">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_next_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">GetNextPosReturnType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_sampler</span><span class="o">.</span><span class="n">get_next_pos</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+                <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">choice</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">choice</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_success</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_fail</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.add_tree_node"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.add_tree_node">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">add_tree_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report that a new tree node has been created</span>
+
+<span class="sd">        :param pos: the configuration of the new tree node</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.add_sample_line"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.add_sample_line">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">add_sample_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y2</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a 2D sample line to denotes from a visibility line that are all in free</span>
+<span class="sd">        space</span>
+
+<span class="sd">        :param x1: :math:`x` of :math:`q_1`</span>
+<span class="sd">        :param y1: :math:`y` of :math:`q_1`</span>
+<span class="sd">        :param x2: :math:`x` of :math:`q_2`</span>
+<span class="sd">        :param y2: :math:`y` of :math:`q_2`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">y2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">ImgCollisionChecker</span><span class="o">.</span><span class="n">get_line</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">free</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alreadyDividedByProbBlockSize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.report_success"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.report_success">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">report_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report a successful sample</span>
+
+<span class="sd">        :param pos: the position of a newly created node</span>
+<span class="sd">        :param nn: the nearest existing node</span>
+<span class="sd">        :param rand_pos: the position of a successful random sample</span>
+
+<span class="sd">        :type pos: numpy.ndarray</span>
+<span class="sd">        :type nn: Node</span>
+<span class="sd">        :type rand_pos: numpy.ndarray</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span>
+        <span class="c1"># add all in between point of nearest node of the random pt as valid</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">get_coor_before_collision</span><span class="p">(</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;nn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;rand_pos&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_sample_line</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler.report_fail"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler.report_fail">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">report_fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Report a failed sample</span>
+
+<span class="sd">        :param pos: the position of the random sample</span>
+
+<span class="sd">        :type pos: numpy.ndarray</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pos</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">if</span> <span class="s2">&quot;alreadyDividedByProbBlockSize&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="c1"># exit()</span>
+        <span class="c1"># ^ setting the right coordinators ^</span>
+        <span class="c1">###############################</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_report_fail_impl</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LikelihoodPolicySampler._report_fail_impl"><a class="viewcode-back" href="../../../samplers.html#sbp_env.samplers.likelihoodPolicySampler.LikelihoodPolicySampler._report_fail_impl">[docs]</a>    <span class="k">def</span> <span class="nf">_report_fail_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The internal implantation of the :func:`report_fail`.</span>
+
+<span class="sd">        :param x: :math:`x` of :math:`q`</span>
+<span class="sd">        :param y: :math:`y` of :math:`q`</span>
+<span class="sd">        :param weight: the weight for this sample</span>
+<span class="sd">        :param free: whether it failed due to :math:`q \in C_\text{free}` or</span>
+<span class="sd">            :math:`q \in C_\text{obs}`</span>
+
+<span class="sd">        :type weight: float, optional</span>
+<span class="sd">        :type free: bool</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;obstacle&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obst_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;free&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obst_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># self.prob_vector[x][y] -= (100-self.prob_vector[x][y])*0.1</span>
+            <span class="c1"># if self.prob_vector[x][y] &lt; 5:</span>
+            <span class="c1"># self.prob_vector[x][y] = 5</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;free&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># self.prob_vector[x][y] = 10</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obst_vector</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="c1">#########################################################</span>
+
+            <span class="n">sigma_y</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="n">sigma_x</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigma_y</span><span class="p">,</span> <span class="n">sigma_x</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampleCount</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">pass</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_vector</span><span class="p">)</span>
+                <span class="c1"># if self.prob_vector[x][y] &lt; 5:</span>
+                <span class="c1"># self.prob_vector[copy(self.prob_vector)</span>
+                <span class="n">tree_vector_normalized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree_vector</span><span class="o">**</span><span class="mf">1.1</span><span class="p">)</span>
+                <span class="n">tree_vector_normalized</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span>
+                    <span class="n">tree_vector_normalized</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># self.prob_vector_normalized = tree_vector_normalized</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">*=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">obst_vector</span> <span class="o">*</span> <span class="mi">3</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">*=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">tree_vector_normalized</span> <span class="o">*</span> <span class="mf">1.5</span>
+                <span class="c1"># self.prob_vector_normalized *= (1/self.tree_vector * 1.5)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampleCount</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">pygame_likelihood_sampler_paint_init</span><span class="p">(</span><span class="n">sampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The paint int function for visualisation</span>
+
+<span class="sd">    :param sampler: the sampler to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pygame</span>
+
+    <span class="c1"># probability layer</span>
+    <span class="n">sampler</span><span class="o">.</span><span class="n">prob_layer</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">SRCALPHA</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pygame_likelihood_sampler_paint</span><span class="p">(</span><span class="n">sampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The paint function for visualisation</span>
+
+<span class="sd">    :param sampler: the sampler to be visualised</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_vector_alpha_parameters</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param vector:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_max_prob</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">_min_prob</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">_denominator</span> <span class="o">=</span> <span class="n">_max_prob</span> <span class="o">-</span> <span class="n">_min_prob</span>
+        <span class="k">if</span> <span class="n">_denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_denominator</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># prevent division by zero</span>
+        <span class="k">return</span> <span class="n">_max_prob</span><span class="p">,</span> <span class="n">_min_prob</span><span class="p">,</span> <span class="n">_denominator</span>
+
+    <span class="k">if</span> <span class="n">sampler</span><span class="o">.</span><span class="n">prob_vector_normalized</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">max_prob</span><span class="p">,</span> <span class="n">min_prob</span><span class="p">,</span> <span class="n">denominator</span> <span class="o">=</span> <span class="n">get_vector_alpha_parameters</span><span class="p">(</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">prob_vector_normalized</span>
+                <span class="p">)</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mi">240</span> <span class="o">*</span> <span class="p">(</span>
+                    <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">prob_vector_normalized</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">min_prob</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+                <span class="p">)</span>
+                <span class="n">sampler</span><span class="o">.</span><span class="n">prob_layer</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">alpha</span><span class="p">))</span>
+                <span class="c1"># print(sampler.prob_vector_normalized[i][j])</span>
+                <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
+                    <span class="n">sampler</span><span class="o">.</span><span class="n">prob_layer</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="n">i</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">,</span>
+                        <span class="n">j</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">PROB_BLOCK_SIZE</span> <span class="o">*</span> <span class="n">sampler</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">scaling</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+
+
+<span class="c1"># start register</span>
+<span class="n">sampler_id</span> <span class="o">=</span> <span class="s2">&quot;likelihood_sampler&quot;</span>
+
+<span class="n">planner_registry</span><span class="o">.</span><span class="n">register_sampler</span><span class="p">(</span>
+    <span class="n">sampler_id</span><span class="p">,</span>
+    <span class="n">sampler_class</span><span class="o">=</span><span class="n">LikelihoodPolicySampler</span><span class="p">,</span>
+    <span class="n">visualise_pygame_paint</span><span class="o">=</span><span class="n">pygame_likelihood_sampler_paint</span><span class="p">,</span>
+    <span class="n">visualise_pygame_paint_init</span><span class="o">=</span><span class="n">pygame_likelihood_sampler_paint_init</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># finish register</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tin Lai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
