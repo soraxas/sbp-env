@@ -17,10 +17,10 @@ class TestPRMSampler(TestCase):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["sampler_data_pack"].sampler_class = PRMSampler
+        args.sampler_data_pack.sampler_class = PRMSampler
 
         # use some suitable planner
-        args["planner_data_pack"] = planner_registry.PLANNERS["prm"]
+        args.planner_data_pack = planner_registry.PLANNERS["prm"]
 
         self.env = Env(args)
         self.sampler = self.env.args.sampler

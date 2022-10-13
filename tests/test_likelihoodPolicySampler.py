@@ -17,11 +17,11 @@ class TestLikelihoodPolicySampler(TestCase):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["prob_block_size"] = 10
-        args["sampler_data_pack"].sampler_class = LikelihoodPolicySampler
+        args.add_option(prob_block_size=10)
+        args.sampler_data_pack.sampler_class = LikelihoodPolicySampler
 
         # use some suitable planner
-        args["planner_data_pack"] = planner_registry.PLANNERS["rrt"]
+        args.planner_data_pack = planner_registry.PLANNERS["rrt"]
 
         self.env = Env(args)
         self.sampler = self.env.args.sampler

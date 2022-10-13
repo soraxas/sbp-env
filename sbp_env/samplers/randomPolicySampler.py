@@ -52,7 +52,7 @@ class RandomPolicySampler(Sampler):
     def init(self, **kwargs):
         """The delayed **initialisation** method"""
         super().init(**kwargs)
-        self.random = RandomnessManager(num_dim=kwargs["engine"].get_dimension())
+        self.random = RandomnessManager(num_dim=self.args.engine.get_dimension())
 
         self.use_original_method = False
 

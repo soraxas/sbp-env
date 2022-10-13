@@ -3,7 +3,7 @@ from typing import Tuple, Callable
 
 import numpy as np
 
-from ..utils.common import MagicDict, Stats
+from ..utils.common import PlanningOptions, Stats
 from ..visualiser import VisualiserSwitcher, BaseSamplerVisualiser
 
 
@@ -41,9 +41,9 @@ class Sampler(ABC):
         :type goal_pt: :class:`~utils.common.Node`
 
         """
-        self.args = MagicDict(kwargs)
-        self.start_pos = kwargs["start_pt"].pos
-        self.goal_pos = kwargs["goal_pt"].pos
+        self.args = kwargs["args"]
+        self.start_pos = self.args.start_pt.pos
+        self.goal_pos = self.args.goal_pt.pos
         self.use_radian = use_radian
         self.visualiser.init(**kwargs)
 

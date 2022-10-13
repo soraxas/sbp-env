@@ -13,7 +13,7 @@ from ..planners.rrtPlanner import RRTPlanner
 from ..samplers.baseSampler import Sampler
 from ..samplers.randomPolicySampler import RandomPolicySampler
 from ..utils import planner_registry
-from ..utils.common import BFS, MagicDict, Colour, Stats
+from ..utils.common import BFS, PlanningOptions, Colour, Stats
 
 LOGGER = logging.getLogger(__name__)
 
@@ -531,8 +531,8 @@ class RRdTPlanner(RRTPlanner):
 
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, args: PlanningOptions):
+        super().__init__(args)
         self.root = None
         self._disjointed_trees = []
 
@@ -916,7 +916,7 @@ class MABScheduler:
         num_dtrees: int,
         start_pt: np.ndarray,
         goal_pt: np.ndarray,
-        args: MagicDict,
+        args: PlanningOptions,
         random_sampler: Sampler,
     ):
         self.num_dtrees = num_dtrees

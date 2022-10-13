@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 from sbp_env.planners.rrdtPlanner import Node as NodeWithEdge
-from sbp_env.utils.common import MagicDict, BFS, Tree, Node
+from sbp_env.utils.common import PlanningOptions, BFS, Tree, Node
 
 
 class TestNode(TestCase):
@@ -51,34 +51,34 @@ class TestTree(TestCase):
         )
 
 
-class TestMagicDict(TestCase):
-    def setUp(self) -> None:
-        self.m_dict = MagicDict()
-
-    def test_add_attr(self):
-        self.m_dict["foo"] = "bar"
-        self.assertEqual(self.m_dict.foo, "bar")
-        self.m_dict["num"] = 42
-        self.assertEqual(self.m_dict.num, 42)
-
-    def test_dict_remove_key(self):
-        self.m_dict["foo"] = "bar"
-        self.assertEqual(self.m_dict.foo, "bar")
-        del self.m_dict["foo"]
-        # should raise key error as attribute has been removed
-        with self.assertRaises(KeyError):
-            self.m_dict.foo
-
-    def test_deepcopy_dict(self):
-        self.m_dict["foo"] = "bar"
-        self.assertEqual(self.m_dict.foo, "bar")
-        import copy
-
-        copied_dict = copy.deepcopy(self.m_dict)
-        # alter value in the original dict
-        self.m_dict["foo"] += "my second bar"
-        # assert that the deep copied version has not altered variable
-        self.assertEqual(copied_dict["foo"], "bar")
+# class TestMagicDict(TestCase):
+#     def setUp(self) -> None:
+#         self.m_dict = MagicDict()
+#
+#     def test_add_attr(self):
+#         self.m_dict["foo"] = "bar"
+#         self.assertEqual(self.m_dict.foo, "bar")
+#         self.m_dict["num"] = 42
+#         self.assertEqual(self.m_dict.num, 42)
+#
+#     def test_dict_remove_key(self):
+#         self.m_dict["foo"] = "bar"
+#         self.assertEqual(self.m_dict.foo, "bar")
+#         del self.m_dict["foo"]
+#         # should raise key error as attribute has been removed
+#         with self.assertRaises(KeyError):
+#             self.m_dict.foo
+#
+#     def test_deepcopy_dict(self):
+#         self.m_dict["foo"] = "bar"
+#         self.assertEqual(self.m_dict.foo, "bar")
+#         import copy
+#
+#         copied_dict = copy.deepcopy(self.m_dict)
+#         # alter value in the original dict
+#         self.m_dict["foo"] += "my second bar"
+#         # assert that the deep copied version has not altered variable
+#         self.assertEqual(copied_dict["foo"], "bar")
 
 
 class NodeForTest(NodeWithEdge):

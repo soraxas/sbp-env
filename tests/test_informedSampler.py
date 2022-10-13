@@ -16,10 +16,10 @@ class TestInformedSampler(TestCase):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["sampler_data_pack"].sampler_class = InformedSampler
+        args.sampler_data_pack.sampler_class = InformedSampler
 
         # use some suitable planner
-        args["planner_data_pack"] = planner_registry.PLANNERS["rrt"]
+        args.planner_data_pack = planner_registry.PLANNERS["rrt"]
 
         self.env = Env(args)
         self.sampler = self.env.args.sampler

@@ -5,55 +5,115 @@ import numpy as np
 from rtree import index
 import copy
 
+from dataclasses import dataclass, asdict, fields
 
-class MagicDict(dict):
-    """Dictionary, but content is accessible like property."""
+from typing import TYPE_CHECKING
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        super().__setattr__("__frozen", False)
+if TYPE_CHECKING:
+    from sbp_env.engine import Engine
+    from sbp_env.planners.basePlanner import Planner
+    from sbp_env.samplers.baseSampler import Sampler
+    from sbp_env.utils.planner_registry import PlannerDataPack, SamplerDataPack
 
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        super(MagicDict, result).__setattr__(
-            "__frozen", self.__getattribute__("__frozen")
-        )
-        memo[id(self)] = result
-        for k, v in self.items():
-            result[k] = copy.deepcopy(v, memo)
-        return result
 
-    def __getattr__(self, attr):
-        """This is called what self.attr doesn't exist.
+@dataclass
+class PlanningOptions:
+    """Former: MagicDict"""
 
-        :param attr: attribute to access
-        :return: self[attr]
-        """
-        return self[attr]
+    planner_data_pack: "PlannerDataPack"
+    sampler_data_pack: "SamplerDataPack"
+    skip_optimality: bool
+    showSampledPoint: bool
+    scaling: float
+    goalBias: float
+    epsilon: float
+    max_number_nodes: int
+    radius: float
+    ignore_step_size: bool
+    always_refresh: bool
+    rrdt_proposal_distribution: str
+    start_pt: str
+    goal_pt: str
 
-    def __setattr__(self, name, value):
-        """This is called `m_dict.attr = XX` is called
+    goal_radius: float = None
+    no_display: bool = False
+    first_solution: bool = False
 
-        :param name: the key of the attribute
-        :param value: the value of the attribute
-        :return: self[attr]
-        """
-        self[name] = value
+    output_dir: str = None
+    save_output: str = None
+    rover_arm_robot_lengths: str = None
 
-    def __setitem__(self, key, value):
-        if super().__getattribute__("__frozen") and key not in self:
-            raise ValueError(
-                f"{self.__class__.__name__} is frozen but attempting to add new key "
-                f"'{key}' to the dictionary."
-            )
-        super().__setitem__(key, value)
+    sampler: "Sampler" = None
+    planner: "Planner" = None
+    engine: "Engine" = None
 
-    def freeze(self):
-        super().__setattr__("__frozen", True)
+    def as_dict(self):
+        out = {field.name: getattr(self, field.name) for field in fields(self)}
+        out.update(self.extra_options)
+        return out
 
-    def unfreeze(self):
-        super().__setattr__("__frozen", False)
+    def __post_init__(self):
+        self.extra_options = {}
+
+    def compute_default_values(self):
+        if self.radius is None:
+            self.radius = self.epsilon * 1.1
+        if self.goal_radius is None:
+            self.goal_radius = 2 / 3 * self.radius
+
+    def add_option(self, **kwargs):
+        self.extra_options.update(kwargs)
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__()
+    #     # super().__init__(*args, **kwargs)
+    #     super().__setattr__("__frozen", False)
+    #
+    # def __deepcopy__(self, memo):
+    #     cls = self.__class__
+    #     result = cls.__new__(cls)
+    #     super(MagicDict, result).__setattr__(
+    #         "__frozen", self.__getattribute__("__frozen")
+    #     )
+    #     memo[id(self)] = result
+    #     for k, v in self.items():
+    #         result[k] = copy.deepcopy(v, memo)
+    #     return result
+    # #
+    # # def __getattr__(self, attr):
+    # #     """This is called what self.attr doesn't exist.
+    # #
+    # #     :param attr: attribute to access
+    # #     :return: self[attr]
+    # #     """
+    # #     return self[attr]
+    #
+    # def __setattr__(self, name, value):
+    #     """This is called `m_dict.attr = XX` is called
+    #
+    #     :param name: the key of the attribute
+    #     :param value: the value of the attribute
+    #     :return: self[attr]
+    #     """
+    #     #     self[name] = value
+    #     #
+    #     # def __setitem__(self, key, value):
+    #     if super().__getattribute__("__frozen") and not hasattr(self, name):
+    #         raise ValueError(
+    #             f"{self.__class__.__name__} is frozen but attempting to add new name "
+    #             f"'{name}' to the dictionary."
+    #         )
+    #     super().__setattr__(name, value)
+    #
+    # def freeze(self):
+    #     super().__setattr__("__frozen", True)
+    #
+    # def unfreeze(self):
+    #     super().__setattr__("__frozen", False)
+
+    def update(self, dictionary: dict):
+        for k, v in dictionary.items():
+            setattr(self, k, v)
 
 
 class Colour:

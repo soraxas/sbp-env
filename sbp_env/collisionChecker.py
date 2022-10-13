@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from .utils.common import Stats, MagicDict
+from .utils.common import Stats, PlanningOptions
 
 
 class CollisionChecker(ABC):
@@ -48,6 +48,10 @@ class BlackBoxCollisionChecker(CollisionChecker):
         super().__init__()
         self.__cc_functor = collision_checking_functor
         self.__cc_epsilon = cc_epsilon
+
+    @property
+    def epsilon(self) -> float:
+        return self.__cc_epsilon
 
     def visible(self, pos1: np.ndarray, pos2: np.ndarray):
         r"""Check if the straight line connection between pos1 and pos2 is in

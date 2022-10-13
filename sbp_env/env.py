@@ -9,7 +9,8 @@ from typing import Optional, List, Union
 import numpy as np
 from tqdm import tqdm
 
-from .utils.common import Node, MagicDict, Stats
+from . import engine
+from .utils.common import Node, PlanningOptions, Stats
 from .utils.csv_stats_logger import setup_csv_stats_logger, get_non_existing_filename
 from .visualiser import VisualiserSwitcher
 
@@ -23,7 +24,7 @@ class Env:
     The main planning loop happens inside this class.
     """
 
-    def __init__(self, args: MagicDict, fixed_seed: int = None):
+    def __init__(self, args: PlanningOptions, fixed_seed: int = None):
         """
         :param args: the dictionary of arguments to config the planning problem
         :param fixed_seed: if given, fix the random seed
@@ -43,17 +44,14 @@ class Env:
         #     "4d": (collisionChecker.RobotArm4dCollisionChecker, self.euclidean_dist),
         #     "klampt": (collisionChecker.KlamptCollisionChecker, self.radian_dist),
         # }[self.args.engine]
-        from . import engine
+        print(args)
 
         # setup visualiser
         if self.args.no_display:
             # use pass-through visualiser
             VisualiserSwitcher.choose_visualiser("base")
 
-        args["sampler"] = args.sampler_data_pack.sampler_class(
-            # sanitise keyword arguments by removing prefix -- and replacing - as _
-            **{re.sub(r"^--", "", k).replace("-", "_"): v for (k, v) in args.items()},
-        )
+        args.sampler = args.sampler_data_pack.sampler_class(**args.as_dict())
 
         def parse_input_pt(pt_as_str):
             if pt_as_str is None:
@@ -67,21 +65,21 @@ class Env:
                 )
             return tuple(map(float, pt))
 
-        if type(self.args["start_pt"]) is str:
-            self.args["start_pt"] = parse_input_pt(self.args["start_pt"])
-        if type(self.args["goal_pt"]) is str:
-            self.args["goal_pt"] = parse_input_pt(self.args["goal_pt"])
+        if type(self.args.start_pt) is str:
+            self.args.start_pt = parse_input_pt(self.args.start_pt)
+        if type(self.args.goal_pt) is str:
+            self.args.goal_pt = parse_input_pt(self.args.goal_pt)
 
-        self.args.planner = self.args.planner_data_pack.planner_class(**self.args)
-        self.args["planner"] = self.args.planner
+        self.args.planner = self.args.planner_data_pack.planner_class(self.args)
+        self.args.planner = self.args.planner
 
         self.planner = self.args.planner
         self.planner.args.env = self
 
         self.visualiser = VisualiserSwitcher.env_clname(env_instance=self)
-        self.visualiser.visualiser_init(no_display=self.args["no_display"])
+        self.visualiser.visualiser_init(no_display=self.args.no_display)
         start_pt, goal_pt = self.visualiser.set_start_goal_points(
-            start=self.args["start_pt"], goal=self.args["goal_pt"]
+            start=self.args.start_pt, goal=self.args.goal_pt
         )
         if not self.args.engine.cc.feasible(start_pt):
             raise ValueError(f"The given start conf. is not feasible {start_pt}.")
@@ -98,25 +96,25 @@ class Env:
         self.planner.add_newnode(self.start_pt)
         self.visualiser.update_screen(update_all=True)
         # update the string pt to object
-        self.args["start_pt"] = self.start_pt
-        self.args["goal_pt"] = self.goal_pt
+        self.args.start_pt = self.start_pt
+        self.args.goal_pt = self.goal_pt
 
-        self.planner.init(env=self, **self.args)
+        self.planner.init(env=self, args=self.args)
         if isinstance(self.args.engine, engine.KlamptEngine):
             self.args.sampler.set_use_radian(True)
-            if self.args["epsilon"] > 1:
+            if self.args.epsilon > 1:
                 import warnings
 
                 warnings.warn(
-                    f"Epsilon value is very high at {self.args['epsilon']} ("
+                    f"Epsilon value is very high at {self.args.epsilon} ("
                     f">than 1.0). It might not work well as klampt uses "
                     f"radian for joints value"
                 )
-            if self.args["radius"] > 2:
+            if self.args.radius > 2:
                 import warnings
 
                 warnings.warn(
-                    f"Radius value is very high at {self.args['radius']} ("
+                    f"Radius value is very high at {self.args.radius} ("
                     f">than 2.0). It might not work well as klampt uses "
                     f"radian for joints value"
                 )

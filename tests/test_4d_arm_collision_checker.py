@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 from sbp_env.collisionChecker import RobotArm4dCollisionChecker
-from sbp_env.utils.common import Stats, MagicDict
+from sbp_env.utils.common import Stats, PlanningOptions
 from tests.test_image_space_collision_checker import (
     mock_image_as_np,
     create_test_image,

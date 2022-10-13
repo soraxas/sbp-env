@@ -18,10 +18,10 @@ class TestBiRRTPlanner(TestRRTPlanner):
         visualiser.VisualiserSwitcher.choose_visualiser("base")
 
         # setup to use the correct sampler
-        args["sampler"] = BiRRTSampler()
+        args.sampler = BiRRTSampler()
 
         # use some suitable planner
-        args["planner_data_pack"] = planner_registry.PLANNERS["birrt"]
+        args.planner_data_pack = planner_registry.PLANNERS["birrt"]
 
         self.env = Env(args)
         self.sampler = self.env.args.sampler

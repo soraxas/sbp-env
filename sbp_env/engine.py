@@ -7,7 +7,7 @@ import numpy as np
 import math
 
 from . import collisionChecker
-from .utils.common import MagicDict
+from .utils.common import PlanningOptions
 from .visualiser import VisualiserSwitcher
 
 
@@ -67,7 +67,7 @@ class Engine(ABC):
 
 
 class ImageEngine(Engine):
-    def __init__(self, args: MagicDict, image: str):
+    def __init__(self, args: PlanningOptions, image: str):
         super().__init__(
             collisionChecker.ImgCollisionChecker(
                 image,
@@ -96,7 +96,7 @@ class ImageEngine(Engine):
 
 
 class RobotArmEngine(Engine):
-    def __init__(self, args: MagicDict, image: str):
+    def __init__(self, args: PlanningOptions, image: str):
         super().__init__(
             collisionChecker.RobotArm4dCollisionChecker(
                 image,
@@ -122,7 +122,7 @@ class RobotArmEngine(Engine):
 
 
 class KlamptEngine(Engine):
-    def __init__(self, args: MagicDict, xml_file: str):
+    def __init__(self, args: PlanningOptions, xml_file: str):
         super().__init__(
             collisionChecker.KlamptCollisionChecker(
                 xml_file,
@@ -163,7 +163,6 @@ class BlackBoxEngine(Engine):
         )
         lower_limits = np.array(lower_limits)
         upper_limits = np.array(upper_limits)
-        print(lower_limits.shape)
         if lower_limits.shape[0] != upper_limits.shape[0]:
             raise ValueError("Lower and upper limit mismatch!")
         self.__dim = lower_limits.shape[0]

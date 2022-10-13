@@ -6,7 +6,7 @@ import numpy as np
 
 from ..planners.basePlanner import Planner
 from ..utils import planner_registry
-from ..utils.common import Node, Tree, Colour, Stats
+from ..utils.common import Node, Tree, Colour, Stats, PlanningOptions
 
 
 class RRTPlanner(Planner):
@@ -19,10 +19,10 @@ class RRTPlanner(Planner):
     policy is implemented in :class:`~samplers.randomPolicySampler.RandomPolicySampler`.
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, args: PlanningOptions):
+        super().__init__(args)
         self.poses = np.empty(
-            (self.args.max_number_nodes * 2 + 50, kwargs["engine"].get_dimension())
+            (self.args.max_number_nodes * 2 + 50, self.args.engine.get_dimension())
         )  # +50 to prevent over flow
         self.c_max = float("inf")
         # this dict is to temporarily store distance of a new node to all others
@@ -31,11 +31,11 @@ class RRTPlanner(Planner):
         # and take advantage to the already computed values
         self._new_node_dist_to_all_others = {}
         self.nodes = []
-        self.args.env = None  # will be set by env itself
-        self.tree = Tree(kwargs["engine"].get_dimension())
+        # self.args.env = None  # will be set by env itself
+        self.tree = Tree(self.args.engine.get_dimension())
         self.found_solution = True
 
-        if self.args["skip_optimality"]:
+        if self.args.skip_optimality:
             # respect option of skip planning for optimality
             # (i.e. reduce RRT* to RRT with the benefit of increased performance)
             def no_opt_choose_least_cost_parent(newnode, nn=None, **_):
@@ -62,8 +62,8 @@ class RRTPlanner(Planner):
         """
         # self.args.env = kwargs['RRT']
         self.args.sampler.init(**kwargs)
-        self.start_pt = kwargs["start_pt"]
-        self.goal_pt = kwargs["goal_pt"]
+        self.start_pt = self.args.start_pt
+        self.goal_pt = self.args.goal_pt
 
     def run_once(self):
         """Execute the main planning procedure once (mostly of the time this

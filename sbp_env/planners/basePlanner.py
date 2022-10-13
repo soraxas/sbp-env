@@ -2,7 +2,7 @@ from abc import ABC
 
 import numpy as np
 
-from ..utils.common import MagicDict
+from ..utils.common import PlanningOptions
 from ..visualiser import VisualiserSwitcher
 
 
@@ -11,13 +11,17 @@ class Planner(ABC):
     Abstract base planner that does nothing by itself.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, args: PlanningOptions):
         super().__init__()
-        self.args = MagicDict(kwargs)
+        self.args = args
         self.c_max = float("inf")
         self.visualiser = VisualiserSwitcher.planner_clname(
-            planner_instance=self, planner_data_pack=kwargs["planner_data_pack"]
+            planner_instance=self, planner_data_pack=self.args.planner_data_pack
         )
+
+    def init(self, env, args):
+        # self.args = args
+        pass
 
     def get_solution_path(self):
         """Retrieve the current solution path via transversing each connected node's

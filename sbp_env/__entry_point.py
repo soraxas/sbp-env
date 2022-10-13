@@ -41,7 +41,7 @@ Display Options:
 
 General Planner Options:
   --radius=RADIUS        Set radius for node connections.
-  --epsilon=EPSILON      Set epsilon value.
+  --epsilon=EPSILON      Set epsilon value for step size.
                          [default: 10.0]
   --max-number-nodes=MAX_NODES
                          Set maximum number of nodes
@@ -105,9 +105,9 @@ import numpy as np
 from docopt import docopt
 
 from . import planners
-from .engine import Engine, ImageEngine, RobotArmEngine, KlamptEngine
+from .engine import Engine, ImageEngine, RobotArmEngine, KlamptEngine, BlackBoxEngine
 from .utils import planner_registry
-from .utils.common import MagicDict, Stats
+from .utils.common import PlanningOptions, Stats
 
 assert planners
 
@@ -124,7 +124,7 @@ def generate_args(
     goal_pt: Union[np.ndarray, str] = None,
     display: bool = False,
     **kwargs,
-) -> MagicDict:
+) -> PlanningOptions:
     default_args = dict(
         no_display=not display,
     )
@@ -144,11 +144,14 @@ def generate_args(
         raise ValueError(f"The given planner id '{planner_id}' does not exists.")
     # inject the inputs for docopt to parse
     argv[1:] = [planner_id, str(input_fname)]
+    if isinstance(engine, BlackBoxEngine):
+        if "epsilon" not in kwargs:
+            # default epsilon to cc epsilon
+            kwargs["epsilon"] = engine.cc.epsilon
     args = generate_args_main(
-        start_pt=start_pt, goal_pt=goal_pt, argv=argv, engine=engine
+        start_pt=start_pt, goal_pt=goal_pt, argv=argv, engine=engine, **kwargs
     )
 
-    args.update(**kwargs)
     return args
 
 
@@ -157,7 +160,8 @@ def generate_args_main(
     goal_pt: Optional[Union[np.ndarray, str]] = None,
     engine: Optional[Engine] = None,
     argv: Optional[List[Any]] = None,
-) -> MagicDict:
+    **kwargs,
+) -> PlanningOptions:
     """Get the default set of arguments
 
     :param planner_id: the planner to use in the planning environment
@@ -261,10 +265,13 @@ def generate_args_main(
         # setup defaults for klampt
         if args["--epsilon"] == "10.0":
             args["--epsilon"] = 1.0
-    if args["--radius"] is None:
-        args["--radius"] = float(args["--epsilon"]) * 1.1
 
-    planning_option = MagicDict(
+    def cast_float_if_not_none(value: Optional[str]) -> Optional[float]:
+        if value is not None:
+            value = float(value)
+        return value
+
+    planning_option = PlanningOptions(
         planner_data_pack=planner_data_pack,
         skip_optimality=args["--skip-optimality"],
         showSampledPoint=not args["--hide-sampled-points"],
@@ -273,8 +280,7 @@ def generate_args_main(
         # image=args["<MAP>"],
         epsilon=float(args["--epsilon"]),
         max_number_nodes=int(args["--max-number-nodes"]),
-        radius=float(args["--radius"]),
-        goal_radius=2 / 3 * float(args["--radius"]),
+        radius=cast_float_if_not_none(args["--radius"]),
         ignore_step_size=args["--ignore-step-size"],
         always_refresh=args["--always-refresh"],
         sampler_data_pack=sampler_data_pack,
@@ -290,7 +296,7 @@ def generate_args_main(
 
     # reduce goal radius for klampt as it plans in radian
     if args["--engine"] == "klampt":
-        planning_option["goal_radius"] = 0.001
+        planning_option.goal_radius = 0.001
 
     # add the keys which will be added by the env later
     planning_option.update(
@@ -304,8 +310,9 @@ def generate_args_main(
             args["--engine"]
         ](planning_option, args["<MAP>"])
     planning_option.engine = engine
+    planning_option.update(kwargs)
+    planning_option.compute_default_values()
 
-    planning_option.freeze()
     return planning_option
 
 
