@@ -61,6 +61,7 @@ class BlackBoxCollisionChecker(CollisionChecker):
         :param pos2: the target configuration of th eline
 
         """
+        self.stats.visible_cnt += 1
         return all(
             self.feasible(pos1 + t)
             for t in np.arange(
@@ -75,6 +76,7 @@ class BlackBoxCollisionChecker(CollisionChecker):
         :param p: configuration to check
 
         """
+        self.stats.feasible_cnt += 1
         return self.__cc_functor(p)
 
 

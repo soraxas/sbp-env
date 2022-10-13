@@ -1,9 +1,8 @@
 #!/usr/bin/env python
+import copy
 import logging
-import math
 import random
 import time
-import re
 from typing import Optional, List, Union
 
 import numpy as np
@@ -13,8 +12,6 @@ from . import engine
 from .utils.common import Node, PlanningOptions, Stats
 from .utils.csv_stats_logger import setup_csv_stats_logger, get_non_existing_filename
 from .visualiser import VisualiserSwitcher
-
-from . import collisionChecker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +27,7 @@ class Env:
         :param fixed_seed: if given, fix the random seed
         """
         self.started = False
+        args.compute_default_values()
 
         if fixed_seed is not None:
             np.random.seed(fixed_seed)
@@ -93,23 +91,23 @@ class Env:
         self.args.goal_pt = self.goal_pt
 
         self.planner.init(env=self, args=self.args)
-        if isinstance(self.args.engine, engine.KlamptEngine):
+        if self.args.as_radian or isinstance(self.args.engine, engine.KlamptEngine):
             self.args.sampler.set_use_radian(True)
             if self.args.epsilon > 1:
                 import warnings
 
                 warnings.warn(
                     f"Epsilon value is very high at {self.args.epsilon} ("
-                    f">than 1.0). It might not work well as klampt uses "
-                    f"radian for joints value"
+                    f">than 1.0). It might not work well as "
+                    f"radian are being used for joints value"
                 )
             if self.args.radius > 2:
                 import warnings
 
                 warnings.warn(
                     f"Radius value is very high at {self.args.radius} ("
-                    f">than 2.0). It might not work well as klampt uses "
-                    f"radian for joints value"
+                    f">than 2.0). It might not work well as "
+                    f"radian are being used for joints value"
                 )
 
     def __getattr__(self, attr):
@@ -155,11 +153,14 @@ class Env:
         step_size = min(step_size, self.args.epsilon)
         return p1 + step_size * unit_vector
 
-    def run(self):
+    def run(self, clear_stats: bool = True) -> Stats:
         """Run until we reached the specified max nodes"""
         self.started = True
-        Stats.clear_instance()
-        stats = Stats.build_instance(showSampledPoint=self.args.showSampledPoint)
+        if Stats.has_instance():
+            stats = Stats.get_instance()
+            stats.showSampledPoint = self.args.showSampledPoint
+        else:
+            stats = Stats.build_instance(showSampledPoint=self.args.showSampledPoint)
 
         if self.args.save_output:
             setup_csv_stats_logger(
@@ -217,9 +218,13 @@ class Env:
                     break
 
         self.visualiser.terminates_hook()
+        _stats = copy.deepcopy(stats)
+        Stats.clear_instance()
+        return _stats
 
     def get_solution_path(
-        self, as_array: bool = False
+        self,
+        as_array: bool = True,
     ) -> Optional[Union[np.ndarray, List[Node]]]:
         if self.planner.c_max >= float("inf"):
             return None
@@ -230,9 +235,26 @@ class Env:
             if nn.is_start:
                 break
             nn = nn.parent
-        path = reversed(path)
+        path = list(reversed(path))
+        if self.args.simplify_solution:
+            assert len(path) >= 2
+            simplified_path = [path[0]]
+            last_good_node = path[0]
+            for node in path[1:]:
+                if not self.args.engine.cc.visible(simplified_path[-1].pos, node.pos):
+                    simplified_path.append(last_good_node)
+                last_good_node = node
+            assert self.args.engine.cc.visible(simplified_path[-1].pos, node.pos)
+            simplified_path.append(node)
+            LOGGER.debug(
+                "Simplified path from %i to %i", len(path), len(simplified_path)
+            )
+            path = simplified_path
+
+            last_nonde = path[0]
+            for node in path[1:]:
+                assert self.args.engine.cc.visible(last_nonde.pos, node.pos)
+                last_nonde = node
         if as_array:
             path = np.array([n.pos for n in path])
-        else:
-            path = list(path)
         return path

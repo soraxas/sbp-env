@@ -208,7 +208,7 @@ class PygamePlannerVisualiser(BasePlannerVisualiser):
         """
         Method to draw solution path for planner visualiser.
         """
-        solution_path = self.planner_instance.args.env.get_solution_path()
+        solution_path = self.planner_instance.args.env.get_solution_path(as_array=False)
         if solution_path is None:
             return
         # redraw new path

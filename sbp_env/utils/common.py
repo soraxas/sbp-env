@@ -1,12 +1,10 @@
 import logging
+from dataclasses import dataclass, fields
 from typing import List
+from typing import TYPE_CHECKING
 
 import numpy as np
 from rtree import index
-
-from dataclasses import dataclass, fields
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sbp_env.engine import Engine
@@ -25,7 +23,6 @@ class PlanningOptions:
     showSampledPoint: bool
     scaling: float
     goalBias: float
-    epsilon: float
     max_number_nodes: int
     radius: float
     ignore_step_size: bool
@@ -34,7 +31,10 @@ class PlanningOptions:
     start_pt: str
     goal_pt: str
 
+    epsilon: float = None
     goal_radius: float = None
+    as_radian: bool = False
+    simplify_solution: bool = True
     no_display: bool = False
     first_solution: bool = False
 
@@ -55,6 +55,8 @@ class PlanningOptions:
         self.extra_options = {}
 
     def compute_default_values(self):
+        if self.epsilon is None:
+            self.epsilon = 1.5 if self.as_radian else 10.0
         if self.radius is None:
             self.radius = self.epsilon * 1.1
         if self.goal_radius is None:

@@ -42,13 +42,14 @@ Display Options:
 General Planner Options:
   --radius=RADIUS        Set radius for node connections.
   --epsilon=EPSILON      Set epsilon value for step size.
-                         [default: 10.0]
   --max-number-nodes=MAX_NODES
                          Set maximum number of nodes
                          [default: 10000]
   --ignore-step-size     Ignore step size (i.e. epsilon) when sampling.
+  --no-simplify-solution Do not simplify solution in when getting the solution path.
+  --as-radian            Hint that the distance metric should be in radian.
   --goal-bias=BIAS       Probability of biasing goal position.
-                         [default: 0.02]
+                         [default: 0.03]
   --skip-optimality      Skip optimality guarantee (i.e. skip performing rewiring)
 
 4D Simulaotr Options:
@@ -132,7 +133,6 @@ def generate_args(
         if k not in kwargs:
             kwargs[k] = v
 
-    argv = []
     if all(x is None for x in (input_fname, engine)) or all(
         x is not None for x in (input_fname, engine)
     ):
@@ -143,13 +143,16 @@ def generate_args(
     if planner_id not in planner_registry.PLANNERS:
         raise ValueError(f"The given planner id '{planner_id}' does not exists.")
     # inject the inputs for docopt to parse
-    argv[1:] = [planner_id, str(input_fname)]
-    if isinstance(engine, BlackBoxEngine):
-        if "epsilon" not in kwargs:
-            # default epsilon to cc epsilon
-            kwargs["epsilon"] = engine.cc.epsilon
+    # if isinstance(engine, BlackBoxEngine):
+    #     if "epsilon" not in kwargs:
+    #         # default epsilon to cc epsilon
+    #         kwargs["epsilon"] = engine.cc.epsilon
     args = generate_args_main(
-        start_pt=start_pt, goal_pt=goal_pt, argv=argv, engine=engine, **kwargs
+        start_pt=start_pt,
+        goal_pt=goal_pt,
+        argv=[planner_id, str(input_fname)],
+        engine=engine,
+        **kwargs,
     )
 
     return args
@@ -278,7 +281,7 @@ def generate_args_main(
         scaling=float(args["--scaling"]),
         goalBias=float(args["--goal-bias"]),
         # image=args["<MAP>"],
-        epsilon=float(args["--epsilon"]),
+        epsilon=cast_float_if_not_none(args["--epsilon"]),
         max_number_nodes=int(args["--max-number-nodes"]),
         radius=cast_float_if_not_none(args["--radius"]),
         ignore_step_size=args["--ignore-step-size"],
@@ -292,6 +295,8 @@ def generate_args_main(
         output_dir=args["--output-dir"],
         save_output=args["--save-output"],
         first_solution=args["--first-solution"],
+        as_radian=args["--as-radian"],
+        simplify_solution=not args["--no-simplify-solution"],
     )
 
     # reduce goal radius for klampt as it plans in radian
@@ -311,7 +316,6 @@ def generate_args_main(
         ](planning_option, args["<MAP>"])
     planning_option.engine = engine
     planning_option.update(kwargs)
-    planning_option.compute_default_values()
 
     return planning_option
 

@@ -178,7 +178,8 @@ class BlackBoxEngine(Engine):
         self.__dim = lower_limits.shape[0]
         self.__lower_limits = lower_limits
         self.__upper_limits = upper_limits
-        self.dist = dist_functor
+        if dist_functor:
+            self.dist = dist_functor
 
         if self.__dim == 2:
             VisualiserSwitcher.choose_visualiser("blackbox")
