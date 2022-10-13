@@ -268,7 +268,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__dim</span> <span class="o">=</span> <span class="n">lower_limits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__lower_limits</span> <span class="o">=</span> <span class="n">lower_limits</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__upper_limits</span> <span class="o">=</span> <span class="n">upper_limits</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist_functor</span>
+        <span class="k">if</span> <span class="n">dist_functor</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist_functor</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">VisualiserSwitcher</span><span class="o">.</span><span class="n">choose_visualiser</span><span class="p">(</span><span class="s2">&quot;blackbox&quot;</span><span class="p">)</span>

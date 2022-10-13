@@ -151,6 +151,7 @@
 <span class="sd">        :param pos2: the target configuration of th eline</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">visible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">feasible</span><span class="p">(</span><span class="n">pos1</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
@@ -165,6 +166,7 @@
 <span class="sd">        :param p: configuration to check</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">feasible_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cc_functor</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
 
 

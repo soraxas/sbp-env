@@ -89,14 +89,12 @@
              
   <h1>Source code for sbp_env.utils.common</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">rtree</span> <span class="kn">import</span> <span class="n">index</span>
-
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
-
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">sbp_env.engine</span> <span class="kn">import</span> <span class="n">Engine</span>
@@ -115,7 +113,6 @@
     <span class="n">showSampledPoint</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">scaling</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">goalBias</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">max_number_nodes</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">ignore_step_size</span><span class="p">:</span> <span class="nb">bool</span>
@@ -124,7 +121,10 @@
     <span class="n">start_pt</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">goal_pt</span><span class="p">:</span> <span class="nb">str</span>
 
+    <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">goal_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">as_radian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">simplify_solution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">no_display</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">first_solution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -145,6 +145,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">extra_options</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">compute_default_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_radian</span> <span class="k">else</span> <span class="mf">10.0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">*</span> <span class="mf">1.1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
