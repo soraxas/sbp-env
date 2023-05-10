@@ -80,7 +80,7 @@ class BiRRTPlanner(RRTPlanner):
                     other_poses = self.poses
                     other_nodes = self.nodes
                 distances = np.linalg.norm(
-                    other_poses[: len(self.nodes)] - newpos, axis=1
+                    other_poses[: len(other_nodes)] - newpos, axis=1
                 )
                 if min(distances) < self.args.epsilon:
                     idx = np.argmin(distances)
