@@ -5,6 +5,7 @@ import random
 import time
 from typing import Optional, List, Union
 
+import warnings
 import numpy as np
 from tqdm import tqdm
 
@@ -94,16 +95,12 @@ class Env:
         if self.args.as_radian or isinstance(self.args.engine, engine.KlamptEngine):
             self.args.sampler.set_use_radian(True)
             if self.args.epsilon > 1:
-                import warnings
-
                 warnings.warn(
                     f"Epsilon value is very high at {self.args.epsilon} ("
                     f">than 1.0). It might not work well as "
                     f"radian are being used for joints value"
                 )
             if self.args.radius > 2:
-                import warnings
-
                 warnings.warn(
                     f"Radius value is very high at {self.args.radius} ("
                     f">than 2.0). It might not work well as "
@@ -236,25 +233,48 @@ class Env:
                 break
             nn = nn.parent
         path = list(reversed(path))
-        if self.args.simplify_solution:
-            assert len(path) >= 2
-            simplified_path = [path[0]]
-            last_good_node = path[0]
-            for node in path[1:]:
-                if not self.args.engine.cc.visible(simplified_path[-1].pos, node.pos):
-                    simplified_path.append(last_good_node)
-                last_good_node = node
-            assert self.args.engine.cc.visible(simplified_path[-1].pos, node.pos)
-            simplified_path.append(node)
-            LOGGER.debug(
-                "Simplified path from %i to %i", len(path), len(simplified_path)
-            )
-            path = simplified_path
 
-            last_nonde = path[0]
-            for node in path[1:]:
-                assert self.args.engine.cc.visible(last_nonde.pos, node.pos)
-                last_nonde = node
+        for i in range(len(path) - 1):
+            if self.args.engine.cc.visible(
+                path[i - 1].pos, path[i].pos
+            ) != self.args.engine.cc.visible(path[i].pos, path[i - 1].pos):
+                warnings.warn(
+                    "Visibility are not symmetric (when testing solution path). "
+                    "Maybe epsilon value for collision checking is too high?\n"
+                    f"A={path[i - 1].pos}\n"
+                    f"B={path[i].pos}\n"
+                    f"A ==> B visibility={self.args.engine.cc.visible(path[i - 1].pos, path[i].pos)}\n"
+                    f"B ==> A visibility={self.args.engine.cc.visible(path[i].pos, path[i-1].pos)}\n"
+                )
+
+        # if self.args.simplify_solution:
+
+        #     print(path)
+
+        #     assert len(path) >= 2
+        #     simplified_path = [path[0]]
+        #     last_good_node = path[0]
+        #     print(path)
+        #     for node in path[1:]:
+        #         print(node)
+        #         if not self.args.engine.cc.visible(simplified_path[-1].pos, node.pos):
+        #             assert self.args.engine.cc.visible(
+        #                 simplified_path[-1].pos, last_good_node.pos
+        #             )
+        #             assert self.args.engine.cc.visible(last_good_node.pos, node.pos)
+        #             simplified_path.append(last_good_node)
+        #         last_good_node = node
+        #     assert self.args.engine.cc.visible(simplified_path[-1].pos, node.pos)
+        #     simplified_path.append(node)
+        #     LOGGER.debug(
+        #         "Simplified path from %i to %i", len(path), len(simplified_path)
+        #     )
+        #     path = simplified_path
+
+        #     last_nonde = path[0]
+        #     for node in path[1:]:
+        #         assert self.args.engine.cc.visible(last_nonde.pos, node.pos)
+        #         last_nonde = node
         if as_array:
             path = np.array([n.pos for n in path])
         return path
